@@ -1,0 +1,10 @@
+{
+    "name": "membrane/membrane",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Membrane\\": "src/"
+        }
+    },
+    "require": {}
+}
