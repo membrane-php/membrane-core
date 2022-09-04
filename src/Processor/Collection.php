@@ -70,6 +70,8 @@ class Collection implements Processor
             $collectionResult = $collectionResult->merge($result);
         }
 
+        $collectionResult->merge(Result::noResult($processedValues));
+
         if (isset($this->after) && $collectionResult->isValid()) {
             $result = $this->after->process($fieldname, $processedValues);
             $collectionResult = $collectionResult->merge($result);
@@ -79,6 +81,6 @@ class Collection implements Processor
             }
         }
 
-        return $collectionResult->merge(Result::noResult($processedValues));
+        return $collectionResult;
     }
 }

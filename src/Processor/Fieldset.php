@@ -60,6 +60,8 @@ class Fieldset implements Processor
             }
         }
 
+        $fieldsetResult->merge(Result::noResult($value));
+
         if (isset($this->after) && $fieldsetResult->isValid()) {
             $result = $this->after->process($fieldname, $value);
             $fieldsetResult = $fieldsetResult->merge($result);
@@ -69,6 +71,6 @@ class Fieldset implements Processor
             }
         }
 
-        return $fieldsetResult->merge(Result::noResult($value));
+        return $fieldsetResult;
     }
 }
