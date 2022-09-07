@@ -25,7 +25,7 @@ class Not implements Validator
         return new Result(
             $result->value,
             $result->result * -1,
-            ...($result->isValid() ? [] : [$messageSet])
+            ...($result->isValid() ? [$messageSet] : [])
         );
     }
 }
