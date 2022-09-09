@@ -18,7 +18,7 @@ class CollectTest extends TestCase
     /**
      * @return array
      */
-    public function dataSetsWithIncorrectTypes()
+    public function dataSetsWithIncorrectTypes() : array
     {
         return [
             [
@@ -39,7 +39,7 @@ class CollectTest extends TestCase
      * @test
      * @dataProvider dataSetsWithIncorrectTypes
      */
-    public function IncorrectFilterInputReturnsInvalid($input, $expectedResult, $expectedMessage, $expectedVars)
+    public function IncorrectFilterInputReturnsInvalid($input, $expectedResult, $expectedMessage, $expectedVars) : void
     {
         $collect = new Collect('new field', 'a', 'b');
 
@@ -53,7 +53,7 @@ class CollectTest extends TestCase
     /**
      * @return array
      */
-    public function dataSetsWithCorrectTypes()
+    public function dataSetsWithCorrectTypes() : array
     {
         return [
             'collecting all items in array' => [
@@ -80,7 +80,7 @@ class CollectTest extends TestCase
      * @test
      * @dataProvider dataSetsWithCorrectTypes
      */
-    public function CorrectFilterInputReturnsValue($input, $fieldsToCollect, $expectedValue, $expectedResult)
+    public function CorrectFilterInputReturnsResult($input, $fieldsToCollect, $expectedValue, $expectedResult) : void
     {
         $collect = new Collect('new field', ...$fieldsToCollect);
 

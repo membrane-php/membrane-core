@@ -22,7 +22,7 @@ class Result
 
     public static function valid(mixed $value): self
     {
-        return new Result($value, Result::VALID);
+        return new self($value, Result::VALID);
     }
 
     public static function invalid(mixed $value, MessageSet ...$messageSets): self

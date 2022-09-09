@@ -18,7 +18,7 @@ class NestTest extends TestCase
     /**
      * @return array
      */
-    public function dataSetsWithIncorrectTypes()
+    public function dataSetsWithIncorrectTypes() : array
     {
         return [
             [
@@ -39,7 +39,7 @@ class NestTest extends TestCase
      * @test
      * @dataProvider dataSetsWithIncorrectTypes
      */
-    public function IncorrectFilterInputReturnsInvalid($input, $expectedResult, $expectedMessage, $expectedVars)
+    public function IncorrectFilterInputReturnsInvalid($input, $expectedResult, $expectedMessage, $expectedVars) : void
     {
         $nest = new Nest('new field', 'a', 'b');
 
@@ -53,7 +53,7 @@ class NestTest extends TestCase
     /**
      * @return array
      */
-    public function dataSetsWithCorrectTypes()
+    public function dataSetsWithCorrectTypes() : array
     {
         return [
             'nesting all items in array' => [
@@ -80,7 +80,7 @@ class NestTest extends TestCase
      * @test
      * @dataProvider dataSetsWithCorrectTypes
      */
-    public function CorrectFilterInputReturnsValue($input, $fieldsToCollect, $expectedValue, $expectedResult)
+    public function CorrectFilterInputReturnsResult($input, $fieldsToCollect, $expectedValue, $expectedResult) : void
     {
         $nest = new Nest('new field', ...$fieldsToCollect);
 
