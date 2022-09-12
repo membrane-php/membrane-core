@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Validator\Object;
 
+use Membrane\Result\Message;
+use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Object\RequiredFields;
 use PHPUnit\Framework\TestCase;
@@ -15,23 +17,18 @@ use PHPUnit\Framework\TestCase;
  */
 class RequiredFieldsTest extends TestCase
 {
-    /**
-     * @return array
-     */
     public function dataSetsForValidResults(): array
     {
         return [
             'no required fields' => [
                 [],
                 [],
-                Result::VALID,
             ],
             'one required field is filled' => [
                 ['required-1'],
                 [
                     'required-1' => 'value-1',
                 ],
-                Result::VALID,
             ],
             'multiple required fields are filled' => [
                 ['required-1', 'required-2', 'required-3'],
@@ -40,7 +37,6 @@ class RequiredFieldsTest extends TestCase
                     'required-2' => 'value-2',
                     'required-3' => 'value-3',
                 ],
-                Result::VALID,
             ],
             'non-required field has been filled' => [
                 ['required-1', 'required-2', 'required-3'],
@@ -50,7 +46,6 @@ class RequiredFieldsTest extends TestCase
                     'required-3' => 'value-3',
                     'optional-4' => 'value-4',
                 ],
-                Result::VALID,
             ],
         ];
     }
@@ -59,47 +54,41 @@ class RequiredFieldsTest extends TestCase
      * @test
      * @dataProvider dataSetsForValidResults
      */
-    public function IfAllRequiredFieldsAreFilledReturnValid(array $requiredFields, array $input, int $expected) : void
+    public function IfRequiredFieldsAreFilledReturnValid(array $requiredFields, array $input) : void
     {
+        $expected = Result::valid($input);
         $requiredFields = new RequiredFields(...$requiredFields);
 
         $result = $requiredFields->validate($input);
 
-        self::assertEquals($expected, $result->result);
+        self::assertEquals($expected, $result);
     }
 
-    /**
-     * @return array
-     */
     public function dataSetsForInvalidResults(): array
     {
         return [
             'one required field, none filled' => [
                 ['required-1'],
                 [],
-                Result::INVALID,
-                'required-1',
+                new Message('%s is a required field', ['required-1']),
             ],
             'one required field, none filled, one optional field filled' => [
                 ['required-1'],
                 ['optional-2' => 'value-2'],
-                Result::INVALID,
-                'required-1',
+                new Message('%s is a required field', ['required-1']),
             ],
             'two required fields, none filled' => [
                 ['required-1', 'required-2'],
                 [],
-                Result::INVALID,
-                'required-1',
-                'required-2',
+                new Message('%s is a required field', ['required-1']),
+                new Message('%s is a required field', ['required-2']),
             ],
             'two required fields, one filled' => [
                 ['required-1', 'required-2'],
                 [
                     'required-1' => 'value-1'
                 ],
-                Result::INVALID,
-                'required-2',
+                new Message('%s is a required field', ['required-2']),
             ],
         ];
     }
@@ -108,19 +97,13 @@ class RequiredFieldsTest extends TestCase
      * @test
      * @dataProvider dataSetsForInvalidResults
      */
-    public function FieldsMustBeFilledToReturnValid(array $requiredFields, array $input, int $expected, string ...$expectedMessages): void
+    public function IfRequiredFieldsAreNotFilledReturnInvalid(array $requiredFields, array $input, Message ...$expectedMessages): void
     {
-        $expectedNoOfMessages = count($expectedMessages);
+        $expected = Result::invalid($input, new MessageSet(null, ...$expectedMessages));
         $requiredFields = new RequiredFields(...$requiredFields);
 
         $result = $requiredFields->validate($input);
 
-        self::assertCount(1, $result->messageSets);
-        self::assertCount($expectedNoOfMessages, $result->messageSets[0]->messages);
-        for($i = 0; $i < $expectedNoOfMessages; $i++){
-            self::assertEquals('%s is a required field', $result->messageSets[0]->messages[$i]->message);
-            self::assertEquals($expectedMessages[$i], $result->messageSets[0]->messages[$i]->vars[0]);
-        }
-        self::assertEquals($expected, $result->result);
+        self::assertEquals($expected, $result);
     }
 }

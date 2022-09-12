@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Result;
 
@@ -19,13 +20,12 @@ class ResultTest extends TestCase
      */
     public function ValidConstructorReturnsValid() : void
     {
-        $inputValue = 'arbitrary value';
-        $expectedResult = Result::VALID;
+        $input = 'arbitrary value';
+        $expected = new Result($input, Result::VALID);
 
-        $result = Result::valid($inputValue);
+        $result = Result::valid($input);
 
-        self::assertEquals($inputValue, $result->value);
-        self::assertEquals($expectedResult, $result->result);
+        self::assertEquals($expected, $result);
         self::assertTrue($result->isValid());
     }
 
@@ -35,15 +35,12 @@ class ResultTest extends TestCase
     public function inValidConstructorReturnsInvalid() : void
     {
         $inputValue = 'arbitrary value';
-        $inputMessage = new Message('arbitrary message', []);
-        $inputMessageSet = new MessageSet(null, $inputMessage);
-        $expectedResult = Result::INVALID;
+        $inputMessageSet = new MessageSet(null, new Message('arbitrary message', []));
+        $expected = new Result($inputValue,Result::INVALID, $inputMessageSet);
 
         $result = Result::invalid($inputValue, $inputMessageSet);
 
-        self::assertEquals($inputValue, $result->value);
-        self::assertEquals($inputMessage->message, $result->messageSets[0]?->messages[0]?->message);
-        self::assertEquals($expectedResult, $result->result);
+        self::assertEquals($expected, $result);
         self::assertFalse($result->isValid());
     }
 
@@ -52,18 +49,13 @@ class ResultTest extends TestCase
      */
     public function NoResultConstructorReturnsNoResult() : void
     {
-        $inputValue = 'arbitrary value';
-        $expectedResult = Result::NO_RESULT;
+        $input = 'arbitrary value';
+        $expected = new Result($input, Result::NO_RESULT);
 
-        $result = Result::noResult($inputValue);
+        $result = Result::noResult($input);
 
-        self::assertEquals($inputValue, $result->value);
-        self::assertEquals($expectedResult, $result->result);
+        self::assertEquals($expected, $result);
         self::assertTrue($result->isValid());
-    }
-
-    public function dataSetsForMerges() {
-
     }
 
     /**
@@ -73,15 +65,13 @@ class ResultTest extends TestCase
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
-        $expectedResult = Result::VALID;
-
         $firstResult = Result::valid($firstInputValue);
         $secondResult = Result::valid($secondInputValue);
+        $expected = Result::valid($secondInputValue);
 
         $mergedResult = $firstResult->merge($secondResult);
 
-        self::assertEquals($secondInputValue, $mergedResult->value);
-        self::assertEquals($expectedResult, $mergedResult->result);
+        self::assertEquals($expected, $mergedResult);
     }
 
     /**
@@ -91,15 +81,13 @@ class ResultTest extends TestCase
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
-        $expectedResult = Result::VALID;
-
         $firstResult = Result::noResult($firstInputValue);
         $secondResult = Result::valid($secondInputValue);
+        $expected = Result::valid($secondInputValue);
 
         $mergedResult = $firstResult->merge($secondResult);
 
-        self::assertEquals($secondInputValue, $mergedResult->value);
-        self::assertEquals($expectedResult, $mergedResult->result);
+        self::assertEquals($expected, $mergedResult);
     }
 
     /**
@@ -109,18 +97,14 @@ class ResultTest extends TestCase
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
-        $firstMessage = new Message('a message', []);
-        $firstMessageSet = new MessageSet(null, $firstMessage);
-        $expectedResult = Result::INVALID;
-
+        $firstMessageSet = new MessageSet(null, new Message('a message', []));
         $firstResult = Result::invalid($firstInputValue, $firstMessageSet);
         $secondResult = Result::valid($secondInputValue);
+        $expected = Result::invalid($secondInputValue, $firstMessageSet);
 
         $mergedResult = $firstResult->merge($secondResult);
 
-        self::assertEquals($secondInputValue, $mergedResult->value);
-        self::assertEquals($firstMessage->message, $mergedResult->messageSets[0]?->messages[0]?->message);
-        self::assertEquals($expectedResult, $mergedResult->result);
+        self::assertEquals($expected, $mergedResult);
     }
 
     /**
@@ -130,21 +114,15 @@ class ResultTest extends TestCase
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
-        $firstMessage = new Message('a message', []);
-        $secondMessage = new Message('another message', []);
-        $firstMessageSet = new MessageSet(null, $firstMessage);
-        $secondMessageSet = new MessageSet(null, $secondMessage);
-        $expectedResult = Result::INVALID;
-
+        $firstMessageSet = new MessageSet(null, new Message('a message', []));
+        $secondMessageSet = new MessageSet(null, new Message('another message', []));
         $firstResult = Result::invalid($firstInputValue, $firstMessageSet);
         $secondResult = Result::invalid($secondInputValue, $secondMessageSet);
+        $expected = Result::invalid($secondInputValue, $firstMessageSet, $secondMessageSet);
 
         $mergedResult = $firstResult->merge($secondResult);
 
-        self::assertEquals($secondInputValue, $mergedResult->value);
-        self::assertEquals($firstMessage->message, $mergedResult->messageSets[0]?->messages[0]?->message);
-        self::assertEquals($secondMessage->message, $mergedResult->messageSets[1]?->messages[0]?->message);
-        self::assertEquals($expectedResult, $mergedResult->result);
+        self::assertEquals($expected, $mergedResult);
     }
 
     /**
@@ -152,35 +130,29 @@ class ResultTest extends TestCase
      */
     public function MergeNoResultAndInvalidReturnsInvalid() : void
     {
-        $firstInputValue = 'a value';
-        $secondInputValue = 'another value';
-        $firstMessage = new Message('a message', []);
-        $firstMessageSet = new MessageSet(null, $firstMessage);
-        $expectedResult = Result::INVALID;
-
-        $firstResult = Result::invalid($firstInputValue, $firstMessageSet);
-        $secondResult = Result::noResult($secondInputValue);
+        $firstValue = 'a value';
+        $secondValue = 'another value';
+        $firstMessageSet = new MessageSet(null, new Message('a message', []));
+        $firstResult = Result::invalid($firstValue, $firstMessageSet);
+        $secondResult = Result::noResult($secondValue);
+        $expected = Result::invalid($secondValue, $firstMessageSet);
 
         $mergedResult = $firstResult->merge($secondResult);
 
-        self::assertEquals($secondInputValue, $mergedResult->value);
-        self::assertEquals($firstMessage->message, $mergedResult->messageSets[0]?->messages[0]?->message);
-        self::assertEquals($expectedResult, $mergedResult->result);
+        self::assertEquals($expected, $mergedResult);
     }
 
     public function FullMergeTwoValidsReturnsValid() : void
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
-        $expectedResult = Result::VALID;
-
         $firstResult = Result::valid($firstInputValue);
         $secondResult = Result::valid($secondInputValue);
+        $expected = Result::valid($secondInputValue);
 
         $mergedResult = $firstResult->fullMerge($secondResult);
 
-        self::assertEquals($secondInputValue, $mergedResult->value);
-        self::assertEquals($expectedResult, $mergedResult->result);
+        self::assertEquals($expected, $mergedResult);
     }
 
     /**
@@ -190,15 +162,13 @@ class ResultTest extends TestCase
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
-        $expectedResult = Result::VALID;
-
         $firstResult = Result::noResult($firstInputValue);
         $secondResult = Result::valid($secondInputValue);
+        $expected = Result::valid($secondInputValue);
 
         $mergedResult = $firstResult->fullMerge($secondResult);
 
-        self::assertEquals($secondInputValue, $mergedResult->value);
-        self::assertEquals($expectedResult, $mergedResult->result);
+        self::assertEquals($expected, $mergedResult);
     }
 
     /**
@@ -209,17 +179,13 @@ class ResultTest extends TestCase
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
         $firstMessage = new Message('a message', []);
-        $firstMessageSet = new MessageSet(null, $firstMessage);
-        $expectedResult = Result::INVALID;
-
-        $firstResult = Result::invalid($firstInputValue, $firstMessageSet);
+        $firstResult = Result::invalid($firstInputValue, new MessageSet(null, $firstMessage));
         $secondResult = Result::valid($secondInputValue);
+        $expected = Result::invalid($secondInputValue, new MessageSet(null, $firstMessage));
 
         $mergedResult = $firstResult->fullMerge($secondResult);
 
-        self::assertEquals($secondInputValue, $mergedResult->value);
-        self::assertEquals($firstMessage->message, $mergedResult->messageSets[0]?->messages[0]?->message);
-        self::assertEquals($expectedResult, $mergedResult->result);
+        self::assertEquals($expected, $mergedResult);
     }
 
     /**
@@ -231,19 +197,13 @@ class ResultTest extends TestCase
         $secondInputValue = 'another value';
         $firstMessage = new Message('a message', []);
         $secondMessage = new Message('another message', []);
-        $firstMessageSet = new MessageSet(null, $firstMessage);
-        $secondMessageSet = new MessageSet(null, $secondMessage);
-        $expectedResult = Result::INVALID;
-
-        $firstResult = Result::invalid($firstInputValue, $firstMessageSet);
-        $secondResult = Result::invalid($secondInputValue, $secondMessageSet);
+        $firstResult = Result::invalid($firstInputValue, new MessageSet(null, $firstMessage));
+        $secondResult = Result::invalid($secondInputValue, new MessageSet(null, $secondMessage));
+        $expected = Result::invalid($secondInputValue, new MessageSet(null, $firstMessage, $secondMessage));
 
         $mergedResult = $firstResult->fullMerge($secondResult);
 
-        self::assertEquals($secondInputValue, $mergedResult->value);
-        self::assertEquals($firstMessage->message, $mergedResult->messageSets[0]?->messages[0]?->message);
-        self::assertEquals($secondMessage->message, $mergedResult->messageSets[0]?->messages[1]?->message);
-        self::assertEquals($expectedResult, $mergedResult->result);
+        self::assertEquals($expected, $mergedResult);
     }
 
     /**
@@ -253,18 +213,14 @@ class ResultTest extends TestCase
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
-        $firstMessage = new Message('a message', []);
-        $firstMessageSet = new MessageSet(null, $firstMessage);
-        $expectedResult = Result::INVALID;
-
+        $firstMessageSet = new MessageSet(null, new Message('a message', []));
         $firstResult = Result::invalid($firstInputValue, $firstMessageSet);
         $secondResult = Result::noResult($secondInputValue);
+        $expected = Result::invalid($secondInputValue, $firstMessageSet);
 
         $mergedResult = $firstResult->fullMerge($secondResult);
 
-        self::assertEquals($secondInputValue, $mergedResult->value);
-        self::assertEquals($firstMessage->message, $mergedResult->messageSets[0]?->messages[0]?->message);
-        self::assertEquals($expectedResult, $mergedResult->result);
+        self::assertEquals($expected, $mergedResult);
     }
 
 }

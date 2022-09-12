@@ -15,28 +15,20 @@ class PassesTest extends TestCase
 {
     public function dataSets(): array
     {
-        /**
-         * @return array
-         */
-        return [
-            [1, Result::VALID],
-            [1.1, Result::VALID],
-            ['one', Result::VALID],
-            [false, Result::VALID],
-            [null, Result::VALID],
-        ];
+        return [[1], [1.1], ['one'], [false], [null], ];
     }
 
     /**
      * @test
      * @dataProvider dataSets
      */
-    public function PassesAlwaysReturnsValid(mixed $input, int $expected): void
+    public function PassesAlwaysReturnsValid(mixed $input): void
     {
+        $expected = Result::valid($input);
         $pass = new Passes;
 
         $result = $pass->validate($input);
 
-        self::assertEquals($expected, $result->result);
+        self::assertEquals($expected, $result);
     }
 }

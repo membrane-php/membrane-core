@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Validator\String;
 
+use Membrane\Result\Message;
+use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\String\Length;
 use PHPUnit\Framework\TestCase;
@@ -15,17 +17,14 @@ use PHPUnit\Framework\TestCase;
  */
 class LengthTest extends TestCase
 {
-    /**
-     * @return array
-     */
     public function dataSetsThatPass(): array
     {
         return [
-            ['', 0, 0, Result::VALID],
-            ['', 0, null, Result::VALID],
-            ['', 0, 5, Result::VALID],
-            ['short', 0, 5, Result::VALID],
-            ['longer string', 5, 100, Result::VALID],
+            ['', 0, 0],
+            ['', 0, null],
+            ['', 0, 5],
+            ['short', 0, 5],
+            ['longer string', 5, 100],
         ];
     }
 
@@ -33,24 +32,22 @@ class LengthTest extends TestCase
      * @test
      * @dataProvider dataSetsThatPass
      */
-    public function StringLengthWithinMinAndMaxReturnsValid(mixed $input, int $min, ?int $max, int $expected): void
+    public function StringLengthWithinMinAndMaxReturnsValid(mixed $input, int $min, ?int $max): void
     {
+        $expected = Result::valid($input);
         $length = new Length($min, $max);
 
         $result = $length->validate($input);
 
-        self::assertEquals($expected, $result->result);
+        self::assertEquals($expected, $result);
     }
 
-    /**
-     * @return array
-     */
     public function dataSetsThatFail(): array
     {
         return [
-            ['', 1, 5, Result::INVALID, 'String is expected to be a minimum of %d characters', [1]],
-            ['short', 6, 10, Result::INVALID, 'String is expected to be a minimum of %d characters', [6]],
-            ['longer string.', 6, 10, Result::INVALID, 'String is expected to be a maximum of %d characters', [10]],
+            ['', 1, 5, new Message('String is expected to be a minimum of %d characters', [1])],
+            ['short', 6, 10, new Message('String is expected to be a minimum of %d characters', [6])],
+            ['longer string.', 6, 10, new Message('String is expected to be a maximum of %d characters', [10])],
         ];
     }
 
@@ -58,16 +55,13 @@ class LengthTest extends TestCase
      * @test
      * @dataProvider dataSetsThatFail
      */
-    public function StringLengthOutsideMinOrMaxReturnInvalid(mixed $input, int $min, ?int $max, int $expected, $expectedMessage, $expectedVars): void
+    public function StringLengthOutsideMinOrMaxReturnsInvalid(mixed $input, int $min, ?int $max, Message $expectedMessage): void
     {
+        $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $length = new Length($min, $max);
 
         $result = $length->validate($input);
 
-        self::assertCount(1, $result->messageSets);
-        self::assertCount(1, $result->messageSets[0]->messages);
-        self::assertEquals($expectedMessage, $result->messageSets[0]?->messages[0]?->message);
-        self::assertEquals($expectedVars, $result->messageSets[0]?->messages[0]?->vars);
-        self::assertEquals($expected, $result->result);
+        self::assertEquals($expected, $result);
     }
 }

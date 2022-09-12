@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Filter\Shape;
 
 use Membrane\Filter\Shape\Collect;
+use Membrane\Result\Message;
+use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use PHPUnit\Framework\TestCase;
 
@@ -15,21 +17,16 @@ use PHPUnit\Framework\TestCase;
  */
 class CollectTest extends TestCase
 {
-    /**
-     * @return array
-     */
     public function dataSetsWithIncorrectTypes() : array
     {
         return [
             [
                 'this is a string',
-                Result::INVALID,
                 'Value passed to Collect filter must be an array, %s passed instead',
                 ['string'],
             ],
             [
                 ['this', 'is', 'a', 'list'],
-                Result::INVALID,
                 'Value passed to Collect filter was a list, this filter needs string keys to work',
                 []
             ],
@@ -39,20 +36,16 @@ class CollectTest extends TestCase
      * @test
      * @dataProvider dataSetsWithIncorrectTypes
      */
-    public function IncorrectFilterInputReturnsInvalid($input, $expectedResult, $expectedMessage, $expectedVars) : void
+    public function IncorrectFilterInputReturnsInvalid(mixed $input, string $expectedMessage, array $expectedVars) : void
     {
         $collect = new Collect('new field', 'a', 'b');
+        $expected = Result::invalid($input, new MessageSet(null, new Message($expectedMessage, $expectedVars)));
 
         $result = $collect->filter($input);
 
-        self::assertEquals($expectedMessage, $result->messageSets[0]?->messages[0]?->message);
-        self::assertEquals($expectedVars, $result->messageSets[0]?->messages[0]?->vars);
-        self::assertEquals($expectedResult, $result->result);
+        self::assertEquals($expected, $result);
     }
 
-    /**
-     * @return array
-     */
     public function dataSetsWithCorrectTypes() : array
     {
         return [
@@ -60,19 +53,16 @@ class CollectTest extends TestCase
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 ['a', 'b', 'c'],
                 ['new field' => [1, 2, 3]],
-                Result::NO_RESULT,
             ],
             'collecting 2 out of 3 items in array' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 ['a', 'b'],
                 ['new field' => [1, 2], 'c' => 3],
-                Result::NO_RESULT,
             ],
             'collecting an item that is not in the array' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 ['d'],
                 ['new field' => [], 'a' => 1, 'b' => 2, 'c' => 3],
-                Result::NO_RESULT,
             ],
         ];
     }
@@ -80,13 +70,13 @@ class CollectTest extends TestCase
      * @test
      * @dataProvider dataSetsWithCorrectTypes
      */
-    public function CorrectFilterInputReturnsResult($input, $fieldsToCollect, $expectedValue, $expectedResult) : void
+    public function CorrectFilterInputReturnsResult(array $input, array $fieldsToCollect, array $expectedValue) : void
     {
         $collect = new Collect('new field', ...$fieldsToCollect);
+        $expected = Result::noResult($expectedValue);
 
         $result = $collect->filter($input);
 
-        self::assertEquals($expectedValue, $result->value);
-        self::assertEquals($expectedResult, $result->result);
+        self::assertEquals($expected, $result);
     }
 }

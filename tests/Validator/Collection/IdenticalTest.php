@@ -3,46 +3,48 @@ declare(strict_types=1);
 
 namespace Validator\Collection;
 
+use Membrane\Result\Message;
+use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Collection\Identical;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Validator\Collection\Identical
+ * @uses \Membrane\Result\Result
+ * @uses \Membrane\Result\MessageSet
+ * @uses \Membrane\Result\Message
  */
 class IdenticalTest extends TestCase
 {
-    /**
-     * @return array
-     */
-    public function dataSetsThatPass(): array
+    public function dataSetsForValidResults(): array
     {
         return [
-            [[], Result::VALID],
-            [[[],[]], Result::VALID],
-            [[[1,5],[1,5]], Result::VALID],
-            [[1], Result::VALID],
-            [[1, 1], Result::VALID],
-            [[null, null], Result::VALID],
-            [[25, 5*5, 100/4, 20+5], Result::VALID],
+            [[]],
+            [[[],[]]],
+            [[[1,5],[1,5]]],
+            [[1]],
+            [[1, 1]],
+            [[null, null]],
+            [[25, 5*5, 100/4, 20+5]],
         ];
     }
 
     /**
      * @test
-     * @dataProvider dataSetsThatPass
+     * @dataProvider dataSetsForValidResults
      */
-    public function ReturnsValidIfEveryInputIsIdentical(mixed $input, int $expected): void
+    public function ReturnsValidIfEveryInputIsIdentical(mixed $input): void
     {
+        $expected = Result::valid($input);
         $identical = new Identical;
+
         $result = $identical->validate($input);
-        self::assertEquals($expected, $result->result);
+
+        self::assertEquals($expected, $result);
     }
 
-    /**
-     * @return array
-     */
-    public function dataSetsThatFail(): array
+    public function dataSetsForInvalidResults(): array
     {
         return [
             [[null, 1], Result::INVALID],
@@ -59,15 +61,15 @@ class IdenticalTest extends TestCase
     }
     /**
      * @test
-     * @dataProvider dataSetsThatFail
+     * @dataProvider dataSetsForInvalidResults
      */
-    public function ReturnsInvalidIfAnyInputIsDifferent(mixed $input, int $expected): void
+    public function ReturnsInvalidIfAnyInputIsDifferent(mixed $input): void
     {
+        $expected = Result::invalid($input, new MessageSet(null, new Message('Do not match', [])));
         $identical = new Identical;
 
         $result = $identical->validate($input);
 
-        self::assertEquals('Do not match', $result->messageSets[0]?->messages[0]?->message);
-        self::assertEquals($expected, $result->result);
+        self::assertEquals($expected, $result);
     }
 }

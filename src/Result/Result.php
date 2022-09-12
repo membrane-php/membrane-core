@@ -56,7 +56,12 @@ class Result
         foreach ($result->messageSets as $messageSet) {
             $mergedMessageSet = $mergedMessageSet->merge($messageSet);
         }
-
+        if ($mergedMessageSet->isEmpty()) {
+            return new Result(
+                $result->value,
+                $this->mergeResult($result)
+            );
+        }
         return new Result(
             $result->value,
             $this->mergeResult($result),

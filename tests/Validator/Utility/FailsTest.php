@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Validator\Utility;
 
+use Membrane\Result\Message;
+use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Utility\Fails;
 use PHPUnit\Framework\TestCase;
@@ -13,34 +15,24 @@ use PHPUnit\Framework\TestCase;
  * @uses \Membrane\Result\MessageSet
  * @uses \Membrane\Result\Message
  */
-
 class FailsTest extends TestCase
 {
     public function dataSets(): array
     {
-        /**
-         * @return array
-         */
-        return [
-            [1, Result::INVALID],
-            [1.1, Result::INVALID],
-            ['one', Result::INVALID],
-            [true, Result::INVALID],
-            [null, Result::INVALID],
-        ];
+        return [[1], [1.1], ['one'], [true], [null], ];
     }
 
     /**
      * @test
      * @dataProvider dataSets
      */
-    public function FailsAlwaysReturnsInvalid(mixed $input, int $expected): void
+    public function FailsAlwaysReturnsInvalid(mixed $input): void
     {
+        $expected = Result::invalid($input, new MessageSet(null, new Message('I always fail', [])));
         $fail = new Fails;
 
         $result = $fail->validate($input);
 
-        self::assertEquals('I always fail', $result->messageSets[0]?->messages[0]?->message);
-        self::assertEquals($expected, $result->result);
+        self::assertEquals($expected, $result);
     }
 }

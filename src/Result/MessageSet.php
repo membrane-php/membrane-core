@@ -27,4 +27,9 @@ class MessageSet
             ...$messageSet->messages
         );
     }
+
+    public function isEmpty() : bool
+    {
+        return !(isset($this->messages) && count($this->messages) > 0);
+    }
 }

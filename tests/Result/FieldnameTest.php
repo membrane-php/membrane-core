@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Result;
 
@@ -13,9 +14,9 @@ class FieldnameTest extends TestCase
     public function dataSetsForStringRepresentation() : array
     {
         return [
-            [new Fieldname(''), ''],
-            [new Fieldname('test field'), 'test field'],
-            [new Fieldname('test field', 'this', 'is', 'a'), 'this->is->a->test field'],
+            [[''], ''],
+            [['test field'], 'test field'],
+            [['test field', 'this', 'is', 'a'], 'this->is->a->test field'],
         ];
     }
 
@@ -23,10 +24,11 @@ class FieldnameTest extends TestCase
      * @test
      * @dataProvider dataSetsForStringRepresentation
      */
-    public function StringRepresentationTest($input, $expected) : void
+    public function StringRepresentationTest(array $input, string $expected) : void
     {
+        $fieldname = new Fieldname(...$input);
 
-        $result = $input->getStringRepresentation();
+        $result = $fieldname->getStringRepresentation();
 
         self::assertEquals($expected, $result);
     }
@@ -83,11 +85,10 @@ class FieldnameTest extends TestCase
      * @dataProvider dataSetsWithEqualStringRepresentations
      * @dataProvider dataSetsWithDifferentStringRepresentations
      */
-    public function EqualPairsAreMergable($firstInput, $secondInput, $expected) : void
+    public function EqualPairsAreMergable(Fieldname $firstFieldname, Fieldname $secondFieldname, bool $expected) : void
     {
-
-        $equals = $firstInput->equals($secondInput);
-        $mergable = $firstInput->equals($secondInput);
+        $equals = $firstFieldname->equals($secondFieldname);
+        $mergable = $firstFieldname->mergable($secondFieldname);
 
         self::assertEquals($expected, $equals);
         self::assertEquals($expected, $mergable);
@@ -96,10 +97,11 @@ class FieldnameTest extends TestCase
     /**
      * @test
      */
-    public function FieldnameIsAlwaysMergableByItself () {
-        $sut = new Fieldname('test field');
+    public function FieldnameIsAlwaysMergableByItself () : void
+    {
+        $fieldname = new Fieldname('test field');
 
-        $result = $sut->mergable(null);
+        $result = $fieldname->mergable(null);
 
         self::assertTrue($result);
     }

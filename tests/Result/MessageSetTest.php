@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Result;
 
@@ -22,21 +23,22 @@ class MessageSetTest extends TestCase
         $secondMessage = new Message('message 2', ['b', 'd']);
 
         return [
-            [
-                new MessageSet(null, $firstMessage),
-                new MessageSet(null, $secondMessage),
-                new MessageSet(null, $firstMessage, $secondMessage)
-            ],
-            [
-                new MessageSet(null, $firstMessage),
-                new MessageSet($fieldname, $secondMessage),
-                new MessageSet($fieldname, $firstMessage, $secondMessage)
-            ],
-            [
+            'MessageSets with equal fieldnames' => [
                 new MessageSet($fieldname, $firstMessage),
                 new MessageSet($fieldname, $secondMessage),
                 new MessageSet($fieldname, $firstMessage, $secondMessage)
             ],
+            'MessageSets with all null fieldnames' => [
+                new MessageSet(null, $firstMessage),
+                new MessageSet(null, $secondMessage),
+                new MessageSet(null, $firstMessage, $secondMessage)
+            ],
+            'MessageSets with one null fieldname' => [
+                new MessageSet(null, $firstMessage),
+                new MessageSet($fieldname, $secondMessage),
+                new MessageSet($fieldname, $firstMessage, $secondMessage)
+            ],
+
         ];
     }
 
@@ -44,7 +46,7 @@ class MessageSetTest extends TestCase
      * @test
      * @dataProvider dataSetsThatCanMerge
      */
-    public function MergeMessageSets($firstInput, $secondInput, $expected) : void
+    public function MergeMessageSets(MessageSet $firstInput, MessageSet $secondInput, MessageSet $expected) : void
     {
         $result = $firstInput->merge($secondInput);
 
@@ -59,13 +61,31 @@ class MessageSetTest extends TestCase
         $firstFieldname = new Fieldname('field a');
         $secondFieldname = new Fieldname('field b');
         $message = new Message('message', []);
-        $firstSut = new MessageSet($firstFieldname, $message);
-        $secondSut = new MessageSet($secondFieldname, $message);
+        $firstMessageSet = new MessageSet($firstFieldname, $message);
+        $secondMessageSet = new MessageSet($secondFieldname, $message);
 
         self::expectException('RuntimeException');
         self::expectExceptionMessage('Unable to merge message sets for different fieldnames');
-        $result = $firstSut->merge($secondSut);
+        $result = $firstMessageSet->merge($secondMessageSet);
     }
 
+    public function dataSetsForIsEmptyTest() : array
+    {
+        return [
+            [new MessageSet(null), true],
+            [new MessageSet(new Fieldname('test field')), true],
+            [new MessageSet(null, new Message('', [])), false],
+        ];
+    }
 
+    /**
+     * @test
+     * @dataProvider dataSetsForIsEmptyTest
+     */
+    public function IsEmptyTest(MessageSet $messageSet, bool $expected) : void
+    {
+        $result = $messageSet->isEmpty();
+
+        self::assertEquals($expected, $result);
+    }
 }

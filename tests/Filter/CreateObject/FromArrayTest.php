@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Filter\CreateObject;
 
 use Membrane\Filter\CreateObject\FromArray;
+use Membrane\Result\Message;
+use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use PHPUnit\Framework\TestCase;
 
@@ -18,26 +20,24 @@ class FromArrayTest extends TestCase
     /**
      * @test
      */
-    public function NoFromArrayMethodReturnsInvalid()
+    public function NoFromArrayMethodReturnsInvalid() : void
     {
+        $input = ['a' => 1, 'b' => 2];
         $classWithoutMethod = new class {};
         $fromArray = new FromArray(get_class($classWithoutMethod));
-        $expectedResult = Result::INVALID;
-        $expectedMessage = 'Class (%s) doesnt have a fromArray method defined';
-        $expectedVars = [get_class($classWithoutMethod)];
+        $expected = Result::invalid($input, new MessageSet(null, new Message('Class (%s) doesnt have a fromArray method defined', [get_class($classWithoutMethod)])));
 
-        $result = $fromArray->filter(['a' => 1, 'b' => 2]);
+        $result = $fromArray->filter($input);
 
-        self::assertEquals($expectedMessage, $result->messageSets[0]?->messages[0]?->message);
-        self::assertEquals($expectedVars, $result->messageSets[0]?->messages[0]?->vars);
-        self::assertEquals($expectedResult, $result->result);
+        self::assertEquals($expected, $result);
     }
 
     /**
      * @test
      */
-    public function IncorrectFilterInputReturnsInvalid()
+    public function IncorrectFilterInputReturnsInvalid() : void
     {
+        $input = 'this is not an array';
         $classWithMethod = new class ()
         {
             public static function fromArray(array $values) : string
@@ -46,41 +46,31 @@ class FromArrayTest extends TestCase
             }
         };
         $fromArray = new FromArray(get_class($classWithMethod));
-        $expectedResult = Result::INVALID;
-        $expectedMessage = 'Value passed to FromArray filter must be an array, %s passed instead';
-        $expectedVars = ['string'];
+        $expected = Result::invalid($input, new MessageSet(null, new Message('Value passed to FromArray filter must be an array, %s passed instead', ['string'])));
 
-        $result = $fromArray->filter('this is not an array');
+        $result = $fromArray->filter($input);
 
-        self::assertEquals($expectedMessage, $result->messageSets[0]?->messages[0]?->message);
-        self::assertEquals($expectedVars, $result->messageSets[0]?->messages[0]?->vars);
-        self::assertEquals($expectedResult, $result->result);
+        self::assertEquals($expected, $result);
     }
 
     /**
      * @test
      */
-    public function CorrectFilterInputReturnsResult()
+    public function CorrectFilterInputReturnsResult() : void
     {
-        $emptyArray = [];
-        $classWithMethod = new class($emptyArray)
+        $input = ['a', 'b', 'c'];
+        $classWithMethod = new class()
         {
-            function __construct($emptyArray){
-                $this->array = $emptyArray;
-        }
-            public static function fromArray(array $values) : self
+            public static function fromArray(array $values) : string
             {
-                return new self($values);
+                return implode('->', $values);
             }
         };
         $fromArray = new FromArray(get_class($classWithMethod));
-        $input = ['a', 'b', 'c'];
-        $expectedValue = ['a', 'b', 'c'];
-        $expectedResult = Result::NO_RESULT;
+        $expected = Result::noResult('a->b->c');
 
         $result = $fromArray->filter($input);
 
-        self::assertEquals($expectedValue, $result->value->array);
-        self::assertEquals($expectedResult, $result->result);
+        self::assertEquals($expected, $result);
     }
 }

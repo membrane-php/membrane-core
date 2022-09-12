@@ -5,6 +5,7 @@ namespace Filter\CreateObject;
 
 use Membrane\Filter\CreateObject\WithNamedArguments;
 use Membrane\Result\Message;
+use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use PHPUnit\Framework\TestCase;
 
@@ -16,7 +17,6 @@ use PHPUnit\Framework\TestCase;
  */
 class WithNamedArgumentsTest extends TestCase
 {
-
     public function dataSetsThatPass() : array
     {
         $classWithNamedArguments = new class (a: 'default' , b: 'arguments')
@@ -41,15 +41,14 @@ class WithNamedArgumentsTest extends TestCase
      * @test
      * @dataProvider dataSetsThatPass
      */
-    public function CreatesNewInstanceOfClassWithNamedArguments($class, $input) : void
+    public function CreatesNewInstanceOfClassWithNamedArguments(object $class, array $input) : void
     {
-        $sut = new WithNamedArguments(get_class($class));
-        $expectedResult = Result::NO_RESULT;
+        $withNamedArgs = new WithNamedArguments(get_class($class));
+        $expected = Result::noResult($class);
 
-        $result = $sut->filter($input);
+        $result = $withNamedArgs->filter($input);
 
-        self::assertEquals($class, $result->value);
-        self::assertEquals($expectedResult, $result->result);
+        self::assertEquals($expected, $result);
     }
 
     public function dataSetsThatFail() : array
@@ -63,17 +62,17 @@ class WithNamedArgumentsTest extends TestCase
             [
                 $classWithNamedArguments,
                 ['a' => 'default', 'arguments'],
-                new Message('test', [])
+                'Cannot use positional argument after named argument during unpacking'
             ],
             [
                 $classWithNamedArguments,
                 ['a' => 'default', 'arguments', 'additional argument'],
-                new Message('hi', [])
+                'Cannot use positional argument after named argument during unpacking'
             ],
             [
                 $classWithNamedArguments,
                 ['a' => 'default', 'b' => 'arguments', 'c' => 'additional argument'],
-                new Message('Unknown named parameter $c', [])
+                'Unknown named parameter $c'
             ],
         ];
     }
@@ -82,14 +81,13 @@ class WithNamedArgumentsTest extends TestCase
      * @test
      * @dataProvider dataSetsThatFail
      */
-    public function InvalidParameterTest($class, $input, $expectedMessage) : void
+    public function InvalidParameterTest(object $class, array $input, string $expectedMessage) : void
     {
-        $sut = new WithNamedArguments(get_class($class));
-        $expectedResult = Result::INVALID;
+        $withNamedArgs = new WithNamedArguments(get_class($class));
+        $expected = Result::invalid($input, new MessageSet(null, new Message($expectedMessage, [])));
 
-        $result = $sut->filter($input);
-        self::assertEquals($expectedResult, $result->result);
-        self::assertEquals($input, $result->value);
-//        self::assertEquals($expectedMessage, $result->messageSets[0]?->messages[0]?->message);
+        $result = $withNamedArgs->filter($input);
+
+        self::assertEquals($expected, $result);
     }
 }
