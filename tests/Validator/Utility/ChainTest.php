@@ -25,6 +25,49 @@ class ChainTest extends TestCase
     /**
      * @test
      */
+    public function NoValidatorsReturnsNoResults(): void
+    {
+        $input = 'this can be anything';
+        $expected = Result::noResult($input);
+        $chain = new Chain();
+
+        $result = $chain->validate($input);
+
+        self::assertEquals($expected, $result);
+    }
+
+    /**
+     * @test
+     */
+    public function SinglePassReturnsValid(): void
+    {
+        $input = 'this can be anything';
+        $expected = Result::valid($input);
+        $chain = new Chain(new Passes);
+
+        $result = $chain->validate($input);
+
+        self::assertEquals($expected, $result);
+    }
+
+    /**
+     * @test
+     */
+    public function SingleFailsReturnsInvalid(): void
+    {
+        $input = 'this can be anything';
+        $expectedFailsMessage = new Message('I always fail', []);
+        $expected = Result::invalid($input, new MessageSet(null, $expectedFailsMessage));
+        $chain = new Chain(new Fails);
+
+        $result = $chain->validate($input);
+
+        self::assertEquals($expected, $result);
+    }
+
+    /**
+     * @test
+     */
     public function TwoPassesReturnsValid(): void
     {
         $input = 'this can be anything';
