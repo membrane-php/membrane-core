@@ -14,9 +14,10 @@ class Result
 
     public function __construct(
         public readonly mixed $value,
-        public readonly int $result,
-        MessageSet ...$messageSets,
-    ) {
+        public readonly int   $result,
+        MessageSet            ...$messageSets,
+    )
+    {
         $this->messageSets = $messageSets;
     }
 
@@ -35,16 +36,6 @@ class Result
         return new self($value, Result::NO_RESULT);
     }
 
-    public function merge(Result $result): Result
-    {
-        return new Result(
-            $result->value,
-            $this->mergeResult($result),
-            ...$this->messageSets,
-            ...$result->messageSets
-        );
-    }
-
     public function fullMerge(Result $result): Result
     {
         $mergedMessageSet = new MessageSet(null);
@@ -56,22 +47,22 @@ class Result
         foreach ($result->messageSets as $messageSet) {
             $mergedMessageSet = $mergedMessageSet->merge($messageSet);
         }
-        if ($mergedMessageSet->isEmpty()) {
-            return new Result(
-                $result->value,
-                $this->mergeResult($result)
-            );
-        }
+
         return new Result(
             $result->value,
             $this->mergeResult($result),
-            $mergedMessageSet
+            ...($mergedMessageSet->isEmpty() ? [] : [$mergedMessageSet])
         );
     }
 
-    public function isValid(): bool
+    public function merge(Result $result): Result
     {
-        return $this->result >= 0;
+        return new Result(
+            $result->value,
+            $this->mergeResult($result),
+            ...$this->messageSets,
+            ...$result->messageSets
+        );
     }
 
     private function mergeResult(Result $result): int
@@ -81,5 +72,10 @@ class Result
         }
 
         return $result->isValid() && $this->isValid() ? self::VALID : self::INVALID;
+    }
+
+    public function isValid(): bool
+    {
+        return $this->result >= 0;
     }
 }
