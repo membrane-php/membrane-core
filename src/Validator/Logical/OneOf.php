@@ -24,7 +24,7 @@ class OneOf implements Validator
         foreach ($this->chain as $item) {
             $result = $this->fullMerge($result, $item->validate($value));
             if ($result->result === Result::VALID) {
-                break;
+                return $result;
             }
         }
 
@@ -56,10 +56,10 @@ class OneOf implements Validator
 
     private function mergeResult(Result $currentResult, Result $newResult): int
     {
-        if ($newResult->result === Result::NO_RESULT) {
-            return $currentResult->result;
+        if ($newResult->result === Result::NO_RESULT && $currentResult->result === Result::NO_RESULT) {
+            return Result::NO_RESULT;
         }
 
-        return $currentResult->result === Result::VALID || $newResult->result === Result::VALID ? Result::VALID : Result::INVALID;
+        return $newResult->result;
     }
 }
