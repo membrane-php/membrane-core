@@ -10,7 +10,7 @@ use Membrane\Validator;
 class Length implements Validator
 {
     public function __construct(
-        private ?int $min = null,
+        private int $min = 0,
         private ?int $max = null
     ){
     }
@@ -19,7 +19,7 @@ class Length implements Validator
     {
         $length = strlen($value);
 
-        if ($this->min !== null && $length < $this->min) {
+        if ($length < $this->min) {
             $message = new Message('String is expected to be a minimum of %d characters', [$this->min]);
             return Result::invalid($value, new MessageSet(null, $message));
         }

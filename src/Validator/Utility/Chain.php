@@ -18,10 +18,10 @@ class Chain implements Validator
 
     public function validate(mixed $value): Result
     {
-        $result = new Result($value, 0);
+        $result = Result::noResult($value);
 
         foreach ($this->chain as $item) {
-            $result->fullMerge($item->validate($value));
+            $result = $result->fullMerge($item->validate($value));
         }
 
         return $result;

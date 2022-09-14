@@ -14,15 +14,16 @@ class Result
 
     public function __construct(
         public readonly mixed $value,
-        public readonly int $result,
-        MessageSet ...$messageSets,
-    ) {
+        public readonly int   $result,
+        MessageSet            ...$messageSets,
+    )
+    {
         $this->messageSets = $messageSets;
     }
 
     public static function valid(mixed $value): self
     {
-        return new Result($value, Result::VALID);
+        return new self($value, Result::VALID);
     }
 
     public static function invalid(mixed $value, MessageSet ...$messageSets): self
@@ -33,16 +34,6 @@ class Result
     public static function noResult(mixed $value): self
     {
         return new self($value, Result::NO_RESULT);
-    }
-
-    public function merge(Result $result): Result
-    {
-        return new Result(
-            $result->value,
-            $this->mergeResult($result),
-            ...$this->messageSets,
-            ...$result->messageSets
-        );
     }
 
     public function fullMerge(Result $result): Result
@@ -60,13 +51,18 @@ class Result
         return new Result(
             $result->value,
             $this->mergeResult($result),
-            $mergedMessageSet
+            ...($mergedMessageSet->isEmpty() ? [] : [$mergedMessageSet])
         );
     }
 
-    public function isValid(): bool
+    public function merge(Result $result): Result
     {
-        return $this->result >= 0;
+        return new Result(
+            $result->value,
+            $this->mergeResult($result),
+            ...$this->messageSets,
+            ...$result->messageSets
+        );
     }
 
     private function mergeResult(Result $result): int
@@ -76,5 +72,10 @@ class Result
         }
 
         return $result->isValid() && $this->isValid() ? self::VALID : self::INVALID;
+    }
+
+    public function isValid(): bool
+    {
+        return $this->result >= 0;
     }
 }

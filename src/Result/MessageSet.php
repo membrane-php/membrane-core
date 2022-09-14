@@ -17,7 +17,7 @@ class MessageSet
 
     public function merge(MessageSet $messageSet): MessageSet
     {
-        if ($this->fieldname?->mergable($messageSet->fieldname) && $messageSet->fieldname?->mergable($this->fieldname)) {
+        if ($this->fieldname?->mergable($messageSet->fieldname) === false || $messageSet->fieldname?->mergable($this->fieldname) === false) {
             throw new \RuntimeException('Unable to merge message sets for different fieldnames');
         }
 
@@ -26,5 +26,10 @@ class MessageSet
             ...$this->messages,
             ...$messageSet->messages
         );
+    }
+
+    public function isEmpty() : bool
+    {
+        return !(isset($this->messages) && count($this->messages) > 0);
     }
 }

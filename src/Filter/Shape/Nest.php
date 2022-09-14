@@ -34,7 +34,7 @@ class Nest implements Filter
             );
         }
 
-        if (!array_is_list($value)) {
+        if (array_is_list($value)) {
             return new Result(
                 $value,
                 Result::INVALID,
