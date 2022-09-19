@@ -36,25 +36,6 @@ class Result
         return new self($value, Result::NO_RESULT);
     }
 
-    public function fullMerge(Result $result): Result
-    {
-        $mergedMessageSet = new MessageSet(null);
-
-        foreach ($this->messageSets as $messageSet) {
-            $mergedMessageSet = $mergedMessageSet->merge($messageSet);
-        }
-
-        foreach ($result->messageSets as $messageSet) {
-            $mergedMessageSet = $mergedMessageSet->merge($messageSet);
-        }
-
-        return new Result(
-            $result->value,
-            $this->mergeResult($result),
-            ...($mergedMessageSet->isEmpty() ? [] : [$mergedMessageSet])
-        );
-    }
-
     public function merge(Result $result): Result
     {
         return new Result(
