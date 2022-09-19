@@ -22,6 +22,7 @@ class ToIntTest extends TestCase
             [1.23, 1],
             ['123', 123],
             [true, 1],
+            [null, 0],
         ];
     }
 
@@ -42,6 +43,7 @@ class ToIntTest extends TestCase
 
     public function DataSetsWithUnacceptableInputs(): array
     {
+        $message = 'ToInt filter only accepts null or scalar values, %s given';
         $class = new class () {
         };
 
@@ -52,19 +54,15 @@ class ToIntTest extends TestCase
             ],
             [
                 ['an', 'array'],
-                new Message('ToInt filter only accepts scalar variables, %s is not scalar', ['array'])
+                new Message($message, ['array'])
             ],
             [
                 ['a' => 'list'],
-                new Message('ToInt filter only accepts scalar variables, %s is not scalar', ['array'])
+                new Message($message, ['array'])
             ],
             [
                 $class,
-                new Message('ToInt filter only accepts scalar variables, %s is not scalar', ['object'])
-            ],
-            [
-                null,
-                new Message('ToInt filter only accepts scalar variables, %s is not scalar', ['NULL'])
+                new Message($message, ['object'])
             ],
         ];
     }

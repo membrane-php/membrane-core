@@ -14,10 +14,9 @@ class ToInt implements Filter
     public function filter(mixed $value): Result
     {
         $type = gettype($value);
-        $scalar = is_scalar($value);
 
-        if (!$scalar) {
-            $message = new Message('ToInt filter only accepts scalar variables, %s is not scalar', [$type]);
+        if (!(is_scalar($value) || $value === null)) {
+            $message = new Message('ToInt filter only accepts null or scalar values, %s given', [$type]);
             return Result::invalid($value, new MessageSet(null, $message));
         }
         if ($type === 'string' && !is_numeric($value)) {

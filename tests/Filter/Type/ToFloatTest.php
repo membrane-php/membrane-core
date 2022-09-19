@@ -25,6 +25,7 @@ class ToFloatTest extends TestCase
             [1.23, 1.23],
             ['123', 123.0],
             [true, 1.0],
+            [null, 0.0],
         ];
     }
 
@@ -32,7 +33,7 @@ class ToFloatTest extends TestCase
      * @test
      * @dataProvider DataSetsWithAcceptableInputs
      */
-    public function AcceptableTypesReturnIntegerValues($input, $expectedValue): void
+    public function AcceptableTypesReturnFloatValues($input, $expectedValue): void
     {
         $toFloat = new ToFloat();
         $expected = Result::noResult($expectedValue);
@@ -45,6 +46,7 @@ class ToFloatTest extends TestCase
 
     public function DataSetsWithUnacceptableInputs(): array
     {
+        $message = 'ToFloat filter only accepts null or scalar values, %s given';
         $class = new class () {
         };
 
@@ -55,19 +57,15 @@ class ToFloatTest extends TestCase
             ],
             [
                 ['an', 'array'],
-                new Message('ToFloat filter only accepts scalar variables, %s is not scalar', ['array'])
+                new Message($message, ['array'])
             ],
             [
                 ['a' => 'list'],
-                new Message('ToFloat filter only accepts scalar variables, %s is not scalar', ['array'])
+                new Message($message, ['array'])
             ],
             [
                 $class,
-                new Message('ToFloat filter only accepts scalar variables, %s is not scalar', ['object'])
-            ],
-            [
-                null,
-                new Message('ToFloat filter only accepts scalar variables, %s is not scalar', ['NULL'])
+                new Message($message, ['object'])
             ],
         ];
     }
