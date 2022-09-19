@@ -57,10 +57,7 @@ class RangeDeltaTest extends TestCase
 
         $result = $range->validate($input);
 
-        self::assertEquals($expected->value, $result->value);
-        self::assertEquals($expected->result, $result->result);
-        self::assertEquals($expectedMessage->message, $result->messageSets[0]?->messages[0]?->message);
-        self::assertEqualsWithDelta($expectedMessage->vars[0], $result->messageSets[0]?->messages[0]?->vars[0], 0.1);
+        self::assertEqualsWithDelta($expected, $result, 2);
     }
 
     public function DataSetsWithDatesLaterThanMax(): array
@@ -86,10 +83,7 @@ class RangeDeltaTest extends TestCase
 
         $result = $range->validate($input);
 
-        self::assertEquals($expected->value, $result->value);
-        self::assertEquals($expected->result, $result->result);
-        self::assertEquals($expectedMessage->message, $result->messageSets[0]?->messages[0]?->message);
-        self::assertEqualsWithDelta($expectedMessage->vars[0], $result->messageSets[0]?->messages[0]?->vars[0], 0.1);
+        self::assertEqualsWithDelta($expected, $result, 2);
     }
 
     public function DataSetsWithDatesWithinRange(): array
