@@ -21,7 +21,7 @@ class DateString implements Validator
     {
         $dateTime = DateTime::createFromFormat($this->format, $value);
 
-        if (gettype($dateTime) !== 'object') {
+        if ($dateTime === false) {
             $message = new Message('String does not match the required format %s', [$this->format]);
             return Result::invalid($value, new MessageSet(null, $message));
         }
