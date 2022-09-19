@@ -40,8 +40,7 @@ class ToDateTimeTest extends TestCase
 
         $result = $toDateTime->filter($input);
 
-        self::assertEquals($expected->result, $result->result);
-        self::assertEqualsWithDelta($expected->value, $result->value, 10);
+        self::assertEqualsWithDelta($expected, $result, 2);
         self::assertTrue($result->value instanceof DateTimeImmutable);
     }
 
@@ -56,8 +55,7 @@ class ToDateTimeTest extends TestCase
 
         $result = $toDateTime->filter($input);
 
-        self::assertEquals($expected->result, $result->result);
-        self::assertEqualsWithDelta($expected->value, $result->value, 10);
+        self::assertEqualsWithDelta($expected, $result, 2);
         self::assertTrue($result->value instanceof DateTime);
     }
 
