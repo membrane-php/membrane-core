@@ -19,40 +19,36 @@ class AllOf implements Validator
 
     public function validate(mixed $value): Result
     {
-        $result = Result::noResult($value);
-
-        foreach ($this->chain as $item) {
-            $result = $this->fullMerge($result, $item->validate($value));
-        }
-
-        return $result;
-    }
-
-    public function fullMerge(Result $currentResult, Result $newResult): Result
-    {
+        $resultChain = [];
         $mergedMessageSet = new MessageSet(null);
 
-        foreach ($currentResult->messageSets as $messageSet) {
-            $mergedMessageSet = $mergedMessageSet->merge($messageSet);
+        foreach ($this->chain as $item) {
+            $itemResult = $item->validate($value);
+            if (!$itemResult->isValid()) {
+                $mergedMessageSet = $mergedMessageSet->merge($itemResult->messageSets[0]);
+            }
+            $resultChain [] = $itemResult->result;
         }
 
-        foreach ($newResult->messageSets as $messageSet) {
-            $mergedMessageSet = $mergedMessageSet->merge($messageSet);
-        }
+        $result = $this->mergeResults($resultChain);
 
         return new Result(
-            $newResult->value,
-            $this->mergeResults($currentResult, $newResult),
-            ...($mergedMessageSet->isEmpty() ? [] : [$mergedMessageSet])
+            $value,
+            $result,
+            ...($result === Result::INVALID ? [$mergedMessageSet] : [])
         );
     }
 
-    private function mergeResults(Result $currentResult, Result $newResult): int
+    private function mergeResults(array $results): int
     {
-        if ($newResult->result === Result::NO_RESULT) {
-            return $currentResult->result;
+        if (in_array(Result::INVALID, $results)) {
+            return Result::INVALID;
         }
 
-        return $newResult->isValid() && $currentResult->isValid() ? Result::VALID : Result::INVALID;
+        if (in_array(Result::VALID, $results)) {
+            return Result::VALID;
+        }
+        
+        return Result::NO_RESULT;
     }
 }
