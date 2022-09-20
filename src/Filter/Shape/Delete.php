@@ -5,12 +5,36 @@ declare(strict_types=1);
 namespace Membrane\Filter\Shape;
 
 use Membrane\Filter;
+use Membrane\Result\Message;
+use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 
 class Delete implements Filter
 {
+    private readonly array $fieldNames;
+
+    public function __construct(string ...$fieldNames)
+    {
+        $this->fieldNames = $fieldNames;
+    }
+
     public function filter(mixed $value): Result
     {
-        // TODO: Implement filter() method.
+        if (!is_array($value)) {
+            $message = new Message('Delete filter requires arrays, %s given', [gettype($value)]);
+            return Result::invalid($value, new MessageSet(null, $message));
+        }
+
+        if (array_is_list($value)) {
+            $message = new Message('Delete filter requires arrays, for lists use Truncate', []);
+            return Result::invalid($value, new MessageSet(null, $message));
+        }
+
+        $newValue = $value;
+        foreach ($this->fieldNames as $fieldName) {
+            unset($newValue[$fieldName]);
+        }
+
+        return Result::noResult($newValue);
     }
 }

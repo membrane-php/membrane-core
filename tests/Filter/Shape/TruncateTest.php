@@ -13,6 +13,9 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Filter\Shape\Truncate
+ * @uses   \Membrane\Result\Result
+ * @uses   \Membrane\Result\MessageSet
+ * @uses   \Membrane\Result\Message
  */
 class TruncateTest extends TestCase
 {
@@ -29,13 +32,14 @@ class TruncateTest extends TestCase
 
     public function DataSetsWithIncorrectInputs(): array
     {
-        $message = 'Truncate filter only accepts lists, %s given';
+        $notArrayMessage = 'Truncate filter requires lists, %s given';
+        $arrayMessage = 'Truncate filter requires lists, for arrays use Delete';
         return [
-            [123, new Message($message, ['integer'])],
-            [1.23, new Message($message, ['double'])],
-            ['this is a string', new Message($message, ['string'])],
-            [true, new Message($message, ['boolean'])],
-            [['an' => 'array', 'with' => 'key', 'value' => 'pairs'], new Message($message, ['array'])],
+            [123, new Message($notArrayMessage, ['integer'])],
+            [1.23, new Message($notArrayMessage, ['double'])],
+            ['this is a string', new Message($notArrayMessage, ['string'])],
+            [true, new Message($notArrayMessage, ['boolean'])],
+            [['an' => 'array', 'with' => 'key', 'value' => 'pairs'], new Message($arrayMessage, [])],
         ];
     }
 

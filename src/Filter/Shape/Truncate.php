@@ -21,8 +21,12 @@ class Truncate implements Filter
 
     public function filter(mixed $value): Result
     {
-        if (!is_array($value) || !array_is_list($value)) {
-            $message = new Message('Truncate filter only accepts lists, %s given', [gettype($value)]);
+        if (!is_array($value)) {
+            $message = new Message('Truncate filter requires lists, %s given', [gettype($value)]);
+            return Result::invalid($value, new MessageSet(null, $message));
+        }
+        if (!array_is_list($value)) {
+            $message = new Message('Truncate filter requires lists, for arrays use Delete', []);
             return Result::invalid($value, new MessageSet(null, $message));
         }
 
