@@ -12,6 +12,9 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Filter\Shape\Rename
+ * @uses   \Membrane\Result\Result
+ * @uses   \Membrane\Result\MessageSet
+ * @uses   \Membrane\Result\Message
  */
 class RenameTest extends TestCase
 {
@@ -72,10 +75,10 @@ class RenameTest extends TestCase
                 ['one' => 'a', 2 => 'b']
             ],
             [
-                ['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4],
+                ['a' => 1, 'b' => 'two', 'c' => 3, 'd' => 4],
                 'b',
                 2,
-                ['a' => 1, 2.4 => 2, 'c' => 3, 'd' => 4]
+                ['a' => 1, 2 => 'two', 'c' => 3, 'd' => 4]
             ],
         ];
     }

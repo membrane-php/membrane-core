@@ -30,11 +30,10 @@ class Delete implements Filter
             return Result::invalid($value, new MessageSet(null, $message));
         }
 
-        $newValue = $value;
         foreach ($this->fieldNames as $fieldName) {
-            unset($newValue[$fieldName]);
+            unset($value[$fieldName]);
         }
 
-        return Result::noResult($newValue);
+        return Result::noResult($value);
     }
 }
