@@ -5,8 +5,8 @@ namespace Result;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
-use PHPUnit\Framework\TestCase;
 use Membrane\Result\Result;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Result\Result
@@ -18,7 +18,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function ValidConstructorReturnsValid() : void
+    public function ValidConstructorReturnsValid(): void
     {
         $input = 'arbitrary value';
         $expected = new Result($input, Result::VALID);
@@ -32,11 +32,11 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function inValidConstructorReturnsInvalid() : void
+    public function inValidConstructorReturnsInvalid(): void
     {
         $inputValue = 'arbitrary value';
         $inputMessageSet = new MessageSet(null, new Message('arbitrary message', []));
-        $expected = new Result($inputValue,Result::INVALID, $inputMessageSet);
+        $expected = new Result($inputValue, Result::INVALID, $inputMessageSet);
 
         $result = Result::invalid($inputValue, $inputMessageSet);
 
@@ -47,7 +47,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function NoResultConstructorReturnsNoResult() : void
+    public function NoResultConstructorReturnsNoResult(): void
     {
         $input = 'arbitrary value';
         $expected = new Result($input, Result::NO_RESULT);
@@ -61,7 +61,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function MergeTwoValidsReturnsValid() : void
+    public function MergeTwoValidsReturnsValid(): void
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
@@ -77,7 +77,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function MergeNoResultAndValidReturnsValid() : void
+    public function MergeNoResultAndValidReturnsValid(): void
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
@@ -93,7 +93,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function MergeInvalidAndValidReturnsInvalid() : void
+    public function MergeInvalidAndValidReturnsInvalid(): void
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
@@ -110,7 +110,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function MergeTwoInvalidsReturnsInvalid() : void
+    public function MergeTwoInvalidsReturnsInvalid(): void
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
@@ -128,7 +128,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function MergeNoResultAndInvalidReturnsInvalid() : void
+    public function MergeNoResultAndInvalidReturnsInvalid(): void
     {
         $firstValue = 'a value';
         $secondValue = 'another value';
@@ -141,86 +141,4 @@ class ResultTest extends TestCase
 
         self::assertEquals($expected, $mergedResult);
     }
-
-    public function FullMergeTwoValidsReturnsValid() : void
-    {
-        $firstInputValue = 'a value';
-        $secondInputValue = 'another value';
-        $firstResult = Result::valid($firstInputValue);
-        $secondResult = Result::valid($secondInputValue);
-        $expected = Result::valid($secondInputValue);
-
-        $mergedResult = $firstResult->fullMerge($secondResult);
-
-        self::assertEquals($expected, $mergedResult);
-    }
-
-    /**
-     * @test
-     */
-    public function FullMergeNoResultAndValidReturnsValid() : void
-    {
-        $firstInputValue = 'a value';
-        $secondInputValue = 'another value';
-        $firstResult = Result::noResult($firstInputValue);
-        $secondResult = Result::valid($secondInputValue);
-        $expected = Result::valid($secondInputValue);
-
-        $mergedResult = $firstResult->fullMerge($secondResult);
-
-        self::assertEquals($expected, $mergedResult);
-    }
-
-    /**
-     * @test
-     */
-    public function FullMergeInvalidAndValidReturnsInvalid() : void
-    {
-        $firstInputValue = 'a value';
-        $secondInputValue = 'another value';
-        $firstMessage = new Message('a message', []);
-        $firstResult = Result::invalid($firstInputValue, new MessageSet(null, $firstMessage));
-        $secondResult = Result::valid($secondInputValue);
-        $expected = Result::invalid($secondInputValue, new MessageSet(null, $firstMessage));
-
-        $mergedResult = $firstResult->fullMerge($secondResult);
-
-        self::assertEquals($expected, $mergedResult);
-    }
-
-    /**
-     * @test
-     */
-    public function FullMergeTwoInvalidsReturnsInvalid() : void
-    {
-        $firstInputValue = 'a value';
-        $secondInputValue = 'another value';
-        $firstMessage = new Message('a message', []);
-        $secondMessage = new Message('another message', []);
-        $firstResult = Result::invalid($firstInputValue, new MessageSet(null, $firstMessage));
-        $secondResult = Result::invalid($secondInputValue, new MessageSet(null, $secondMessage));
-        $expected = Result::invalid($secondInputValue, new MessageSet(null, $firstMessage, $secondMessage));
-
-        $mergedResult = $firstResult->fullMerge($secondResult);
-
-        self::assertEquals($expected, $mergedResult);
-    }
-
-    /**
-     * @test
-     */
-    public function FullMergeNoResultAndInvalidReturnsInvalid() : void
-    {
-        $firstInputValue = 'a value';
-        $secondInputValue = 'another value';
-        $firstMessageSet = new MessageSet(null, new Message('a message', []));
-        $firstResult = Result::invalid($firstInputValue, $firstMessageSet);
-        $secondResult = Result::noResult($secondInputValue);
-        $expected = Result::invalid($secondInputValue, $firstMessageSet);
-
-        $mergedResult = $firstResult->fullMerge($secondResult);
-
-        self::assertEquals($expected, $mergedResult);
-    }
-
 }
