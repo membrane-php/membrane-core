@@ -33,7 +33,7 @@ class IsArrayTest extends TestCase
      */
     public function ArrayReturnsValid($input): void
     {
-        $isArray = new IsArray;
+        $isArray = new IsArray();
         $expected = Result::valid($input);
 
         $result = $isArray->validate($input);
@@ -58,7 +58,7 @@ class IsArrayTest extends TestCase
      */
     public function TypesThatAreNotArraysReturnInvalid($input, $expectedVar): void
     {
-        $isArray = new IsArray;
+        $isArray = new IsArray();
         $expectedMessage = new Message('Value passed to IsArray validator is not an array, %s passed instead', [$expectedVar]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
 
@@ -73,9 +73,9 @@ class IsArrayTest extends TestCase
     public function ListsReturnInvalid(): void
     {
         $input = ['this', 'is', 'a', 'list'];
-        $expectedMessage = new Message('Value passed to IsArray validator is a list, string keys required for an array', []);
+        $expectedMessage = new Message('Value passed to IsArray validator is a list, arrays have keys', []);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
-        $isArray = new IsArray;
+        $isArray = new IsArray();
 
         $result = $isArray->validate($input);
 

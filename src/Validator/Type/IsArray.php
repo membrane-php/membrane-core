@@ -20,7 +20,7 @@ class IsArray implements Validator
         }
 
         if (array_is_list($value) && $value !== []) {
-            $message = new Message('Value passed to IsArray validator is a list, string keys required for an array', []);
+            $message = new Message('Value passed to IsArray validator is a list, arrays have keys', []);
             return Result::invalid($value, new MessageSet(null, $message));
         }
 

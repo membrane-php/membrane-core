@@ -20,7 +20,7 @@ class IsList implements Validator
         }
 
         if (!array_is_list($value)) {
-            $message = new Message('Value passed to IsList validator is an array, lists do not have string keys', []);
+            $message = new Message('Value passed to IsList validator is an array, lists do not have keys', []);
             return Result::invalid($value, new MessageSet(null, $message));
         }
 
