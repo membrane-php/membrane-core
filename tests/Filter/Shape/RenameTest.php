@@ -50,9 +50,9 @@ class RenameTest extends TestCase
      */
     public function NonExistentKeysAreIgnored(): void
     {
-        $input = [1 => 'a', 2 => 'b'];
+        $input = ['a' => 1, 'b' => 2];
         $expected = Result::noResult($input);
-        $rename = new Rename(3, 4);
+        $rename = new Rename('c', 'd');
 
         $result = $rename->filter($input);
 
@@ -69,16 +69,10 @@ class RenameTest extends TestCase
                 ['that' => 'is', 'an' => 'array']
             ],
             [
-                [1 => 'a', 2 => 'b'],
-                1,
-                'one',
-                ['one' => 'a', 2 => 'b']
-            ],
-            [
-                ['a' => 1, 'b' => 'two', 'c' => 3, 'd' => 4],
-                'b',
-                2,
-                ['a' => 1, 2 => 'two', 'c' => 3, 'd' => 4]
+                ['this' => 'is', 'an' => 'array'],
+                'this',
+                'an',
+                ['an' => 'is']
             ],
         ];
     }

@@ -14,7 +14,7 @@ class Pluck implements Filter
     private readonly string $fieldSet;
     private readonly array $fieldNames;
 
-    public function __construct(mixed $fieldSet, mixed ...$fieldNames)
+    public function __construct(string $fieldSet, string ...$fieldNames)
     {
         $this->fieldSet = $fieldSet;
         $this->fieldNames = $fieldNames;
@@ -41,7 +41,7 @@ class Pluck implements Filter
                 }
             }
         }
-        
+
         return Result::noResult($value);
 
 

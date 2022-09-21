@@ -12,8 +12,8 @@ use Membrane\Result\Result;
 class Rename implements Filter
 {
     public function __construct(
-        private readonly mixed $old,
-        private readonly mixed $new
+        private readonly string $old,
+        private readonly string $new
     )
     {
     }

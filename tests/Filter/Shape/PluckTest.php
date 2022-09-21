@@ -78,26 +78,24 @@ class PluckTest extends TestCase
         return [
             [
                 ['from' => ['a' => 1, 'b' => 2, 'c' => 3], 'd' => 4],
+                ['from' => ['a' => 1, 'b' => 2, 'c' => 3], 'a' => 1, 'c' => 3, 'd' => 4],
                 'from',
                 'a',
                 'c',
-                ['from' => ['a' => 1, 'b' => 2, 'c' => 3], 'a' => 1, 'c' => 3, 'd' => 4],
             ],
             [
-                ['from' => ['a' => 1, 'b' => 2, 'c' => 3], 'd' => 4],
+                ['from' => ['a' => 1, 'b' => 2, 'c' => 3], 'a' => 5, 'd' => 4],
+                ['from' => ['a' => 1, 'b' => 2, 'c' => 3], 'a' => 1, 'd' => 4],
                 'from',
                 'a',
                 'd',
-                ['from' => ['a' => 1, 'b' => 2, 'c' => 3], 'a' => 1, 'd' => 4],
             ],
             [
-                ['from' => [1 => 'a', 2 => 'b', 3 => 'c'], 4 => 'd'],
+                ['from' => ['a' => 1, 'b' => 2, 'c' => 3], 'd' => 4],
+                ['from' => ['a' => 1, 'b' => 2, 'c' => 3], 'a' => 1, 'd' => 4],
                 'from',
-                1,
-                3,
-                4,
-                5,
-                ['from' => [1 => 'a', 2 => 'b', 3 => 'c'], 1 => 'a', 3 => 'c', 4 => 'd'],
+                'a',
+                'd',
             ],
         ];
     }
@@ -106,11 +104,10 @@ class PluckTest extends TestCase
      * @test
      * @dataProvider DataSetsThatPass
      */
-    public function CorrectInputsSuccessfullyPluckValue(): void
+    public function CorrectInputsSuccessfullyPluckValue($input, $expectedValue, $fieldSet, ...$fieldNames): void
     {
-        $input = ['from' => ['a' => 1, 'b' => 2, 'c' => 3], 'd' => 4];
-        $expected = Result::noResult(['from' => ['a' => 1, 'b' => 2, 'c' => 3], 'a' => 1, 'c' => 3, 'd' => 4]);
-        $pluck = new Pluck('from', 'a', 'c');
+        $expected = Result::noResult($expectedValue);
+        $pluck = new Pluck($fieldSet, ...$fieldNames);
 
         $result = $pluck->filter($input);
 
