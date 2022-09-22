@@ -2,21 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Validator\Logical;
+namespace Validator\Utility;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use Membrane\Validator\Logical\OneOf;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
+use Membrane\Validator\Utility\OneOf;
 use Membrane\Validator\Utility\Passes;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Membrane\Validator\Logical\OneOf
- * @uses   \Membrane\Validator\Utility\Passes
+ * @covers \Membrane\Validator\Utility\OneOf
  * @uses   \Membrane\Validator\Utility\Fails
+ * @uses   \Membrane\Validator\Utility\Indifferent
+ * @uses   \Membrane\Validator\Utility\Passes
  * @uses   \Membrane\Result\Result
  * @uses   \Membrane\Result\MessageSet
  * @uses   \Membrane\Result\Message
