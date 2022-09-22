@@ -13,11 +13,6 @@ class Fails implements Validator
 {
     public function validate(mixed $value): Result
     {
-        return new Result(
-            $value,
-            Result::INVALID,
-            new MessageSet(null, new Message('I always fail', []))
-        );
+        return Result::invalid($value, new MessageSet(null, new Message('I always fail', [])));
     }
-
 }
