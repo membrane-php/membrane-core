@@ -2,14 +2,19 @@
 
 namespace Membrane\Processor;
 
+use Membrane\Filter;
 use Membrane\Processor;
 use Membrane\Result\Fieldname;
 use Membrane\Result\Result;
+use Membrane\Validator;
 
 class BeforeSet implements Processor
 {
-    public function __construct(private Field $field)
+    private readonly Field $field;
+
+    public function __construct(Filter|Validator ...$chain)
     {
+        $this->field = new Field('', ...$chain);
     }
 
     public function processes(): string

@@ -1,13 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Membrane\Attribute;
 
+use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Membrane\Exception\CannotProcessProperty;
 use Membrane\Processor;
 use Membrane\Processor\Collection;
 use Membrane\Processor\Field;
 use Membrane\Processor\Fieldset;
 use Membrane\Processor\ProcessorType;
+use ReflectionAttribute;
+use ReflectionClass;
+use ReflectionNamedType;
+use ReflectionProperty;
 use function array_map;
 
 class Builder
@@ -19,11 +28,10 @@ class Builder
 
     public function fromClass(string $class, string $processes = ''): Processor
     {
-        $refl = new \ReflectionClass($class);
+        $refl = new ReflectionClass($class);
 
         $processors = $this->makeBeforeAfterSets(
-            $processes,
-            ...$refl->getAttributes(SetFilterOrValidator::class, \ReflectionAttribute::IS_INSTANCEOF)
+            ...$refl->getAttributes(SetFilterOrValidator::class, ReflectionAttribute::IS_INSTANCEOF)
         );
 
         foreach ($refl->getProperties() as $property) {
@@ -37,7 +45,7 @@ class Builder
                 throw CannotProcessProperty::noTypeHint($property->getName());
             }
 
-            if (!($type instanceof \ReflectionNamedType)) {
+            if (!($type instanceof ReflectionNamedType)) {
                 throw CannotProcessProperty::compoundPropertyType($property->getName());
             }
 
@@ -62,17 +70,17 @@ class Builder
     {
         return match ($type) {
             'string', 'int', 'bool', 'float' => ProcessorType::Field,
-            \DateTime::class, \DateTimeImmutable::class, \DateTimeInterface::class => ProcessorType::Field,
+            DateTime::class, DateTimeImmutable::class, DateTimeInterface::class => ProcessorType::Field,
             'array' => ProcessorType::Collection,
             default => ProcessorType::Fieldset
         };
     }
 
-    private function makeField(\ReflectionProperty $property): Field
+    private function makeField(ReflectionProperty $property): Field
     {
         $attributes = $property->getAttributes(
             FilterOrValidator::class,
-            \ReflectionAttribute::IS_INSTANCEOF
+            ReflectionAttribute::IS_INSTANCEOF
         );
 
         return new Field(
@@ -81,7 +89,7 @@ class Builder
         );
     }
 
-    private function makeCollection(\ReflectionProperty $property): Processor
+    private function makeCollection(ReflectionProperty $property): Processor
     {
         $subtype = (current($property->getAttributes(Subtype::class)) ?: null)
             ?->newInstance()
@@ -94,18 +102,17 @@ class Builder
         $subProcessorType = $this->getProcessorTypeFromPropertyType($subtype);
 
         $processors = $this->makeBeforeAfterSets(
-            $property->getName(),
             ...$property->getAttributes(
-                SetFilterOrValidator::class,
-                \ReflectionAttribute::IS_INSTANCEOF
-            )
+            SetFilterOrValidator::class,
+            ReflectionAttribute::IS_INSTANCEOF
+        )
         );
 
         $processors[] = match ($subProcessorType) {
             ProcessorType::Fieldset => $this->fromClass($subtype, $property->getName()),
             ProcessorType::Field => $this->makeField($property),
             ProcessorType::Collection =>
-                throw CannotProcessProperty::nestedCollection($property->getName())
+            throw CannotProcessProperty::nestedCollection($property->getName())
         };
 
         return new Collection(
@@ -114,39 +121,29 @@ class Builder
         );
     }
 
-    private function makeBeforeAfterSets(string $processes, \ReflectionAttribute ...$attributes): array
+    private function makeBeforeAfterSets(ReflectionAttribute ...$attributes): array
     {
         $attributes = array_map(
-            fn (\ReflectionAttribute $attr) => $attr->newInstance(),
+            fn(ReflectionAttribute $attr) => $attr->newInstance(),
             $attributes
         );
         $beforeSet = array_filter(
             $attributes,
-            fn (SetFilterOrValidator $attr) => $attr->placement === Placement::BEFORE
+            fn(SetFilterOrValidator $attr) => $attr->placement === Placement::BEFORE
         );
         $afterSet = array_filter(
             $attributes,
-            fn (SetFilterOrValidator $attr) => $attr->placement === Placement::AFTER
+            fn(SetFilterOrValidator $attr) => $attr->placement === Placement::AFTER
         );
 
         $processors = [];
 
         if (count($beforeSet) > 0) {
-             $field = new Field(
-                $processes,
-                ...array_map(fn(SetFilterOrValidator $attr) => $attr->class, $beforeSet)
-            );
-
-            $processors[] = new Processor\BeforeSet($field);
+            $processors[] = new Processor\BeforeSet(...array_map(fn(SetFilterOrValidator $attr) => $attr->class, $beforeSet));
         }
 
         if (count($afterSet) > 0) {
-            $field = new Field(
-                $processes,
-                ...array_map(fn(SetFilterOrValidator $attr) => $attr->class, $afterSet)
-            );
-
-            $processors[] = new Processor\AfterSet($field);
+            $processors[] = new Processor\AfterSet(...array_map(fn(SetFilterOrValidator $attr) => $attr->class, $afterSet));
         }
 
         return $processors;

@@ -17,8 +17,9 @@ class Field implements Processor
 
     public function __construct(
         private readonly string $processes,
-        Filter|Validator ...$chain
-    ) {
+        Filter|Validator        ...$chain
+    )
+    {
         $this->chain = $chain;
     }
 
@@ -29,22 +30,19 @@ class Field implements Processor
 
     public function process(Fieldname $parentFieldname, mixed $value): Result
     {
+        $result = Result::noResult($value);
+
         foreach ($this->chain as $item) {
             if ($item instanceof Validator) {
-                $result = $item->validate($value);
+                $result = $result->merge($item->validate($result->value));
             }
 
             if ($item instanceof Filter) {
-                $result = $item->filter($value);
-                $value = $result->value;
+                $result = $result->merge($item->filter($result->value));
             }
 
             if (!$result->isValid()) {
-                if ($this->processes !== null) {
-                    $messageSet = new MessageSet($parentFieldname->push(new Fieldname($this->processes)));
-                } else {
-                    $messageSet = new MessageSet($parentFieldname);
-                }
+                $messageSet = new MessageSet($parentFieldname->push(new Fieldname($this->processes)));
 
                 return new Result(
                     $result->value, $result->result, $messageSet->merge(current($result->messageSets))
