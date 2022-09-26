@@ -62,7 +62,8 @@ class Fieldset implements Processor
             if (array_key_exists($processes, $value)) {
                 $result = $item->process($fieldname, $value[$processes]);
                 $value[$processes] = $result->value;
-                $fieldsetResult = $fieldsetResult->merge($result);
+                $processedResult = new Result($value, $result->result, ...$result->messageSets);
+                $fieldsetResult = $fieldsetResult->merge($processedResult);
             }
         }
 

@@ -69,7 +69,7 @@ class AfterSetTest extends TestCase
             }
         };
 
-        $evenNumberFilter = new class implements Filter {
+        $evenFilter = new class implements Filter {
             public function filter(mixed $value): Result
             {
                 foreach (array_keys($value) as $key) {
@@ -87,7 +87,7 @@ class AfterSetTest extends TestCase
                     if ($value[$key] % 2 !== 0) {
                         return Result::invalid($value, new MessageSet(
                                 null,
-                                new Message('not a string', []))
+                                new Message('not even', []))
                         );
                     }
                 }
@@ -96,48 +96,56 @@ class AfterSetTest extends TestCase
         };
 
         return [
-            [
+            'checks it can return valid' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::valid(['a' => 1, 'b' => 2, 'c' => 3]),
                 new Passes(),
             ],
-            [
+            'checks it can return invalid' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::invalid(['a' => 1, 'b' => 2, 'c' => 3], new MessageSet(
-                    new Fieldname('', 'test field'),
+                    new Fieldname('', 'parent field'),
                     new Message('I always fail', [])
                 )),
                 new Fails(),
             ],
-            [
+            'checks it can return noresult' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::noResult(['a' => 1, 'b' => 2, 'c' => 3]),
                 new Indifferent(),
             ],
-            [
+            'checks it keeps track of previous results' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::valid(['a' => 1, 'b' => 2, 'c' => 3]),
                 new Passes(),
                 new Indifferent(),
                 new Indifferent(),
             ],
-            [
+            'checks it can make changes to value' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::valid(['a' => 2, 'b' => 4, 'c' => 6]),
-                $evenNumberFilter,
-                $evenValidator,
+                Result::noResult(['a' => 2, 'b' => 3, 'c' => 4]),
+                $incrementFilter,
             ],
-            [
+            'checks that changes made to value persist' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::noResult(['a' => 3, 'b' => 4, 'c' => 5]),
                 $incrementFilter,
                 $incrementFilter,
             ],
-            [
+            'checks that chain runs in correct order' => [
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                Result::invalid(['a' => 1, 'b' => 2, 'c' => 3], new MessageSet(
+                    new Fieldname('', 'parent field'),
+                    new Message('not even', [])
+                )),
+                $evenValidator,
+                $evenFilter,
+            ],
+            'checks that chain stops as soon as result is invalid' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::invalid(['a' => 2, 'b' => 3, 'c' => 4], new MessageSet(
-                    new Fieldname('', 'test field'),
-                    new Message('not a string', [])
+                    new Fieldname('', 'parent field'),
+                    new Message('not even', [])
                 )),
                 $incrementFilter,
                 $evenValidator,
@@ -154,7 +162,7 @@ class AfterSetTest extends TestCase
     {
         $afterSet = new AfterSet(...$chain);
 
-        $output = $afterSet->process(new Fieldname('test field'), $input);
+        $output = $afterSet->process(new Fieldname('parent field'), $input);
 
         self::assertEquals($expected, $output);
     }

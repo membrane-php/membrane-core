@@ -68,7 +68,7 @@ class FieldTest extends TestCase
             }
         };
 
-        $evenNumberFilter = new class implements Filter {
+        $evenFilter = new class implements Filter {
             public function filter(mixed $value): Result
             {
                 foreach (array_keys($value) as $key) {
@@ -86,7 +86,7 @@ class FieldTest extends TestCase
                     if ($value[$key] % 2 !== 0) {
                         return Result::invalid($value, new MessageSet(
                                 null,
-                                new Message('not a string', []))
+                                new Message('not even', []))
                         );
                     }
                 }
@@ -124,24 +124,34 @@ class FieldTest extends TestCase
                 new Indifferent(),
                 new Indifferent(),
             ],
-            'checks it only processes correct fieldname' => [
+            'checks it can make changes to value' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::noResult(['a' => 2, 'b' => 2, 'c' => 3]),
+                Result::noResult(['a' => 2, 'b' => 3, 'c' => 4]),
                 'a',
                 $incrementFilter,
             ],
-            'checks that changes to value persist' => [
+            'checks that changes made to value persist' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::noResult(['a' => 1, 'b' => 2, 'c' => 5]),
+                Result::noResult(['a' => 3, 'b' => 4, 'c' => 5]),
                 'c',
                 $incrementFilter,
                 $incrementFilter,
             ],
+            'checks that chain runs in correct order' => [
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                Result::invalid(['a' => 1, 'b' => 2, 'c' => 3], new MessageSet(
+                    new Fieldname('b', 'parent field'),
+                    new Message('not even', [])
+                )),
+                'b',
+                $evenValidator,
+                $evenFilter,
+            ],
             'checks that chain stops as soon as result is invalid' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::invalid(['a' => 1, 'b' => 3, 'c' => 3], new MessageSet(
+                Result::invalid(['a' => 2, 'b' => 3, 'c' => 4], new MessageSet(
                     new Fieldname('b', 'parent field'),
-                    new Message('not a string', [])
+                    new Message('not even', [])
                 )),
                 'b',
                 $incrementFilter,
