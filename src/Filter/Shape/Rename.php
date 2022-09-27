@@ -8,14 +8,20 @@ use Membrane\Filter;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use RuntimeException;
 
 class Rename implements Filter
 {
-    public function __construct(
-        private readonly string $old,
-        private readonly string $new
-    )
+    private readonly string $old;
+    private readonly string $new;
+
+    public function __construct(string $old, string $new)
     {
+        if ($old === $new) {
+            throw new RuntimeException('Rename filter does not accept two equal strings');
+        }
+        $this->old = $old;
+        $this->new = $new;
     }
 
     public function filter(mixed $value): Result

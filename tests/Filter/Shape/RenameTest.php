@@ -18,6 +18,18 @@ use PHPUnit\Framework\TestCase;
  */
 class RenameTest extends TestCase
 {
+
+    /**
+     * @test
+     */
+    public function OldAndNewCannotBeEqual(): void
+    {
+        self::expectException('RuntimeException');
+        self::expectExceptionMessage('Rename filter does not accept two equal strings');
+
+        new Rename('a', 'a');
+    }
+
     public function DataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Rename filter requires arrays, %s given';
@@ -66,13 +78,13 @@ class RenameTest extends TestCase
                 ['this' => 'is', 'an' => 'array'],
                 'this',
                 'that',
-                ['that' => 'is', 'an' => 'array']
+                ['that' => 'is', 'an' => 'array'],
             ],
             [
                 ['this' => 'is', 'an' => 'array'],
                 'this',
                 'an',
-                ['an' => 'is']
+                ['an' => 'is'],
             ],
         ];
     }
