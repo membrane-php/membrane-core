@@ -6,6 +6,8 @@ namespace Membrane\Processor;
 
 use Membrane\Processor;
 use Membrane\Result\Fieldname;
+use Membrane\Result\Message;
+use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use RuntimeException;
 
@@ -44,6 +46,19 @@ class Fieldset implements Processor
 
     public function process(Fieldname $parentFieldname, mixed $value): Result
     {
+        if (!is_array($value)) {
+            return Result::invalid($value, new MessageSet(
+                null,
+                new Message('Value passed to FieldSet must be an array, %s passed instead', [gettype($value)])
+            ));
+        }
+
+        if (array_is_list($value) && $value !== []) {
+            return Result::invalid($value, new MessageSet(
+                null, new Message('Value passed to FieldSet must be an array, list passed instead', [])
+            ));
+        }
+
         $fieldname = $parentFieldname->push(new Fieldname($this->processes));
         $fieldsetResult = Result::noResult($value);
 
@@ -62,12 +77,11 @@ class Fieldset implements Processor
             if (array_key_exists($processes, $value)) {
                 $result = $item->process($fieldname, $value[$processes]);
                 $value[$processes] = $result->value;
-                $processedResult = new Result($value, $result->result, ...$result->messageSets);
-                $fieldsetResult = $fieldsetResult->merge($processedResult);
+                $fieldsetResult = $fieldsetResult->merge($result);
             }
         }
 
-        $fieldsetResult->merge(Result::noResult($value));
+        $fieldsetResult = $fieldsetResult->merge(Result::noResult($value));
 
         if (isset($this->after) && $fieldsetResult->isValid()) {
             $result = $this->after->process($fieldname, $value);
