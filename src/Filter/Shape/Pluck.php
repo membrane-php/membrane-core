@@ -32,7 +32,7 @@ class Pluck implements Filter
             return Result::invalid($value, new MessageSet(null, $message));
         }
 
-        $from = $value[$this->fieldSet] ?? null;
+        $from = $value[$this->fieldSet] ?? [];
         if (is_array($from) && !array_is_list($from)) {
             foreach ($this->fieldNames as $fieldName) {
                 if (isset($from[$fieldName])) {
