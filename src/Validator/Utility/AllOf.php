@@ -48,7 +48,7 @@ class AllOf implements Validator
         if (in_array(Result::VALID, $results)) {
             return Result::VALID;
         }
-        
+
         return Result::NO_RESULT;
     }
 }

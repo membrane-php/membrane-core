@@ -12,7 +12,6 @@ use Membrane\Validator;
 
 class DateString implements Validator
 {
-
     public function __construct(private readonly string $format)
     {
     }

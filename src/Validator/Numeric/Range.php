@@ -14,8 +14,7 @@ class Range implements Validator
     public function __construct(
         private int|float|null $min = null,
         private int|float|null $max = null
-    )
-    {
+    ) {
     }
 
     public function validate(mixed $value): Result

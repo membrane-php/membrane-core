@@ -9,7 +9,6 @@ use Membrane\Validator;
 
 class Identical implements Validator
 {
-
     public function validate(mixed $value): Result
     {
         $compareTo = current($value);
