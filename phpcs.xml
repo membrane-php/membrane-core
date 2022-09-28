@@ -3,7 +3,6 @@
 <ruleset name="PSR">
     <description>PHPCS configuration file.</description>
     <file>src</file>
-    <file>tests</file>
 
     <exclude-pattern>*/vendor/*</exclude-pattern>
 

@@ -14,10 +14,9 @@ class Result
 
     public function __construct(
         public readonly mixed $value,
-        public readonly int   $result,
-        MessageSet            ...$messageSets,
-    )
-    {
+        public readonly int $result,
+        MessageSet ...$messageSets,
+    ) {
         $this->messageSets = $messageSets;
     }
 
