@@ -1,22 +1,22 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Result;
 
 use Membrane\Result\Fieldname;
-use Membrane\Result\MessageSet;
 use Membrane\Result\Message;
+use Membrane\Result\MessageSet;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Result\MessageSet
- * @uses \Membrane\Result\Fieldname
- * @uses \Membrane\Result\Message
-
+ * @uses   \Membrane\Result\Fieldname
+ * @uses   \Membrane\Result\Message
  */
 class MessageSetTest extends TestCase
 {
-    public function dataSetsThatCanMerge() : array
+    public function dataSetsThatCanMerge(): array
     {
         $fieldname = new Fieldname('field a');
         $firstMessage = new Message('message 1', ['a', 'c']);
@@ -26,17 +26,17 @@ class MessageSetTest extends TestCase
             'MessageSets with equal fieldnames' => [
                 new MessageSet($fieldname, $firstMessage),
                 new MessageSet($fieldname, $secondMessage),
-                new MessageSet($fieldname, $firstMessage, $secondMessage)
+                new MessageSet($fieldname, $firstMessage, $secondMessage),
             ],
             'MessageSets with all null fieldnames' => [
                 new MessageSet(null, $firstMessage),
                 new MessageSet(null, $secondMessage),
-                new MessageSet(null, $firstMessage, $secondMessage)
+                new MessageSet(null, $firstMessage, $secondMessage),
             ],
             'MessageSets with one null fieldname' => [
                 new MessageSet(null, $firstMessage),
                 new MessageSet($fieldname, $secondMessage),
-                new MessageSet($fieldname, $firstMessage, $secondMessage)
+                new MessageSet($fieldname, $firstMessage, $secondMessage),
             ],
 
         ];
@@ -46,7 +46,7 @@ class MessageSetTest extends TestCase
      * @test
      * @dataProvider dataSetsThatCanMerge
      */
-    public function MergeMessageSets(MessageSet $firstInput, MessageSet $secondInput, MessageSet $expected) : void
+    public function mergeMessageSets(MessageSet $firstInput, MessageSet $secondInput, MessageSet $expected): void
     {
         $result = $firstInput->merge($secondInput);
 
@@ -56,7 +56,7 @@ class MessageSetTest extends TestCase
     /**
      * @test
      */
-    public function MergeDifferentFieldnameThrowsError() : void
+    public function mergeDifferentFieldnameThrowsError(): void
     {
         $firstFieldname = new Fieldname('field a');
         $secondFieldname = new Fieldname('field b');
@@ -69,7 +69,7 @@ class MessageSetTest extends TestCase
         $result = $firstMessageSet->merge($secondMessageSet);
     }
 
-    public function dataSetsForIsEmptyTest() : array
+    public function dataSetsForIsEmptyTest(): array
     {
         return [
             [new MessageSet(null), true],
@@ -82,7 +82,7 @@ class MessageSetTest extends TestCase
      * @test
      * @dataProvider dataSetsForIsEmptyTest
      */
-    public function IsEmptyTest(MessageSet $messageSet, bool $expected) : void
+    public function isEmptyTest(MessageSet $messageSet, bool $expected): void
     {
         $result = $messageSet->isEmpty();
 

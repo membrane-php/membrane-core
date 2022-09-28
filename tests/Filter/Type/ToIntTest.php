@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ToIntTest extends TestCase
 {
-    public function DataSetsWithAcceptableInputs(): array
+    public function dataSetsWithAcceptableInputs(): array
     {
         return [
             [1, 1],
@@ -28,9 +28,9 @@ class ToIntTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithAcceptableInputs
+     * @dataProvider dataSetsWithAcceptableInputs
      */
-    public function AcceptableTypesReturnIntegerValues($input, $expectedValue): void
+    public function acceptableTypesReturnIntegerValues($input, $expectedValue): void
     {
         $toInt = new ToInt();
         $expected = Result::noResult($expectedValue);
@@ -41,7 +41,7 @@ class ToIntTest extends TestCase
         self::assertEquals($expected->result, $result->result);
     }
 
-    public function DataSetsWithUnacceptableInputs(): array
+    public function dataSetsWithUnacceptableInputs(): array
     {
         $message = 'ToInt filter only accepts null or scalar values, %s given';
         $class = new class () {
@@ -50,28 +50,28 @@ class ToIntTest extends TestCase
         return [
             [
                 'non-numeric string',
-                new Message('ToInt filter only accepts numeric strings', [])
+                new Message('ToInt filter only accepts numeric strings', []),
             ],
             [
                 ['an', 'array'],
-                new Message($message, ['array'])
+                new Message($message, ['array']),
             ],
             [
                 ['a' => 'list'],
-                new Message($message, ['array'])
+                new Message($message, ['array']),
             ],
             [
                 $class,
-                new Message($message, ['object'])
+                new Message($message, ['object']),
             ],
         ];
     }
 
     /**
      * @test
-     * @dataProvider DataSetsWithUnacceptableInputs
+     * @dataProvider dataSetsWithUnacceptableInputs
      */
-    public function UnacceptableTypesReturnInvalid($input, $expectedMessage): void
+    public function unacceptableTypesReturnInvalid($input, $expectedMessage): void
     {
         $toInt = new ToInt();
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));

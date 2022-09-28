@@ -31,7 +31,7 @@ class FieldTest extends TestCase
     /**
      * @test
      */
-    public function ProcessesMethodReturnsProcessesString(): void
+    public function processesMethodReturnsProcessesString(): void
     {
         $input = 'Fieldname to process';
         $field = new Field($input);
@@ -44,7 +44,7 @@ class FieldTest extends TestCase
     /**
      * @test
      */
-    public function NoChainReturnsNoResult(): void
+    public function noChainReturnsNoResult(): void
     {
         $input = ['a' => 1, 'b' => 2, 'c' => 3];
         $expected = Result::noResult($input);
@@ -55,7 +55,7 @@ class FieldTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsForFiltersOrValidators(): array
+    public function dataSetsForFiltersOrValidators(): array
     {
         $incrementFilter = new class implements Filter {
             public function filter(mixed $value): Result
@@ -85,9 +85,9 @@ class FieldTest extends TestCase
                 foreach (array_keys($value) as $key) {
                     if ($value[$key] % 2 !== 0) {
                         return Result::invalid($value, new MessageSet(
-                                null,
-                                new Message('not even', []))
-                        );
+                            null,
+                            new Message('not even', [])
+                        ));
                     }
                 }
                 return Result::valid($value);
@@ -163,10 +163,14 @@ class FieldTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsForFiltersOrValidators
+     * @dataProvider dataSetsForFiltersOrValidators
      */
-    public function ProcessesCallsFilterOrValidatorMethods(mixed $input, Result $expected, string $processes, Filter|Validator ...$chain): void
-    {
+    public function processesCallsFilterOrValidateMethods(
+        mixed $input,
+        Result $expected,
+        string $processes,
+        Filter|Validator ...$chain
+    ): void {
         $field = new Field($processes, ...$chain);
 
         $output = $field->process(new Fieldname('parent field'), $input);

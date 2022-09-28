@@ -21,10 +21,10 @@ class IsFloatTest extends TestCase
     /**
      * @test
      */
-    public function FloatReturnValid(): void
+    public function floatReturnValid(): void
     {
         $input = 1.1;
-        $isFloat = new IsFloat;
+        $isFloat = new IsFloat();
         $expected = Result::valid($input);
 
         $result = $isFloat->validate($input);
@@ -39,7 +39,7 @@ class IsFloatTest extends TestCase
             [1, 'integer'],
             ['1.1', 'string'],
             [[], 'array'],
-            [null, 'NULL']
+            [null, 'NULL'],
         ];
     }
 
@@ -47,10 +47,13 @@ class IsFloatTest extends TestCase
      * @test
      * @dataProvider dataSetsThatFail
      */
-    public function TypesThatAreNotFloatReturnInvalid($input, $expectedVar): void
+    public function typesThatAreNotFloatReturnInvalid($input, $expectedVar): void
     {
-        $isFloat = new IsFloat;
-        $expectedMessage = new Message('Value passed to IsFloat validator is not a double, %s passed instead', [$expectedVar]);
+        $isFloat = new IsFloat();
+        $expectedMessage = new Message(
+            'Value passed to IsFloat validator is not a double, %s passed instead',
+            [$expectedVar]
+        );
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
 
         $result = $isFloat->validate($input);

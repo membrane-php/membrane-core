@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class PluckTest extends TestCase
 {
-    public function DataSetsWithIncorrectInputs(): array
+    public function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Pluck filter requires arrays, %s given';
         $listMessage = 'Pluck filter requires arrays with key-value pairs';
@@ -33,9 +33,9 @@ class PluckTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithIncorrectInputs
+     * @dataProvider dataSetsWithIncorrectInputs
      */
-    public function IncorrectInputsReturnInvalid(mixed $input, Message $expectedMessage): void
+    public function incorrectInputsReturnInvalid(mixed $input, Message $expectedMessage): void
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $pluck = new Pluck('from', 'a', 'b');
@@ -48,7 +48,7 @@ class PluckTest extends TestCase
     /**
      * @test
      */
-    public function NonExistentFieldSetIsIgnored(): void
+    public function nonExistentFieldSetIsIgnored(): void
     {
         $input = ['not-from' => ['a' => 1, 'b' => 2, 'c' => 3], 'd' => 4];
         $expected = Result::noResult($input);
@@ -62,7 +62,7 @@ class PluckTest extends TestCase
     /**
      * @test
      */
-    public function NonExistentFieldNamesAreIgnored(): void
+    public function nonExistentFieldNamesAreIgnored(): void
     {
         $input = ['from' => ['a' => 1, 'b' => 2, 'c' => 3], 'd' => 4];
         $expected = Result::noResult($input);
@@ -73,7 +73,7 @@ class PluckTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsThatPass(): array
+    public function dataSetsThatPass(): array
     {
         return [
             [
@@ -102,9 +102,9 @@ class PluckTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsThatPass
+     * @dataProvider dataSetsThatPass
      */
-    public function CorrectInputsSuccessfullyPluckValue($input, $expectedValue, $fieldSet, ...$fieldNames): void
+    public function correctInputsSuccessfullyPluckValue($input, $expectedValue, $fieldSet, ...$fieldNames): void
     {
         $expected = Result::noResult($expectedValue);
         $pluck = new Pluck($fieldSet, ...$fieldNames);
@@ -113,5 +113,4 @@ class PluckTest extends TestCase
 
         self::assertEquals($expected, $result);
     }
-
 }

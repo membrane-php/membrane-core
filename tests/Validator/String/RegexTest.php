@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class RegexTest extends TestCase
 {
-    public function DataSetsThatPass(): array
+    public function dataSetsThatPass(): array
     {
         return [
             ['//', ''],
@@ -29,9 +29,9 @@ class RegexTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsThatPass
+     * @dataProvider dataSetsThatPass
      */
-    public function StringsThatMatchPatternReturnValid(string $pattern, string $input): void
+    public function stringsThatMatchPatternReturnValid(string $pattern, string $input): void
     {
         $regex = new Regex($pattern);
         $expected = Result::valid($input);
@@ -41,7 +41,7 @@ class RegexTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsThatFail(): array
+    public function dataSetsThatFail(): array
     {
         return [
             ['/abc/', 'ABC'],
@@ -52,9 +52,9 @@ class RegexTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsThatFail
+     * @dataProvider dataSetsThatFail
      */
-    public function StringsThatDoNotMatchPatternReturnInvalid(string $pattern, string $input): void
+    public function stringsThatDoNotMatchPatternReturnInvalid(string $pattern, string $input): void
     {
         $regex = new Regex($pattern);
         $expectedMessage = new Message('String does not match the required pattern %s', [$pattern]);

@@ -18,11 +18,10 @@ use PHPUnit\Framework\TestCase;
  */
 class RenameTest extends TestCase
 {
-
     /**
      * @test
      */
-    public function OldAndNewCannotBeEqual(): void
+    public function oldAndNewCannotBeEqual(): void
     {
         self::expectException('RuntimeException');
         self::expectExceptionMessage('Rename filter does not accept two equal strings');
@@ -30,7 +29,7 @@ class RenameTest extends TestCase
         new Rename('a', 'a');
     }
 
-    public function DataSetsWithIncorrectInputs(): array
+    public function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Rename filter requires arrays, %s given';
         $listMessage = 'Rename filter requires arrays with key-value pairs';
@@ -45,9 +44,9 @@ class RenameTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithIncorrectInputs
+     * @dataProvider dataSetsWithIncorrectInputs
      */
-    public function IncorrectInputsReturnInvalid(mixed $input, Message $expectedMessage): void
+    public function incorrectInputsReturnInvalid(mixed $input, Message $expectedMessage): void
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $rename = new Rename('old key', 'new key');
@@ -60,7 +59,7 @@ class RenameTest extends TestCase
     /**
      * @test
      */
-    public function NonExistentKeysAreIgnored(): void
+    public function nonExistentKeysAreIgnored(): void
     {
         $input = ['a' => 1, 'b' => 2];
         $expected = Result::noResult($input);
@@ -71,7 +70,7 @@ class RenameTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsToFilter(): array
+    public function dataSetsToFilter(): array
     {
         return [
             [
@@ -91,9 +90,9 @@ class RenameTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsToFilter
+     * @dataProvider dataSetsToFilter
      */
-    public function IfOldKeyExistsThenItIsRenamed(array $input, mixed $old, mixed $new, array $expectedValue): void
+    public function ifOldKeyExistsThenItIsRenamed(array $input, mixed $old, mixed $new, array $expectedValue): void
     {
         $expected = Result::noResult($expectedValue);
         $rename = new Rename($old, $new);

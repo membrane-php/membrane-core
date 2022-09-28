@@ -21,10 +21,10 @@ class IsStringTest extends TestCase
     /**
      * @test
      */
-    public function StringsReturnValid(): void
+    public function stringsReturnValid(): void
     {
         $input = 'this is a string';
-        $isString = new IsString;
+        $isString = new IsString();
         $expected = Result::valid($input);
 
         $result = $isString->validate($input);
@@ -39,7 +39,7 @@ class IsStringTest extends TestCase
             [1, 'integer'],
             [1.1, 'double'],
             [[], 'array'],
-            [null, 'NULL']
+            [null, 'NULL'],
         ];
     }
 
@@ -47,10 +47,13 @@ class IsStringTest extends TestCase
      * @test
      * @dataProvider dataSetsThatFail
      */
-    public function TypesThatAreNotStringReturnInvalid($input, $expectedVar): void
+    public function typesThatAreNotStringReturnInvalid($input, $expectedVar): void
     {
-        $isString = new IsString;
-        $expectedMessage = new Message('Value passed to IsString validator is not a string, %s passed instead', [$expectedVar]);
+        $isString = new IsString();
+        $expectedMessage = new Message(
+            'Value passed to IsString validator is not a string, %s passed instead',
+            [$expectedVar]
+        );
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
 
         $result = $isString->validate($input);

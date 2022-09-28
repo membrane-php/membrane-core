@@ -30,7 +30,7 @@ use RuntimeException;
  */
 class CollectionTest extends TestCase
 {
-    public function DataSetsWithIncorrectValues(): array
+    public function dataSetsWithIncorrectValues(): array
     {
         $notArrayMessage = 'Value passed to Collection must be a list, %s passed instead';
         return [
@@ -45,9 +45,9 @@ class CollectionTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithIncorrectValues
+     * @dataProvider dataSetsWithIncorrectValues
      */
-    public function OnlyAcceptsArrayValues(mixed $input, Message $expectedMessage): void
+    public function onlyAcceptsArrayValues(mixed $input, Message $expectedMessage): void
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $fieldname = 'field to process';
@@ -61,7 +61,7 @@ class CollectionTest extends TestCase
     /**
      * @test
      */
-    public function OnlyAcceptsOneField(): void
+    public function onlyAcceptsOneField(): void
     {
         $field = new Field('field to process');
         self::expectException(RuntimeException::class);
@@ -73,7 +73,7 @@ class CollectionTest extends TestCase
     /**
      * @test
      */
-    public function ProcessesTest(): void
+    public function processesTest(): void
     {
         $fieldname = 'field to process';
         $fieldset = new Collection($fieldname);
@@ -86,7 +86,7 @@ class CollectionTest extends TestCase
     /**
      * @test
      */
-    public function ProcessMethodWithNoChainReturnsNoResult(): void
+    public function processMethodWithNoChainReturnsNoResult(): void
     {
         $value = [];
         $expected = Result::noResult($value);
@@ -97,7 +97,7 @@ class CollectionTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsOfFields(): array
+    public function dataSetsOfFields(): array
     {
         $incrementFilter = new class implements Filter {
             public function filter(mixed $value): Result
@@ -128,9 +128,9 @@ class CollectionTest extends TestCase
             {
                 if ($value % 2 !== 0) {
                     return Result::invalid($value, new MessageSet(
-                            null,
-                            new Message('not even', []))
-                    );
+                        null,
+                        new Message('not even', [])
+                    ));
                 }
                 return Result::valid($value);
             }
@@ -142,9 +142,9 @@ class CollectionTest extends TestCase
                 foreach (array_keys($value) as $key) {
                     if ($value[$key] % 2 !== 0) {
                         return Result::invalid($value, new MessageSet(
-                                null,
-                                new Message('not even', []))
-                        );
+                            null,
+                            new Message('not even', [])
+                        ));
                     }
                 }
                 return Result::valid($value);
@@ -169,13 +169,17 @@ class CollectionTest extends TestCase
             ],
             'Field processed can return invalid results' => [
                 [1, 2, 3],
-                Result::invalid([1, 2, 3],
+                Result::invalid(
+                    [1, 2, 3],
                     new MessageSet(
                         new Fieldname('a', 'parent field', 'field to process', '0'),
-                        new Message('not even', [])),
+                        new Message('not even', [])
+                    ),
                     new MessageSet(
                         new Fieldname('a', 'parent field', 'field to process', '2'),
-                        new Message('not even', []))),
+                        new Message('not even', [])
+                    )
+                ),
 
                 new Field('a', $evenValidator),
             ],
@@ -193,19 +197,25 @@ class CollectionTest extends TestCase
             ],
             'AfterSet does not process if BeforeSet returns invalid' => [
                 [1, 2, 3],
-                Result::invalid([1, 2, 3],
+                Result::invalid(
+                    [1, 2, 3],
                     new MessageSet(
                         new Fieldname('', 'parent field', 'field to process'),
-                        new Message('not even', []))),
+                        new Message('not even', [])
+                    )
+                ),
                 new BeforeSet($evenArrayValidator),
                 new AfterSet($evenArrayFilter),
             ],
             'AfterSet processes after Field' => [
                 [1, 2, 3],
-                Result::invalid([2, 3, 4],
+                Result::invalid(
+                    [2, 3, 4],
                     new MessageSet(
                         new Fieldname('', 'parent field', 'field to process'),
-                        new Message('not even', []))),
+                        new Message('not even', [])
+                    )
+                ),
                 new Field('a', $incrementFilter),
                 new AfterSet($evenArrayValidator),
             ],
@@ -213,7 +223,8 @@ class CollectionTest extends TestCase
                 [1, 2, 3],
                 Result::invalid([3, 5, 7], new MessageSet(
                     new Fieldname('', 'parent field', 'field to process'),
-                    new Message('not even', []))),
+                    new Message('not even', [])
+                )),
                 new BeforeSet($evenArrayFilter),
                 new Field('b', $incrementFilter),
                 new AfterSet($evenArrayValidator),
@@ -223,9 +234,9 @@ class CollectionTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsOfFields
+     * @dataProvider dataSetsOfFields
      */
-    public function ProcessTest(array $input, Result $expected, Processor ...$chain): void
+    public function processTest(array $input, Result $expected, Processor ...$chain): void
     {
         $fieldset = new Collection('field to process', ...$chain);
 

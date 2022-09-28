@@ -10,7 +10,6 @@ use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use PHPUnit\Framework\TestCase;
 
-
 /**
  * @covers \Membrane\Filter\Type\ToString
  * @uses   \Membrane\Result\Result
@@ -19,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ToStringTest extends TestCase
 {
-    public function DataSetsWithAcceptableInputs(): array
+    public function dataSetsWithAcceptableInputs(): array
     {
         $classWithMethod = new class () {
             public function __toString(): string
@@ -39,9 +38,9 @@ class ToStringTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithAcceptableInputs
+     * @dataProvider dataSetsWithAcceptableInputs
      */
-    public function AcceptableInputsReturnStrings($input, $expectedValue)
+    public function acceptableInputsReturnStrings($input, $expectedValue)
     {
         $toString = new ToString();
         $expected = Result::noResult($expectedValue);
@@ -52,7 +51,7 @@ class ToStringTest extends TestCase
         self::assertEquals($expected->result, $result->result);
     }
 
-    public function DataSetsWithUnacceptableInputs(): array
+    public function dataSetsWithUnacceptableInputs(): array
     {
         $message = 'ToString filter only accepts objects, null or scalar values, %s given';
         $classWithoutMethod = new class () {
@@ -61,24 +60,24 @@ class ToStringTest extends TestCase
         return [
             [
                 ['an', 'array'],
-                new Message($message, ['array'])
+                new Message($message, ['array']),
             ],
             [
                 ['a' => 'list'],
-                new Message($message, ['array'])
+                new Message($message, ['array']),
             ],
             [
                 $classWithoutMethod,
-                new Message('ToString Filter only accepts objects with __toString method', [])
+                new Message('ToString Filter only accepts objects with __toString method', []),
             ],
         ];
     }
 
     /**
      * @test
-     * @dataProvider DataSetsWithUnacceptableInputs
+     * @dataProvider dataSetsWithUnacceptableInputs
      */
-    public function UnacceptableTypesReturnInvalid($input, $expectedMessage): void
+    public function unacceptableTypesReturnInvalid($input, $expectedMessage): void
     {
         $toString = new ToString();
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));

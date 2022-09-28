@@ -19,7 +19,7 @@ class RangeTest extends TestCase
     /**
      * @test
      */
-    public function NullMinAndNullMaxReturnsValid(): void
+    public function nullMinAndNullMaxReturnsValid(): void
     {
         $input = 1;
         $expected = Result::valid($input);
@@ -30,7 +30,7 @@ class RangeTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsForInputsBelowMinimum(): array
+    public function dataSetsForInputsBelowMinimum(): array
     {
         return [
             [0, 5],
@@ -41,9 +41,9 @@ class RangeTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsForInputsBelowMinimum
+     * @dataProvider dataSetsForInputsBelowMinimum
      */
-    public function NumbersBelowMinimumReturnInvalid(int|float $input, int|float $min): void
+    public function numbersBelowMinimumReturnInvalid(int|float $input, int|float $min): void
     {
         $expectedMessage = new Message('Number is expected to be a minimum of %d', [$min]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
@@ -54,7 +54,7 @@ class RangeTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsForInputsAboveMaximum(): array
+    public function dataSetsForInputsAboveMaximum(): array
     {
         return [
             [10, 5],
@@ -65,9 +65,9 @@ class RangeTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsForInputsAboveMaximum
+     * @dataProvider dataSetsForInputsAboveMaximum
      */
-    public function NumbersAboveMaximumReturnInvalid(int|float $input, int|float $max): void
+    public function numbersAboveMaximumReturnInvalid(int|float $input, int|float $max): void
     {
         $expectedMessage = new Message('Number is expected to be a maximum of %d', [$max]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
@@ -78,7 +78,7 @@ class RangeTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsForInputsWithinRange(): array
+    public function dataSetsForInputsWithinRange(): array
     {
         return [
             [5, 0, 5],
@@ -89,9 +89,9 @@ class RangeTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsForInputsWithinRange
+     * @dataProvider dataSetsForInputsWithinRange
      */
-    public function NumbersWithinRangeReturnValid(int|float $input, int|float $min, int|float $max): void
+    public function numbersWithinRangeReturnValid(int|float $input, int|float $min, int|float $max): void
     {
         $expected = Result::valid($input);
         $range = new Range($min, $max);

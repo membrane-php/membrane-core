@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Validator\Object;
@@ -11,9 +12,9 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Validator\Object\RequiredFields
- * @uses \Membrane\Result\Result
- * @uses \Membrane\Result\MessageSet
- * @uses \Membrane\Result\Message
+ * @uses   \Membrane\Result\Result
+ * @uses   \Membrane\Result\MessageSet
+ * @uses   \Membrane\Result\Message
  */
 class RequiredFieldsTest extends TestCase
 {
@@ -54,7 +55,7 @@ class RequiredFieldsTest extends TestCase
      * @test
      * @dataProvider dataSetsForValidResults
      */
-    public function IfRequiredFieldsAreFilledReturnValid(array $requiredFields, array $input) : void
+    public function ifRequiredFieldsAreFilledReturnValid(array $requiredFields, array $input): void
     {
         $expected = Result::valid($input);
         $requiredFields = new RequiredFields(...$requiredFields);
@@ -86,7 +87,7 @@ class RequiredFieldsTest extends TestCase
             'two required fields, one filled' => [
                 ['required-1', 'required-2'],
                 [
-                    'required-1' => 'value-1'
+                    'required-1' => 'value-1',
                 ],
                 new Message('%s is a required field', ['required-2']),
             ],
@@ -97,8 +98,11 @@ class RequiredFieldsTest extends TestCase
      * @test
      * @dataProvider dataSetsForInvalidResults
      */
-    public function IfRequiredFieldsAreNotFilledReturnInvalid(array $requiredFields, array $input, Message ...$expectedMessages): void
-    {
+    public function ifRequiredFieldsAreNotFilledReturnInvalid(
+        array $requiredFields,
+        array $input,
+        Message ...$expectedMessages
+    ): void {
         $expected = Result::invalid($input, new MessageSet(null, ...$expectedMessages));
         $requiredFields = new RequiredFields(...$requiredFields);
 

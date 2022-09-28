@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class DeleteTest extends TestCase
 {
-    public function DataSetsWithIncorrectInputs(): array
+    public function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Delete filter requires arrays, %s given';
         $listMessage = 'Delete filter requires arrays, for lists use Truncate';
@@ -33,9 +33,9 @@ class DeleteTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithIncorrectInputs
+     * @dataProvider dataSetsWithIncorrectInputs
      */
-    public function IncorrectInputsReturnInvalid(mixed $input, Message $expectedMessage): void
+    public function incorrectInputsReturnInvalid(mixed $input, Message $expectedMessage): void
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $delete = new Delete();
@@ -45,32 +45,32 @@ class DeleteTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsToFilter(): array
+    public function dataSetsToFilter(): array
     {
         return [
             [
                 ['this' => 'is', 'an' => 'array'],
                 ['non-existent-field-name'],
-                ['this' => 'is', 'an' => 'array']
+                ['this' => 'is', 'an' => 'array'],
             ],
             [
                 ['this' => 'is', 'an' => 'array'],
                 ['this'],
-                ['an' => 'array']
+                ['an' => 'array'],
             ],
             [
                 ['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4],
                 ['a', 'c', 'e'],
-                ['b' => 2, 'd' => 4]
+                ['b' => 2, 'd' => 4],
             ],
         ];
     }
 
     /**
      * @test
-     * @dataProvider DataSetsToFilter
+     * @dataProvider dataSetsToFilter
      */
-    public function ListsAreTruncatedToMatchMaxLength(array $input, array $fieldNames, array $expectedValue): void
+    public function listsAreTruncatedToMatchMaxLength(array $input, array $fieldNames, array $expectedValue): void
     {
         $expected = Result::noResult($expectedValue);
         $delete = new Delete(...$fieldNames);

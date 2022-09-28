@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Result;
@@ -14,7 +15,7 @@ class FieldnameTest extends TestCase
     /**
      * @test
      */
-    public function PushTest(): void
+    public function pushTest(): void
     {
         $expected = new Fieldname('new field', 'original field');
         $fieldname = new Fieldname('original field');
@@ -27,7 +28,7 @@ class FieldnameTest extends TestCase
     /**
      * @test
      */
-    public function FieldnameIsAlwaysMergableByItself(): void
+    public function fieldnameIsAlwaysMergableByItself(): void
     {
         $fieldname = new Fieldname('test field');
 
@@ -83,7 +84,7 @@ class FieldnameTest extends TestCase
      * @dataProvider dataSetsWithEqualStringRepresentations
      * @dataProvider dataSetsWithDifferentStringRepresentations
      */
-    public function MergableTest(Fieldname $firstFieldname, Fieldname $secondFieldname, bool $expected): void
+    public function mergableTest(Fieldname $firstFieldname, Fieldname $secondFieldname, bool $expected): void
     {
         $equals = $firstFieldname->equals($secondFieldname);
         $mergable = $firstFieldname->mergable($secondFieldname);
@@ -106,7 +107,7 @@ class FieldnameTest extends TestCase
      * @test
      * @dataProvider dataSetsForStringRepresentation
      */
-    public function StringRepresentationTest(array $input, string $expected): void
+    public function stringRepresentationTest(array $input, string $expected): void
     {
         $fieldname = new Fieldname(...$input);
 

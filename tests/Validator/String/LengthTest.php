@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Validator\String;
@@ -11,9 +12,9 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Validator\String\Length
- * @uses \Membrane\Result\Result
- * @uses \Membrane\Result\Message
- * @uses \Membrane\Result\MessageSet
+ * @uses   \Membrane\Result\Result
+ * @uses   \Membrane\Result\Message
+ * @uses   \Membrane\Result\MessageSet
  */
 class LengthTest extends TestCase
 {
@@ -32,7 +33,7 @@ class LengthTest extends TestCase
      * @test
      * @dataProvider dataSetsThatPass
      */
-    public function StringLengthWithinMinAndMaxReturnsValid(mixed $input, int $min, ?int $max): void
+    public function stringLengthWithinMinAndMaxReturnsValid(mixed $input, int $min, ?int $max): void
     {
         $expected = Result::valid($input);
         $length = new Length($min, $max);
@@ -55,8 +56,12 @@ class LengthTest extends TestCase
      * @test
      * @dataProvider dataSetsThatFail
      */
-    public function StringLengthOutsideMinOrMaxReturnsInvalid(mixed $input, int $min, ?int $max, Message $expectedMessage): void
-    {
+    public function stringLengthOutsideMinOrMaxReturnsInvalid(
+        mixed $input,
+        int $min,
+        ?int $max,
+        Message $expectedMessage
+    ): void {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $length = new Length($min, $max);
 

@@ -18,8 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class IsArrayTest extends TestCase
 {
-
-    public function DataSetsThatPass(): array
+    public function dataSetsThatPass(): array
     {
         return [
             [['a' => 'arrays have', 'b' => 'string keys']],
@@ -29,9 +28,9 @@ class IsArrayTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsThatPass
+     * @dataProvider dataSetsThatPass
      */
-    public function ArrayReturnsValid($input): void
+    public function arrayReturnsValid($input): void
     {
         $isArray = new IsArray();
         $expected = Result::valid($input);
@@ -41,25 +40,28 @@ class IsArrayTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsThatAreNotArraysOrLists(): array
+    public function dataSetsThatAreNotArraysOrLists(): array
     {
         return [
             ['true', 'string'],
             [1, 'integer'],
             [1.1, 'double'],
             [false, 'boolean'],
-            [null, 'NULL']
+            [null, 'NULL'],
         ];
     }
 
     /**
      * @test
-     * @dataProvider DataSetsThatAreNotArraysOrLists
+     * @dataProvider dataSetsThatAreNotArraysOrLists
      */
-    public function TypesThatAreNotArraysReturnInvalid($input, $expectedVar): void
+    public function typesThatAreNotArraysReturnInvalid($input, $expectedVar): void
     {
         $isArray = new IsArray();
-        $expectedMessage = new Message('Value passed to IsArray validator is not an array, %s passed instead', [$expectedVar]);
+        $expectedMessage = new Message(
+            'Value passed to IsArray validator is not an array, %s passed instead',
+            [$expectedVar]
+        );
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
 
         $result = $isArray->validate($input);
@@ -70,7 +72,7 @@ class IsArrayTest extends TestCase
     /**
      * @test
      */
-    public function ListsReturnInvalid(): void
+    public function listsReturnInvalid(): void
     {
         $input = ['this', 'is', 'a', 'list'];
         $expectedMessage = new Message('Value passed to IsArray validator is a list, arrays have keys', []);

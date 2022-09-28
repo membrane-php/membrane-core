@@ -23,7 +23,7 @@ class IndifferentTest extends TestCase
      * @test
      * @dataProvider dataSets
      */
-    public function IndifferentAlwaysReturnsNoResult(mixed $input): void
+    public function indifferentAlwaysReturnsNoResult(mixed $input): void
     {
         $indifferent = new Indifferent();
         $expected = Result::noResult($input);
