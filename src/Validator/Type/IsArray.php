@@ -2,7 +2,6 @@
 
 namespace Membrane\Validator\Type;
 
-
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;

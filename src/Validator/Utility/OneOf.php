@@ -30,6 +30,7 @@ class OneOf implements Validator
                     return $itemResult;
                 case Result::INVALID:
                     $messageSetChain [] = $itemResult->messageSets[0];
+                // no break
                 case Result::NO_RESULT:
                     $resultChain [] = $itemResult->result;
             }

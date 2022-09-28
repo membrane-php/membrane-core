@@ -12,10 +12,9 @@ use Membrane\Validator;
 class Count implements Validator
 {
     public function __construct(
-        private int  $min = 0,
+        private int $min = 0,
         private ?int $max = null
-    )
-    {
+    ) {
     }
 
     public function validate(mixed $value): Result
@@ -33,7 +32,5 @@ class Count implements Validator
         }
 
         return Result::valid($value);
-
-
     }
 }

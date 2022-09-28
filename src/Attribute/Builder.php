@@ -9,6 +9,8 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Membrane\Exception\CannotProcessProperty;
 use Membrane\Processor;
+use Membrane\Processor\AfterSet;
+use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
 use Membrane\Processor\Field;
 use Membrane\Processor\Fieldset;
@@ -17,6 +19,7 @@ use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
+
 use function array_map;
 
 class Builder
@@ -103,9 +106,9 @@ class Builder
 
         $processors = $this->makeBeforeAfterSets(
             ...$property->getAttributes(
-            SetFilterOrValidator::class,
-            ReflectionAttribute::IS_INSTANCEOF
-        )
+                SetFilterOrValidator::class,
+                ReflectionAttribute::IS_INSTANCEOF
+            )
         );
 
         $processors[] = match ($subProcessorType) {
@@ -139,11 +142,11 @@ class Builder
         $processors = [];
 
         if (count($beforeSet) > 0) {
-            $processors[] = new Processor\BeforeSet(...array_map(fn(SetFilterOrValidator $attr) => $attr->class, $beforeSet));
+            $processors[] = new BeforeSet(...array_map(fn(SetFilterOrValidator $attr) => $attr->class, $beforeSet));
         }
 
         if (count($afterSet) > 0) {
-            $processors[] = new Processor\AfterSet(...array_map(fn(SetFilterOrValidator $attr) => $attr->class, $afterSet));
+            $processors[] = new AfterSet(...array_map(fn(SetFilterOrValidator $attr) => $attr->class, $afterSet));
         }
 
         return $processors;

@@ -43,7 +43,5 @@ class Pluck implements Filter
         }
 
         return Result::noResult($value);
-
-
     }
 }

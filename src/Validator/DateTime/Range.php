@@ -15,8 +15,7 @@ class Range implements Validator
     public function __construct(
         private ?DateTime $min = null,
         private ?DateTime $max = null
-    )
-    {
+    ) {
     }
 
     public function validate(mixed $value): Result

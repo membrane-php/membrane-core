@@ -12,7 +12,7 @@ class Length implements Validator
     public function __construct(
         private int $min = 0,
         private ?int $max = null
-    ){
+    ) {
     }
 
     public function validate(mixed $value): Result

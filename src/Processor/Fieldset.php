@@ -19,9 +19,8 @@ class Fieldset implements Processor
 
     public function __construct(
         private readonly string $processes,
-        Processor               ...$chain
-    )
-    {
+        Processor ...$chain
+    ) {
         foreach ($chain as $item) {
             if ($item instanceof BeforeSet) {
                 if (isset($this->before)) {
@@ -55,7 +54,8 @@ class Fieldset implements Processor
 
         if (array_is_list($value) && $value !== []) {
             return Result::invalid($value, new MessageSet(
-                null, new Message('Value passed to FieldSet must be an array, list passed instead', [])
+                null,
+                new Message('Value passed to FieldSet must be an array, list passed instead', [])
             ));
         }
 

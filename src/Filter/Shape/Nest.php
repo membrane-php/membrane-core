@@ -14,7 +14,7 @@ class Nest implements Filter
     public function __construct(
         private string $newField,
         string ...$fields
-    ){
+    ) {
         $this->fields = $fields;
     }
 

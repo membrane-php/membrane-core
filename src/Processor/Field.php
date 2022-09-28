@@ -17,9 +17,8 @@ class Field implements Processor
 
     public function __construct(
         private readonly string $processes,
-        Filter|Validator        ...$chain
-    )
-    {
+        Filter|Validator ...$chain
+    ) {
         $this->chain = $chain;
     }
 
@@ -45,7 +44,9 @@ class Field implements Processor
                 $messageSet = new MessageSet($parentFieldname->push(new Fieldname($this->processes)));
 
                 return new Result(
-                    $result->value, $result->result, $messageSet->merge(current($result->messageSets))
+                    $result->value,
+                    $result->result,
+                    $messageSet->merge(current($result->messageSets))
                 );
             }
         }

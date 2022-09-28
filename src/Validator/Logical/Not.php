@@ -14,7 +14,6 @@ class Not implements Validator
     public function __construct(
         private Validator $invertedValidator
     ) {
-
     }
 
     public function validate(mixed $value): Result

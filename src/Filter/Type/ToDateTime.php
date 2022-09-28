@@ -15,9 +15,8 @@ class ToDateTime implements Filter
 {
     public function __construct(
         private readonly string $format,
-        private readonly bool   $immutable = true
-    )
-    {
+        private readonly bool $immutable = true
+    ) {
     }
 
     public function filter(mixed $value): Result
@@ -31,7 +30,8 @@ class ToDateTime implements Filter
         if ($dateTime === false) {
             $message = new Message(
                 'String does not match the required format',
-                [$this->immutable ? DateTimeImmutable::getLastErrors() : DateTime::getLastErrors()]);
+                [$this->immutable ? DateTimeImmutable::getLastErrors() : DateTime::getLastErrors()]
+            );
             return Result::invalid($value, new MessageSet(null, $message));
         }
 

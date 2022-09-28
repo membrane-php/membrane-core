@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Membrane\Result;
 
+use RuntimeException;
+
 class MessageSet
 {
     public readonly array $messages;
@@ -17,8 +19,12 @@ class MessageSet
 
     public function merge(MessageSet $messageSet): MessageSet
     {
-        if ($this->fieldname?->mergable($messageSet->fieldname) === false || $messageSet->fieldname?->mergable($this->fieldname) === false) {
-            throw new \RuntimeException('Unable to merge message sets for different fieldnames');
+        if (
+            $this->fieldname?->mergable($messageSet->fieldname) === false
+            ||
+            $messageSet->fieldname?->mergable($this->fieldname) === false
+        ) {
+            throw new RuntimeException('Unable to merge message sets for different fieldnames');
         }
 
         return new MessageSet(
@@ -28,7 +34,7 @@ class MessageSet
         );
     }
 
-    public function isEmpty() : bool
+    public function isEmpty(): bool
     {
         return !(isset($this->messages) && count($this->messages) > 0);
     }

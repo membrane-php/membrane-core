@@ -19,9 +19,8 @@ class Collection implements Processor
 
     public function __construct(
         private readonly string $processes,
-        Processor               ...$chain
-    )
-    {
+        Processor ...$chain
+    ) {
         $processors = $chain;
         foreach ($chain as $k => $item) {
             if ($item instanceof BeforeSet) {
