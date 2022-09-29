@@ -4,7 +4,7 @@ namespace Membrane\Processor;
 
 use Membrane\Filter;
 use Membrane\Processor;
-use Membrane\Result\Fieldname;
+use Membrane\Result\FieldName;
 use Membrane\Result\Result;
 use Membrane\Validator;
 
@@ -22,8 +22,8 @@ class AfterSet implements Processor
         return $this->field->processes();
     }
 
-    public function process(Fieldname $parentFieldname, mixed $value): Result
+    public function process(FieldName $parentFieldName, mixed $value): Result
     {
-        return $this->field->process($parentFieldname, $value);
+        return $this->field->process($parentFieldName, $value);
     }
 }

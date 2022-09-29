@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\Result;
 
-class Fieldname
+class FieldName
 {
     public readonly array $stack;
 
@@ -15,7 +15,7 @@ class Fieldname
         $this->stack = $stack;
     }
 
-    public function push(Fieldname $fieldname): self
+    public function push(FieldName $fieldname): self
     {
         return new self(
             $fieldname->fieldname,
@@ -23,7 +23,7 @@ class Fieldname
         );
     }
 
-    public function mergable(?Fieldname $other): bool
+    public function mergable(?FieldName $other): bool
     {
         if ($other === null) {
             return true;
@@ -32,7 +32,7 @@ class Fieldname
         return $this->equals($other);
     }
 
-    public function equals(Fieldname $other): bool
+    public function equals(FieldName $other): bool
     {
         return $this->getStringRepresentation() === $other->getStringRepresentation();
     }

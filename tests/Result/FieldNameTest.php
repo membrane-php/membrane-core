@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace Result;
 
-use Membrane\Result\Fieldname;
+use Membrane\Result\FieldName;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Membrane\Result\Fieldname
+ * @covers \Membrane\Result\FieldName
  */
-class FieldnameTest extends TestCase
+class FieldNameTest extends TestCase
 {
     /**
      * @test
      */
     public function pushTest(): void
     {
-        $expected = new Fieldname('new field', 'original field');
-        $fieldname = new Fieldname('original field');
+        $expected = new FieldName('new field', 'original field');
+        $fieldName = new FieldName('original field');
 
-        $result = $fieldname->push(new Fieldname('new field'));
+        $result = $fieldName->push(new FieldName('new field'));
 
         self::assertEquals($expected, $result);
     }
@@ -28,11 +28,11 @@ class FieldnameTest extends TestCase
     /**
      * @test
      */
-    public function fieldnameIsAlwaysMergableByItself(): void
+    public function fieldNameIsAlwaysMergableByItself(): void
     {
-        $fieldname = new Fieldname('test field');
+        $fieldName = new FieldName('test field');
 
-        $result = $fieldname->mergable(null);
+        $result = $fieldName->mergable(null);
 
         self::assertTrue($result);
     }
@@ -41,23 +41,23 @@ class FieldnameTest extends TestCase
     {
         return [
             [
-                new Fieldname(''),
-                new Fieldname(''),
+                new FieldName(''),
+                new FieldName(''),
                 true,
             ],
             [
-                new Fieldname('test field'),
-                new Fieldname('test field'),
+                new FieldName('test field'),
+                new FieldName('test field'),
                 true,
             ],
             [
-                new Fieldname('test field', 'this', 'is', 'a'),
-                new Fieldname('test field', 'this', 'is', 'a'),
+                new FieldName('test field', 'this', 'is', 'a'),
+                new FieldName('test field', 'this', 'is', 'a'),
                 true,
             ],
             [
-                new Fieldname('test field', 'this', 'is', 'a'),
-                new Fieldname('test field', 'this', 'is', 'a'),
+                new FieldName('test field', 'this', 'is', 'a'),
+                new FieldName('test field', 'this', 'is', 'a'),
                 true,
             ],
         ];
@@ -67,13 +67,13 @@ class FieldnameTest extends TestCase
     {
         return [
             [
-                new Fieldname(''),
-                new Fieldname(' '),
+                new FieldName(''),
+                new FieldName(' '),
                 false,
             ],
             [
-                new Fieldname('test field'),
-                new Fieldname('field test'),
+                new FieldName('test field'),
+                new FieldName('field test'),
                 false,
             ],
         ];
@@ -84,10 +84,10 @@ class FieldnameTest extends TestCase
      * @dataProvider dataSetsWithEqualStringRepresentations
      * @dataProvider dataSetsWithDifferentStringRepresentations
      */
-    public function mergableTest(Fieldname $firstFieldname, Fieldname $secondFieldname, bool $expected): void
+    public function mergableTest(FieldName $firstFieldName, FieldName $secondFieldName, bool $expected): void
     {
-        $equals = $firstFieldname->equals($secondFieldname);
-        $mergable = $firstFieldname->mergable($secondFieldname);
+        $equals = $firstFieldName->equals($secondFieldName);
+        $mergable = $firstFieldName->mergable($secondFieldName);
 
         self::assertEquals($expected, $equals);
         self::assertEquals($expected, $mergable);
@@ -109,9 +109,9 @@ class FieldnameTest extends TestCase
      */
     public function stringRepresentationTest(array $input, string $expected): void
     {
-        $fieldname = new Fieldname(...$input);
+        $fieldName = new FieldName(...$input);
 
-        $result = $fieldname->getStringRepresentation();
+        $result = $fieldName->getStringRepresentation();
 
         self::assertEquals($expected, $result);
     }

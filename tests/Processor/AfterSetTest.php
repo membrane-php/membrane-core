@@ -6,7 +6,7 @@ namespace Processor;
 
 use Membrane\Filter;
 use Membrane\Processor\AfterSet;
-use Membrane\Result\Fieldname;
+use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \Membrane\Processor\AfterSet
  * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Result\Fieldname
+ * @uses   \Membrane\Result\FieldName
  * @uses   \Membrane\Validator\Utility\Fails
  * @uses   \Membrane\Validator\Utility\Indifferent
  * @uses   \Membrane\Validator\Utility\Passes
@@ -51,7 +51,7 @@ class AfterSetTest extends TestCase
         $expected = Result::noResult($input);
         $field = new AfterSet();
 
-        $result = $field->process(new Fieldname('Parent Fieldname'), $input);
+        $result = $field->process(new FieldName('Parent FieldName'), $input);
 
         self::assertEquals($expected, $result);
     }
@@ -104,7 +104,7 @@ class AfterSetTest extends TestCase
             'checks it can return invalid' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::invalid(['a' => 1, 'b' => 2, 'c' => 3], new MessageSet(
-                    new Fieldname('', 'parent field'),
+                    new FieldName('', 'parent field'),
                     new Message('I always fail', [])
                 )),
                 new Fails(),
@@ -135,7 +135,7 @@ class AfterSetTest extends TestCase
             'checks that chain runs in correct order' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::invalid(['a' => 1, 'b' => 2, 'c' => 3], new MessageSet(
-                    new Fieldname('', 'parent field'),
+                    new FieldName('', 'parent field'),
                     new Message('not even', [])
                 )),
                 $evenValidator,
@@ -144,7 +144,7 @@ class AfterSetTest extends TestCase
             'checks that chain stops as soon as result is invalid' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::invalid(['a' => 2, 'b' => 3, 'c' => 4], new MessageSet(
-                    new Fieldname('', 'parent field'),
+                    new FieldName('', 'parent field'),
                     new Message('not even', [])
                 )),
                 $incrementFilter,
@@ -165,7 +165,7 @@ class AfterSetTest extends TestCase
     ): void {
         $afterSet = new AfterSet(...$chain);
 
-        $output = $afterSet->process(new Fieldname('parent field'), $input);
+        $output = $afterSet->process(new FieldName('parent field'), $input);
 
         self::assertEquals($expected, $output);
     }

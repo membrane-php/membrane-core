@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Membrane\Processor;
 
 use Membrane\Processor;
-use Membrane\Result\Fieldname;
+use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
@@ -49,7 +49,7 @@ class Collection implements Processor
         return $this->processes;
     }
 
-    public function process(Fieldname $parentFieldname, mixed $value): Result
+    public function process(FieldName $parentFieldName, mixed $value): Result
     {
         if (!is_array($value) || !array_is_list($value)) {
             return Result::invalid($value, new MessageSet(
@@ -58,11 +58,11 @@ class Collection implements Processor
             ));
         }
 
-        $fieldname = $parentFieldname->push(new Fieldname($this->processes));
+        $fieldName = $parentFieldName->push(new Fieldname($this->processes));
         $collectionResult = Result::noResult($value);
 
         if (isset($this->before)) {
-            $result = $this->before->process($fieldname, $value);
+            $result = $this->before->process($fieldName, $value);
             $value = $result->value;
             $collectionResult = $collectionResult->merge($result);
 
@@ -75,7 +75,7 @@ class Collection implements Processor
             $processedValues = [];
 
             foreach ($value as $key => $item) {
-                $result = $this->each->process($fieldname->push(new Fieldname((string)$key)), $item);
+                $result = $this->each->process($fieldName->push(new Fieldname((string)$key)), $item);
                 $processedValues[$key] = $result->value;
                 $collectionResult = $collectionResult->merge($result);
             }
@@ -84,7 +84,7 @@ class Collection implements Processor
         }
 
         if (isset($this->after) && $collectionResult->isValid()) {
-            $result = $this->after->process($fieldname, $collectionResult->value);
+            $result = $this->after->process($fieldName, $collectionResult->value);
             $collectionResult = $collectionResult->merge($result);
 
             if (!$collectionResult->isValid()) {

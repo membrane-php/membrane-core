@@ -6,7 +6,7 @@ namespace Membrane\Processor;
 
 use Membrane\Filter;
 use Membrane\Processor;
-use Membrane\Result\Fieldname;
+use Membrane\Result\FieldName;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator;
@@ -27,7 +27,7 @@ class Field implements Processor
         return $this->processes;
     }
 
-    public function process(Fieldname $parentFieldname, mixed $value): Result
+    public function process(FieldName $parentFieldName, mixed $value): Result
     {
         $result = Result::noResult($value);
 
@@ -41,7 +41,7 @@ class Field implements Processor
             }
 
             if (!$result->isValid()) {
-                $messageSet = new MessageSet($parentFieldname->push(new Fieldname($this->processes)));
+                $messageSet = new MessageSet($parentFieldName->push(new Fieldname($this->processes)));
 
                 return new Result(
                     $result->value,
