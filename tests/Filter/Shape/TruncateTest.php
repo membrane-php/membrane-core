@@ -23,14 +23,14 @@ class TruncateTest extends TestCase
      * @test
      * @throws Exception
      */
-    public function NegativeMaxLengthThrowsError()
+    public function negativeMaxLengthThrowsError()
     {
         self::expectExceptionMessage('Truncate filter cannot take negative max lengths');
 
         $truncate = new Truncate(-1);
     }
 
-    public function DataSetsWithIncorrectInputs(): array
+    public function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Truncate filter requires lists, %s given';
         $arrayMessage = 'Truncate filter requires lists, for arrays use Delete';
@@ -45,9 +45,9 @@ class TruncateTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithIncorrectInputs
+     * @dataProvider dataSetsWithIncorrectInputs
      */
-    public function IncorrectInputsReturnInvalid(mixed $input, Message $expectedMessage): void
+    public function incorrectInputsReturnInvalid(mixed $input, Message $expectedMessage): void
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $truncate = new Truncate(3);
@@ -60,7 +60,7 @@ class TruncateTest extends TestCase
     /**
      * @test
      */
-    public function ReturnInputIfAlreadyBelowMaxLength(): void
+    public function returnInputIfAlreadyBelowMaxLength(): void
     {
         $input = ['a', 'list'];
         $expected = Result::noResult($input);
@@ -71,27 +71,27 @@ class TruncateTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsToFilter(): array
+    public function dataSetsToFilter(): array
     {
         return [
             [
                 ['a', 'list'],
                 0,
-                []
+                [],
             ],
             [
                 ['a', 'list', 'of', 'five', 'values'],
                 2,
-                ['a', 'list']
+                ['a', 'list'],
             ],
         ];
     }
 
     /**
      * @test
-     * @dataProvider DataSetsToFilter
+     * @dataProvider dataSetsToFilter
      */
-    public function ListsAreTruncatedToMatchMaxLength(array $input, int $maxLength, array $expectedValue): void
+    public function listsAreTruncatedToMatchMaxLength(array $input, int $maxLength, array $expectedValue): void
     {
         $expected = Result::noResult($expectedValue);
         $truncate = new Truncate($maxLength);

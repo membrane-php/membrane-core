@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Validator\Utility;
@@ -24,7 +25,7 @@ class AllOfTest extends TestCase
     /**
      * @test
      */
-    public function NoValidatorsReturnsNoResults(): void
+    public function noValidatorsReturnsNoResults(): void
     {
         $input = 'this can be anything';
         $expected = Result::noResult($input);
@@ -38,7 +39,7 @@ class AllOfTest extends TestCase
     /**
      * @test
      */
-    public function SinglePassReturnsValid(): void
+    public function singlePassReturnsValid(): void
     {
         $input = 'this can be anything';
         $expected = Result::valid($input);
@@ -52,7 +53,7 @@ class AllOfTest extends TestCase
     /**
      * @test
      */
-    public function SingleFailsReturnsInvalid(): void
+    public function singleFailsReturnsInvalid(): void
     {
         $input = 'this can be anything';
         $expectedFailsMessage = new Message('I always fail', []);
@@ -67,7 +68,7 @@ class AllOfTest extends TestCase
     /**
      * @test
      */
-    public function TwoPassesReturnsValid(): void
+    public function twoPassesReturnsValid(): void
     {
         $input = 'this can be anything';
         $expected = Result::valid($input);
@@ -81,7 +82,7 @@ class AllOfTest extends TestCase
     /**
      * @test
      */
-    public function TwoFailsReturnsInvalid(): void
+    public function twoFailsReturnsInvalid(): void
     {
         $input = 'this can be anything';
         $expectedFailsMessage = new Message('I always fail', []);
@@ -96,7 +97,7 @@ class AllOfTest extends TestCase
     /**
      * @test
      */
-    public function FailAndPassesReturnsInvalid(): void
+    public function failAndPassesReturnsInvalid(): void
     {
         $input = 'this can be anything';
         $expectedFailsMessage = new Message('I always fail', []);
@@ -111,7 +112,7 @@ class AllOfTest extends TestCase
     /**
      * @test
      */
-    public function MultipleFailsAndPassesReturnsInvalid(): void
+    public function multipleFailsAndPassesReturnsInvalid(): void
     {
         $input = 'this can be anything';
         $expectedFailsMessage = new Message('I always fail', []);

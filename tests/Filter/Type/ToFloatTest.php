@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ToFloatTest extends TestCase
 {
-    public function DataSetsWithAcceptableInputs(): array
+    public function dataSetsWithAcceptableInputs(): array
     {
         return [
             [1, 1.0],
@@ -31,9 +31,9 @@ class ToFloatTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithAcceptableInputs
+     * @dataProvider dataSetsWithAcceptableInputs
      */
-    public function AcceptableTypesReturnFloatValues($input, $expectedValue): void
+    public function acceptableTypesReturnFloatValues($input, $expectedValue): void
     {
         $toFloat = new ToFloat();
         $expected = Result::noResult($expectedValue);
@@ -44,7 +44,7 @@ class ToFloatTest extends TestCase
         self::assertEquals($expected->result, $result->result);
     }
 
-    public function DataSetsWithUnacceptableInputs(): array
+    public function dataSetsWithUnacceptableInputs(): array
     {
         $message = 'ToFloat filter only accepts null or scalar values, %s given';
         $class = new class () {
@@ -53,28 +53,28 @@ class ToFloatTest extends TestCase
         return [
             [
                 'non-numeric string',
-                new Message('ToFloat filter only accepts numeric strings', [])
+                new Message('ToFloat filter only accepts numeric strings', []),
             ],
             [
                 ['an', 'array'],
-                new Message($message, ['array'])
+                new Message($message, ['array']),
             ],
             [
                 ['a' => 'list'],
-                new Message($message, ['array'])
+                new Message($message, ['array']),
             ],
             [
                 $class,
-                new Message($message, ['object'])
+                new Message($message, ['object']),
             ],
         ];
     }
 
     /**
      * @test
-     * @dataProvider DataSetsWithUnacceptableInputs
+     * @dataProvider dataSetsWithUnacceptableInputs
      */
-    public function UnacceptableTypesReturnInvalid($input, $expectedMessage): void
+    public function unacceptableTypesReturnInvalid($input, $expectedMessage): void
     {
         $toFloat = new ToFloat();
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));

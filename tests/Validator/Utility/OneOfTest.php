@@ -24,20 +24,20 @@ use PHPUnit\Framework\TestCase;
  */
 class OneOfTest extends TestCase
 {
-    public function DataSetsThatReturnNoResult(): array
+    public function dataSetsThatReturnNoResult(): array
     {
         return [
             [[]],
             [[new Indifferent()]],
-            [[new Indifferent(), new Indifferent(), new Indifferent()]]
+            [[new Indifferent(), new Indifferent(), new Indifferent()]],
         ];
     }
 
     /**
      * @test
-     * @dataProvider DataSetsThatReturnNoResult
+     * @dataProvider dataSetsThatReturnNoResult
      */
-    public function NoResultsReturnsNoResult(array $chain): void
+    public function noResultsReturnsNoResult(array $chain): void
     {
         $input = 'this can be anything';
         $oneOf = new OneOf(...$chain);
@@ -48,21 +48,30 @@ class OneOfTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsThatReturnInvalid(): array
+    public function dataSetsThatReturnInvalid(): array
     {
         $expectedMessage = new Message('I always fail', []);
         return [
-            [[new Fails()], new MessageSet(null, $expectedMessage)],
-            [[new Fails(), new Fails(), new Fails()], new MessageSet(null, $expectedMessage, $expectedMessage, $expectedMessage)],
-            [[new Indifferent(), new Fails(), new Indifferent(), new Indifferent()], new MessageSet(null, $expectedMessage)]
+            [
+                [new Fails()],
+                new MessageSet(null, $expectedMessage),
+            ],
+            [
+                [new Fails(), new Fails(), new Fails()],
+                new MessageSet(null, $expectedMessage, $expectedMessage, $expectedMessage),
+            ],
+            [
+                [new Indifferent(), new Fails(), new Indifferent(), new Indifferent()],
+                new MessageSet(null, $expectedMessage),
+            ],
         ];
     }
 
     /**
      * @test
-     * @dataProvider DataSetsThatReturnInvalid
+     * @dataProvider dataSetsThatReturnInvalid
      */
-    public function SingleFailsReturnsInvalid(array $chain, MessageSet $expectedMessageSet): void
+    public function singleFailsReturnsInvalid(array $chain, MessageSet $expectedMessageSet): void
     {
         $input = 'this can be anything';
         $oneOf = new OneOf(...$chain);
@@ -73,22 +82,22 @@ class OneOfTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsThatReturnValid(): array
+    public function dataSetsThatReturnValid(): array
     {
         return [
             [[new Passes()]],
             [[new Indifferent(), new Passes()]],
             [[new Fails(), new Passes()]],
             [[new Fails(), new Indifferent(), new Passes()]],
-            [[new Fails(), new Indifferent(), new Passes(), new Fails(), new Fails(), new Indifferent()]]
+            [[new Fails(), new Indifferent(), new Passes(), new Fails(), new Fails(), new Indifferent()]],
         ];
     }
 
     /**
      * @test
-     * @dataProvider DataSetsThatReturnValid
+     * @dataProvider dataSetsThatReturnValid
      */
-    public function AnyValidResultsReturnsValid(array $chain): void
+    public function anyValidResultsReturnsValid(array $chain): void
     {
         $input = 'this can be anything';
         $oneOf = new OneOf(...$chain);

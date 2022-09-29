@@ -21,10 +21,10 @@ class IsBoolTest extends TestCase
     /**
      * @test
      */
-    public function BooleanReturnValid(): void
+    public function booleanReturnValid(): void
     {
         $input = false;
-        $isBool = new IsBool;
+        $isBool = new IsBool();
         $expected = Result::valid($input);
 
         $result = $isBool->validate($input);
@@ -39,7 +39,7 @@ class IsBoolTest extends TestCase
             [1, 'integer'],
             [1.1, 'double'],
             [[], 'array'],
-            [null, 'NULL']
+            [null, 'NULL'],
         ];
     }
 
@@ -47,10 +47,13 @@ class IsBoolTest extends TestCase
      * @test
      * @dataProvider dataSetsThatFail
      */
-    public function TypesThatAreNotBooleanReturnInvalid($input, $expectedVar): void
+    public function typesThatAreNotBooleanReturnInvalid($input, $expectedVar): void
     {
-        $isBool = new IsBool;
-        $expectedMessage = new Message('Value passed to IsBool validator is not a boolean, %s passed instead', [$expectedVar]);
+        $isBool = new IsBool();
+        $expectedMessage = new Message(
+            'Value passed to IsBool validator is not a boolean, %s passed instead',
+            [$expectedVar]
+        );
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
 
         $result = $isBool->validate($input);

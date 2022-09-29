@@ -21,10 +21,10 @@ class IsIntTest extends TestCase
     /**
      * @test
      */
-    public function IntegerReturnValid(): void
+    public function integerReturnValid(): void
     {
         $input = 10;
-        $isInt = new IsInt;
+        $isInt = new IsInt();
         $expected = Result::valid($input);
 
         $result = $isInt->validate($input);
@@ -39,7 +39,7 @@ class IsIntTest extends TestCase
             [true, 'boolean'],
             [1.1, 'double'],
             [[], 'array'],
-            [null, 'NULL']
+            [null, 'NULL'],
         ];
     }
 
@@ -47,10 +47,13 @@ class IsIntTest extends TestCase
      * @test
      * @dataProvider dataSetsThatFail
      */
-    public function TypesThatAreNotIntegerReturnInvalid($input, $expectedVar): void
+    public function typesThatAreNotIntegerReturnInvalid($input, $expectedVar): void
     {
-        $isInt = new IsInt;
-        $expectedMessage = new Message('Value passed to IsInt validator is not an integer, %s passed instead', [$expectedVar]);
+        $isInt = new IsInt();
+        $expectedMessage = new Message(
+            'Value passed to IsInt validator is not an integer, %s passed instead',
+            [$expectedVar]
+        );
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
 
         $result = $isInt->validate($input);

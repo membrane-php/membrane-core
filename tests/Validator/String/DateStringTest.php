@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class DateStringTest extends TestCase
 {
-    public function DataSetsThatPass(): array
+    public function dataSetsThatPass(): array
     {
         return [
             ['', ''],
@@ -29,9 +29,9 @@ class DateStringTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsThatPass
+     * @dataProvider dataSetsThatPass
      */
-    public function StringsThatMatchFormatReturnValid(string $format, string $input): void
+    public function stringsThatMatchFormatReturnValid(string $format, string $input): void
     {
         $dateString = new DateString($format);
         $expected = Result::valid($input);
@@ -41,7 +41,7 @@ class DateStringTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsThatFail(): array
+    public function dataSetsThatFail(): array
     {
         return [
             ['Y-m-d', '1990 June 15'],
@@ -52,9 +52,9 @@ class DateStringTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsThatFail
+     * @dataProvider dataSetsThatFail
      */
-    public function StringsThatDoNotMatchFormatReturnInvalid(string $format, string $input): void
+    public function stringsThatDoNotMatchFormatReturnInvalid(string $format, string $input): void
     {
         $dateString = new DateString($format);
         $expectedMessage = new Message('String does not match the required format %s', [$format]);

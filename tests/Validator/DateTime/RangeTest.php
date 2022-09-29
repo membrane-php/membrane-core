@@ -22,7 +22,7 @@ class RangeTest extends TestCase
     /**
      * @test
      */
-    public function NoMinAndMaxReturnsValid(): void
+    public function noMinAndMaxReturnsValid(): void
     {
         $input = new DateTime('1970-01-01 00:00:00 UTC');
         $expected = Result::valid($input);
@@ -33,7 +33,7 @@ class RangeTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsWithDatesEarlierThanMin(): array
+    public function dataSetsWithDatesEarlierThanMin(): array
     {
         return [
             [new DateTime('1960-01-01 00:00:00 UTC'), new DateTime('1970-01-01 00:00:00 UTC')],
@@ -43,9 +43,9 @@ class RangeTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithDatesEarlierThanMin
+     * @dataProvider dataSetsWithDatesEarlierThanMin
      */
-    public function DatesEarlierThanMinReturnInvalid(DateTime $input, DateTime $min): void
+    public function datesEarlierThanMinReturnInvalid(DateTime $input, DateTime $min): void
     {
         $expectedMessage = new Message('DateTime is expected to be after %s', [$min]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
@@ -56,7 +56,7 @@ class RangeTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsWithDatesLaterThanMax(): array
+    public function dataSetsWithDatesLaterThanMax(): array
     {
         return [
             [new DateTime('1980-01-01 00:00:00 UTC'), new DateTime('1970-01-01 00:00:00 UTC')],
@@ -66,9 +66,9 @@ class RangeTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithDatesLaterThanMax
+     * @dataProvider dataSetsWithDatesLaterThanMax
      */
-    public function DatesLaterThanMaxReturnInvalid(DateTime $input, DateTime $max): void
+    public function datesLaterThanMaxReturnInvalid(DateTime $input, DateTime $max): void
     {
         $expectedMessage = new Message('DateTime is expected to be before %s', [$max]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
@@ -79,20 +79,28 @@ class RangeTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsWithDatesWithinRange(): array
+    public function dataSetsWithDatesWithinRange(): array
     {
         return [
-            [new DateTime('1980-01-01 00:00:00 UTC'), new DateTime('1970-01-01 00:00:00 UTC'), new DateTime('1990-01-01 00:00:00 UTC')],
-            [new DateTime('3033-01-21 23:01:01 UTC'), new DateTime('3033-01-21 23:01:00 UTC'), new DateTime('3033-01-21 23:01:02 UTC')],
+            [
+                new DateTime('1980-01-01 00:00:00 UTC'),
+                new DateTime('1970-01-01 00:00:00 UTC'),
+                new DateTime('1990-01-01 00:00:00 UTC'),
+            ],
+            [
+                new DateTime('3033-01-21 23:01:01 UTC'),
+                new DateTime('3033-01-21 23:01:00 UTC'),
+                new DateTime('3033-01-21 23:01:02 UTC'),
+            ],
 
         ];
     }
 
     /**
      * @test
-     * @dataProvider DataSetsWithDatesWithinRange
+     * @dataProvider dataSetsWithDatesWithinRange
      */
-    public function DatesWithinRangeReturnValid(DateTime $input, DateTime $min, DateTime $max): void
+    public function datesWithinRangeReturnValid(DateTime $input, DateTime $min, DateTime $max): void
     {
         $expected = Result::valid($input);
         $range = new Range($min, $max);

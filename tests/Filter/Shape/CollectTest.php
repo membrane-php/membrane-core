@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Filter\Shape;
@@ -11,13 +12,13 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Filter\Shape\Collect
- * @uses \Membrane\Result\Result
- * @uses \Membrane\Result\MessageSet
- * @uses \Membrane\Result\Message
+ * @uses   \Membrane\Result\Result
+ * @uses   \Membrane\Result\MessageSet
+ * @uses   \Membrane\Result\Message
  */
 class CollectTest extends TestCase
 {
-    public function dataSetsWithIncorrectTypes() : array
+    public function dataSetsWithIncorrectTypes(): array
     {
         return [
             [
@@ -28,15 +29,16 @@ class CollectTest extends TestCase
             [
                 ['this', 'is', 'a', 'list'],
                 'Value passed to Collect filter was a list, this filter needs string keys to work',
-                []
+                [],
             ],
         ];
     }
+
     /**
      * @test
      * @dataProvider dataSetsWithIncorrectTypes
      */
-    public function IncorrectFilterInputReturnsInvalid(mixed $input, string $expectedMessage, array $expectedVars) : void
+    public function incorrectFilterInputReturnsInvalid(mixed $input, string $expectedMessage, array $expectedVars): void
     {
         $collect = new Collect('new field', 'a', 'b');
         $expected = Result::invalid($input, new MessageSet(null, new Message($expectedMessage, $expectedVars)));
@@ -46,7 +48,7 @@ class CollectTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsWithCorrectTypes() : array
+    public function dataSetsWithCorrectTypes(): array
     {
         return [
             'collecting all items in array' => [
@@ -66,11 +68,12 @@ class CollectTest extends TestCase
             ],
         ];
     }
+
     /**
      * @test
      * @dataProvider dataSetsWithCorrectTypes
      */
-    public function CorrectFilterInputReturnsResult(array $input, array $fieldsToCollect, array $expectedValue) : void
+    public function correctFilterInputReturnsResult(array $input, array $fieldsToCollect, array $expectedValue): void
     {
         $collect = new Collect('new field', ...$fieldsToCollect);
         $expected = Result::noResult($expectedValue);

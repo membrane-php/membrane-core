@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ToDateTimeTest extends TestCase
 {
-    public function DataSetsThatPass(): array
+    public function dataSetsThatPass(): array
     {
         return [
             ['', ''],
@@ -31,9 +31,9 @@ class ToDateTimeTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsThatPass
+     * @dataProvider dataSetsThatPass
      */
-    public function StringsThatMatchFormatReturnImmutableDateTimes(string $format, string $input): void
+    public function stringsThatMatchFormatReturnImmutableDateTimes(string $format, string $input): void
     {
         $toDateTime = new ToDateTime($format);
         $expected = Result::noResult(DateTimeImmutable::createFromFormat($format, $input));
@@ -46,9 +46,9 @@ class ToDateTimeTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsThatPass
+     * @dataProvider dataSetsThatPass
      */
-    public function StringsThatMatchFormatReturnDateTimesIfImmutableSetToFalse(string $format, string $input,): void
+    public function stringsThatMatchFormatReturnDateTimesIfImmutableSetToFalse(string $format, string $input,): void
     {
         $toDateTime = new ToDateTime($format, false);
         $expected = Result::noResult(DateTime::createFromFormat($format, $input));
@@ -59,7 +59,7 @@ class ToDateTimeTest extends TestCase
         self::assertTrue($result->value instanceof DateTime);
     }
 
-    public function DataSetsThatFail(): array
+    public function dataSetsThatFail(): array
     {
         return [
             [
@@ -71,9 +71,9 @@ class ToDateTimeTest extends TestCase
                     'error_count' => 3,
                     'errors' => [
                         4 => 'Unexpected data found.',
-                        12 => 'Not enough data available to satisfy format'
-                    ]
-                ]
+                        12 => 'Not enough data available to satisfy format',
+                    ],
+                ],
             ],
             [
                 'Y-m',
@@ -84,8 +84,8 @@ class ToDateTimeTest extends TestCase
                     'error_count' => 2,
                     'errors' => [
                         3 => 'A two digit month could not be found',
-                    ]
-                ]
+                    ],
+                ],
             ],
             [
                 'Y',
@@ -96,17 +96,17 @@ class ToDateTimeTest extends TestCase
                     'error_count' => 1,
                     'errors' => [
                         0 => 'Not enough data available to satisfy format',
-                    ]
-                ]
+                    ],
+                ],
             ],
         ];
     }
 
     /**
      * @test
-     * @dataProvider DataSetsThatFail
+     * @dataProvider dataSetsThatFail
      */
-    public function StringsThatDoNotMatchFormatReturnInvalid(string $format, string $input, array $expectedVars): void
+    public function stringsThatDoNotMatchFormatReturnInvalid(string $format, string $input, array $expectedVars): void
     {
         $toDateTime = new ToDateTime($format);
         $expectedMessage = new Message('String does not match the required format', [$expectedVars]);

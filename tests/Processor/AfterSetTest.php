@@ -32,7 +32,7 @@ class AfterSetTest extends TestCase
     /**
      * @test
      */
-    public function ProcessesMethodReturnsEmptyString(): void
+    public function processesMethodReturnsEmptyString(): void
     {
         $expected = '';
         $afterSet = new AfterSet();
@@ -45,7 +45,7 @@ class AfterSetTest extends TestCase
     /**
      * @test
      */
-    public function NoChainReturnsNoResult(): void
+    public function noChainReturnsNoResult(): void
     {
         $input = ['a' => 1, 'b' => 2, 'c' => 3];
         $expected = Result::noResult($input);
@@ -56,7 +56,7 @@ class AfterSetTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsForFiltersOrValidators(): array
+    public function dataSetsForFiltersOrValidators(): array
     {
         $incrementFilter = new class implements Filter {
             public function filter(mixed $value): Result
@@ -86,9 +86,9 @@ class AfterSetTest extends TestCase
                 foreach (array_keys($value) as $key) {
                     if ($value[$key] % 2 !== 0) {
                         return Result::invalid($value, new MessageSet(
-                                null,
-                                new Message('not even', []))
-                        );
+                            null,
+                            new Message('not even', [])
+                        ));
                     }
                 }
                 return Result::valid($value);
@@ -156,10 +156,13 @@ class AfterSetTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsForFiltersOrValidators
+     * @dataProvider dataSetsForFiltersOrValidators
      */
-    public function ProcessesCallsFilterOrValidatorMethods(mixed $input, Result $expected, Filter|Validator ...$chain): void
-    {
+    public function processesCallsFilterOrValidatorMethods(
+        mixed $input,
+        Result $expected,
+        Filter|Validator ...$chain
+    ): void {
         $afterSet = new AfterSet(...$chain);
 
         $output = $afterSet->process(new Fieldname('parent field'), $input);

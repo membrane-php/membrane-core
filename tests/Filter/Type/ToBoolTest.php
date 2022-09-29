@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ToBoolTest extends TestCase
 {
-    public function DataSetsWithAcceptableInputs(): array
+    public function dataSetsWithAcceptableInputs(): array
     {
         return [
             [1, true],
@@ -38,9 +38,9 @@ class ToBoolTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithAcceptableInputs
+     * @dataProvider dataSetsWithAcceptableInputs
      */
-    public function AcceptableTypesReturnBooleanValues($input, $expectedValue): void
+    public function acceptableTypesReturnBooleanValues($input, $expectedValue): void
     {
         $toBool = new ToBool();
         $expected = Result::noResult($expectedValue);
@@ -51,7 +51,7 @@ class ToBoolTest extends TestCase
         self::assertEquals($expected->result, $result->result);
     }
 
-    public function DataSetsWithUnacceptableInputs(): array
+    public function dataSetsWithUnacceptableInputs(): array
     {
         $unacceptableMessage = 'ToBool filter only accepts scalar values, %s given';
         $failureMessage = 'ToBool filter failed to convert value to boolean';
@@ -61,40 +61,40 @@ class ToBoolTest extends TestCase
         return [
             [
                 'string with true inside but it is not the only word',
-                new Message($failureMessage, [])
+                new Message($failureMessage, []),
             ],
             [
                 2,
-                new Message($failureMessage, [])
+                new Message($failureMessage, []),
             ],
             [
                 0.1,
-                new Message($failureMessage, [])
+                new Message($failureMessage, []),
             ],
             [
                 ['an', 'array', 'with', 'true', 'inside'],
-                new Message($unacceptableMessage, ['array'])
+                new Message($unacceptableMessage, ['array']),
             ],
             [
                 ['a' => 'list'],
-                new Message($unacceptableMessage, ['array'])
+                new Message($unacceptableMessage, ['array']),
             ],
             [
                 $class,
-                new Message($unacceptableMessage, ['object'])
+                new Message($unacceptableMessage, ['object']),
             ],
             [
                 null,
-                new Message($unacceptableMessage, ['NULL'])
+                new Message($unacceptableMessage, ['NULL']),
             ],
         ];
     }
 
     /**
      * @test
-     * @dataProvider DataSetsWithUnacceptableInputs
+     * @dataProvider dataSetsWithUnacceptableInputs
      */
-    public function UnacceptableTypesReturnInvalid($input, $expectedMessage): void
+    public function unacceptableTypesReturnInvalid($input, $expectedMessage): void
     {
         $toBool = new ToBool();
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Result;
@@ -18,7 +19,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function ValidConstructorReturnsValid(): void
+    public function validConstructorReturnsValid(): void
     {
         $input = 'arbitrary value';
         $expected = new Result($input, Result::VALID);
@@ -32,7 +33,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function inValidConstructorReturnsInvalid(): void
+    public function invalidConstructorReturnsInvalid(): void
     {
         $inputValue = 'arbitrary value';
         $inputMessageSet = new MessageSet(null, new Message('arbitrary message', []));
@@ -47,7 +48,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function NoResultConstructorReturnsNoResult(): void
+    public function noResultConstructorReturnsNoResult(): void
     {
         $input = 'arbitrary value';
         $expected = new Result($input, Result::NO_RESULT);
@@ -61,7 +62,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function MergeTwoValidsReturnsValid(): void
+    public function mergeTwoValidsReturnsValid(): void
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
@@ -77,7 +78,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function MergeNoResultAndValidReturnsValid(): void
+    public function mergeNoResultAndValidReturnsValid(): void
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
@@ -93,7 +94,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function MergeInvalidAndValidReturnsInvalid(): void
+    public function mergeInvalidAndValidReturnsInvalid(): void
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
@@ -110,7 +111,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function MergeTwoInvalidsReturnsInvalid(): void
+    public function mergeTwoInvalidsReturnsInvalid(): void
     {
         $firstInputValue = 'a value';
         $secondInputValue = 'another value';
@@ -128,7 +129,7 @@ class ResultTest extends TestCase
     /**
      * @test
      */
-    public function MergeNoResultAndInvalidReturnsInvalid(): void
+    public function mergeNoResultAndInvalidReturnsInvalid(): void
     {
         $firstValue = 'a value';
         $secondValue = 'another value';

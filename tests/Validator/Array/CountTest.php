@@ -21,7 +21,7 @@ class CountTest extends TestCase
     /**
      * @test
      */
-    public function NoMinAndNoMaxReturnsValid(): void
+    public function noMinAndNoMaxReturnsValid(): void
     {
         $input = ['this', 'has', 'four', 'values'];
         $expected = Result::valid($input);
@@ -32,7 +32,7 @@ class CountTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsWithLessThanMinimum(): array
+    public function dataSetsWithLessThanMinimum(): array
     {
         return [
             [[], 1],
@@ -42,9 +42,9 @@ class CountTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithLessThanMinimum
+     * @dataProvider dataSetsWithLessThanMinimum
      */
-    public function ArraysWithLessValuesThanMinimumReturnInvalid(array $input, int $min): void
+    public function arraysWithLessValuesThanMinimumReturnInvalid(array $input, int $min): void
     {
         $expectedMessage = new Message('Array is expected have a minimum of %d values', [$min]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
@@ -55,7 +55,7 @@ class CountTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsWithMoreThanMaximum(): array
+    public function dataSetsWithMoreThanMaximum(): array
     {
         return [
             [['two', 'values'], 1],
@@ -65,9 +65,9 @@ class CountTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithMoreThanMaximum
+     * @dataProvider dataSetsWithMoreThanMaximum
      */
-    public function ArraysWithMoreValuesThanMaximumReturnInvalid(array $input, int $max): void
+    public function arraysWithMoreValuesThanMaximumReturnInvalid(array $input, int $max): void
     {
         $expectedMessage = new Message('Array is expected have a minimum of %d values', [$max]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
@@ -78,7 +78,7 @@ class CountTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function DataSetsWithinRange(): array
+    public function dataSetsWithinRange(): array
     {
         return [
             [['two', 'values'], 1, 3],
@@ -88,9 +88,9 @@ class CountTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithinRange
+     * @dataProvider dataSetsWithinRange
      */
-    public function ArraysWithinRangeReturnValid(array $input, int $min, int $max): void
+    public function arraysWithinRangeReturnValid(array $input, int $min, int $max): void
     {
         $expected = Result::valid($input);
         $count = new Count($min, $max);
@@ -99,5 +99,4 @@ class CountTest extends TestCase
 
         self::assertEquals($expected, $result);
     }
-
 }

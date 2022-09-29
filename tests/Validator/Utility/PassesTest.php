@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Validator\Utility;
@@ -9,23 +10,23 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Validator\Utility\Passes
- * @uses \Membrane\Result\Result
+ * @uses   \Membrane\Result\Result
  */
 class PassesTest extends TestCase
 {
     public function dataSets(): array
     {
-        return [[1], [1.1], ['one'], [false], [null], ];
+        return [[1], [1.1], ['one'], [false], [null],];
     }
 
     /**
      * @test
      * @dataProvider dataSets
      */
-    public function PassesAlwaysReturnsValid(mixed $input): void
+    public function passesAlwaysReturnsValid(mixed $input): void
     {
         $expected = Result::valid($input);
-        $pass = new Passes;
+        $pass = new Passes();
 
         $result = $pass->validate($input);
 

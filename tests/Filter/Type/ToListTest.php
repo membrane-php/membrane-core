@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ToListTest extends TestCase
 {
-    public function DataSetsWithAcceptableInputs(): array
+    public function dataSetsWithAcceptableInputs(): array
     {
         return [
             [[], []],
@@ -29,9 +29,9 @@ class ToListTest extends TestCase
 
     /**
      * @test
-     * @dataProvider DataSetsWithAcceptableInputs
+     * @dataProvider dataSetsWithAcceptableInputs
      */
-    public function AcceptableTypesReturnListValues($input, $expectedValue): void
+    public function acceptableTypesReturnListValues($input, $expectedValue): void
     {
         $toList = new ToList();
         $expected = Result::noResult($expectedValue);
@@ -42,7 +42,7 @@ class ToListTest extends TestCase
         self::assertEquals($expected->result, $result->result);
     }
 
-    public function DataSetsWithUnacceptableInputs(): array
+    public function dataSetsWithUnacceptableInputs(): array
     {
         $message = 'ToList filter only accepts arrays, %s given';
         $class = new class () {
@@ -51,36 +51,36 @@ class ToListTest extends TestCase
         return [
             [
                 'string',
-                new Message($message, ['string'])
+                new Message($message, ['string']),
             ],
             [
                 123,
-                new Message($message, ['integer'])
+                new Message($message, ['integer']),
             ],
             [
                 1.23,
-                new Message($message, ['double'])
+                new Message($message, ['double']),
             ],
             [
                 true,
-                new Message($message, ['boolean'])
+                new Message($message, ['boolean']),
             ],
             [
                 null,
-                new Message($message, ['NULL'])
+                new Message($message, ['NULL']),
             ],
             [
                 $class,
-                new Message($message, ['object'])
+                new Message($message, ['object']),
             ],
         ];
     }
 
     /**
      * @test
-     * @dataProvider DataSetsWithUnacceptableInputs
+     * @dataProvider dataSetsWithUnacceptableInputs
      */
-    public function UnacceptableTypesReturnInvalid($input, $expectedMessage): void
+    public function unacceptableTypesReturnInvalid($input, $expectedMessage): void
     {
         $toList = new ToList();
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
