@@ -13,6 +13,24 @@ An invalid Result has one additional property
 
 * messageSet - this will contain information on why the input has failed
 
+## Processors
+
+### Field
+
+Is a single item of data which filters can act upon and validators can validate.
+The type of data is not restricted so can be a single scalar value, an array or an object.
+
+loops through Filters and Validators, will stop immediately if it finds an invalid result.
+This allows you to verify that the data is the correct format before moving on to more specific Filters or Validators.
+
+### Field Set
+
+A field set is
+
+### Collection
+
+Is a keyed array of data items, which can be acted upon as a group or individually by their key
+
 ## Filters
 
 Filters ensure that input is the correct format and may attempt

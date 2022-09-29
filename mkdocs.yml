@@ -4,6 +4,7 @@ nav:
   - Getting Started: index.md
   - The Basics: basics.md
   - Result: result.md
+  - Processors: processors.md
   - Filters: filters.md
   - Validators: validators.md
 

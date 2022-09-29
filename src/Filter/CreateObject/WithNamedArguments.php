@@ -3,22 +3,23 @@
 namespace Membrane\Filter\CreateObject;
 
 use Membrane\Filter;
-use Membrane\Result\MessageSet;
 use Membrane\Result\Message;
+use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use Throwable;
 
 class WithNamedArguments implements Filter
 {
     public function __construct(
-        private string $classname
+        private readonly string $className
     ) {
     }
 
     public function filter(mixed $value): Result
     {
         try {
-            $object = new $this->classname(...$value);
-        } catch (\Throwable $t) {
+            $object = new $this->className(...$value);
+        } catch (Throwable $t) {
             $messageSet = new MessageSet(null, new Message($t->getMessage(), []));
             return Result::invalid($value, $messageSet);
         }

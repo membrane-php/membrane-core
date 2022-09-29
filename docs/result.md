@@ -11,7 +11,8 @@ This lets you know whether the external data passed through Membrane successfull
 It has three states:
 
 * `Result::valid` means that the external data has been passed validation.
-* `Result::noResult` means that the external data has neither passed nor failed validation.
+* `Result::noResult` means that the external data has neither passed nor failed validation.  
+  A common reason may be that it has only passed through Filters and no Validators have been used.
 * `Result::invalid` means that the external data has failed validation.
 
 A result is considered valid as long as it is not invalid.

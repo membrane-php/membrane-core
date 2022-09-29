@@ -2,47 +2,124 @@
 
 Filters ensure that input is the correct format and may attempt
 to change the input to match the correct format.
-Results returning from Filters will always be noResult or invalid.
-
 If you do not wish to change the input: See [Validators](validators.md)
+
+Results returning from Filters will always be noResult or invalid if it
+is unable to process the data provided. You should not rely on this behaviour,
+common best practice is to use validators to ensure the data passed can be filtered.
 
 ## Create Object
 
-Create objects from external data
+Create objects from external data.
 
 ### FromArray
 
-create new object from an array
+construct new data object from an array. $className must correspond to a class with a method named 'fromArray'
+
+```
+new FromArray($className)
+```
+
+| Parameter  | Type   |
+|------------|--------|
+| $className | string |
 
 ### WithNamedArguments
 
-create new object from named arguments
+construct new data object from named arguments. $className must correspond to a class which uses named arguments
+for its constructor.
+
+```
+new WithNamedArguments($className)
+```
+
+| Parameter  | Type   |
+|------------|--------|
+| $className | string |
 
 ## Shape
 
-Methods that alter the shape of arrays/lists
+Methods that alter the shape of arrays/lists.
 
 ### Collect
 
-Collects specified key-value pairs from an array and nests the values in a new list
+Collect key-value pairs specified by $fields from the parent array and
+append their values to a nested list specified by $newField.
+
+```
+new Collect($newField, ...$fields)
+```
+
+| Parameter  | Type   |
+|------------|--------|
+| $newField  | string |
+| ...$fields | string |
 
 ### Delete
 
-Deletes a specified key-value pair from an array
+Deletes a specified key-value pairs from an array.
+
+```
+new Delete(...$fieldNames)
+```
+
+| Parameter      | Type   |
+|----------------|--------|
+| ...$fieldNames | string |
 
 ### Nest
 
-Collects specified key-value pairs from an array and nests them in a new array
+Opposite of Pluck.
+
+Collect key-value pairs specified by $fields from the parent array and
+appends them to a nested array specified by $newField.
+
+```
+new Nest($newField, ...$fields)
+```
+
+| Parameter  | Type   |
+|------------|--------|
+| $newField  | string |
+| ...$fields | string |
 
 ### Pluck
 
-Collects specified key-value pairs from an array and nests them in a new array
-as the value of a new key-value pair.
+Opposite of Nest.
+
+Collect key-value pairs specified by $fieldNames from a nested array specified by $fieldSet and
+appends them to the parent array.
+
+```
+new Pluck($fieldSet, ...$fieldnames)
+```
+
+| Parameter      | Type   |
+|----------------|--------|
+| $fieldSet      | string |
+| ...$fieldNames | string |
 
 ### Rename
 
-Renames a specified key from an array
+Renames a specified string key in an array.
+
+```
+new Rename($old, $new)
+```
+
+| Parameter | Type   | Notes               |
+|-----------|--------|---------------------|
+| $old      | string | Must not equal $new |
+| $new      | string | Must not equal $old |
 
 ### Truncate
 
-Deletes as many values as necessary from a list to avoid exceeding the specified maximum length
+Deletes as many values as necessary from the end of a list to avoid exceeding the specified maximum length.
+
+```
+new Truncate($maxLength)
+```
+
+| Parameter | Type | Notes                          |
+|------------|-----|--------------------------------|
+| $maxLength | int | Only accepts positive integers |
