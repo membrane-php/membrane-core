@@ -10,6 +10,7 @@ class Result
     public const NO_RESULT = 0;
     public const INVALID = -1;
 
+    /** @var array|MessageSet[] */
     public readonly array $messageSets;
 
     public function __construct(
@@ -45,6 +46,11 @@ class Result
         );
     }
 
+    public function isValid(): bool
+    {
+        return $this->result >= 0;
+    }
+
     private function mergeResult(Result $result): int
     {
         if ($result->result === self::NO_RESULT) {
@@ -52,10 +58,5 @@ class Result
         }
 
         return $result->isValid() && $this->isValid() ? self::VALID : self::INVALID;
-    }
-
-    public function isValid(): bool
-    {
-        return $this->result >= 0;
     }
 }

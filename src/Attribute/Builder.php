@@ -124,6 +124,10 @@ class Builder
         );
     }
 
+    /**
+     * @param ReflectionAttribute<SetFilterOrValidator> ...$attributes
+     * @return Processor[]
+     */
     private function makeBeforeAfterSets(ReflectionAttribute ...$attributes): array
     {
         $attributes = array_map(

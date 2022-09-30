@@ -9,6 +9,7 @@ use Membrane\Validator;
 
 class RequiredFields implements Validator
 {
+    /** @var string[] */
     private array $fields;
 
     public function __construct(string ...$fields)

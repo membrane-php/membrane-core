@@ -10,6 +10,7 @@ use Membrane\Validator;
 
 class AllOf implements Validator
 {
+    /** @var Validator[] */
     private array $chain;
 
     public function __construct(Validator ...$chain)
@@ -39,6 +40,7 @@ class AllOf implements Validator
         );
     }
 
+    /** @param int[] $results */
     private function mergeResults(array $results): int
     {
         if (in_array(Result::INVALID, $results)) {

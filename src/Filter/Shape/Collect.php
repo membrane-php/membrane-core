@@ -9,6 +9,7 @@ use Membrane\Result\Result;
 
 class Collect implements Filter
 {
+    /** @var string[] */
     private array $fields;
 
     public function __construct(

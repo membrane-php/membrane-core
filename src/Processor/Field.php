@@ -13,6 +13,7 @@ use Membrane\Validator;
 
 class Field implements Processor
 {
+    /** @var Filter[]|Validator[] */
     private array $chain;
 
     public function __construct(
