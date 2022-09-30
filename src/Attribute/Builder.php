@@ -7,6 +7,7 @@ namespace Membrane\Attribute;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Exception;
 use Membrane\Exception\CannotProcessProperty;
 use Membrane\Processor;
 use Membrane\Processor\AfterSet;
@@ -31,6 +32,10 @@ class Builder
 
     public function fromClass(string $class, string $processes = ''): Processor
     {
+        if (!class_exists($class)) {
+            throw new Exception(sprintf('Could not find class %s', $class));
+        }
+
         $refl = new ReflectionClass($class);
 
         $processors = $this->makeBeforeAfterSets(
