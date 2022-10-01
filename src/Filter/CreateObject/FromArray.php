@@ -10,7 +10,7 @@ use Membrane\Result\Result;
 class FromArray implements Filter
 {
     public function __construct(
-        private string $className
+        private readonly string $className
     ) {
     }
 

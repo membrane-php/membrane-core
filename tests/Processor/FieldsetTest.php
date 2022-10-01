@@ -9,8 +9,8 @@ use Membrane\Processor;
 use Membrane\Processor\AfterSet;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Field;
-use Membrane\Processor\Fieldset;
-use Membrane\Result\Fieldname;
+use Membrane\Processor\FieldSet;
+use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
@@ -19,14 +19,14 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 /**
- * @covers \Membrane\Processor\Fieldset
+ * @covers \Membrane\Processor\FieldSet
  * @uses   \Membrane\Processor\AfterSet
  * @uses   \Membrane\Processor\BeforeSet
  * @uses   \Membrane\Result\Result
  * @uses   \Membrane\Result\MessageSet
  * @uses   \Membrane\Result\Message
  * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Result\Fieldname
+ * @uses   \Membrane\Result\FieldName
  */
 class FieldsetTest extends TestCase
 {
@@ -51,10 +51,10 @@ class FieldsetTest extends TestCase
     public function onlyAcceptsArrayValues(mixed $input, Message $expectedMessage): void
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
-        $fieldname = 'field to process';
-        $fieldset = new FieldSet($fieldname);
+        $fieldName = 'field to process';
+        $fieldset = new FieldSet($fieldName);
 
-        $result = $fieldset->process(new Fieldname('parent field'), $input);
+        $result = $fieldset->process(new FieldName('parent field'), $input);
 
         self::assertEquals($expected, $result);
     }
@@ -68,7 +68,7 @@ class FieldsetTest extends TestCase
         self::expectException(RuntimeException::class);
         self::expectExceptionMessage('Only allowed one BeforeSet');
 
-        new Fieldset('field to process', $beforeSet, $beforeSet);
+        new FieldSet('field to process', $beforeSet, $beforeSet);
     }
 
     /**
@@ -80,7 +80,7 @@ class FieldsetTest extends TestCase
         self::expectException(RuntimeException::class);
         self::expectExceptionMessage('Only allowed one AfterSet');
 
-        new Fieldset('field to process', $afterSet, $afterSet);
+        new FieldSet('field to process', $afterSet, $afterSet);
     }
 
     /**
@@ -88,12 +88,12 @@ class FieldsetTest extends TestCase
      */
     public function processesTest(): void
     {
-        $fieldname = 'field to process';
-        $fieldset = new FieldSet($fieldname);
+        $fieldName = 'field to process';
+        $fieldset = new FieldSet($fieldName);
 
         $output = $fieldset->processes();
 
-        self::assertEquals($fieldname, $output);
+        self::assertEquals($fieldName, $output);
     }
 
     /**
@@ -105,7 +105,7 @@ class FieldsetTest extends TestCase
         $expected = Result::noResult($value);
         $fieldset = new FieldSet('field to process');
 
-        $result = $fieldset->process(new Fieldname('Parent field'), $value);
+        $result = $fieldset->process(new FieldName('Parent field'), $value);
 
         self::assertEquals($expected, $result);
     }
@@ -121,7 +121,7 @@ class FieldsetTest extends TestCase
             ->method('processes');
         $fieldset = new FieldSet('field to process', $field);
 
-        $fieldset->process(new Fieldname('Parent field'), $input);
+        $fieldset->process(new FieldName('Parent field'), $input);
     }
 
     /**
@@ -139,7 +139,7 @@ class FieldsetTest extends TestCase
 
         $fieldset = new FieldSet('field to process', $beforeSet);
 
-        $fieldset->process(new Fieldname('Parent field'), $input);
+        $fieldset->process(new FieldName('Parent field'), $input);
     }
 
     /**
@@ -157,7 +157,7 @@ class FieldsetTest extends TestCase
 
         $fieldset = new FieldSet('field to process', $afterSet);
 
-        $fieldset->process(new Fieldname('Parent field'), $input);
+        $fieldset->process(new FieldName('Parent field'), $input);
     }
 
     public function dataSetsOfFields(): array
@@ -226,7 +226,7 @@ class FieldsetTest extends TestCase
             'Field processed can return invalid results' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::invalid(['a' => 1, 'b' => 2, 'c' => 3], new MessageSet(
-                    new Fieldname('a', 'parent field', 'field to process'),
+                    new FieldName('a', 'parent field', 'field to process'),
                     new Message('not even', [])
                 )),
                 new Field('a', $evenValidator),
@@ -260,7 +260,7 @@ class FieldsetTest extends TestCase
             'BeforeSetThenFieldThenAfterSet' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::invalid(['a' => 2, 'b' => 5, 'c' => 6], new MessageSet(
-                    new Fieldname('', 'parent field', 'field to process'),
+                    new FieldName('', 'parent field', 'field to process'),
                     new Message('not even', [])
                 )),
                 new BeforeSet($evenArrayFilter),
@@ -279,7 +279,7 @@ class FieldsetTest extends TestCase
     {
         $fieldset = new FieldSet('field to process', ...$chain);
 
-        $result = $fieldset->process(new Fieldname('parent field'), $input);
+        $result = $fieldset->process(new FieldName('parent field'), $input);
 
         self::assertEquals($expected, $result);
     }

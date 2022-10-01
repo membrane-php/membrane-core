@@ -6,7 +6,7 @@ namespace Processor;
 
 use Membrane\Filter;
 use Membrane\Processor\Field;
-use Membrane\Result\Fieldname;
+use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Processor\Field
- * @uses   \Membrane\Result\Fieldname
+ * @uses   \Membrane\Result\FieldName
  * @uses   \Membrane\Validator\Utility\Fails
  * @uses   \Membrane\Validator\Utility\Indifferent
  * @uses   \Membrane\Validator\Utility\Passes
@@ -33,7 +33,7 @@ class FieldTest extends TestCase
      */
     public function processesMethodReturnsProcessesString(): void
     {
-        $input = 'Fieldname to process';
+        $input = 'FieldName to process';
         $field = new Field($input);
 
         $output = $field->processes();
@@ -48,9 +48,9 @@ class FieldTest extends TestCase
     {
         $input = ['a' => 1, 'b' => 2, 'c' => 3];
         $expected = Result::noResult($input);
-        $field = new Field('Fieldname to process');
+        $field = new Field('FieldName to process');
 
-        $result = $field->process(new Fieldname('Parent Fieldname'), $input);
+        $result = $field->process(new FieldName('Parent FieldName'), $input);
 
         self::assertEquals($expected, $result);
     }
@@ -104,13 +104,13 @@ class FieldTest extends TestCase
             'checks it can return invalid' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::invalid(['a' => 1, 'b' => 2, 'c' => 3], new MessageSet(
-                    new Fieldname('field to process', 'parent field'),
+                    new FieldName('field to process', 'parent field'),
                     new Message('I always fail', [])
                 )),
                 'field to process',
                 new Fails(),
             ],
-            'checks it can return noresult' => [
+            'checks it can return noResult' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::noResult(['a' => 1, 'b' => 2, 'c' => 3]),
                 'field to process',
@@ -140,7 +140,7 @@ class FieldTest extends TestCase
             'checks that chain runs in correct order' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::invalid(['a' => 1, 'b' => 2, 'c' => 3], new MessageSet(
-                    new Fieldname('b', 'parent field'),
+                    new FieldName('b', 'parent field'),
                     new Message('not even', [])
                 )),
                 'b',
@@ -150,7 +150,7 @@ class FieldTest extends TestCase
             'checks that chain stops as soon as result is invalid' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::invalid(['a' => 2, 'b' => 3, 'c' => 4], new MessageSet(
-                    new Fieldname('b', 'parent field'),
+                    new FieldName('b', 'parent field'),
                     new Message('not even', [])
                 )),
                 'b',
@@ -173,7 +173,7 @@ class FieldTest extends TestCase
     ): void {
         $field = new Field($processes, ...$chain);
 
-        $output = $field->process(new Fieldname('parent field'), $input);
+        $output = $field->process(new FieldName('parent field'), $input);
 
         self::assertEquals($expected, $output);
     }

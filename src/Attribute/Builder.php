@@ -13,7 +13,7 @@ use Membrane\Processor\AfterSet;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
 use Membrane\Processor\Field;
-use Membrane\Processor\Fieldset;
+use Membrane\Processor\FieldSet;
 use Membrane\Processor\ProcessorType;
 use ReflectionAttribute;
 use ReflectionClass;
@@ -66,7 +66,7 @@ class Builder
             };
         }
 
-        return new Fieldset($processes, ...$processors);
+        return new FieldSet($processes, ...$processors);
     }
 
     private function getProcessorTypeFromPropertyType(string $type): ProcessorType

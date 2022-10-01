@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Membrane\Processor;
 
 use Membrane\Processor;
-use Membrane\Result\Fieldname;
+use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use RuntimeException;
 
-class Fieldset implements Processor
+class FieldSet implements Processor
 {
     private array $chain = [];
     private Processor $before;
@@ -43,8 +43,10 @@ class Fieldset implements Processor
         return $this->processes;
     }
 
-    public function process(Fieldname $parentFieldname, mixed $value): Result
+    public function process(FieldName $parentFieldName, mixed $value): Result
     {
+        $fieldName = $parentFieldName->push(new FieldName($this->processes));
+
         if (!is_array($value)) {
             return Result::invalid($value, new MessageSet(
                 null,
@@ -59,39 +61,39 @@ class Fieldset implements Processor
             ));
         }
 
-        $fieldname = $parentFieldname->push(new Fieldname($this->processes));
-        $fieldsetResult = Result::noResult($value);
+        $fieldName = $parentFieldName->push(new Fieldname($this->processes));
+        $fieldSetResult = Result::noResult($value);
 
         if (isset($this->before)) {
-            $result = $this->before->process($fieldname, $value);
+            $result = $this->before->process($fieldName, $value);
             $value = $result->value;
-            $fieldsetResult = $fieldsetResult->merge($result);
+            $fieldSetResult = $fieldSetResult->merge($result);
 
-            if (!$fieldsetResult->isValid()) {
-                return $fieldsetResult;
+            if (!$fieldSetResult->isValid()) {
+                return $fieldSetResult;
             }
         }
 
         foreach ($this->chain as $item) {
             $processes = $item->processes();
             if (array_key_exists($processes, $value)) {
-                $result = $item->process($fieldname, $value[$processes]);
+                $result = $item->process($fieldName, $value[$processes]);
                 $value[$processes] = $result->value;
-                $fieldsetResult = $fieldsetResult->merge($result);
+                $fieldSetResult = $fieldSetResult->merge($result);
             }
         }
 
-        $fieldsetResult = $fieldsetResult->merge(Result::noResult($value));
+        $fieldSetResult = $fieldSetResult->merge(Result::noResult($value));
 
-        if (isset($this->after) && $fieldsetResult->isValid()) {
-            $result = $this->after->process($fieldname, $value);
-            $fieldsetResult = $fieldsetResult->merge($result);
+        if (isset($this->after) && $fieldSetResult->isValid()) {
+            $result = $this->after->process($fieldName, $value);
+            $fieldSetResult = $fieldSetResult->merge($result);
 
-            if (!$fieldsetResult->isValid()) {
-                return $fieldsetResult;
+            if (!$fieldSetResult->isValid()) {
+                return $fieldSetResult;
             }
         }
 
-        return $fieldsetResult;
+        return $fieldSetResult;
     }
 }

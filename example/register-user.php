@@ -5,15 +5,15 @@ declare(strict_types=1);
 include_once __DIR__ . '/../vendor/autoload.php';
 
 use Membrane\Attribute\Builder;
-use Membrane\Attribute\SetFilterOrValidator;
 use Membrane\Attribute\FilterOrValidator;
 use Membrane\Attribute\OverrideProcessorType;
 use Membrane\Attribute\Placement;
+use Membrane\Attribute\SetFilterOrValidator;
 use Membrane\Attribute\Subtype;
 use Membrane\Filter\CreateObject\WithNamedArguments;
 use Membrane\Filter\Shape\Collect;
 use Membrane\Processor\ProcessorType;
-use Membrane\Result\Fieldname;
+use Membrane\Result\FieldName;
 use Membrane\Validator\Collection\Identical;
 use Membrane\Validator\Object\RequiredFields;
 use Membrane\Validator\String\Length;
@@ -24,7 +24,7 @@ class Password
 
     public function __construct(string $password)
     {
-        $this->hashedPassword = password_hash($password, \PASSWORD_DEFAULT);
+        $this->hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     }
 }
 
@@ -54,19 +54,19 @@ $processor = $builder->fromClass(RegisterUser::class);
 $payload = [
     'username' => 'Freddy',
     'password' => 'password123',
-    'confirm_password' => 'password123'
+    'confirm_password' => 'password123',
 ];
 
-$result = $processor->process(new Fieldname(''), $payload);
+$result = $processor->process(new FieldName(''), $payload);
 
 var_dump($result);
 
 $invalidPayload = [
     'username' => 'Fred',
     'password' => 'password123',
-    'confirm_password' => 'password'
+    'confirm_password' => 'password',
 ];
 
-$result = $processor->process(new Fieldname(''), $invalidPayload);
+$result = $processor->process(new FieldName(''), $invalidPayload);
 
 var_dump($result);

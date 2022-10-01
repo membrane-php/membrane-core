@@ -11,7 +11,7 @@ class MessageSet
     public readonly array $messages;
 
     public function __construct(
-        public readonly ?Fieldname $fieldname,
+        public readonly ?FieldName $fieldName,
         Message ...$messages
     ) {
         $this->messages = $messages;
@@ -20,15 +20,15 @@ class MessageSet
     public function merge(MessageSet $messageSet): MessageSet
     {
         if (
-            $this->fieldname?->mergable($messageSet->fieldname) === false
+            $this->fieldName?->mergable($messageSet->fieldName) === false
             ||
-            $messageSet->fieldname?->mergable($this->fieldname) === false
+            $messageSet->fieldName?->mergable($this->fieldName) === false
         ) {
-            throw new RuntimeException('Unable to merge message sets for different fieldnames');
+            throw new RuntimeException('Unable to merge message sets for different fieldNames');
         }
 
         return new MessageSet(
-            $this->fieldname ?? $messageSet->fieldname,
+            $this->fieldName ?? $messageSet->fieldName,
             ...$this->messages,
             ...$messageSet->messages
         );

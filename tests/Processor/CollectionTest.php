@@ -10,7 +10,7 @@ use Membrane\Processor\AfterSet;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
 use Membrane\Processor\Field;
-use Membrane\Result\Fieldname;
+use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
@@ -23,7 +23,7 @@ use RuntimeException;
  * @uses   \Membrane\Processor\BeforeSet
  * @uses   \Membrane\Processor\Field
  * @uses   \Membrane\Processor\AfterSet
- * @uses   \Membrane\Result\Fieldname
+ * @uses   \Membrane\Result\FieldName
  * @uses   \Membrane\Result\Result
  * @uses   \Membrane\Result\MessageSet
  * @uses   \Membrane\Result\Message
@@ -50,10 +50,10 @@ class CollectionTest extends TestCase
     public function onlyAcceptsArrayValues(mixed $input, Message $expectedMessage): void
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
-        $fieldname = 'field to process';
-        $fieldset = new Collection($fieldname);
+        $fieldName = 'field to process';
+        $fieldset = new Collection($fieldName);
 
-        $result = $fieldset->process(new Fieldname('parent field'), $input);
+        $result = $fieldset->process(new FieldName('parent field'), $input);
 
         self::assertEquals($expected, $result);
     }
@@ -75,12 +75,12 @@ class CollectionTest extends TestCase
      */
     public function processesTest(): void
     {
-        $fieldname = 'field to process';
-        $fieldset = new Collection($fieldname);
+        $fieldName = 'field to process';
+        $fieldset = new Collection($fieldName);
 
         $output = $fieldset->processes();
 
-        self::assertEquals($fieldname, $output);
+        self::assertEquals($fieldName, $output);
     }
 
     /**
@@ -92,7 +92,7 @@ class CollectionTest extends TestCase
         $expected = Result::noResult($value);
         $fieldset = new Collection('field to process');
 
-        $result = $fieldset->process(new Fieldname('Parent field'), $value);
+        $result = $fieldset->process(new FieldName('Parent field'), $value);
 
         self::assertEquals($expected, $result);
     }
@@ -172,11 +172,11 @@ class CollectionTest extends TestCase
                 Result::invalid(
                     [1, 2, 3],
                     new MessageSet(
-                        new Fieldname('a', 'parent field', 'field to process', '0'),
+                        new FieldName('a', 'parent field', 'field to process', '0'),
                         new Message('not even', [])
                     ),
                     new MessageSet(
-                        new Fieldname('a', 'parent field', 'field to process', '2'),
+                        new FieldName('a', 'parent field', 'field to process', '2'),
                         new Message('not even', [])
                     )
                 ),
@@ -200,7 +200,7 @@ class CollectionTest extends TestCase
                 Result::invalid(
                     [1, 2, 3],
                     new MessageSet(
-                        new Fieldname('', 'parent field', 'field to process'),
+                        new FieldName('', 'parent field', 'field to process'),
                         new Message('not even', [])
                     )
                 ),
@@ -212,7 +212,7 @@ class CollectionTest extends TestCase
                 Result::invalid(
                     [2, 3, 4],
                     new MessageSet(
-                        new Fieldname('', 'parent field', 'field to process'),
+                        new FieldName('', 'parent field', 'field to process'),
                         new Message('not even', [])
                     )
                 ),
@@ -222,7 +222,7 @@ class CollectionTest extends TestCase
             'BeforeSet then Field then AfterSet' => [
                 [1, 2, 3],
                 Result::invalid([3, 5, 7], new MessageSet(
-                    new Fieldname('', 'parent field', 'field to process'),
+                    new FieldName('', 'parent field', 'field to process'),
                     new Message('not even', [])
                 )),
                 new BeforeSet($evenArrayFilter),
@@ -240,7 +240,7 @@ class CollectionTest extends TestCase
     {
         $fieldset = new Collection('field to process', ...$chain);
 
-        $result = $fieldset->process(new Fieldname('parent field'), $input);
+        $result = $fieldset->process(new FieldName('parent field'), $input);
 
         self::assertEquals($expected, $result);
     }
