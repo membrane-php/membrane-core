@@ -9,6 +9,7 @@ use Membrane\Result\Result;
 
 class Nest implements Filter
 {
+    /** @var string[] */
     private array $fields;
 
     public function __construct(

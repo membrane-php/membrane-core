@@ -6,6 +6,7 @@ namespace Membrane\Result;
 
 class FieldName
 {
+    /** @var array|string[] */
     public readonly array $stack;
 
     public function __construct(

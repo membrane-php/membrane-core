@@ -12,6 +12,7 @@ use Membrane\Result\Result;
 class Pluck implements Filter
 {
     private readonly string $fieldSet;
+    /** @var string[] */
     private readonly array $fieldNames;
 
     public function __construct(string $fieldSet, string ...$fieldNames)

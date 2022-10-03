@@ -2,7 +2,9 @@
 
 namespace Membrane\Exception;
 
-class CannotProcessProperty extends \RuntimeException
+use RuntimeException;
+
+class CannotProcessProperty extends RuntimeException
 {
     public static function noTypeHint(string $propertyName): self
     {
@@ -16,7 +18,7 @@ class CannotProcessProperty extends \RuntimeException
         return new self($message);
     }
 
-    public static function noSubtypeHint(string $propertyName)
+    public static function noSubtypeHint(string $propertyName): self
     {
         //'Collections (array typed properties) must define their subtype in an annotation'
         $message = sprintf('Property %s is a collection but does not define it\'s subtype', $propertyName);

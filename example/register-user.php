@@ -12,6 +12,7 @@ use Membrane\Attribute\SetFilterOrValidator;
 use Membrane\Attribute\Subtype;
 use Membrane\Filter\CreateObject\WithNamedArguments;
 use Membrane\Filter\Shape\Collect;
+use Membrane\Filter\Shape\Delete;
 use Membrane\Processor\ProcessorType;
 use Membrane\Result\FieldName;
 use Membrane\Validator\Collection\Identical;
@@ -30,6 +31,7 @@ class Password
 
 #[SetFilterOrValidator(new RequiredFields('username', 'password', 'confirm_password'), Placement::BEFORE)]
 #[SetFilterOrValidator(new Collect('password', 'password', 'confirm_password'), Placement::BEFORE)]
+#[SetFilterOrValidator(new Delete('confirm_password'), Placement::BEFORE)]
 #[SetFilterOrValidator(new WithNamedArguments(RegisterUser::class), Placement::AFTER)]
 class RegisterUser
 {

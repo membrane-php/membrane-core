@@ -11,6 +11,7 @@ use Membrane\Result\Result;
 
 class Delete implements Filter
 {
+    /** @var string[] */
     private readonly array $fieldNames;
 
     public function __construct(string ...$fieldNames)

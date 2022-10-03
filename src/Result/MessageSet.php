@@ -8,6 +8,7 @@ use RuntimeException;
 
 class MessageSet
 {
+    /** @var array|Message[] */
     public readonly array $messages;
 
     public function __construct(

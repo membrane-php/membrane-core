@@ -10,6 +10,7 @@ use Membrane\Validator;
 
 class OneOf implements Validator
 {
+    /** @var Validator[] */
     private array $chain;
 
     public function __construct(Validator ...$chain)
@@ -50,6 +51,7 @@ class OneOf implements Validator
         );
     }
 
+    /** @param int[] $results */
     private function mergeResult(array $results): int
     {
         foreach ($results as $result) {
@@ -60,6 +62,7 @@ class OneOf implements Validator
         return Result::NO_RESULT;
     }
 
+    /** @param MessageSet[] $messageSets */
     private function mergeMessages(array $messageSets): MessageSet
     {
         $mergedMessageSet = new MessageSet(null);

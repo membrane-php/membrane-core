@@ -13,6 +13,7 @@ use RuntimeException;
 
 class FieldSet implements Processor
 {
+    /** @var mixed[] */
     private array $chain = [];
     private Processor $before;
     private Processor $after;

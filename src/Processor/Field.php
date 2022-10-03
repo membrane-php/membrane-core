@@ -13,6 +13,7 @@ use Membrane\Validator;
 
 class Field implements Processor
 {
+    /** @var Filter[]|Validator[] */
     private array $chain;
 
     public function __construct(
@@ -43,10 +44,14 @@ class Field implements Processor
             if (!$result->isValid()) {
                 $messageSet = new MessageSet($parentFieldName->push(new Fieldname($this->processes)));
 
+                if ($result->messageSets !== []) {
+                    $messageSet = $messageSet->merge(current($result->messageSets));
+                }
+
                 return new Result(
                     $result->value,
                     $result->result,
-                    $messageSet->merge(current($result->messageSets))
+                    $messageSet
                 );
             }
         }
