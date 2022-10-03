@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Validator\Logical;
+namespace Validator\Utility;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use Membrane\Validator\Logical\Not;
 use Membrane\Validator\Utility\Fails;
+use Membrane\Validator\Utility\Not;
 use Membrane\Validator\Utility\Passes;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Membrane\Validator\Logical\Not
+ * @covers \Membrane\Validator\Utility\Not
  * @uses   \Membrane\Validator\Utility\Fails
  * @uses   \Membrane\Validator\Utility\Passes
  * @uses   \Membrane\Result\Result
