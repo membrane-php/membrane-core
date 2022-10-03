@@ -1,6 +1,6 @@
 # Membrane
 
-Membrane is a lightweight input validation layer which can be used to answer the question "Is this input something we might be able to process?". It's 
+Membrane is a lightweight input validation layer which can be used to answer the question "Is this input something we might be able to process?". Its 
 purpose is to recieve "raw" user input and produce a cleaned up, fully validated object or array representing that data, which the rest of your application
 can use with confidence.
 
