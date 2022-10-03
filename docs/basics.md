@@ -12,7 +12,14 @@ This is what your input will have become after passing through Membrane.
 
 ### Result
 
-This is to inform you whether Membrane has considered the input valid or invalid.
+This is to inform you whether Membrane has considered the input valid, invalid or no result.
+
+No result occurs if only filters have been applied to the data. It has not been flagged as invalid, 
+however no validator has been applied to validate it.
+
+The isValid() method considers anything valid as long as it is not invalid. It is recommended to use this
+method instead of relying on the Result property alone.
+
 
 ### MessageSet
 

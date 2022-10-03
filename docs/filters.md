@@ -4,7 +4,7 @@ Filters ensure that input is the correct format and may attempt
 to change the input to match the correct format.
 If you do not wish to change the input: See [Validators](validators.md)
 
-Results returning from Filters will always be noResult or invalid if it
+Results returning from Filters will always be either noResult or invalid if it
 is unable to process the data provided. You should not rely on this behaviour,
 common best practice is to use validators to ensure the data passed can be filtered.
 
@@ -26,8 +26,12 @@ new FromArray($className)
 
 ### WithNamedArguments
 
-construct new data object from named arguments. $className must correspond to a class which uses named arguments
-for its constructor.
+Constructs a new object using its constructor.
+
+This relies upon the named arguments feature in PHP,
+so the parameter names of your object must match the keys in the data array.
+
+You can use the shape filters to modify the data structure to match if need be.
 
 ```
 new WithNamedArguments($className)

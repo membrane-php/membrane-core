@@ -43,7 +43,7 @@ new Range($min, $max)
 
 | Parameter | Type     | Default Value | Notes                              |
 |-----------|----------|---------------|------------------------------------|
-| $min      | DateTime | null          | If set to null, maximum is ignored |
+| $min      | DateTime | null          | If set to null, minimum is ignored |
 | $max      | DateTime | null          | If set to null, maximum is ignored |
 
 ### RangeDelta
@@ -56,7 +56,7 @@ new RangeDelta($min, $max)
 
 | Parameter | Type         | Default Value | Notes                              |
 |-----------|--------------|---------------|------------------------------------|
-| $min      | DateInterval | null          | If set to null, maximum is ignored |
+| $min      | DateInterval | null          | If set to null, minimum is ignored |
 | $max      | DateInterval | null          | If set to null, maximum is ignored |
 
 ## Numeric
@@ -71,7 +71,7 @@ new Range($min, $max)
 
 | Parameter | Type | Default Value | Notes                              |
 |-----------|------|---------------|------------------------------------|
-| $min      | int  | null          | If set to null, maximum is ignored |
+| $min      | int  | null          | If set to null, minimum is ignored |
 | $max      | int  | null          | If set to null, maximum is ignored |
 
 ## Object
@@ -193,7 +193,13 @@ new Not($invertedValidator)
 
 ### AllOf
 
-Takes a chain of validators to run in succession.
+Takes a chain of validators to run in succession.  
+All validators provided will be applied to the input,
+unlike the behaviour of Field which stops as soon as a validator is flagged as invalid.  
+This is useful if you want to check multiple validation rules are true
+and return all error messages back to the user in the case of failure.
+
+
 If the entire chain is considered valid AllOf will return `Result::valid`.
 
 ```
@@ -207,6 +213,7 @@ new AllOf(...$chain)
 ### OneOf
 
 Takes a chain of validators to run in succession.
+
 If any of the chain is considered valid then OneOf will return `Result::valid`.
 
 ```

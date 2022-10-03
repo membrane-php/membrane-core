@@ -22,7 +22,9 @@ A result is considered valid as long as it is not invalid.
 In the case that the external data fails validation i.e. `Result::invalid` the Result object
 will contain at least one Message Set.
 
-Message Sets provide details on why the external data has failed validation. They consist of two properties:
+Message Sets provide details on why the external data has failed validation. 
+
+They consist of two properties:
 
 * Fieldname: This specifies what part of the data was being validated when it failed.
-* Message: This specifies how the data failed validation.
+* Message: This specifies how the data failed validation. Message Sets can contain multiple messages.
