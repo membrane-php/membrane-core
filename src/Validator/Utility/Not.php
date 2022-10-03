@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Validator\Logical;
+namespace Membrane\Validator\Utility;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
