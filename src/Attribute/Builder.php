@@ -120,7 +120,7 @@ class Builder
             ProcessorType::Fieldset => $this->fromClass($subtype, $property->getName()),
             ProcessorType::Field => $this->makeField($property),
             ProcessorType::Collection =>
-            throw CannotProcessProperty::nestedCollection($property->getName())
+                throw CannotProcessProperty::nestedCollection($property->getName())
         };
 
         return new Collection(
