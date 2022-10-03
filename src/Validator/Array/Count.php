@@ -19,6 +19,11 @@ class Count implements Validator
 
     public function validate(mixed $value): Result
     {
+        if (!is_array($value)) {
+            $message = new Message('Count Validator requires an array, %s given', [gettype($value)]);
+            return Result::invalid($value, new MessageSet(null, $message));
+        }
+
         $count = count($value);
 
         if ($count < $this->min) {

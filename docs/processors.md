@@ -27,7 +27,8 @@ BeforeSets will be applied first, across the entire array.
 
 AfterSets will be applied last, across the entire array.
 
-Other Processors will be applied in between.
+Other Processors will be applied in between and **require list values.** If other Processors are used,
+ensure that your BeforeSet returns a list value.
 
 ```
 new Collection($processes, ...$chain)
@@ -48,7 +49,8 @@ BeforeSets will be applied first, across the entire array.
 AfterSets will be applied last, across the entire array.
 
 Other Processors will be applied in between and only to the keys in the array that correspond to
-their individual $processes.
+their individual $processes. As such other Processors **require array values.** If other Processors
+are used, ensure that your BeforeSet returns an array value.
 
 ```
 new FieldSet($processes, ...$chain)

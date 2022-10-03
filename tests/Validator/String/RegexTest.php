@@ -18,6 +18,35 @@ use PHPUnit\Framework\TestCase;
  */
 class RegexTest extends TestCase
 {
+    public function dataSetsWithIncorrectTypes(): array
+    {
+        return [
+            [123, 'integer'],
+            [1.23, 'double'],
+            [[], 'array'],
+            [true, 'boolean'],
+            [null, 'NULL'],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsWithIncorrectTypes
+     */
+    public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
+    {
+        $regex = new Regex('');
+        $expected = Result::invalid($input, new MessageSet(
+                null,
+                new Message('Regex Validator requires a string, %s given', [$expectedVars])
+            )
+        );
+
+        $result = $regex->validate($input);
+
+        self::assertEquals($expected, $result);
+    }
+
     public function dataSetsThatPass(): array
     {
         return [

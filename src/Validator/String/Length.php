@@ -17,6 +17,11 @@ class Length implements Validator
 
     public function validate(mixed $value): Result
     {
+        if (!is_string($value)) {
+            $message = new Message('Length Validator requires a string, %s given', [gettype($value)]);
+            return Result::invalid($value, new MessageSet(null, $message));
+        }
+
         $length = strlen($value);
 
         if ($length < $this->min) {

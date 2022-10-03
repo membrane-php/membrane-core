@@ -11,6 +11,11 @@ class Identical implements Validator
 {
     public function validate(mixed $value): Result
     {
+        if (!is_array($value)) {
+            $message = new Message('Identical Validator requires an array, %s given', [gettype($value)]);
+            return Result::invalid($value, new MessageSet(null, $message));
+        }
+
         $compareTo = current($value);
         foreach ($value as $item) {
             if ($item !== $compareTo) {

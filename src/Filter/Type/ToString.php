@@ -13,16 +13,19 @@ class ToString implements Filter
 {
     public function filter(mixed $value): Result
     {
-        $type = gettype($value);
-        if (!($type === 'object' || $value === null || is_scalar($value))) {
-            $message = new Message('ToString filter only accepts objects, null or scalar values, %s given', [$type]);
+        if (!(is_object($value) || is_null($value) || is_scalar($value))) {
+            $message = new Message(
+                'ToString filter only accepts objects, null or scalar values, %s given',
+                [gettype($value)]
+            );
             return Result::invalid($value, new MessageSet(null, $message));
         }
-        if ($type === 'object' && !method_exists($value, '__toString')) {
+
+        if (is_object($value) && !method_exists($value, '__toString')) {
             $message = new Message('ToString Filter only accepts objects with __toString method', []);
             return Result::invalid($value, new MessageSet(null, $message));
         }
 
-        return Result::noResult((string)$value);
+        return Result::noResult(strval($value));
     }
 }

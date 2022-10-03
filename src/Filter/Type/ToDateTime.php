@@ -21,6 +21,11 @@ class ToDateTime implements Filter
 
     public function filter(mixed $value): Result
     {
+        if (!is_string($value)) {
+            $message = new Message('ToDateTime filter requires a string, %s given', [gettype($value)]);
+            return Result::invalid($value, new MessageSet(null, $message));
+        }
+
         $dateTime = $this->immutable === true ?
             DateTimeImmutable::createFromFormat($this->format, $value)
             :

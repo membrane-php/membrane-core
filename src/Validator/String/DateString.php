@@ -18,6 +18,11 @@ class DateString implements Validator
 
     public function validate(mixed $value): Result
     {
+        if (!is_string($value)) {
+            $message = new Message('DateString Validator requires a string, %s given', [gettype($value)]);
+            return Result::invalid($value, new MessageSet(null, $message));
+        }
+
         $dateTime = DateTime::createFromFormat($this->format, $value);
 
         if ($dateTime === false) {

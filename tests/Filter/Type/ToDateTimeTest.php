@@ -20,6 +20,35 @@ use PHPUnit\Framework\TestCase;
  */
 class ToDateTimeTest extends TestCase
 {
+    public function dataSetsWithIncorrectTypes(): array
+    {
+        return [
+            [123, 'integer'],
+            [1.23, 'double'],
+            [[], 'array'],
+            [true, 'boolean'],
+            [null, 'NULL'],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsWithIncorrectTypes
+     */
+    public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
+    {
+        $toDateTime = new ToDateTime('');
+        $expected = Result::invalid($input, new MessageSet(
+                null,
+                new Message('ToDateTime filter requires a string, %s given', [$expectedVars])
+            )
+        );
+
+        $result = $toDateTime->filter($input);
+
+        self::assertEquals($expected, $result);
+    }
+
     public function dataSetsThatPass(): array
     {
         return [

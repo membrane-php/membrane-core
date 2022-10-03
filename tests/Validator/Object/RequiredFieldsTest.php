@@ -18,6 +18,35 @@ use PHPUnit\Framework\TestCase;
  */
 class RequiredFieldsTest extends TestCase
 {
+    public function dataSetsWithIncorrectTypes(): array
+    {
+        return [
+            [123, 'integer'],
+            [1.23, 'double'],
+            ['string', 'string'],
+            [true, 'boolean'],
+            [null, 'NULL'],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsWithIncorrectTypes
+     */
+    public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
+    {
+        $requiredFields = new RequiredFields();
+        $expected = Result::invalid($input, new MessageSet(
+                null,
+                new Message('RequiredFields Validator requires an array, %s given', [$expectedVars])
+            )
+        );
+
+        $result = $requiredFields->validate($input);
+
+        self::assertEquals($expected, $result);
+    }
+
     public function dataSetsForValidResults(): array
     {
         return [
