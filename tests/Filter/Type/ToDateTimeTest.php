@@ -90,6 +90,7 @@ class ToDateTimeTest extends TestCase
 
     public function dataSetsThatFail(): array
     {
+        // @TODO once min requirement is PHP 8.2: remove version_compare statements
         return [
             [
                 'Y-m-d',
@@ -100,7 +101,10 @@ class ToDateTimeTest extends TestCase
                     'error_count' => 3,
                     'errors' => [
                         4 => 'Unexpected data found.',
-                        12 => 'Data missing',
+                        12 => version_compare(PHP_VERSION, '8.1.7', '>=') ?
+                            'Not enough data available to satisfy format'
+                            :
+                            'Data missing',
                     ],
                 ],
             ],
@@ -124,7 +128,10 @@ class ToDateTimeTest extends TestCase
                     'warnings' => [],
                     'error_count' => 1,
                     'errors' => [
-                        0 => 'Data missing',
+                        0 => version_compare(PHP_VERSION, '8.1.7', '>=') ?
+                            'Not enough data available to satisfy format'
+                            :
+                            'Data missing',
                     ],
                 ],
             ],
