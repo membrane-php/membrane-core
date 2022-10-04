@@ -158,7 +158,7 @@ echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 In the above example $result will be equal to the following
 ```
-['a' => 1, 'b' => 2, c => 3]
+['a' => 1, 'b' => 2, 'c' => 3]
 Result was valid
 ```
 
@@ -241,7 +241,7 @@ echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 In the above example $result will be equal to the following
 ```
-['a' => 1, 'b' => 2, c => 3]
+['a' => 1, 'b' => 2, 'c' => 3]
 Result was invalid
 ```
 
