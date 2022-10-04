@@ -1,8 +1,16 @@
 # Filters
 
 Filters ensure that input is the correct format and may attempt
-to change the input to match the correct format.
+to change the input to match the correct format.  
 If you do not wish to change the input: See [Validators](validators.md)
+
+All Filters implement the Membrane\Filter interface:
+```php
+interface Filter
+{
+    public function filter(mixed $value): Result;
+}
+```
 
 Results returning from Filters will always be either noResult or invalid if it
 is unable to process the data provided. You should not rely on this behaviour,

@@ -11,6 +11,7 @@ interface Validator
     public function validate(mixed $value): Result;
 }
 ```
+
 Results returning from Validators will always be valid or invalid.
 
 ## Array
@@ -144,11 +145,11 @@ Checks if input is an array with key-value pairs, it accepts empty arrays but no
 new IsArray()
 ```
 
-**Example**
+**Example 1**
 ```php
 <?php
 $isArray = new IsArray();
-$array = ['a' => 1, 'b' => 2, c => 3];
+$array = ['a' => 1, 'b' => 2, 'c' => 3];
 
 $result = $isArray->validate($array);
 
@@ -159,6 +160,23 @@ In the above example $result will be equal to the following
 ```
 ['a' => 1, 'b' => 2, c => 3]
 Result was valid
+```
+
+**Example 2**
+```php
+<?php
+$isArray = new IsArray();
+$list = [1, 2, 3];
+
+$result = $isArray->validate($list);
+
+echo $result->value;
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+In the above example $result will be equal to the following
+```
+[1, 2, 3]
+Result was invalid
 ```
 
 ### IsBool
@@ -191,6 +209,40 @@ Checks if input is a list, it accepts empty arrays but not arrays with key-value
 
 ```php
 new IsList()
+```
+
+**Example 1**
+```php
+<?php
+$isList = new IsList();
+$list = [1, 2, 3];
+
+$result = $isList->validate($list);
+
+echo $result->value;
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+In the above example $result will be equal to the following
+```
+[1, 2, 3]
+Result was valid
+```
+
+**Example 2**
+```php
+<?php
+$isList = new IsList();
+$array = ['a' => 1, 'b' => 2, 'c' => 3];
+
+$result = $isList->validate($array);
+
+echo $result->value;
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+In the above example $result will be equal to the following
+```
+['a' => 1, 'b' => 2, c => 3]
+Result was invalid
 ```
 
 ### IsString
