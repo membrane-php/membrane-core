@@ -4,6 +4,13 @@ Validators check that input is in the correct format, it will not attempt to cha
 input.  
 If you wish to change the input: See [Filters](filters.md).
 
+All Validators implement the Membrane\Validator interface:
+```php
+interface Validator
+{
+    public function validate(mixed $value): Result;
+}
+```
 Results returning from Validators will always be valid or invalid.
 
 ## Array
@@ -12,7 +19,7 @@ Results returning from Validators will always be valid or invalid.
 
 Checks that an array has a number of values between a specified minimum and maximum.
 
-```
+```php
 new Count($min, $max)
 ```
 
@@ -27,7 +34,7 @@ new Count($min, $max)
 
 Checks that all values in a collection are equal.
 
-```
+```php
 new Identical()
 ```
 
@@ -37,7 +44,7 @@ new Identical()
 
 Checks if a DateTime object corresponds to a time between a specified minimum and maximum.
 
-```
+```php
 new Range($min, $max)
 ```
 
@@ -50,7 +57,7 @@ new Range($min, $max)
 
 Checks if a DateTime object corresponds to a time between a specified minimum and maximum time from now.
 
-```
+```php
 new RangeDelta($min, $max)
 ```
 
@@ -65,7 +72,7 @@ new RangeDelta($min, $max)
 
 Checks if an integer/float is between a specified minimum and maximum.
 
-```
+```php
 new Range($min, $max)
 ```
 
@@ -80,7 +87,7 @@ new Range($min, $max)
 
 Checks if array contains keys corresponding to all required fields.
 
-```
+```php
 new RequiredFields(...$fields)
 ```
 
@@ -94,7 +101,7 @@ new RequiredFields(...$fields)
 
 Checks if string input follows specified DateTime format.
 
-```
+```php
 new DateString($format)
 ```
 
@@ -106,7 +113,7 @@ new DateString($format)
 
 Checks if string input is between specified minimum and maximum number of characters.
 
-```
+```php
 new Length($min, $max)
 ```
 
@@ -119,7 +126,7 @@ new Length($min, $max)
 
 Checks if string follows specified regex pattern.
 
-```
+```php
 new DateString($pattern)
 ```
 
@@ -133,15 +140,32 @@ new DateString($pattern)
 
 Checks if input is an array with key-value pairs, it accepts empty arrays but not lists.
 
-```
+```php
 new IsArray()
+```
+
+**Example**
+```php
+<?php
+$isArray = new IsArray();
+$array = ['a' => 1, 'b' => 2, c => 3];
+
+$result = $isArray->validate($array);
+
+echo $result->value;
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+In the above example $result will be equal to the following
+```
+['a' => 1, 'b' => 2, c => 3]
+Result was valid
 ```
 
 ### IsBool
 
 Checks if input is a boolean.
 
-```
+```php
 new IsBool()
 ```
 
@@ -149,7 +173,7 @@ new IsBool()
 
 Checks if input is a float.
 
-```
+```php
 new IsFloat()
 ```
 
@@ -157,7 +181,7 @@ new IsFloat()
 
 Checks if input is an integer.
 
-```
+```php
 new IsInt()
 ```
 
@@ -165,7 +189,7 @@ new IsInt()
 
 Checks if input is a list, it accepts empty arrays but not arrays with key-value pairs.
 
-```
+```php
 new IsList()
 ```
 
@@ -173,7 +197,7 @@ new IsList()
 
 Checks if input is a string.
 
-```
+```php
 new IsString()
 ```
 
@@ -183,7 +207,7 @@ new IsString()
 
 Inverts the Result of another Validator.
 
-```
+```php
 new Not($invertedValidator)
 ```
 
@@ -202,7 +226,7 @@ and return all error messages back to the user in the case of failure.
 
 If the entire chain is considered valid AllOf will return `Result::valid`.
 
-```
+```php
 new AllOf(...$chain)
 ```
 
@@ -216,7 +240,7 @@ Takes a chain of validators to run in succession.
 
 If any of the chain is considered valid then OneOf will return `Result::valid`.
 
-```
+```php
 new OneOf(...$chain)
 ```
 
@@ -230,7 +254,7 @@ _(Primarily intended for test usage.)_
 
 This will always return `Result::valid`.
 
-```
+```php
 new Passes()
 ```
 
@@ -242,7 +266,7 @@ _(Primarily intended for test usage)_
 
 This will always return `Result::noResult`.
 
-```
+```php
 new Indifferent()
 ```
 
@@ -252,6 +276,6 @@ _(Primarily intended for test usage)_
 
 This will always return `Result::invalid`.
 
-```
+```php
 new Fails()
 ```

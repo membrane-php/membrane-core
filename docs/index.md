@@ -1,8 +1,10 @@
 # Getting Started
 
 ## Installation
+```
+composer require membrane-php/membrane-core
+```
 
-    composer require membrane-php/membrane-core
 
 ## What Membrane Is
 

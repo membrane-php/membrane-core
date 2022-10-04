@@ -16,7 +16,7 @@ Create objects from external data.
 
 construct new data object from an array. $className must correspond to a class with a method named 'fromArray'
 
-```
+```php
 new FromArray($className)
 ```
 
@@ -33,7 +33,7 @@ so the parameter names of your object must match the keys in the data array.
 
 You can use the shape filters to modify the data structure to match if need be.
 
-```
+```php
 new WithNamedArguments($className)
 ```
 
@@ -50,7 +50,7 @@ Methods that alter the shape of arrays/lists.
 Collect key-value pairs specified by $fields from the parent array and
 append their values to a nested list specified by $newField.
 
-```
+```php
 new Collect($newField, ...$fields)
 ```
 
@@ -63,7 +63,7 @@ new Collect($newField, ...$fields)
 
 Deletes a specified key-value pairs from an array.
 
-```
+```php
 new Delete(...$fieldNames)
 ```
 
@@ -78,7 +78,7 @@ Opposite of Pluck.
 Collect key-value pairs specified by $fields from the parent array and
 appends them to a nested array specified by $newField.
 
-```
+```php
 new Nest($newField, ...$fields)
 ```
 
@@ -94,7 +94,7 @@ Opposite of Nest.
 Collect key-value pairs specified by $fieldNames from a nested array specified by $fieldSet and
 appends them to the parent array.
 
-```
+```php
 new Pluck($fieldSet, ...$fieldnames)
 ```
 
@@ -107,7 +107,7 @@ new Pluck($fieldSet, ...$fieldnames)
 
 Renames a specified string key in an array.
 
-```
+```php
 new Rename($old, $new)
 ```
 
@@ -120,7 +120,7 @@ new Rename($old, $new)
 
 Deletes as many values as necessary from the end of a list to avoid exceeding the specified maximum length.
 
-```
+```php
 new Truncate($maxLength)
 ```
 
