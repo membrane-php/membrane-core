@@ -13,7 +13,7 @@ use Membrane\Result\Result;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers ToDateTime
+ * @covers \Membrane\Filter\Type\ToDateTime
  * @uses   \Membrane\Result\Result
  * @uses   \Membrane\Result\MessageSet
  * @uses   \Membrane\Result\Message
@@ -100,7 +100,7 @@ class ToDateTimeTest extends TestCase
                     'error_count' => 3,
                     'errors' => [
                         4 => 'Unexpected data found.',
-                        12 => 'Not enough data available to satisfy format',
+                        12 => 'Data missing',
                     ],
                 ],
             ],
@@ -124,7 +124,7 @@ class ToDateTimeTest extends TestCase
                     'warnings' => [],
                     'error_count' => 1,
                     'errors' => [
-                        0 => 'Not enough data available to satisfy format',
+                        0 => 'Data missing',
                     ],
                 ],
             ],

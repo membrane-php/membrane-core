@@ -26,6 +26,6 @@ class ToString implements Filter
             return Result::invalid($value, new MessageSet(null, $message));
         }
 
-        return Result::noResult(strval($value));
+        return Result::noResult((string) $value);
     }
 }

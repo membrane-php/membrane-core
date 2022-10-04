@@ -12,6 +12,9 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Filter\Type\ToInt
+ * @uses \Membrane\Result\Result
+ * @uses \Membrane\Result\MessageSet
+ * @uses \Membrane\Result\Message
  */
 class ToIntTest extends TestCase
 {

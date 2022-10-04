@@ -76,7 +76,7 @@ class Collection implements Processor
             $processedValues = [];
 
             foreach ($value as $key => $item) {
-                $result = $this->each->process($fieldName->push(new Fieldname(strval($key))), $item);
+                $result = $this->each->process($fieldName->push(new Fieldname((string) $key)), $item);
                 $processedValues[$key] = $result->value;
                 $collectionResult = $collectionResult->merge($result);
             }
