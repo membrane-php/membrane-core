@@ -51,7 +51,7 @@ echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 
 The above example will output the following
-```
+```text
 foo_bar
 Result was valid
 ```
@@ -91,7 +91,7 @@ echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 
 The above example will output the following
-```
+```text
 new values
 Result was valid
 ```
@@ -125,7 +125,7 @@ echo $result->value
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 ['b' => 2, 'collected fields' => [1, 3]]
 Result was valid
 ```
@@ -170,7 +170,7 @@ echo $result->value
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 ['b' => 2, 'nested fields' => ['a' => 1, 'c' => 3]]
 Result was valid
 ```
@@ -204,7 +204,7 @@ echo $result->value
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 ['a' => 1, 'b' => 2, 'c' => 3, 'nested fields' => ['a' => 1, 'c' => 3]]
 Result was valid
 ```
@@ -234,7 +234,7 @@ echo $result->value
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 ['b' => 2, 'c' => 3, 'd' => 1]
 Result was valid
 ```
@@ -263,7 +263,7 @@ echo $result->value
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 ['a', 'b']
 Result was valid
 ```

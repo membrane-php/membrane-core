@@ -42,7 +42,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 ['a' => 1, 'b' => 2, 'c' => 3]
 Result was valid
 ```
@@ -70,7 +70,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 ['a', 'a', 'a']
 Result was valid
 ```
@@ -105,7 +105,7 @@ echo $result->value->format('Y-m-d H:i:s');
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 1970-01-01 00:00:00
 Result was valid
 ```
@@ -136,7 +136,7 @@ echo $result->value->format('Y-m-d H:i:s');
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 2121-01-01 00:00:00
 Result was valid
 ```
@@ -168,7 +168,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 50
 Result was valid
 ```
@@ -200,7 +200,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 ['a' => 1, 'b' => 2, 'c' => 3]
 Result was valid
 ```
@@ -232,7 +232,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 1970-01-01
 Result was valid
 ```
@@ -264,7 +264,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 this string is 28 characters
 Result was valid
 ```
@@ -295,7 +295,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 123
 Result was valid
 ```
@@ -323,7 +323,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 ['a' => 1, 'b' => 2, 'c' => 3]
 Result was valid
 ```
@@ -340,7 +340,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 [1, 2, 3]
 Result was invalid
 ```
@@ -366,7 +366,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 false
 Result was valid
 ```
@@ -392,7 +392,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 1.23
 Result was valid
 ```
@@ -418,7 +418,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 123
 Result was valid
 ```
@@ -443,7 +443,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 [1, 2, 3]
 Result was valid
 ```
@@ -460,7 +460,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 ['a' => 1, 'b' => 2, 'c' => 3]
 Result was invalid
 ```
@@ -487,7 +487,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 foo
 Result was valid
 ```
@@ -520,7 +520,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 foo
 Result was valid
 ```
@@ -557,7 +557,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 foo
 Result was valid
 ```
@@ -575,7 +575,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 foobar
 Result was invalid
 ```
@@ -609,7 +609,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 foo
 Result was valid
 ```
@@ -639,7 +639,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 foo
 Result was valid
 ```
@@ -669,7 +669,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 foo
 Result was valid
 ```
@@ -697,7 +697,7 @@ echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
 The above example will output the following
-```
+```text
 foo
 Result was invalid
 ```

@@ -1,7 +1,7 @@
 # Getting Started
 
 ## Installation
-```
+```text
 composer require membrane-php/membrane-core
 ```
 
