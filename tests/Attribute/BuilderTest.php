@@ -11,15 +11,19 @@ use Membrane\Fixtures\ArraySumFilter;
 use Membrane\Fixtures\ClassThatOverridesProcessorType;
 use Membrane\Fixtures\ClassWithClassArrayPropertyIsIntValidator;
 use Membrane\Fixtures\ClassWithClassProperty;
+use Membrane\Fixtures\ClassWithCompoundPropertyType;
+use Membrane\Fixtures\ClassWithDateTimeProperty;
 use Membrane\Fixtures\ClassWithIntArrayPropertyBeforeSet;
 use Membrane\Fixtures\ClassWithIntArrayPropertyIsIntValidator;
 use Membrane\Fixtures\ClassWithIntProperty;
 use Membrane\Fixtures\ClassWithIntPropertyIgnoredProperty;
 use Membrane\Fixtures\ClassWithIntPropertyIsIntValidator;
+use Membrane\Fixtures\ClassWithNestedCollection;
 use Membrane\Fixtures\ClassWithNoSubTypeHint;
 use Membrane\Fixtures\ClassWithNoTypeHint;
 use Membrane\Fixtures\ClassWithPromotedPropertyAfterSet;
 use Membrane\Fixtures\ClassWithStringPropertyBeforeSet;
+use Membrane\Fixtures\Docs\BlogPost;
 use Membrane\Fixtures\EmptyClass;
 use Membrane\Fixtures\EmptyClassWithIgnoredProperty;
 use Membrane\Processor\AfterSet;
@@ -53,6 +57,11 @@ use PHPUnit\Framework\TestCase;
  * @uses \Membrane\Validator\Object\RequiredFields
  * @uses \Membrane\Validator\Type\IsList
  * @uses \Membrane\Validator\Type\IsInt
+ * @uses \Membrane\Filter\Type\ToString
+ * @uses \Membrane\Validator\String\Length
+ * @uses \Membrane\Validator\String\Regex
+ * @uses \Membrane\Validator\Utility\AllOf
+ * @uses \Membrane\Validator\Array\Count
  * @uses \Membrane\Filter\CreateObject\WithNamedArguments
  */
 class BuilderTest extends TestCase
@@ -95,6 +104,37 @@ class BuilderTest extends TestCase
         $builder->fromClass(ClassWithNoSubTypeHint::class);
     }
 
+    /**
+     * @test
+     */
+    public function compoundPropertyThrowsException(): void
+    {
+        $builder = new Builder();
+
+        self::expectException(CannotProcessProperty::class);
+        self::expectExceptionMessage(
+            'Property compoundProperty uses a compound type hint, these are not currently supported'
+        );
+
+        $builder->fromClass(ClassWithCompoundPropertyType::class);
+    }
+
+    /**
+     * @test
+     */
+    public function nestedCollectionThrowsException(): void
+    {
+        $builder = new Builder();
+
+        self::expectException(CannotProcessProperty::class);
+        self::expectExceptionMessage(
+            'Property arrayOfArrays is a collection and defines it\'s subtype as array. ' .
+            'Nested collections are not currently supported'
+        );
+
+        $builder->fromClass(ClassWithNestedCollection::class);
+    }
+
     public function dataSetOfClassesToBuild(): array
     {
         return [
@@ -105,6 +145,10 @@ class BuilderTest extends TestCase
             EmptyClassWithIgnoredProperty::class => [
                 EmptyClassWithIgnoredProperty::class,
                 new FieldSet('')
+            ],
+            ClassWithDateTimeProperty::class => [
+                ClassWithDateTimeProperty::class,
+                new FieldSet('', new Field('dateTime'))
             ],
             ClassWithIntProperty::class => [
               ClassWithIntProperty::class,
@@ -202,6 +246,11 @@ class BuilderTest extends TestCase
                 [],
                 Result::noResult([]),
             ],
+            ClassWithDateTimeProperty::class => [
+                ClassWithDateTimeProperty::class,
+                [],
+                Result::noResult([])
+            ],
             ClassWithIntProperty::class => [
                 ClassWithIntProperty::class,
                 ['a' => 1, 'b' => 2 , 'c' => 3],
@@ -269,4 +318,29 @@ class BuilderTest extends TestCase
 
         self::assertEquals($expected, $output);
     }
+
+    /**
+     * @test
+     */
+    public function DocumentationExamplePasses(): void
+    {
+        $expected = Result::valid(new BlogPost(
+            'Title With Proper Capitalization',
+            'My content',
+            ['tag1', 'tag2', 'tag3', 'tag4'],
+        ));
+        $builder = new Builder();
+        $processor = $builder->fromClass(BlogPost::class);
+
+        $result = $processor->process(new FieldName(''),
+            [
+                'title' => 'Title With Proper Capitalization',
+                'body' => 'My content',
+                'tags' => ['tag1', 'tag2', 'tag3', 'tag4'],
+            ]
+        );
+
+        self::assertEquals($expected, $result);
+    }
+
 }
