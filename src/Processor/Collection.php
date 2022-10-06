@@ -51,12 +51,6 @@ class Collection implements Processor
 
     public function process(FieldName $parentFieldName, mixed $value): Result
     {
-        if (!is_array($value) || !array_is_list($value)) {
-            return Result::invalid($value, new MessageSet(
-                null,
-                new Message('Value passed to Collection must be a list, %s passed instead', [gettype($value)])
-            ));
-        }
 
         $fieldName = $parentFieldName->push(new Fieldname($this->processes));
         $collectionResult = Result::noResult($value);
@@ -72,10 +66,17 @@ class Collection implements Processor
         }
 
         if (isset($this->each)) {
+            if (!(is_array($value) && array_is_list($value))) {
+                return Result::invalid($value, new MessageSet(null, new Message(
+                    'Value passed to %s in Collection chain must be a list, %s passed instead',
+                    [$this->each::class, gettype($value)]
+                )));
+            }
+
             $processedValues = [];
 
             foreach ($value as $key => $item) {
-                $result = $this->each->process($fieldName->push(new Fieldname((string)$key)), $item);
+                $result = $this->each->process($fieldName->push(new Fieldname((string) $key)), $item);
                 $processedValues[$key] = $result->value;
                 $collectionResult = $collectionResult->merge($result);
             }

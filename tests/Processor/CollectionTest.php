@@ -32,14 +32,14 @@ class CollectionTest extends TestCase
 {
     public function dataSetsWithIncorrectValues(): array
     {
-        $notArrayMessage = 'Value passed to Collection must be a list, %s passed instead';
+        $notArrayMessage = 'Value passed to %s in Collection chain must be a list, %s passed instead';
         return [
-            [1, new Message($notArrayMessage, ['integer'])],
-            [2.0, new Message($notArrayMessage, ['double'])],
-            ['string', new Message($notArrayMessage, ['string'])],
-            [true, new Message($notArrayMessage, ['boolean'])],
-            [null, new Message($notArrayMessage, ['NULL'])],
-            [['a' => 1, 'b' => 2, 'c' => 3], new Message($notArrayMessage, ['array'])],
+            [1, new Message($notArrayMessage, ['Membrane\Processor\Field', 'integer'])],
+            [2.0, new Message($notArrayMessage, ['Membrane\Processor\Field', 'double'])],
+            ['string', new Message($notArrayMessage, ['Membrane\Processor\Field', 'string'])],
+            [true, new Message($notArrayMessage, ['Membrane\Processor\Field', 'boolean'])],
+            [null, new Message($notArrayMessage, ['Membrane\Processor\Field', 'NULL'])],
+            [['a' => 1, 'b' => 2, 'c' => 3], new Message($notArrayMessage, ['Membrane\Processor\Field', 'array'])],
         ];
     }
 
@@ -51,7 +51,7 @@ class CollectionTest extends TestCase
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $fieldName = 'field to process';
-        $fieldset = new Collection($fieldName);
+        $fieldset = new Collection($fieldName, new Field(''));
 
         $result = $fieldset->process(new FieldName('parent field'), $input);
 

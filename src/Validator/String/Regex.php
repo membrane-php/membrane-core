@@ -17,9 +17,12 @@ class Regex implements Validator
 
     public function validate(mixed $value): Result
     {
-        $result = preg_match($this->pattern, $value);
+        if (!is_string($value)) {
+            $message = new Message('Regex Validator requires a string, %s given', [gettype($value)]);
+            return Result::invalid($value, new MessageSet(null, $message));
+        }
 
-        if (!$result) {
+        if (!preg_match($this->pattern, $value)) {
             $message = new Message('String does not match the required pattern %s', [$this->pattern]);
             return Result::invalid($value, new MessageSet(null, $message));
         }

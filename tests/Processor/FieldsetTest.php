@@ -32,8 +32,8 @@ class FieldsetTest extends TestCase
 {
     public function dataSetsWithIncorrectValues(): array
     {
-        $notArrayMessage = 'Value passed to FieldSet must be an array, %s passed instead';
-        $listMessage = 'Value passed to FieldSet must be an array, list passed instead';
+        $notArrayMessage = 'Value passed to FieldSet chain be an array, %s passed instead';
+        $listMessage = 'Value passed to FieldSet chain must be an array, list passed instead';
         return [
             [1, new Message($notArrayMessage, ['integer'])],
             [2.0, new Message($notArrayMessage, ['double'])],
@@ -52,7 +52,7 @@ class FieldsetTest extends TestCase
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $fieldName = 'field to process';
-        $fieldset = new FieldSet($fieldName);
+        $fieldset = new FieldSet($fieldName, new Field(''));
 
         $result = $fieldset->process(new FieldName('parent field'), $input);
 

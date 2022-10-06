@@ -13,7 +13,7 @@ use RuntimeException;
 
 class FieldSet implements Processor
 {
-    /** @var mixed[] */
+    /** @var Processor[] */
     private array $chain = [];
     private Processor $before;
     private Processor $after;
@@ -46,22 +46,6 @@ class FieldSet implements Processor
 
     public function process(FieldName $parentFieldName, mixed $value): Result
     {
-        $fieldName = $parentFieldName->push(new FieldName($this->processes));
-
-        if (!is_array($value)) {
-            return Result::invalid($value, new MessageSet(
-                null,
-                new Message('Value passed to FieldSet must be an array, %s passed instead', [gettype($value)])
-            ));
-        }
-
-        if (array_is_list($value) && $value !== []) {
-            return Result::invalid($value, new MessageSet(
-                null,
-                new Message('Value passed to FieldSet must be an array, list passed instead', [])
-            ));
-        }
-
         $fieldName = $parentFieldName->push(new Fieldname($this->processes));
         $fieldSetResult = Result::noResult($value);
 
@@ -75,12 +59,27 @@ class FieldSet implements Processor
             }
         }
 
-        foreach ($this->chain as $item) {
-            $processes = $item->processes();
-            if (array_key_exists($processes, $value)) {
-                $result = $item->process($fieldName, $value[$processes]);
-                $value[$processes] = $result->value;
-                $fieldSetResult = $fieldSetResult->merge($result);
+        if (!empty($this->chain)) {
+            if (!is_array($value)) {
+                return Result::invalid($value, new MessageSet(
+                    null,
+                    new Message('Value passed to FieldSet chain be an array, %s passed instead', [gettype($value)])
+                ));
+            }
+            if (array_is_list($value) && $value !== []) {
+                return Result::invalid($value, new MessageSet(
+                    null,
+                    new Message('Value passed to FieldSet chain must be an array, list passed instead', [])
+                ));
+            }
+
+            foreach ($this->chain as $item) {
+                $processes = $item->processes();
+                if (array_key_exists($processes, $value)) {
+                    $result = $item->process($fieldName, $value[$processes]);
+                    $value[$processes] = $result->value;
+                    $fieldSetResult = $fieldSetResult->merge($result);
+                }
             }
         }
 

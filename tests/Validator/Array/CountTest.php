@@ -18,6 +18,35 @@ use PHPUnit\Framework\TestCase;
  */
 class CountTest extends TestCase
 {
+    public function dataSetsWithIncorrectTypes(): array
+    {
+        return [
+            [123, 'integer'],
+            [1.23, 'double'],
+            ['string', 'string'],
+            [true, 'boolean'],
+            [null, 'NULL'],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsWithIncorrectTypes
+     */
+    public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
+    {
+        $count = new Count();
+        $expected = Result::invalid($input, new MessageSet(
+                null,
+                new Message('Count Validator requires an array, %s given', [$expectedVars])
+            )
+        );
+
+        $result = $count->validate($input);
+
+        self::assertEquals($expected, $result);
+    }
+
     /**
      * @test
      */

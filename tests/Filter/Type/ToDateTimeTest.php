@@ -13,13 +13,42 @@ use Membrane\Result\Result;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers ToDateTime
+ * @covers \Membrane\Filter\Type\ToDateTime
  * @uses   \Membrane\Result\Result
  * @uses   \Membrane\Result\MessageSet
  * @uses   \Membrane\Result\Message
  */
 class ToDateTimeTest extends TestCase
 {
+    public function dataSetsWithIncorrectTypes(): array
+    {
+        return [
+            [123, 'integer'],
+            [1.23, 'double'],
+            [[], 'array'],
+            [true, 'boolean'],
+            [null, 'NULL'],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsWithIncorrectTypes
+     */
+    public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
+    {
+        $toDateTime = new ToDateTime('');
+        $expected = Result::invalid($input, new MessageSet(
+                null,
+                new Message('ToDateTime filter requires a string, %s given', [$expectedVars])
+            )
+        );
+
+        $result = $toDateTime->filter($input);
+
+        self::assertEquals($expected, $result);
+    }
+
     public function dataSetsThatPass(): array
     {
         return [
@@ -61,6 +90,7 @@ class ToDateTimeTest extends TestCase
 
     public function dataSetsThatFail(): array
     {
+        // @TODO once min requirement is PHP 8.2: remove version_compare statements
         return [
             [
                 'Y-m-d',
@@ -71,7 +101,10 @@ class ToDateTimeTest extends TestCase
                     'error_count' => 3,
                     'errors' => [
                         4 => 'Unexpected data found.',
-                        12 => 'Not enough data available to satisfy format',
+                        12 => version_compare(PHP_VERSION, '8.1.7', '>=') ?
+                            'Not enough data available to satisfy format'
+                            :
+                            'Data missing',
                     ],
                 ],
             ],
@@ -95,7 +128,10 @@ class ToDateTimeTest extends TestCase
                     'warnings' => [],
                     'error_count' => 1,
                     'errors' => [
-                        0 => 'Not enough data available to satisfy format',
+                        0 => version_compare(PHP_VERSION, '8.1.7', '>=') ?
+                            'Not enough data available to satisfy format'
+                            :
+                            'Data missing',
                     ],
                 ],
             ],

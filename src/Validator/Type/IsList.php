@@ -11,10 +11,11 @@ class IsList implements Validator
 {
     public function validate(mixed $value): Result
     {
-        $type = gettype($value);
-
-        if ($type !== 'array') {
-            $message = new Message('Value passed to IsList validator is not an array, %s passed instead', [$type]);
+        if (!is_array($value)) {
+            $message = new Message(
+                'Value passed to IsList validator is not an array, %s passed instead',
+                [gettype($value)]
+            );
             return Result::invalid($value, new MessageSet(null, $message));
         }
 

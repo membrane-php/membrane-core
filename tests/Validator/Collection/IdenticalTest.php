@@ -18,6 +18,35 @@ use PHPUnit\Framework\TestCase;
  */
 class IdenticalTest extends TestCase
 {
+    public function dataSetsWithIncorrectTypes(): array
+    {
+        return [
+            [123, 'integer'],
+            [1.23, 'double'],
+            ['string', 'string'],
+            [true, 'boolean'],
+            [null, 'NULL'],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsWithIncorrectTypes
+     */
+    public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
+    {
+        $identical = new Identical();
+        $expected = Result::invalid($input, new MessageSet(
+                null,
+                new Message('Identical Validator requires an array, %s given', [$expectedVars])
+            )
+        );
+
+        $result = $identical->validate($input);
+
+        self::assertEquals($expected, $result);
+    }
+
     public function dataSetsForValidResults(): array
     {
         return [
