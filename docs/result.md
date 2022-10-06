@@ -26,5 +26,15 @@ Message Sets provide details on why the external data has failed validation.
 
 They consist of two properties:
 
-* Fieldname: This specifies what part of the data was being validated when it failed.
-* Message: This specifies how the data failed validation. Message Sets can contain multiple messages.
+### FieldName
+
+This specifies what part of the data was being validated when it failed.
+
+### Message
+
+This specifies how the data failed validation. Message Sets can contain multiple messages.
+A message can be read using the rendered() method
+```php
+$message = new Message('this message is an %s', ['example']);
+echo $message->rendered(); // this message is an example
+```
