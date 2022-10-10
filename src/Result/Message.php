@@ -12,4 +12,9 @@ class Message
         public readonly array $vars
     ) {
     }
+
+    public function rendered(): string
+    {
+        return vsprintf($this->message, $this->vars);
+    }
 }

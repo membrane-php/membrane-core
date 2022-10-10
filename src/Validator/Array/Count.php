@@ -32,7 +32,7 @@ class Count implements Validator
         }
 
         if ($this->max !== null && $count > $this->max) {
-            $message = new Message('Array is expected have a minimum of %d values', [$this->max]);
+            $message = new Message('Array is expected have a maximum of %d values', [$this->max]);
             return Result::invalid($value, new MessageSet(null, $message));
         }
 

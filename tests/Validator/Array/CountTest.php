@@ -98,7 +98,7 @@ class CountTest extends TestCase
      */
     public function arraysWithMoreValuesThanMaximumReturnInvalid(array $input, int $max): void
     {
-        $expectedMessage = new Message('Array is expected have a minimum of %d values', [$max]);
+        $expectedMessage = new Message('Array is expected have a maximum of %d values', [$max]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $count = new Count(0, $max);
 
