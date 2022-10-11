@@ -244,7 +244,7 @@ class BlogPost
     public function __construct(
         #[FilterOrValidator(new ToString())]
         #[FilterOrValidator(new Length(5, 50))]
-        #[FilterOrValidator(new Regex('^([A-Z][a-z]*\s){1,10}$'))]
+        #[FilterOrValidator(new Regex('#^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$#'))]
         public string $title,
         #[FilterOrValidator(new ToString())]
         public string $body,
@@ -282,7 +282,7 @@ $resultB = $processor->process(
         [
             'title' => 'TITLE WRITTEN ENTIRELY IN UPPER CASE AND UNNECESSARILY LONG',
             'body' => 'My content',
-            'tags' => ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6', 'tag7']],
+            'tags' => ['tag1', 'tag2', 'tag3', 'tag4']],
         ]
     );
 
@@ -301,13 +301,15 @@ They must also be 5-50 characters long thanks to Length Filter.
 However, we only got the error for the Length Validator since that applied first. 
 It would be better if we could find out all the errors at once.
 
+#### List All The Errors
+
 ```php
 #[SetFilterOrValidator(new RequiredFields('title', 'body', 'tags'), Placement::BEFORE)]
 class BlogPost
 {
     public function __construct(
         #[FilterOrValidator(new ToString())]
-        #[FilterOrValidator(new AllOf(new Length(5,50), new Regex('^([A-Z][a-z]*\s){1,10}$')))]
+        #[FilterOrValidator(new AllOf(new Length(5,50), new Regex('#^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$#')))]
         public string $title,
         #[FilterOrValidator(new ToString())]
         public string $body,
@@ -349,7 +351,7 @@ $resultB = $processor->process(
         [
             'title' => 'TITLE WRITTEN ENTIRELY IN UPPER CASE AND UNNECESSARILY LONG',
             'body' => 'My content',
-            'tags' => ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6', 'tag7']],
+            'tags' => ['tag1', 'tag2', 'tag3', 'tag4']],
         ]
     );
 
@@ -378,7 +380,7 @@ class BlogPost
 {
     public function __construct(
         #[FilterOrValidator(new ToString())]
-        #[FilterOrValidator(new AllOf(new Length(5,50), new Regex('^([A-Z][a-z]*\s){1,10}$')))]
+        #[FilterOrValidator(new AllOf(new Length(5,50), new Regex('#^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$#')))]
         public string $title,
         #[FilterOrValidator(new ToString())]
         public string $body,
