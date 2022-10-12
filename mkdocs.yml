@@ -3,6 +3,7 @@ site_url: https://membrane-php.github.io
 nav:
   - Getting Started: index.md
   - The Basics: basics.md
+  - The Builder: builder.md
   - Result: result.md
   - Processors: processors.md
   - Filters: filters.md

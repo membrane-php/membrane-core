@@ -9,7 +9,7 @@ The type of data is not restricted so can be a single scalar value, an array or 
 By using it as part of a FieldSet it will only apply its $chain to a key in the array
 matching the string $processes.
 
-```
+```php
 new Field($processes, ...$chain)
 ```
 
@@ -30,7 +30,7 @@ AfterSets will be applied last, across the entire array.
 Other Processors will be applied in between and **require list values.** If other Processors are used,
 ensure that your BeforeSet returns a list value.
 
-```
+```php
 new Collection($processes, ...$chain)
 ```
 
@@ -52,7 +52,7 @@ Other Processors will be applied in between and only to the keys in the array th
 their individual $processes. As such other Processors **require array values.** If other Processors
 are used, ensure that your BeforeSet returns an array value.
 
-```
+```php
 new FieldSet($processes, ...$chain)
 ```
 
@@ -66,7 +66,7 @@ new FieldSet($processes, ...$chain)
 AfterSets take a $chain of Filters and Validators and apply them across a whole list/array.
 They will always be the final processor to act.
 
-```
+```php
 new AfterSet(...$chain)
 ```
 
@@ -79,7 +79,7 @@ new AfterSet(...$chain)
 BeforeSets take a $chain of Filters and Validators and apply them across a whole list/array.
 They will always be the first processor to act.
 
-```
+```php
 new BeforeSet(...$chain)
 ```
 

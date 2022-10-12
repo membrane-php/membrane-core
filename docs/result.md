@@ -1,4 +1,5 @@
 # Result
+A Result object contains your external data after it has passed through Membrane.
 
 ## Value
 
