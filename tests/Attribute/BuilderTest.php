@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Attribute;
 
 use Membrane\Attribute\Builder;
+use Membrane\Attribute\ClassWithAttributes;
+use Membrane\Builder\Specification;
 use Membrane\Exception\CannotProcessProperty;
 use Membrane\Filter\CreateObject\WithNamedArguments;
 use Membrane\Fixtures\ArraySumFilter;
@@ -48,6 +50,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Attribute\Builder
+ * @uses \Membrane\Attribute\ClassWithAttributes
  * @uses \Membrane\Exception\CannotProcessProperty
  * @uses \Membrane\Attribute\FilterOrValidator
  * @uses \Membrane\Attribute\SetFilterOrValidator
@@ -78,13 +81,28 @@ class BuilderTest extends TestCase
     /**
      * @test
      */
-    public function passingNonExistentClassNameToFromClassThrowsException(): void
+    public function supportsReturnsFalseIfSpecificationIsNotClassWithAttributes(): void
     {
+        $specification = new class implements Specification {};
         $builder = new Builder();
-        self::expectException('Exception');
-        self::expectExceptionMessage('Could not find class NotAClass');
 
-        $builder->fromClass('NotAClass');
+        $result = $builder->supports($specification);
+
+        self::assertFalse($result);
+    }
+
+    /**
+     * @test
+     */
+    public function supportsReturnsTrueIfSpecificationIsClassWithAttributes(): void
+    {
+        $class = new class{};
+        $specification = new ClassWithAttributes(get_class($class));
+        $builder = new Builder();
+
+        $result = $builder->supports($specification);
+
+        self::assertTrue($result);
     }
 
     /**
@@ -92,12 +110,13 @@ class BuilderTest extends TestCase
      */
     public function noTypeHintThrowsException(): void
     {
+        $specification = new ClassWithAttributes(ClassWithNoTypeHint::class);
         $builder = new Builder();
 
         self::expectException(CannotProcessProperty::class);
         self::expectExceptionMessage('Property undefinedProperty does not define it\'s type');
 
-        $builder->fromClass(ClassWithNoTypeHint::class);
+        $builder->build($specification);
     }
 
     /**
@@ -105,12 +124,13 @@ class BuilderTest extends TestCase
      */
     public function noSubTypeHintThrowsException(): void
     {
+        $specification = new ClassWithAttributes(ClassWithNoSubTypeHint::class);
         $builder = new Builder();
 
         self::expectException(CannotProcessProperty::class);
         self::expectExceptionMessage('Property arrayOfMystery is a collection but does not define it\'s subtype');
 
-        $builder->fromClass(ClassWithNoSubTypeHint::class);
+        $builder->build($specification);
     }
 
     /**
@@ -118,6 +138,7 @@ class BuilderTest extends TestCase
      */
     public function compoundPropertyThrowsException(): void
     {
+        $specification = new ClassWithAttributes(ClassWithCompoundPropertyType::class);
         $builder = new Builder();
 
         self::expectException(CannotProcessProperty::class);
@@ -125,7 +146,7 @@ class BuilderTest extends TestCase
             'Property compoundProperty uses a compound type hint, these are not currently supported'
         );
 
-        $builder->fromClass(ClassWithCompoundPropertyType::class);
+        $builder->build($specification);
     }
 
     /**
@@ -133,6 +154,7 @@ class BuilderTest extends TestCase
      */
     public function nestedCollectionThrowsException(): void
     {
+        $specification = new ClassWithAttributes(ClassWithNestedCollection::class);
         $builder = new Builder();
 
         self::expectException(CannotProcessProperty::class);
@@ -141,38 +163,38 @@ class BuilderTest extends TestCase
             'Nested collections are not currently supported'
         );
 
-        $builder->fromClass(ClassWithNestedCollection::class);
+        $builder->build($specification);
     }
 
     public function dataSetOfClassesToBuild(): array
     {
         return [
             EmptyClass::class => [
-            EmptyClass::class,
-            new FieldSet('')
+                new ClassWithAttributes(EmptyClass::class),
+                new FieldSet('')
             ],
             EmptyClassWithIgnoredProperty::class => [
-                EmptyClassWithIgnoredProperty::class,
+                new ClassWithAttributes(EmptyClassWithIgnoredProperty::class),
                 new FieldSet('')
             ],
             ClassWithDateTimeProperty::class => [
-                ClassWithDateTimeProperty::class,
+                new ClassWithAttributes(ClassWithDateTimeProperty::class),
                 new FieldSet('', new Field('dateTime'))
             ],
             ClassWithIntProperty::class => [
-              ClassWithIntProperty::class,
+                new ClassWithAttributes(ClassWithIntProperty::class),
               new FieldSet('', new Field('integerProperty'))
             ],
             ClassWithIntPropertyIgnoredProperty::class => [
-                ClassWithIntPropertyIgnoredProperty::class,
+                new ClassWithAttributes(ClassWithIntPropertyIgnoredProperty::class),
                 new FieldSet('', new Field('integerProperty'))
             ],
             ClassWithIntPropertyIsIntValidator::class => [
-                ClassWithIntPropertyIsIntValidator::class,
+                new ClassWithAttributes(ClassWithIntPropertyIsIntValidator::class),
                 new FieldSet('', new Field('integerProperty', new IsInt()))
             ],
             ClassWithIntArrayPropertyIsIntValidator::class => [
-                ClassWithIntArrayPropertyIsIntValidator::class,
+                new ClassWithAttributes(ClassWithIntArrayPropertyIsIntValidator::class),
                 new FieldSet('', new Collection(
                     'arrayOfInts',
                     new Field('arrayOfInts', new IsInt())
@@ -180,7 +202,7 @@ class BuilderTest extends TestCase
                 )
             ],
             ClassWithClassArrayPropertyIsIntValidator::class => [
-                ClassWithClassArrayPropertyIsIntValidator::class,
+                new ClassWithAttributes(ClassWithClassArrayPropertyIsIntValidator::class),
                 new FieldSet('', new Collection(
                         'arrayOfClasses',
                         new FieldSet('arrayOfClasses', new Field('integerProperty', new IsInt()))
@@ -188,7 +210,7 @@ class BuilderTest extends TestCase
                 )
             ],
             ClassWithClassProperty::class => [
-                ClassWithClassProperty::class,
+                new ClassWithAttributes(ClassWithClassProperty::class),
                 new FieldSet('', new FieldSet(
                         'class',
                         new Field('integerProperty', new IsInt())
@@ -196,11 +218,11 @@ class BuilderTest extends TestCase
                 )
             ],
             ClassWithStringPropertyBeforeSet::class => [
-                ClassWithStringPropertyBeforeSet::class,
+                new ClassWithAttributes(ClassWithStringPropertyBeforeSet::class),
                 new FieldSet('', new Field('property'), new BeforeSet(new RequiredFields('property')))
             ],
             ClassWithIntArrayPropertyBeforeSet::class => [
-                ClassWithIntArrayPropertyBeforeSet::class,
+                new ClassWithAttributes(ClassWithIntArrayPropertyBeforeSet::class),
                 new FieldSet('', new Collection(
                         'arrayOfInts',
                         new BeforeSet(new IsList()),
@@ -209,7 +231,7 @@ class BuilderTest extends TestCase
                 )
             ],
             ClassWithPromotedPropertyAfterSet::class => [
-                ClassWithPromotedPropertyAfterSet::class,
+                new ClassWithAttributes(ClassWithPromotedPropertyAfterSet::class),
                 new FieldSet(
                     '',
                     new Field('promotedProperty', new IsInt()),
@@ -217,7 +239,7 @@ class BuilderTest extends TestCase
                 )
             ],
             ClassThatOverridesProcessorType::class => [
-                ClassThatOverridesProcessorType::class,
+                new ClassWithAttributes(ClassThatOverridesProcessorType::class),
                 new FieldSet('', new Collection(
                     'sumOfInts',
                     new BeforeSet(new IsList()),
@@ -233,11 +255,11 @@ class BuilderTest extends TestCase
      * @test
      * @dataProvider dataSetOfClassesToBuild
      */
-    public function BuildingProcessorsTest(string $className, FieldSet $expected):void
+    public function BuildingProcessorsTest(Specification $specification, FieldSet $expected):void
     {
         $builder = new Builder();
 
-        $output = $builder->fromClass($className);
+        $output = $builder->build($specification);
 
         self::assertEquals($expected, $output);
     }
@@ -246,67 +268,67 @@ class BuilderTest extends TestCase
     {
         return [
             EmptyClass::class => [
-                EmptyClass::class,
+                new ClassWithAttributes(EmptyClass::class),
                 [],
                 Result::noResult([]),
             ],
             EmptyClassWithIgnoredProperty::class => [
-                EmptyClassWithIgnoredProperty::class,
+                new ClassWithAttributes(EmptyClassWithIgnoredProperty::class),
                 [],
                 Result::noResult([]),
             ],
             ClassWithDateTimeProperty::class => [
-                ClassWithDateTimeProperty::class,
+                new ClassWithAttributes(ClassWithDateTimeProperty::class),
                 [],
                 Result::noResult([])
             ],
             ClassWithIntProperty::class => [
-                ClassWithIntProperty::class,
+                new ClassWithAttributes(ClassWithIntProperty::class),
                 ['a' => 1, 'b' => 2 , 'c' => 3],
                 Result::noResult(['a' => 1, 'b' => 2 , 'c' => 3]),
             ],
             ClassWithIntPropertyIgnoredProperty::class => [
-                ClassWithIntPropertyIgnoredProperty::class,
+                new ClassWithAttributes(ClassWithIntPropertyIgnoredProperty::class),
                 ['a' => 1, 'b' => 2 , 'c' => 3],
                 Result::noResult(['a' => 1, 'b' => 2 , 'c' => 3]),
             ],
             ClassWithIntPropertyIsIntValidator::class => [
-                ClassWithIntPropertyIsIntValidator::class,
+                new ClassWithAttributes(ClassWithIntPropertyIsIntValidator::class),
                 ['a' => 1, 'b' => 2 , 'c' => 3],
                 Result::noResult(['a' => 1, 'b' => 2 , 'c' => 3]),
             ],
             ClassWithIntArrayPropertyIsIntValidator::class => [
-                ClassWithIntArrayPropertyIsIntValidator::class,
+                new ClassWithAttributes(ClassWithIntArrayPropertyIsIntValidator::class),
                 ['a' => 1, 'b' => 2 , 'c' => 3],
                 Result::noResult(['a' => 1, 'b' => 2 , 'c' => 3]),
             ],
             ClassWithClassArrayPropertyIsIntValidator::class => [
-                ClassWithClassArrayPropertyIsIntValidator::class,
+                new ClassWithAttributes(ClassWithClassArrayPropertyIsIntValidator::class),
                 ['a' => 1, 'b' => 2 , 'c' => 3],
                 Result::noResult(['a' => 1, 'b' => 2 , 'c' => 3]),
             ],
             ClassWithClassProperty::class => [
-                ClassWithClassProperty::class,
+                new ClassWithAttributes(ClassWithClassProperty::class),
                 ['a' => 1, 'b' => 2 , 'c' => 3],
                 Result::noResult(['a' => 1, 'b' => 2 , 'c' => 3]),
             ],
             ClassWithStringPropertyBeforeSet::class => [
-                ClassWithStringPropertyBeforeSet::class,
+                new ClassWithAttributes(ClassWithStringPropertyBeforeSet::class),
                 ['property' => 1],
                 Result::valid(['property' => 1]),
             ],
             ClassWithIntArrayPropertyBeforeSet::class => [
-                ClassWithIntArrayPropertyBeforeSet::class,
+                new ClassWithAttributes(ClassWithIntArrayPropertyBeforeSet::class),
                 ['a' => 1, 'b' => 2 , 'c' => 3],
                 Result::noResult(['a' => 1, 'b' => 2 , 'c' => 3]),
             ],
             ClassWithPromotedPropertyAfterSet::class => [
-                ClassWithPromotedPropertyAfterSet::class,
+                new ClassWithAttributes(ClassWithPromotedPropertyAfterSet::class),
                 ['promotedProperty' => 1],
                 Result::valid(new ClassWithPromotedPropertyAfterSet(1)),
             ],
             ClassThatOverridesProcessorType::class => [
-                ClassThatOverridesProcessorType::class,
+                new ClassWithAttributes(ClassThatOverridesProcessorType::class),
                 ['a' => 1, 'b' => 2 , 'c' => 3],
                 Result::noResult(['a' => 1, 'b' => 2 , 'c' => 3]),
             ],
@@ -318,10 +340,10 @@ class BuilderTest extends TestCase
      * @test
      * @dataProvider dataSetOfInputsAndOutputs
      */
-    public function InputsAndOutputsTest(string $className, mixed $input, mixed $expected):void
+    public function InputsAndOutputsTest(Specification $specification, mixed $input, mixed $expected):void
     {
         $builder = new Builder();
-        $processor = $builder->fromClass($className);
+        $processor = $builder->build($specification);
 
         $output = $processor->process(new FieldName(''), $input);
 
@@ -332,17 +354,17 @@ class BuilderTest extends TestCase
     {
         return [
             'Blog Post: Required Fields A' => [
-                BlogPostRequiredFields::class,
+                new ClassWithAttributes(BlogPostRequiredFields::class),
                 ['title' => 'My Post', 'body' => 'My content'],
                 Result::valid(['title' => 'My Post', 'body' => 'My content'])
             ],
             'Blog Post: Required Fields B' => [
-                BlogPostRequiredFields::class,
+                new ClassWithAttributes(BlogPostRequiredFields::class),
                 ['title' => 123, 'body' => ''],
                 Result::valid(['title' => 123, 'body' => ''])
             ],
             'Blog Post: Required Fields C' => [
-                BlogPostRequiredFields::class,
+                new ClassWithAttributes(BlogPostRequiredFields::class),
                 ['title' => 'My Post'],
                 Result::invalid(
                     ['title' => 'My Post'],
@@ -350,7 +372,7 @@ class BuilderTest extends TestCase
                 )
             ],
             'Blog Post: Is It A String? A' => [
-                BlogPostIsItAString::class,
+                new ClassWithAttributes(BlogPostIsItAString::class),
                 [
                     'title' => 'My Post',
                     'body' => 'My content',
@@ -365,7 +387,7 @@ class BuilderTest extends TestCase
                 )
             ],
             'Blog Post: Is It A String? B' => [
-                BlogPostIsItAString::class,
+                new ClassWithAttributes(BlogPostIsItAString::class),
                 [
                     'title' => 123,
                     'body' => 'My content',
@@ -384,7 +406,7 @@ class BuilderTest extends TestCase
                 )
             ],
             'Blog Post: Make It A String A' => [
-                BlogPostMakeItAString::class,
+                new ClassWithAttributes(BlogPostMakeItAString::class),
                 [
                     'title' => 123,
                     'body' => 'My content',
@@ -399,7 +421,7 @@ class BuilderTest extends TestCase
                 )
             ],
             'Blog Post: Make It A String B' => [
-                BlogPostMakeItAString::class,
+                new ClassWithAttributes(BlogPostMakeItAString::class),
                 [
                     'title' => [1, 2, 3],
                     'body' => 'My content',
@@ -418,7 +440,7 @@ class BuilderTest extends TestCase
                 )
             ],
             'Blog Post: Maximum Number Of Tags A' => [
-                BlogPostMaxTags::class,
+                new ClassWithAttributes(BlogPostMaxTags::class),
                 [
                     'title' => '',
                     'body' => 'My content',
@@ -433,7 +455,7 @@ class BuilderTest extends TestCase
                 )
             ],
             'Blog Post: Maximum Number Of Tags B' => [
-                BlogPostMaxTags::class,
+                new ClassWithAttributes(BlogPostMaxTags::class),
                 [
                     'title' => 'TITLE WRITTEN ENTIRELY IN UPPER CASE AND UNNECESSARILY LONG',
                     'body' => 'My content',
@@ -452,7 +474,7 @@ class BuilderTest extends TestCase
                 )
             ],
             'Blog Post: Regex And Max Length A' => [
-                BlogPostRegexAndMaxLength::class,
+                new ClassWithAttributes(BlogPostRegexAndMaxLength::class),
                 [
                     'title' => 'Title With Proper Capitalization',
                     'body' => 'My content',
@@ -467,7 +489,7 @@ class BuilderTest extends TestCase
                 )
             ],
             'Blog Post: Regex And Max Length B' => [
-                BlogPostRegexAndMaxLength::class,
+                new ClassWithAttributes(BlogPostRegexAndMaxLength::class),
                 [
                     'title' => 'TITLE WRITTEN ENTIRELY IN UPPER CASE AND UNNECESSARILY LONG',
                     'body' => 'My content',
@@ -486,7 +508,7 @@ class BuilderTest extends TestCase
                 )
             ],
             'Blog Post: All Of A' => [
-                BlogPostWithAllOf::class,
+                new ClassWithAttributes(BlogPostWithAllOf::class),
                 [
                     'title' => 'Title With Proper Capitalization',
                     'body' => 'My content',
@@ -501,7 +523,7 @@ class BuilderTest extends TestCase
                 )
             ],
             'Blog Post: All Of B' => [
-                BlogPostWithAllOf::class,
+                new ClassWithAttributes(BlogPostWithAllOf::class),
                 [
                     'title' => 'TITLE WRITTEN ENTIRELY IN UPPER CASE AND UNNECESSARILY LONG',
                     'body' => 'My content',
@@ -526,7 +548,7 @@ class BuilderTest extends TestCase
                 )
             ],
             'Blog Post: Build Your Blog Post From Named Arguments' => [
-                BlogPostFromNamedArguments::class,
+                new ClassWithAttributes(BlogPostFromNamedArguments::class),
                 [
                     'title' => 'Title With Proper Capitalization',
                     'body' => 'My content',
@@ -545,10 +567,10 @@ class BuilderTest extends TestCase
      * @test
      * @dataProvider dataSetsWithDocExamples
      */
-    public function docExamplesTest(string $className, array $input, Result $expected): void
+    public function docExamplesTest(Specification $specification, array $input, Result $expected): void
     {
         $builder = new Builder();
-        $processor = $builder->fromClass($className);
+        $processor = $builder->build($specification);
 
         $result = $processor->process(new FieldName(''), $input);
 
