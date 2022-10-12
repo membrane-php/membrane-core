@@ -8,6 +8,8 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
+use Membrane\Builder\Builder as BuilderInterface;
+use Membrane\Builder\Specification;
 use Membrane\Exception\CannotProcessProperty;
 use Membrane\Processor;
 use Membrane\Processor\AfterSet;
@@ -23,13 +25,21 @@ use ReflectionProperty;
 
 use function array_map;
 
-class Builder
+class Builder implements BuilderInterface
 {
-    public function fromObject(object $object): Processor
+    public function supports(Specification $specification): bool
     {
-        return $this->fromClass(get_class($object));
+        return ($specification instanceof ClassWithAttributes);
     }
 
+    public function build(Specification $specification): Processor
+    {
+        assert($specification instanceof ClassWithAttributes);
+
+        return $this->fromClass($specification->className);
+    }
+
+    //@TODO make private
     public function fromClass(string $class, string $processes = ''): Processor
     {
         if (!class_exists($class)) {
