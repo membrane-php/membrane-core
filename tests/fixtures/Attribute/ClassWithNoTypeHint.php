@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Fixtures;
+namespace Membrane\Fixtures\Attribute;
 
 
 class ClassWithNoTypeHint

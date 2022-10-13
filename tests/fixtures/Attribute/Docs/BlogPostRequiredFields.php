@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Fixtures\Docs;
+namespace Membrane\Fixtures\Attribute\Docs;
 
 use Membrane\Attribute\Placement;
 use Membrane\Attribute\SetFilterOrValidator;

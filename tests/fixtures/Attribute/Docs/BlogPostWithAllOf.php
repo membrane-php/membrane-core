@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Fixtures\Docs;
+namespace Membrane\Fixtures\Attribute\Docs;
 
 use Membrane\Attribute\FilterOrValidator;
 use Membrane\Attribute\Placement;
@@ -13,15 +13,14 @@ use Membrane\Validator\Array\Count;
 use Membrane\Validator\Object\RequiredFields;
 use Membrane\Validator\String\Length;
 use Membrane\Validator\String\Regex;
-
+use Membrane\Validator\Utility\AllOf;
 
 #[SetFilterOrValidator(new RequiredFields('title', 'body', 'tags'), Placement::BEFORE)]
-class BlogPostRegexAndMaxLength
+class BlogPostWithAllOf
 {
     public function __construct(
         #[FilterOrValidator(new ToString())]
-        #[FilterOrValidator(new Length(5, 50))]
-        #[FilterOrValidator(new Regex('#^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$#'))]
+        #[FilterOrValidator(new AllOf(new Length(5,50), new Regex('#^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$#')))]
         public string $title,
         #[FilterOrValidator(new ToString())]
         public string $body,
