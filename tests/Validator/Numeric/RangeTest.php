@@ -16,6 +16,44 @@ use PHPUnit\Framework\TestCase;
  */
 class RangeTest extends TestCase
 {
+    public function dataSetsOfNonNumericValues(): array
+    {
+        $notNumMessage = 'Range validator requires a number, %s given';
+
+        return [
+            'array values are not numeric' => [
+                [1, 2, 3],
+                Result::invalid([1, 2, 3], new MessageSet(null, new Message($notNumMessage, ['array']))),
+            ],
+            'boolean values are not numeric' => [
+                true,
+                Result::invalid(true, new MessageSet(null, new Message($notNumMessage, ['boolean']))),
+            ],
+            'non-numeric strings are not numeric' => [
+                'non-numeric string',
+                Result::invalid('non-numeric string', new MessageSet(null, new Message($notNumMessage, ['string']))),
+            ],
+            'null values are not numeric' => [
+                null,
+                Result::invalid(null, new MessageSet(null, new Message($notNumMessage, ['NULL']))),
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsOfNonNumericValues
+     */
+    public function invalidForNonNumericValues(mixed $value, Result $expected): void
+    {
+        $sut = new Range();
+
+        $actual = $sut->validate($value);
+
+        self::assertEquals($expected, $actual);
+    }
+
+
     /**
      * @test
      */

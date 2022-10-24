@@ -14,17 +14,24 @@ class MultipleOf implements Validator
 {
     private readonly float|int $multiple;
 
-    public function __construct(float|int $multiple)
+    public function __construct(float|int $factor)
     {
-        if ($multiple <= 0) {
+        if ($factor <= 0) {
             throw new Exception('MultipleOf validator does not support numbers of zero or less');
         }
-        $this->multiple = $multiple;
+        $this->multiple = $factor;
     }
 
     public function validate(mixed $value): Result
     {
-        if (fmod($value, $this->multiple) == 0) {
+        if (!is_numeric($value)) {
+            return Result::invalid(
+                $value,
+                new MessageSet(null, new Message('MultipleOf validator requires a number, %s given', [gettype($value)]))
+            );
+        }
+
+        if (abs(fmod((float)$value, $this->multiple)) === 0.0) {
             return Result::valid($value);
         }
 
