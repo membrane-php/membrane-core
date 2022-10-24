@@ -59,7 +59,7 @@ class IsListTest extends TestCase
     {
         $isList = new IsList();
         $expectedMessage = new Message(
-            'Value passed to IsList validator is not an array, %s passed instead',
+            'IsList validator expects list value, %s passed instead',
             [$expectedVar]
         );
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
@@ -76,7 +76,7 @@ class IsListTest extends TestCase
     {
         $input = ['a' => 'this is', 'b' => 'an array'];
         $expectedMessage = new Message(
-            'Value passed to IsList validator is an array, lists do not have keys',
+            'IsList validator expects list value, lists do not have keys',
             []
         );
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));

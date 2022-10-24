@@ -16,8 +16,13 @@ class IsFloat implements Validator
         $type = gettype($value);
 
         if ($type !== 'double') {
-            $message = new Message('Value passed to IsFloat validator is not a double, %s passed instead', [$type]);
-            return Result::invalid($value, new MessageSet(null, $message));
+            return Result::invalid(
+                $value,
+                new MessageSet(
+                    null,
+                    new Message('IsFloat expects float value, %s passed instead', [$type])
+                )
+            );
         }
 
         return Result::valid($value);

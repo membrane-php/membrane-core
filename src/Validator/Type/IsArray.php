@@ -12,16 +12,23 @@ class IsArray implements Validator
     public function validate(mixed $value): Result
     {
         if (!is_array($value)) {
-            $message = new Message(
-                'Value passed to IsArray validator is not an array, %s passed instead',
-                [gettype($value)]
+            return Result::invalid(
+                $value,
+                new MessageSet(
+                    null,
+                    new Message('IsArray validator expects array value, %s passed instead', [gettype($value)])
+                )
             );
-            return Result::invalid($value, new MessageSet(null, $message));
         }
 
         if (array_is_list($value) && $value !== []) {
-            $message = new Message('Value passed to IsArray validator is a list, arrays have keys', []);
-            return Result::invalid($value, new MessageSet(null, $message));
+            return Result::invalid(
+                $value,
+                new MessageSet(
+                    null,
+                    new Message('IsArray validator expects array values with keys, list passed instead', [])
+                )
+            );
         }
 
         return Result::valid($value);

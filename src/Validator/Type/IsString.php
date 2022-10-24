@@ -16,8 +16,13 @@ class IsString implements Validator
         $type = gettype($value);
 
         if ($type !== 'string') {
-            $message = new Message('Value passed to IsString validator is not a string, %s passed instead', [$type]);
-            return Result::invalid($value, new MessageSet(null, $message));
+            return Result::invalid(
+                $value,
+                new MessageSet(
+                    null,
+                    new Message('IsString validator expects string value, %s passed instead', [$type])
+                )
+            );
         }
 
         return Result::valid($value);
