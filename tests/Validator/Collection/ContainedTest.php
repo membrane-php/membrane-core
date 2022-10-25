@@ -7,16 +7,16 @@ namespace Validator\Collection;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use Membrane\Validator\Collection\IsContained;
+use Membrane\Validator\Collection\Contained;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Membrane\Validator\Collection\IsContained
+ * @covers \Membrane\Validator\Collection\Contained
  * @uses   \Membrane\Result\Result
  * @uses   \Membrane\Result\MessageSet
  * @uses   \Membrane\Result\Message
  */
-class IsContainedTest extends TestCase
+class ContainedTest extends TestCase
 {
     public function dataSetsToValidate(): array
     {
@@ -33,7 +33,7 @@ class IsContainedTest extends TestCase
                     'Where am I?',
                     new MessageSet(
                         null,
-                        new Message('IsContained validator did not find value within array', [['Not', 'in', 'here']])
+                        new Message('Contained validator did not find value within array', [['Not', 'in', 'here']])
                     )
                 ),
             ],
@@ -44,7 +44,7 @@ class IsContainedTest extends TestCase
                     1,
                     new MessageSet(
                         null,
-                        new Message('IsContained validator did not find value within array', [['1', '2', '3']])
+                        new Message('Contained validator did not find value within array', [['1', '2', '3']])
                     )
                 ),
             ],
@@ -57,7 +57,7 @@ class IsContainedTest extends TestCase
      */
     public function validateTest(mixed $value, array $enum, Result $expected): void
     {
-        $sut = new IsContained($enum);
+        $sut = new Contained($enum);
 
         $actual = $sut->validate($value);
 

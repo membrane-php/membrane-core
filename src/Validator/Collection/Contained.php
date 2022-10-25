@@ -9,7 +9,7 @@ use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator;
 
-class IsContained implements Validator
+class Contained implements Validator
 {
     /** @param mixed[] $enum */
     public function __construct(
@@ -24,7 +24,7 @@ class IsContained implements Validator
                 $value,
                 new MessageSet(
                     null,
-                    new Message('IsContained validator did not find value within array', [$this->enum])
+                    new Message('Contained validator did not find value within array', [$this->enum])
                 )
             );
         }
