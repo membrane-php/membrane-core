@@ -5,6 +5,7 @@ input.
 If you wish to change the input: See [Filters](filters.md).
 
 All Validators implement the Membrane\Validator interface:
+
 ```php
 interface Validator
 {
@@ -41,7 +42,9 @@ $result = $count->validate($array);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 ['a' => 1, 'b' => 2, 'c' => 3]
 Result was valid
@@ -69,7 +72,9 @@ $result = $identical->validate($list);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 ['a', 'a', 'a']
 Result was valid
@@ -104,7 +109,9 @@ $result = $range->validate($dateTime);
 echo $result->value->format('Y-m-d H:i:s');
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 1970-01-01 00:00:00
 Result was valid
@@ -135,7 +142,9 @@ $result = $rangeDelta->validate($dateTime);
 echo $result->value->format('Y-m-d H:i:s');
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 2121-01-01 00:00:00
 Result was valid
@@ -167,7 +176,9 @@ $result = $range->validate(50);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 50
 Result was valid
@@ -199,7 +210,9 @@ $result = $requiredFields->validate($array);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 ['a' => 1, 'b' => 2, 'c' => 3]
 Result was valid
@@ -231,7 +244,9 @@ $result = $dateString->validate($string);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 1970-01-01
 Result was valid
@@ -250,7 +265,6 @@ new Length($min, $max)
 | $min      | int  | 0             |                                    |
 | $max      | int  | null          | If set to null, maximum is ignored |
 
-
 **Example 1**
 
 ```php
@@ -263,7 +277,9 @@ $result = $length->validate($string);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 this string is 28 characters
 Result was valid
@@ -281,7 +297,6 @@ new Regex($pattern)
 |-----------|--------|
 | $pattern  | string |
 
-
 **Example 1**
 
 ```php
@@ -294,12 +309,13 @@ $result = $regex->validate($string);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 123
 Result was valid
 ```
-
 
 ## Type
 
@@ -312,6 +328,7 @@ new IsArray()
 ```
 
 **Example 1**
+
 ```php
 <?php
 $isArray = new IsArray();
@@ -322,13 +339,16 @@ $result = $isArray->validate($array);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 ['a' => 1, 'b' => 2, 'c' => 3]
 Result was valid
 ```
 
 **Example 2**
+
 ```php
 <?php
 $isArray = new IsArray();
@@ -339,7 +359,9 @@ $result = $isArray->validate($list);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 [1, 2, 3]
 Result was invalid
@@ -365,7 +387,9 @@ $result = $isBool->validate($bool);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 false
 Result was valid
@@ -391,7 +415,9 @@ $result = $isFloat->validate($float);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 1.23
 Result was valid
@@ -417,7 +443,9 @@ $result = $isInt->validate($int);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 123
 Result was valid
@@ -432,6 +460,7 @@ new IsList()
 ```
 
 **Example 1**
+
 ```php
 <?php
 $isList = new IsList();
@@ -442,13 +471,16 @@ $result = $isList->validate($list);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 [1, 2, 3]
 Result was valid
 ```
 
 **Example 2**
+
 ```php
 <?php
 $isList = new IsList();
@@ -459,10 +491,39 @@ $result = $isList->validate($array);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 ['a' => 1, 'b' => 2, 'c' => 3]
 Result was invalid
+```
+
+### IsNull
+
+Checks if input is null.
+
+```php
+new IsNull()
+```
+
+**Example 1**
+
+```php
+<?php
+$isNull = new IsNull();
+
+$result = $isNull->validate(null);
+
+var_dump($result->value);
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+
+The above example will output the following
+
+```text
+NULL
+Result was valid
 ```
 
 ### IsString
@@ -472,7 +533,6 @@ Checks if input is a string.
 ```php
 new IsString()
 ```
-
 
 **Example 1**
 
@@ -486,12 +546,13 @@ $result = $isString->validate($string);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 foo
 Result was valid
 ```
-
 
 ## Utility
 
@@ -519,7 +580,9 @@ $result = $notFails->validate($input);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 foo
 Result was valid
@@ -532,7 +595,6 @@ All validators provided will be applied to the input,
 unlike the behaviour of Field which stops as soon as a validator is flagged as invalid.  
 This is useful if you want to check multiple validation rules are true
 and return all error messages back to the user in the case of failure.
-
 
 If the entire chain is considered valid AllOf will return `Result::valid`.
 
@@ -556,7 +618,9 @@ $result = $allOf->validate($input);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 foo
 Result was valid
@@ -574,11 +638,14 @@ $result = $allOf->validate($input);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 foobar
 Result was invalid
 ```
+
 This example would pass the IsString Validator but fail the Length Validator as its length is greater than 5.  
 AllOf requires everything to pass for a valid result.
 
@@ -608,11 +675,14 @@ $result = $oneOf->validate($input);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 foo
 Result was valid
 ```
+
 This example would fail the IsInt Validator but pass the Length Validator as its length is less than 5.  
 OneOf requires only one thing to pass for a valid result.
 
@@ -638,7 +708,9 @@ $result = $passes->validate($input);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 foo
 Result was valid
@@ -668,7 +740,9 @@ $result = $indifferent->validate($input);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 foo
 Result was valid
@@ -696,7 +770,9 @@ $result = $fails->validate($input);
 echo $result->value;
 echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
 ```
+
 The above example will output the following
+
 ```text
 foo
 Result was invalid
