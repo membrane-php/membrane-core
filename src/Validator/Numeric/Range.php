@@ -19,6 +19,13 @@ class Range implements Validator
 
     public function validate(mixed $value): Result
     {
+        if (!is_numeric($value)) {
+            return Result::invalid(
+                $value,
+                new MessageSet(null, new Message('Range validator requires a number, %s given', [gettype($value)]))
+            );
+        }
+
         if ($this->min !== null && $value < $this->min) {
             $message = new Message('Number is expected to be a minimum of %d', [$this->min]);
             return Result::invalid($value, new MessageSet(null, $message));
