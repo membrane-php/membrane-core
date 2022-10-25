@@ -7,14 +7,14 @@ namespace Validator\Utility;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use Membrane\Validator\Utility\AnyOf;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
-use Membrane\Validator\Utility\OneOf;
 use Membrane\Validator\Utility\Passes;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Membrane\Validator\Utility\OneOf
+ * @covers \Membrane\Validator\Utility\AnyOf
  * @uses   \Membrane\Validator\Utility\Fails
  * @uses   \Membrane\Validator\Utility\Indifferent
  * @uses   \Membrane\Validator\Utility\Passes
@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
  * @uses   \Membrane\Result\MessageSet
  * @uses   \Membrane\Result\Message
  */
-class OneOfTest extends TestCase
+class AnyOfTest extends TestCase
 {
     public function dataSetsThatReturnNoResult(): array
     {
@@ -40,7 +40,7 @@ class OneOfTest extends TestCase
     public function noResultsReturnsNoResult(array $chain): void
     {
         $input = 'this can be anything';
-        $oneOf = new OneOf(...$chain);
+        $oneOf = new AnyOf(...$chain);
         $expected = Result::noResult($input);
 
         $result = $oneOf->validate($input);
@@ -74,7 +74,7 @@ class OneOfTest extends TestCase
     public function singleFailsReturnsInvalid(array $chain, MessageSet $expectedMessageSet): void
     {
         $input = 'this can be anything';
-        $oneOf = new OneOf(...$chain);
+        $oneOf = new AnyOf(...$chain);
         $expected = Result::invalid($input, $expectedMessageSet);
 
         $result = $oneOf->validate($input);
@@ -100,7 +100,7 @@ class OneOfTest extends TestCase
     public function anyValidResultsReturnsValid(array $chain): void
     {
         $input = 'this can be anything';
-        $oneOf = new OneOf(...$chain);
+        $oneOf = new AnyOf(...$chain);
         $expected = Result::valid($input);
 
         $result = $oneOf->validate($input);

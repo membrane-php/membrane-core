@@ -8,7 +8,7 @@ use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator;
 
-class OneOf implements Validator
+class AnyOf implements Validator
 {
     /** @var Validator[] */
     private array $chain;
