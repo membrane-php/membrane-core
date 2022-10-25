@@ -7,7 +7,7 @@ namespace Membrane\Fixtures\Attribute\Docs;
 use Membrane\Attribute\Placement;
 use Membrane\Attribute\SetFilterOrValidator;
 use Membrane\Attribute\Subtype;
-use Membrane\Validator\Object\RequiredFields;
+use Membrane\Validator\FieldSet\RequiredFields;
 
 #[SetFilterOrValidator(new RequiredFields('title', 'body'), Placement::BEFORE)]
 class BlogPostRequiredFields

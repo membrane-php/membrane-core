@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Validator\Object;
+namespace Validator\FieldSet;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use Membrane\Validator\Object\RequiredFields;
+use Membrane\Validator\FieldSet\RequiredFields;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Membrane\Validator\Object\RequiredFields
+ * @covers \Membrane\Validator\FieldSet\RequiredFields
  * @uses   \Membrane\Result\Result
  * @uses   \Membrane\Result\MessageSet
  * @uses   \Membrane\Result\Message
@@ -36,7 +36,9 @@ class RequiredFieldsTest extends TestCase
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $requiredFields = new RequiredFields();
-        $expected = Result::invalid($input, new MessageSet(
+        $expected = Result::invalid(
+            $input,
+            new MessageSet(
                 null,
                 new Message('RequiredFields Validator requires an array, %s given', [$expectedVars])
             )

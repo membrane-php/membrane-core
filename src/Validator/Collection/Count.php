@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Validator\Array;
+namespace Membrane\Validator\Collection;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator;
+
+use function count;
+use function gettype;
 
 class Count implements Validator
 {

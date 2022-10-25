@@ -1,6 +1,6 @@
 <?php
 
-namespace Membrane\Validator\Object;
+namespace Membrane\Validator\FieldSet;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;

@@ -8,7 +8,7 @@ use Membrane\Attribute\FilterOrValidator;
 use Membrane\Attribute\Placement;
 use Membrane\Attribute\SetFilterOrValidator;
 use Membrane\Attribute\Subtype;
-use Membrane\Validator\Object\RequiredFields;
+use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Type\IsString;
 
 #[SetFilterOrValidator(new RequiredFields('title', 'body', 'tags'), Placement::BEFORE)]
