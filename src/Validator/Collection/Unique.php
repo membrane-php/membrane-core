@@ -24,14 +24,17 @@ class Unique implements Validator
             );
         }
 
-        $array = $value;
-        while (count($array) !== 0) {
-            if (in_array(array_pop($array), $array, true)) {
-                return Result::invalid(
-                    $value,
-                    new MessageSet(null, new Message('Collection contains duplicate values', []))
-                );
-            }
+        if (count($value) === 0) {
+            return Result::valid($value);
+        }
+
+        $items = array_map(static fn($item) => var_export([gettype($item), $item], true), $value);
+
+        if (count($items) !== count(array_unique($items))) {
+            return Result::invalid(
+                $value,
+                new MessageSet(null, new Message('Collection contains duplicate values', []))
+            );
         }
 
         return Result::valid($value);
