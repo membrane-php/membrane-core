@@ -57,7 +57,7 @@ Result was valid
 Checks that a collection contains the given value.
 
 ```php
-new Collection(array $enum)
+new Contained(array $enum)
 ```
 
 **Example 1**
