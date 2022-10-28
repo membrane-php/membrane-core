@@ -3,7 +3,8 @@
     "type": "library",
     "autoload": {
         "psr-4": {
-            "Membrane\\": "src/"
+            "Membrane\\": "src/",
+            "Membrane\\Fixtures\\": "tests/fixtures/"
         }
     },
     "require": {

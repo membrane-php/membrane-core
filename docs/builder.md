@@ -30,8 +30,9 @@ class BlogPost
 To build a BlogPost, **before** everything else: a title and body are required.
 
 ```php
+$specification = new ClassWithAttributes(BlogPost::class);
 $builder = new Builder();
-$processor = $builder->fromClass(BlogPost::class);
+$processor = $builder->build($specification);
 
 $resultA = $processor->process(['title' => 'My Post', 'body' => 'My content']);
 $resultB = $processor->process(['title' => 123, 'body' => '']);
@@ -81,8 +82,9 @@ The body must be a string.
 If tags are provided, they must be a string.
 
 ```php
+$specification = new ClassWithAttributes(BlogPost::class);
 $builder = new Builder();
-$processor = $builder->fromClass(BlogPost::class);
+$processor = $builder->build($specification);
 
 $resultA = $processor->process(
         [
@@ -143,8 +145,9 @@ The body must be convertable to a string.
 If tags are provided, they must be convertable to a string.
 
 ```php
+$specification = new ClassWithAttributes(BlogPost::class);
 $builder = new Builder();
-$processor = $builder->fromClass(BlogPost::class);
+$processor = $builder->build($specification);
 
 $resultA = $processor->process(
         [
@@ -204,8 +207,9 @@ If tags are provided, they must be convertable to a string but
 **before** that it will check the number of tags does not exceed 5.
 
 ```php
+$specification = new ClassWithAttributes(BlogPost::class);
 $builder = new Builder();
-$processor = $builder->fromClass(BlogPost::class);
+$processor = $builder->build($specification);
 
 $resultA = $processor->process(
         [
@@ -267,8 +271,9 @@ If tags are provided, they must be convertable to a string but
 **before** that it will check the number of tags does not exceed 5.
 
 ```php
+$specification = new ClassWithAttributes(BlogPost::class);
 $builder = new Builder();
-$processor = $builder->fromClass(BlogPost::class);
+$processor = $builder->build($specification);
 
 $resultA = $processor->process(
         [
@@ -336,8 +341,9 @@ If tags are provided, they must be convertable to a string but
 
 
 ```php
+$specification = new ClassWithAttributes(BlogPost::class);
 $builder = new Builder();
-$processor = $builder->fromClass(BlogPost::class);
+$processor = $builder->build($specification);
 
 $resultA = $processor->process(
         [
@@ -408,8 +414,9 @@ If tags are provided, they must be convertable to a string but
 **After** everything else: build a BlogPost from named arguments.
 
 ```php
+$specification = new ClassWithAttributes(BlogPost::class);
 $builder = new Builder();
-$processor = $builder->fromClass(BlogPost::class);
+$processor = $builder->build($specification);
 
 $result = $processor->process(
         [

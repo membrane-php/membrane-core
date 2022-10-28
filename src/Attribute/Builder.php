@@ -7,7 +7,6 @@ namespace Membrane\Attribute;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
-use Exception;
 use Membrane\Builder\Builder as BuilderInterface;
 use Membrane\Builder\Specification;
 use Membrane\Exception\CannotProcessProperty;
@@ -39,12 +38,9 @@ class Builder implements BuilderInterface
         return $this->fromClass($specification->className);
     }
 
-    //@TODO make private
-    public function fromClass(string $class, string $processes = ''): Processor
+    private function fromClass(string $class, string $processes = ''): Processor
     {
-        if (!class_exists($class)) {
-            throw new Exception(sprintf('Could not find class %s', $class));
-        }
+        assert(class_exists($class));
 
         $refl = new ReflectionClass($class);
 
