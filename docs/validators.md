@@ -54,7 +54,7 @@ Result was valid
 
 ### Identical
 
-Checks that all values in a collection are equal.
+Checks that all values in a collection are identical.
 
 ```php
 new Identical()
@@ -77,6 +77,34 @@ The above example will output the following
 
 ```text
 ['a', 'a', 'a']
+Result was valid
+```
+
+### Unique
+
+Checks that all values in a collection are unique.
+
+```php
+new Unique()
+```
+
+**Example 1**
+
+```php
+<?php
+$unique = new Unique();
+$list = ['a', 'b', 'c'];
+
+$result = $unique->validate($list);
+
+echo $result->value;
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+
+The above example will output the following
+
+```text
+['a', 'b', 'c']
 Result was valid
 ```
 
