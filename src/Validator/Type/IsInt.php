@@ -16,8 +16,13 @@ class IsInt implements Validator
         $type = gettype($value);
 
         if ($type !== 'integer') {
-            $message = new Message('Value passed to IsInt validator is not an integer, %s passed instead', [$type]);
-            return Result::invalid($value, new MessageSet(null, $message));
+            return Result::invalid(
+                $value,
+                new MessageSet(
+                    null,
+                    new Message('IsInt validator expects integer value, %s passed instead', [$type])
+                )
+            );
         }
 
         return Result::valid($value);

@@ -530,6 +530,33 @@ The above example will output the following
 Result was invalid
 ```
 
+### IsNull
+
+Checks if input is null.
+
+```php
+new IsNull()
+```
+
+**Example 1**
+
+```php
+<?php
+$isNull = new IsNull();
+
+$result = $isNull->validate(null);
+
+var_dump($result->value);
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+
+The above example will output the following
+
+```text
+NULL
+Result was valid
+```
+
 ### IsString
 
 Checks if input is a string.

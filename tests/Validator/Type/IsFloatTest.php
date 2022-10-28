@@ -51,7 +51,7 @@ class IsFloatTest extends TestCase
     {
         $isFloat = new IsFloat();
         $expectedMessage = new Message(
-            'Value passed to IsFloat validator is not a double, %s passed instead',
+            'IsFloat expects float value, %s passed instead',
             [$expectedVar]
         );
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));

@@ -51,7 +51,7 @@ class IsIntTest extends TestCase
     {
         $isInt = new IsInt();
         $expectedMessage = new Message(
-            'Value passed to IsInt validator is not an integer, %s passed instead',
+            'IsInt validator expects integer value, %s passed instead',
             [$expectedVar]
         );
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));

@@ -12,16 +12,23 @@ class IsList implements Validator
     public function validate(mixed $value): Result
     {
         if (!is_array($value)) {
-            $message = new Message(
-                'Value passed to IsList validator is not an array, %s passed instead',
-                [gettype($value)]
+            return Result::invalid(
+                $value,
+                new MessageSet(
+                    null,
+                    new Message('IsList validator expects list value, %s passed instead', [gettype($value)])
+                )
             );
-            return Result::invalid($value, new MessageSet(null, $message));
         }
 
         if (!array_is_list($value)) {
-            $message = new Message('Value passed to IsList validator is an array, lists do not have keys', []);
-            return Result::invalid($value, new MessageSet(null, $message));
+            return Result::invalid(
+                $value,
+                new MessageSet(
+                    null,
+                    new Message('IsList validator expects list value, lists do not have keys', [])
+                )
+            );
         }
 
         return Result::valid($value);

@@ -51,7 +51,7 @@ class IsBoolTest extends TestCase
     {
         $isBool = new IsBool();
         $expectedMessage = new Message(
-            'Value passed to IsBool validator is not a boolean, %s passed instead',
+            'IsBool validator expects boolean value, %s passed instead',
             [$expectedVar]
         );
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
