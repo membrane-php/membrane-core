@@ -52,6 +52,50 @@ Result was valid
 
 ## Collection
 
+### Contained
+
+Checks that a collection contains the given value.
+
+```php
+new Contained(array $enum)
+```
+
+**Example 1**
+
+```php
+$contained = new Contained(['a', 'b', 'c']);
+
+$result = $contained->validate('b');
+
+echo $result->value;
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+
+The above example will output the following
+
+```text
+b
+Result was valid
+```
+
+**Example 2**
+
+```php
+$contained = new Contained(['a', 'b', 'c']);
+
+$result = $contained->validate('e');
+
+echo $result->value;
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+
+The above example will output the following
+
+```text
+e
+Result was invalid
+```
+
 ### Identical
 
 Checks that all values in a collection are identical.
