@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace OpenAPI\Processor;
 
 use Exception;
-use Membrane\OpenAPI\Processor\OneOf;
+use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Field;
 use Membrane\Processor\FieldSet;
@@ -23,7 +23,7 @@ use Membrane\Validator\Utility\Passes;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Membrane\OpenAPI\Processor\OneOf
+ * @covers \Membrane\OpenAPI\Processor\AnyOf
  * @uses   \Membrane\Processor\BeforeSet
  * @uses   \Membrane\Processor\Field
  * @uses   \Membrane\Processor\FieldSet
@@ -39,7 +39,7 @@ use PHPUnit\Framework\TestCase;
  * @uses   \Membrane\Validator\Utility\Indifferent
  * @uses   \Membrane\Validator\Utility\Passes
  */
-class OneOfTest extends TestCase
+class AnyOfTest extends TestCase
 {
     /** @test */
     public function throwsExceptionIfLessThanTwoProcessors(): void
@@ -47,14 +47,14 @@ class OneOfTest extends TestCase
         self::expectException(Exception::class);
         self::expectExceptionMessage('AllOf Processor expects at least 2 processors');
 
-        new OneOf('');
+        new AnyOf('');
     }
 
     /** @test */
     public function processesTest(): void
     {
         $processes = 'test';
-        $sut = new OneOf($processes, new Field(''), new Field(''));
+        $sut = new AnyOf($processes, new FieldSet(''), new FieldSet(''));
 
         self::assertEquals($processes, $sut->processes());
     }
@@ -67,7 +67,7 @@ class OneOfTest extends TestCase
                 [new Field('', new Passes()), new Field('', new Passes())],
                 new FieldName(''),
                 5,
-                Result::invalid(5),
+                Result::valid(5),
             ],
             'two Fields with invalid results' => [
                 '',
@@ -122,8 +122,8 @@ class OneOfTest extends TestCase
                     ),
                 ],
                 new FieldName(''),
-                ['id' => 'Harley', 'name' => 'Ben'],
-                Result::valid(['id' => 'Harley', 'name' => 'Ben']),
+                ['id' => 5, 'name' => 5],
+                Result::valid(['id' => 5, 'name' => 5]),
             ],
             'expects an object which may have integer id and string name (invalid input)' => [
                 '',
@@ -140,9 +140,17 @@ class OneOfTest extends TestCase
                     ),
                 ],
                 new FieldName(''),
-                [],
-                Result::invalid([]),
-
+                ['id' => 'Ben', 'name' => 5],
+                Result::invalid(['id' => 'Ben', 'name' => 5],
+                    new MessageSet(
+                        new FieldName('id', '', ''),
+                        new Message('IsInt validator expects integer value, %s passed instead', ['string'])
+                    ),
+                    new MessageSet(
+                        new FieldName('name', '', ''),
+                        new Message('IsString validator expects string value, %s passed instead', ['integer'])
+                    )
+                ),
             ],
             'expects an object which must have integer id and string name (valid input)' => [
                 '',
@@ -159,8 +167,8 @@ class OneOfTest extends TestCase
                     ),
                 ],
                 new FieldName(''),
-                ['id' => 'Blink', 'name' => 'Harley'],
-                Result::valid(['id' => 'Blink', 'name' => 'Harley']),
+                ['name' => 'Harley'],
+                Result::valid(['name' => 'Harley']),
             ],
             'expects an object which must have integer id and string name (invalid input)' => [
                 '',
@@ -177,8 +185,13 @@ class OneOfTest extends TestCase
                     ),
                 ],
                 new FieldName(''),
-                ['id' => 5, 'name' => 'Harley'],
-                Result::invalid(['id' => 5, 'name' => 'Harley']),
+                ['id' => 'Blink'],
+                Result::invalid(['id' => 'Blink'],
+                    new MessageSet(
+                        new FieldName('id', '', ''),
+                        new Message('IsInt validator expects integer value, %s passed instead', ['string'])
+                    ),
+                    new MessageSet(new FieldName('', '', ''), new Message('%s is a required field', ['name']))),
             ],
         ];
     }
@@ -194,7 +207,7 @@ class OneOfTest extends TestCase
         mixed $value,
         Result $expected
     ): void {
-        $sut = new OneOf($processes, ...$processors);
+        $sut = new AnyOf($processes, ...$processors);
 
         $actual = $sut->process($fieldName, $value);
 
