@@ -16,7 +16,7 @@ use Membrane\Filter\Shape\Delete;
 use Membrane\Processor\ProcessorType;
 use Membrane\Result\FieldName;
 use Membrane\Validator\Collection\Identical;
-use Membrane\Validator\Object\RequiredFields;
+use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\String\Length;
 
 class Password
@@ -46,7 +46,6 @@ class RegisterUser
         #[Subtype('string')]
         public readonly Password $password
     ) {
-
     }
 }
 

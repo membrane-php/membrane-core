@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Validator\Array;
+namespace Validator\Collection;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use Membrane\Validator\Array\Count;
+use Membrane\Validator\Collection\Count;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Membrane\Validator\Array\Count
+ * @covers \Membrane\Validator\Collection\Count
  * @uses   \Membrane\Result\Result
  * @uses   \Membrane\Result\MessageSet
  * @uses   \Membrane\Result\Message
@@ -36,7 +36,9 @@ class CountTest extends TestCase
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $count = new Count();
-        $expected = Result::invalid($input, new MessageSet(
+        $expected = Result::invalid(
+            $input,
+            new MessageSet(
                 null,
                 new Message('Count Validator requires an array, %s given', [$expectedVars])
             )

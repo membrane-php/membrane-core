@@ -15,7 +15,7 @@ interface Validator
 
 Results returning from Validators will always be valid or invalid.
 
-## Array
+## Collection
 
 ### Count
 
@@ -319,7 +319,7 @@ The above example will output the following
 Result was valid
 ```
 
-## Object
+## FieldSet
 
 ### RequiredFields
 
@@ -350,6 +350,40 @@ The above example will output the following
 
 ```text
 ['a' => 1, 'b' => 2, 'c' => 3]
+Result was valid
+```
+
+## Numeric
+
+### Range
+
+Checks if an integer/float is between a specified minimum and maximum.
+
+```php
+new Range($min, $max)
+```
+
+| Parameter | Type               | Default Value | Notes                              |
+|-----------|--------------------|---------------|------------------------------------|
+| $min      | int, float or null | null          | If set to null, minimum is ignored |
+| $max      | int, float or null | null          | If set to null, maximum is ignored |
+
+**Example 1**
+
+```php
+<?php
+$range = new Range(-100, 99.99);
+
+$result = $range->validate(50);
+
+echo $result->value;
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+
+The above example will output the following
+
+```text
+50
 Result was valid
 ```
 

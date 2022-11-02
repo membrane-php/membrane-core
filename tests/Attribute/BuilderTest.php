@@ -43,7 +43,7 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use Membrane\Validator\Object\RequiredFields;
+use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
 use PHPUnit\Framework\TestCase;
@@ -65,7 +65,7 @@ use PHPUnit\Framework\TestCase;
  * @uses   \Membrane\Processor\Field
  * @uses   \Membrane\Processor\BeforeSet
  * @uses   \Membrane\Processor\AfterSet
- * @uses   \Membrane\Validator\Object\RequiredFields
+ * @uses   \Membrane\Validator\FieldSet\RequiredFields
  * @uses   \Membrane\Validator\Type\IsList
  * @uses   \Membrane\Validator\Type\IsInt
  * @uses   \Membrane\Validator\Type\IsString
@@ -73,7 +73,7 @@ use PHPUnit\Framework\TestCase;
  * @uses   \Membrane\Validator\String\Length
  * @uses   \Membrane\Validator\String\Regex
  * @uses   \Membrane\Validator\Utility\AllOf
- * @uses   \Membrane\Validator\Array\Count
+ * @uses   \Membrane\Validator\Collection\Count
  * @uses   \Membrane\Filter\CreateObject\WithNamedArguments
  */
 class BuilderTest extends TestCase
@@ -248,11 +248,11 @@ class BuilderTest extends TestCase
                 new ClassWithAttributes(ClassThatOverridesProcessorType::class),
                 new FieldSet(
                     '', new Collection(
-                    'sumOfInts',
-                    new BeforeSet(new IsList()),
-                    new Field('sumOfInts', new IsInt()),
-                    new AfterSet(new ArraySumFilter())
-                )
+                        'sumOfInts',
+                        new BeforeSet(new IsList()),
+                        new Field('sumOfInts', new IsInt()),
+                        new AfterSet(new ArraySumFilter())
+                    )
                 ),
             ],
 
@@ -409,9 +409,9 @@ class BuilderTest extends TestCase
                     ],
                     new MessageSet(
                         new FieldName('title', '', ''), new Message(
-                        'IsString validator expects string value, %s passed instead',
-                        ['integer']
-                    )
+                            'IsString validator expects string value, %s passed instead',
+                            ['integer']
+                        )
                     )
                 ),
             ],
@@ -445,9 +445,9 @@ class BuilderTest extends TestCase
                     ],
                     new MessageSet(
                         new FieldName('title', '', ''), new Message(
-                        'ToString filter only accepts objects, null or scalar values, %s given',
-                        ['array']
-                    )
+                            'ToString filter only accepts objects, null or scalar values, %s given',
+                            ['array']
+                        )
                     )
                 ),
             ],
@@ -481,9 +481,9 @@ class BuilderTest extends TestCase
                     ],
                     new MessageSet(
                         new FieldName('', '', '', 'tags'), new Message(
-                        'Array is expected have a maximum of %d values',
-                        [5]
-                    )
+                            'Array is expected have a maximum of %d values',
+                            [5]
+                        )
                     )
                 ),
             ],
@@ -517,9 +517,9 @@ class BuilderTest extends TestCase
                     ],
                     new MessageSet(
                         new FieldName('title', '', ''), new Message(
-                        'String is expected to be a maximum of %d characters',
-                        [50]
-                    )
+                            'String is expected to be a maximum of %d characters',
+                            [50]
+                        )
                     )
                 ),
             ],
