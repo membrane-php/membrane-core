@@ -13,7 +13,7 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use Membrane\Validator\Object\RequiredFields;
+use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Type\IsArray;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsString;
@@ -31,7 +31,7 @@ use PHPUnit\Framework\TestCase;
  * @uses   \Membrane\Result\Message
  * @uses   \Membrane\Result\MessageSet
  * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Validator\Object\RequiredFields
+ * @uses   \Membrane\Validator\FieldSet\RequiredFields
  * @uses   \Membrane\Validator\Type\IsArray
  * @uses   \Membrane\Validator\Type\IsInt
  * @uses   \Membrane\Validator\Type\IsString

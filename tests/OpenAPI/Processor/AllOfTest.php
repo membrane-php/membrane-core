@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Processor;
+namespace OpenAPI\Processor;
 
 use Exception;
-use Membrane\Processor\AllOf;
+use Membrane\OpenAPI\Processor\AllOf;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Field;
 use Membrane\Processor\FieldSet;
@@ -13,7 +13,7 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use Membrane\Validator\Object\RequiredFields;
+use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Type\IsArray;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsString;
@@ -23,7 +23,7 @@ use Membrane\Validator\Utility\Passes;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Membrane\Processor\AllOf
+ * @covers \Membrane\OpenAPI\Processor\AllOf
  * @uses   \Membrane\Processor\BeforeSet
  * @uses   \Membrane\Processor\Field
  * @uses   \Membrane\Processor\FieldSet
@@ -31,7 +31,7 @@ use PHPUnit\Framework\TestCase;
  * @uses   \Membrane\Result\Message
  * @uses   \Membrane\Result\MessageSet
  * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Validator\Object\RequiredFields
+ * @uses   \Membrane\Validator\FieldSet\RequiredFields
  * @uses   \Membrane\Validator\Type\IsArray
  * @uses   \Membrane\Validator\Type\IsInt
  * @uses   \Membrane\Validator\Type\IsString
