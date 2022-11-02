@@ -224,6 +224,70 @@ Result was valid
 
 ## Numeric
 
+### Maximum
+
+Checks if a given value complies with specified maximum.
+
+```php
+new Maximum($max, $exclusive)
+```
+
+| Parameter  | Type         | Default Value | Notes                                                      |
+|------------|--------------|---------------|------------------------------------------------------------|
+| $max       | int or float |               |                                                            |
+| $exclusive | boolean      | false         | determines whether it is an exclusive or inclusive maximum |
+
+**Example 1**
+
+```php
+<?php
+$max = new Maximum(10);
+
+$result = $max->validate(5);
+
+echo $result->value;
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+
+The above example will output the following
+
+```text
+5
+Result was valid
+```
+
+### Minimum
+
+Checks if a given value complies with specified minimum.
+
+```php
+new Minimum($min, $exclusive)
+```
+
+| Parameter  | Type         | Default Value | Notes                                                      |
+|------------|--------------|---------------|------------------------------------------------------------|
+| $min       | int or float |               |                                                            |
+| $exclusive | boolean      | false         | determines whether it is an exclusive or inclusive minimum |
+
+**Example 1**
+
+```php
+<?php
+$min = new Minimum(10);
+
+$result = $min->validate(15);
+
+echo $result->value;
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+
+The above example will output the following
+
+```text
+15
+Result was valid
+```
+
 ### MultipleOf
 
 Checks if an integer/float is a multiple of a given value.
@@ -252,38 +316,6 @@ The above example will output the following
 
 ```text
 25
-Result was valid
-```
-
-### Range
-
-Checks if an integer/float is between a specified minimum and maximum.
-
-```php
-new Range($min, $max)
-```
-
-| Parameter | Type               | Default Value | Notes                              |
-|-----------|--------------------|---------------|------------------------------------|
-| $min      | int, float or null | null          | If set to null, minimum is ignored |
-| $max      | int, float or null | null          | If set to null, maximum is ignored |
-
-**Example 1**
-
-```php
-<?php
-$range = new Range(-100, 99.99);
-
-$result = $range->validate(50);
-
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
-```
-
-The above example will output the following
-
-```text
-50
 Result was valid
 ```
 
