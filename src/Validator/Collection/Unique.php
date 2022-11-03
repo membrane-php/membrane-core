@@ -24,7 +24,7 @@ class Unique implements Validator
             );
         }
 
-        if (count($value) === 0) {
+        if (count($value) < 2) {
             return Result::valid($value);
         }
 

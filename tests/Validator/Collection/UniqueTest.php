@@ -55,19 +55,27 @@ class UniqueTest extends TestCase
         return [
             'some items are duplicates' => [
                 ['a', 'b', 'a'],
-                Result::invalid(['a', 'b', 'a'], $invalidMessageSet)
+                Result::invalid(['a', 'b', 'a'], $invalidMessageSet),
             ],
             'every item is a duplicate' => [
                 ['a', 'a', 'a'],
-                Result::invalid(['a', 'a', 'a'], $invalidMessageSet)
+                Result::invalid(['a', 'a', 'a'], $invalidMessageSet),
+            ],
+            'no items' => [
+                [],
+                Result::valid([]),
+            ],
+            'one item' => [
+                ['a'],
+                Result::valid(['a']),
             ],
             'every item is unique' => [
                 ['a', 'b', 'c'],
-                Result::valid(['a', 'b', 'c'])
+                Result::valid(['a', 'b', 'c']),
             ],
             'items are equal, but not identical' => [
                 ['1', 1, 1.0],
-                Result::valid(['1', 1, 1.0])
+                Result::valid(['1', 1, 1.0]),
             ],
         ];
     }
