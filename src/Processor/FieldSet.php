@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Membrane\Processor;
 
+use Membrane\Exception\InvalidProcessorArguments;
 use Membrane\Processor;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use RuntimeException;
 
 class FieldSet implements Processor
 {
@@ -25,12 +25,12 @@ class FieldSet implements Processor
         foreach ($chain as $item) {
             if ($item instanceof BeforeSet) {
                 if (isset($this->before)) {
-                    throw (new RuntimeException('Only allowed one BeforeSet'));
+                    throw InvalidProcessorArguments::multipleBeforeSetsInFieldSet();
                 }
                 $this->before = $item;
             } elseif ($item instanceof AfterSet) {
                 if (isset($this->after)) {
-                    throw (new RuntimeException('Only allowed one AfterSet'));
+                    throw InvalidProcessorArguments::multipleAfterSetsInFieldSet();
                 }
                 $this->after = $item;
             } else {
@@ -61,16 +61,22 @@ class FieldSet implements Processor
 
         if (!empty($this->chain)) {
             if (!is_array($value)) {
-                return Result::invalid($value, new MessageSet(
-                    null,
-                    new Message('Value passed to FieldSet chain be an array, %s passed instead', [gettype($value)])
-                ));
+                return Result::invalid(
+                    $value,
+                    new MessageSet(
+                        null,
+                        new Message('Value passed to FieldSet chain be an array, %s passed instead', [gettype($value)])
+                    )
+                );
             }
             if (array_is_list($value) && $value !== []) {
-                return Result::invalid($value, new MessageSet(
-                    null,
-                    new Message('Value passed to FieldSet chain must be an array, list passed instead', [])
-                ));
+                return Result::invalid(
+                    $value,
+                    new MessageSet(
+                        null,
+                        new Message('Value passed to FieldSet chain must be an array, list passed instead', [])
+                    )
+                );
             }
 
             foreach ($this->chain as $item) {

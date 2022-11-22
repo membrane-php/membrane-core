@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Processor;
 
+use Membrane\Exception\InvalidProcessorArguments;
 use Membrane\Filter;
 use Membrane\Processor;
 use Membrane\Processor\AfterSet;
@@ -16,10 +17,10 @@ use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 /**
  * @covers \Membrane\Processor\Collection
+ * @covers \Membrane\Exception\InvalidProcessorArguments
  * @uses   \Membrane\Processor\BeforeSet
  * @uses   \Membrane\Processor\Field
  * @uses   \Membrane\Processor\AfterSet
@@ -64,8 +65,7 @@ class CollectionTest extends TestCase
     public function onlyAcceptsOneField(): void
     {
         $field = new Field('field to process');
-        self::expectException(RuntimeException::class);
-        self::expectExceptionMessage('Cannot use more than one processor on a collection');
+        self::expectExceptionObject(InvalidProcessorArguments::multipleProcessorsInCollection());
 
         new Collection('field to process', $field, $field);
     }
@@ -127,10 +127,13 @@ class CollectionTest extends TestCase
             public function validate(mixed $value): Result
             {
                 if ($value % 2 !== 0) {
-                    return Result::invalid($value, new MessageSet(
-                        null,
-                        new Message('not even', [])
-                    ));
+                    return Result::invalid(
+                        $value,
+                        new MessageSet(
+                            null,
+                            new Message('not even', [])
+                        )
+                    );
                 }
                 return Result::valid($value);
             }
@@ -141,10 +144,13 @@ class CollectionTest extends TestCase
             {
                 foreach (array_keys($value) as $key) {
                     if ($value[$key] % 2 !== 0) {
-                        return Result::invalid($value, new MessageSet(
-                            null,
-                            new Message('not even', [])
-                        ));
+                        return Result::invalid(
+                            $value,
+                            new MessageSet(
+                                null,
+                                new Message('not even', [])
+                            )
+                        );
                     }
                 }
                 return Result::valid($value);
@@ -221,10 +227,11 @@ class CollectionTest extends TestCase
             ],
             'BeforeSet then Field then AfterSet' => [
                 [1, 2, 3],
-                Result::invalid([3, 5, 7], new MessageSet(
-                    new FieldName('', 'parent field', 'field to process'),
-                    new Message('not even', [])
-                )),
+                Result::invalid([3, 5, 7],
+                    new MessageSet(
+                        new FieldName('', 'parent field', 'field to process'),
+                        new Message('not even', [])
+                    )),
                 new BeforeSet($evenArrayFilter),
                 new Field('b', $incrementFilter),
                 new AfterSet($evenArrayValidator),

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Membrane\Processor;
 
+use Membrane\Exception\InvalidProcessorArguments;
 use Membrane\Processor;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use RuntimeException;
 
 class Collection implements Processor
 {
@@ -35,7 +35,7 @@ class Collection implements Processor
         }
 
         if (count($processors) > 1) {
-            throw new RuntimeException('Cannot use more than one processor on a collection');
+            throw InvalidProcessorArguments::multipleProcessorsInCollection();
         }
 
         $each = current($processors);
@@ -51,7 +51,6 @@ class Collection implements Processor
 
     public function process(FieldName $parentFieldName, mixed $value): Result
     {
-
         $fieldName = $parentFieldName->push(new Fieldname($this->processes));
         $collectionResult = Result::noResult($value);
 
@@ -67,16 +66,22 @@ class Collection implements Processor
 
         if (isset($this->each)) {
             if (!(is_array($value) && array_is_list($value))) {
-                return Result::invalid($value, new MessageSet(null, new Message(
-                    'Value passed to %s in Collection chain must be a list, %s passed instead',
-                    [$this->each::class, gettype($value)]
-                )));
+                return Result::invalid(
+                    $value,
+                    new MessageSet(
+                        null,
+                        new Message(
+                            'Value passed to %s in Collection chain must be a list, %s passed instead',
+                            [$this->each::class, gettype($value)]
+                        )
+                    )
+                );
             }
 
             $processedValues = [];
 
             foreach ($value as $key => $item) {
-                $result = $this->each->process($fieldName->push(new Fieldname((string) $key)), $item);
+                $result = $this->each->process($fieldName->push(new Fieldname((string)$key)), $item);
                 $processedValues[$key] = $result->value;
                 $collectionResult = $collectionResult->merge($result);
             }
