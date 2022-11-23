@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Processor;
 
+use Membrane\Exception\InvalidProcessorArguments;
 use Membrane\Filter;
 use Membrane\Processor;
 use Membrane\Processor\AfterSet;
@@ -16,10 +17,10 @@ use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 /**
  * @covers \Membrane\Processor\FieldSet
+ * @covers \Membrane\Exception\InvalidProcessorArguments
  * @uses   \Membrane\Processor\AfterSet
  * @uses   \Membrane\Processor\BeforeSet
  * @uses   \Membrane\Result\Result
@@ -65,8 +66,7 @@ class FieldsetTest extends TestCase
     public function onlyAcceptsOneBeforeSet(): void
     {
         $beforeSet = new BeforeSet();
-        self::expectException(RuntimeException::class);
-        self::expectExceptionMessage('Only allowed one BeforeSet');
+        self::expectExceptionObject(InvalidProcessorArguments::multipleBeforeSetsInFieldSet());
 
         new FieldSet('field to process', $beforeSet, $beforeSet);
     }
@@ -77,8 +77,7 @@ class FieldsetTest extends TestCase
     public function onlyAcceptsOneAfterSet(): void
     {
         $afterSet = new AfterSet();
-        self::expectException(RuntimeException::class);
-        self::expectExceptionMessage('Only allowed one AfterSet');
+        self::expectExceptionObject(InvalidProcessorArguments::multipleAfterSetsInFieldSet());
 
         new FieldSet('field to process', $afterSet, $afterSet);
     }
@@ -183,10 +182,13 @@ class FieldsetTest extends TestCase
             public function validate(mixed $value): Result
             {
                 if ($value % 2 !== 0) {
-                    return Result::invalid($value, new MessageSet(
-                        null,
-                        new Message('not even', [])
-                    ));
+                    return Result::invalid(
+                        $value,
+                        new MessageSet(
+                            null,
+                            new Message('not even', [])
+                        )
+                    );
                 }
                 return Result::valid($value);
             }
@@ -197,10 +199,13 @@ class FieldsetTest extends TestCase
             {
                 foreach (array_keys($value) as $key) {
                     if ($value[$key] % 2 !== 0) {
-                        return Result::invalid($value, new MessageSet(
-                            null,
-                            new Message('not even', [])
-                        ));
+                        return Result::invalid(
+                            $value,
+                            new MessageSet(
+                                null,
+                                new Message('not even', [])
+                            )
+                        );
                     }
                 }
                 return Result::valid($value);
@@ -225,10 +230,11 @@ class FieldsetTest extends TestCase
             ],
             'Field processed can return invalid results' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::invalid(['a' => 1, 'b' => 2, 'c' => 3], new MessageSet(
-                    new FieldName('a', 'parent field', 'field to process'),
-                    new Message('not even', [])
-                )),
+                Result::invalid(['a' => 1, 'b' => 2, 'c' => 3],
+                    new MessageSet(
+                        new FieldName('a', 'parent field', 'field to process'),
+                        new Message('not even', [])
+                    )),
                 new Field('a', $evenValidator),
             ],
             'Multiple Fields are accepted' => [
@@ -259,10 +265,11 @@ class FieldsetTest extends TestCase
             ],
             'BeforeSetThenFieldThenAfterSet' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::invalid(['a' => 2, 'b' => 5, 'c' => 6], new MessageSet(
-                    new FieldName('', 'parent field', 'field to process'),
-                    new Message('not even', [])
-                )),
+                Result::invalid(['a' => 2, 'b' => 5, 'c' => 6],
+                    new MessageSet(
+                        new FieldName('', 'parent field', 'field to process'),
+                        new Message('not even', [])
+                    )),
                 new BeforeSet($evenArrayFilter),
                 new Field('b', $incrementFilter),
                 new AfterSet($evenArrayValidator),
