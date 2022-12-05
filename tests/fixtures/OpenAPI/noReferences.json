@@ -1,0 +1,1646 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Test API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://www.test.com"
+    },
+    {
+      "url": "http://www.test.com/path",
+      "description": "this server contains the path name '/path' inside"
+    }
+  ],
+  "paths": {
+    "/emptypath": {
+      "description": "/emptypath has no operations"
+    },
+    "/path": {
+      "description": "/path has all operations, only DELETE has a default response",
+      "get": {
+        "description": "Get operation on /path, no requestBody",
+        "responses": {
+          "200": {
+            "description": "successful response, no content"
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "description": "Post operation on /path, requestBody->content is empty",
+          "required": true,
+          "content": {}
+        },
+        "responses": {
+          "200": {
+            "description": "successful response with content that is empty",
+            "content": {}
+          }
+        }
+      },
+      "put": {
+        "requestBody": {
+          "description": "Put operation on /path, requestBody content is not application/json",
+          "required": true,
+          "content": {
+            "application/pdf": {
+              "schema": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful response with content that is not application/json",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "requestBody": {
+          "description": "Delete operation on /path, requestBody content is application/json",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful response with content that is application/json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "default response with content that is application/json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/parampath/{id}": {
+      "description": "/parampath has a parameter in the path, applying to all operations",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      ],
+      "get": {
+        "description": "Get operation in /parampath/{id}, should have two parameters, 'id' and 'name'",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful response"
+          }
+        }
+      }
+    },
+    "/requestpathexceptions": {
+      "get": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/requestpathone/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "parameters": [
+          {
+            "name": "names",
+            "in": "query",
+            "schema": {
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/requestpathtwo": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "header",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "parameters": [
+          {
+            "name": "name",
+            "in": "cookie",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/requestbodypath": {
+      "get": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/requestbodypath/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "species",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subspecies",
+            "in": "cookie",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "number",
+                "format": "float"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/responsepath": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "int",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "nullable int",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "int, inclusive min",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "203": {
+            "description": "int, exclusive min",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "exclusiveMinimum": true
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "int, inclusive max",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "maximum": 100
+                }
+              }
+            }
+          },
+          "205": {
+            "description": "int, exclusive max",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "maximum": 100,
+                  "exclusiveMaximum": true
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "int, multipleOf",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "multipleOf": 3
+                }
+              }
+            }
+          },
+          "207": {
+            "description": "int, enum",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "enum": [
+                    1,
+                    2,
+                    3
+                  ]
+                }
+              }
+            }
+          },
+          "209": {
+            "description": "nullable int, exclusive min, inclusive max, multipleOf, enum",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "exclusiveMinimum": true,
+                  "maximum": 100,
+                  "multipleOf": 3,
+                  "enum": [
+                    1,
+                    2,
+                    3
+                  ],
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "210": {
+            "description": "number",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "211": {
+            "description": "nullable number",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "212": {
+            "description": "number, enum",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "enum": [
+                    1,
+                    2.3,
+                    4
+                  ]
+                }
+              }
+            }
+          },
+          "213": {
+            "description": "number, float format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "format": "float"
+                }
+              }
+            }
+          },
+          "214": {
+            "description": "nullable number, float format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "format": "float",
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "215": {
+            "description": "number, double format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          },
+          "219": {
+            "description": "nullable number, enum, inclusive min, exclusive max, multipleOf",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "minimum": 6.66,
+                  "maximum": 99.99,
+                  "exclusiveMaximum": true,
+                  "multipleOf": 3.33,
+                  "enum": [
+                    1,
+                    2.3,
+                    4
+                  ],
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "220": {
+            "description": "string",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "221": {
+            "description": "nullable string",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "222": {
+            "description": "string, enum",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "a",
+                    "b",
+                    "c"
+                  ]
+                }
+              }
+            }
+          },
+          "223": {
+            "description": "string, date format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "date"
+                }
+              }
+            }
+          },
+          "224": {
+            "description": "string, date-time format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          },
+          "225": {
+            "description": "string, minLength",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "minLength": 5
+                }
+              }
+            }
+          },
+          "226": {
+            "description": "string, maxLength",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "maxLength": 10
+                }
+              }
+            }
+          },
+          "227": {
+            "description": "string, pattern",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "#[A-Za-z]+#"
+                }
+              }
+            }
+          },
+          "229": {
+            "description": "nullable string, enum, minLength, maxLength, pattern",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "minLength": 5,
+                  "maxLength": 10,
+                  "pattern": "#[A-Za-z]+#",
+                  "enum": [
+                    "a",
+                    "b",
+                    "c"
+                  ],
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "230": {
+            "description": "bool",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "231": {
+            "description": "nullable bool",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean",
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "232": {
+            "description": "bool, enum",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean",
+                  "enum": [
+                    true
+                  ]
+                }
+              }
+            }
+          },
+          "239": {
+            "description": "nullable bool, enum",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean",
+                  "enum": [
+                    true,
+                    null
+                  ],
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "240": {
+            "description": "array of ints",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          },
+          "241": {
+            "description": "array of strings, enum",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "enum": [
+                    [
+                      "a",
+                      "b",
+                      "c"
+                    ],
+                    [
+                      "d",
+                      "e",
+                      "f"
+                    ]
+                  ]
+                }
+              }
+            }
+          },
+          "242": {
+            "description": "nullable array of strings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "243": {
+            "description": "array of booleans, minItems",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "boolean"
+                  },
+                  "minItems": 5
+                }
+              }
+            }
+          },
+          "244": {
+            "description": "array of floats, maxItems",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "maxItems": 5
+                }
+              }
+            }
+          },
+          "245": {
+            "description": "array of numbers, maxItems",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "uniqueItems": true
+                }
+              }
+            }
+          },
+          "269": {
+            "description": "nullable array of nullable numbers, minItems, maxItems, uniqueItems",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "enum": [
+                    [
+                      1,
+                      2.0,
+                      null
+                    ],
+                    [
+                      4.0,
+                      null,
+                      6
+                    ]
+                  ],
+                  "uniqueItems": true,
+                  "minItems": 2,
+                  "maxItems": 5,
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "270": {
+            "description": "object with (string) name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "271": {
+            "description": "object with (integer) id, enum",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    }
+                  },
+                  "enum": [
+                    {
+                      "id": 5
+                    },
+                    {
+                      "id": 10
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "272": {
+            "description": "nullable object with (float) price",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "price": {
+                      "type": "number",
+                      "format": "float"
+                    }
+                  },
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "273": {
+            "description": "object with (string) name, (int) id, (bool) status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "274": {
+            "description": "object with (string) name, (int) id, (bool) status, required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "id"
+                  ]
+                }
+              }
+            }
+          },
+          "299": {
+            "description": "nullable object with (string) name, (int) id, (bool) status, enum, required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "boolean"
+                    }
+                  },
+                  "enum": [
+                    {
+                      "name": "Ben",
+                      "id": 5,
+                      "status": true
+                    },
+                    {
+                      "name": "Blink",
+                      "id": 10,
+                      "status": true
+                    }
+                  ],
+                  "required": [
+                    "name",
+                    "id"
+                  ]
+                }
+              }
+            }
+          },
+          "300": {
+            "description": "allOf, one object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "301": {
+            "description": "allOf,two objects, identical parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "allOf, two objects, unique parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "303": {
+            "description": "allOf, two objects, conflicting parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "allOf, two objects, unique parameters, one requiredField",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "305": {
+            "description": "allOf, two objects, unique parameters, two requiredFields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "306": {
+            "description": "allOf, two objects, unique parameters, two requiredFields requiring the other schemas property",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "320": {
+            "description": "anyOf, one object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "321": {
+            "description": "anyOf,two objects, identical parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "322": {
+            "description": "anyOf, two objects, unique parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "323": {
+            "description": "anyOf, two objects, conflicting parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "324": {
+            "description": "anyOf, two objects, unique parameters, one requiredField",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "325": {
+            "description": "anyOf, two objects, unique parameters, two requiredFields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "326": {
+            "description": "anyOf, two objects, unique parameters, two requiredFields requiring the other schemas property",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "340": {
+            "description": "oneOf, one object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "341": {
+            "description": "oneOf,two objects, identical parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "342": {
+            "description": "oneOf, two objects, unique parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "343": {
+            "description": "oneOf, two objects, conflicting parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "344": {
+            "description": "oneOf, two objects, unique parameters, one requiredField",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "345": {
+            "description": "oneOf, two objects, unique parameters, two requiredFields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "346": {
+            "description": "oneOf, two objects, unique parameters, two requiredFields requiring the other schemas property",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "360": {
+            "description": "'not' a string",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "not": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "schema with no specified type",
+            "content": {
+              "application/json": {
+                "schema": {
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

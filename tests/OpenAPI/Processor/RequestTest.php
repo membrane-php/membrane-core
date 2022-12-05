@@ -61,13 +61,29 @@ class RequestTest extends TestCase
 
     public function dataSetsToProcess(): array
     {
-        $validProcessor = self::createMock(Processor::class);
-        $validProcessor->method('process')
-            ->willReturn(Result::valid(''));
+        $validProcessor = new class() implements Processor {
+            public function processes(): string
+            {
+                return '';
+            }
 
-        $invalidProcessor = self::createMock(Processor::class);
-        $invalidProcessor->method('process')
-            ->willReturn(Result::invalid('', new MessageSet(null, new Message('invalid result', []))));
+            public function process(FieldName $parentFieldName, mixed $value): Result
+            {
+                return Result::valid($value);
+            }
+        };
+
+        $invalidProcessor = new class() implements Processor {
+            public function processes(): string
+            {
+                return '';
+            }
+
+            public function process(FieldName $parentFieldName, mixed $value): Result
+            {
+                return Result::invalid($value, new MessageSet(null, new Message('invalid result', [])));
+            }
+        };
 
         $uri = self::createMock(UriInterface::class);
         $uri->method('getPath')
@@ -196,7 +212,6 @@ class RequestTest extends TestCase
                     'body' => 'request body',
                 ]),
             ],
-
         ];
     }
 

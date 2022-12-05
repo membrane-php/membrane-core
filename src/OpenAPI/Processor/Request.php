@@ -43,10 +43,11 @@ class Request implements Processor
         $result = Result::valid($value);
         foreach ($this->processors as $in => $processor) {
             $itemResult = $processor->process($parentFieldName, $value[$in]);
+            $value[$in] = $itemResult->value;
             $result = $itemResult->merge($result);
         }
 
-        return $result;
+        return $result->merge(Result::noResult($value));
     }
 
     /** @return array<string, string|array<string, mixed>> */

@@ -16,7 +16,7 @@ class IsNumber implements Validator
         if (!(is_int($value) || is_float($value))) {
             return Result::invalid(
                 $value,
-                new MessageSet(null, new Message('Value must be int or float, %s passed', [gettype($value)]))
+                new MessageSet(null, new Message('Value must be a number, %s passed', [gettype($value)]))
             );
         }
 
