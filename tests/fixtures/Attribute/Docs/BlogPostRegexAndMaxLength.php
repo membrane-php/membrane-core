@@ -15,7 +15,7 @@ use Membrane\Validator\String\Length;
 use Membrane\Validator\String\Regex;
 
 
-#[SetFilterOrValidator(new RequiredFields('title', 'body', 'tags'), Placement::BEFORE)]
+#[SetFilterOrValidator(new RequiredFields('title', 'body'), Placement::BEFORE)]
 class BlogPostRegexAndMaxLength
 {
     public function __construct(

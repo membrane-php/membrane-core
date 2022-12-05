@@ -12,7 +12,7 @@ use Membrane\Filter\Type\ToString;
 use Membrane\Validator\FieldSet\RequiredFields;
 
 
-#[SetFilterOrValidator(new RequiredFields('title', 'body', 'tags'), Placement::BEFORE)]
+#[SetFilterOrValidator(new RequiredFields('title', 'body'), Placement::BEFORE)]
 class BlogPostMakeItAString
 {
     public function __construct(

@@ -16,7 +16,7 @@ use Membrane\Validator\String\Length;
 use Membrane\Validator\String\Regex;
 use Membrane\Validator\Utility\AllOf;
 
-#[SetFilterOrValidator(new RequiredFields('title', 'body', 'tags'), Placement::BEFORE)]
+#[SetFilterOrValidator(new RequiredFields('title', 'body'), Placement::BEFORE)]
 #[SetFilterOrValidator(new WithNamedArguments(BlogPostFromNamedArguments::class), Placement::AFTER)]
 class BlogPostFromNamedArguments
 {
