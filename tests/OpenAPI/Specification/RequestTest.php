@@ -7,6 +7,7 @@ namespace OpenAPI\Specification;
 use cebe\openapi\spec\Parameter;
 use cebe\openapi\spec\Schema;
 use Exception;
+use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Specification\Request;
 use PHPUnit\Framework\TestCase;
@@ -151,5 +152,26 @@ class RequestTest extends TestCase
         self::assertContainsOnlyInstancesOf(Parameter::class, $class->pathParameters);
 
         self::assertInstanceOf(Schema::class, $class->pathParameters[0]->schema);
+    }
+
+    /** @test */
+    public function fromPsr7ThrowsExceptionIfUnsupportedMethod(): void
+    {
+        self::expectExceptionObject(new Exception('not supported'));
+
+        $serverRequest = new ServerRequest('UPDATE', 'http://test.com/path');
+
+        Request::fromPsr7(self::DIR . 'noReferences.json', $serverRequest);
+    }
+
+    /** @test */
+    public function fromPsr7SuccessfulConstructionTest(): void
+    {
+        $expected = new Request(self::DIR . 'noReferences.json', 'http://test.com/path', Method::GET);
+        $serverRequest = new ServerRequest('GET', 'http://test.com/path');
+
+        $actual = Request::fromPsr7(self::DIR . 'noReferences.json', $serverRequest);
+
+        self::assertEquals($expected, $actual);
     }
 }

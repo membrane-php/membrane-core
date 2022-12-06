@@ -51,30 +51,30 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers   \Membrane\Attribute\Builder
  * @covers   \Membrane\Exception\CannotProcessProperty
- * @uses     \Membrane\Attribute\ClassWithAttributes
+ * @uses     ClassWithAttributes
  * @uses     \Membrane\Attribute\FilterOrValidator
  * @uses     \Membrane\Attribute\SetFilterOrValidator
  * @uses     \Membrane\Attribute\OverrideProcessorType
  * @uses     \Membrane\Attribute\Subtype
- * @uses     \Membrane\Result\Result
- * @uses     \Membrane\Result\MessageSet
- * @uses     \Membrane\Result\Message
- * @uses     \Membrane\Result\FieldName
- * @uses     \Membrane\Processor\Collection
- * @uses     \Membrane\Processor\FieldSet
- * @uses     \Membrane\Processor\Field
- * @uses     \Membrane\Processor\BeforeSet
- * @uses     \Membrane\Processor\AfterSet
- * @uses     \Membrane\Validator\FieldSet\RequiredFields
- * @uses     \Membrane\Validator\Type\IsList
- * @uses     \Membrane\Validator\Type\IsInt
+ * @uses     Result
+ * @uses     MessageSet
+ * @uses     Message
+ * @uses     FieldName
+ * @uses     Collection
+ * @uses     FieldSet
+ * @uses     Field
+ * @uses     BeforeSet
+ * @uses     AfterSet
+ * @uses     RequiredFields
+ * @uses     IsList
+ * @uses     IsInt
  * @uses     \Membrane\Validator\Type\IsString
  * @uses     \Membrane\Filter\Type\ToString
  * @uses     \Membrane\Validator\String\Length
  * @uses     \Membrane\Validator\String\Regex
  * @uses     \Membrane\Validator\Utility\AllOf
  * @uses     \Membrane\Validator\Collection\Count
- * @uses     \Membrane\Filter\CreateObject\WithNamedArguments
+ * @uses     WithNamedArguments
  */
 class BuilderTest extends TestCase
 {
@@ -451,7 +451,7 @@ class BuilderTest extends TestCase
                     )
                 ),
             ],
-            'Blog Post: Maximum Numeric Of Tags A' => [
+            'Blog Post: Maximum Number Of Tags A' => [
                 new ClassWithAttributes(BlogPostMaxTags::class),
                 [
                     'title' => '',
@@ -466,7 +466,7 @@ class BuilderTest extends TestCase
                     ]
                 ),
             ],
-            'Blog Post: Maximum Numeric Of Tags B' => [
+            'Blog Post: Maximum Number Of Tags B' => [
                 new ClassWithAttributes(BlogPostMaxTags::class),
                 [
                     'title' => 'TITLE WRITTEN ENTIRELY IN UPPER CASE AND UNNECESSARILY LONG',

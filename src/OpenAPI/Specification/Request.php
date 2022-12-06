@@ -9,7 +9,9 @@ use cebe\openapi\spec\Parameter;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Reference;
 use cebe\openapi\spec\Schema;
+use Exception;
 use Membrane\OpenAPI\Method;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Request extends APISpec
 {
@@ -29,6 +31,13 @@ class Request extends APISpec
         $this->requestBodySchema = $requestBody === null ? null : $this->getSchema($requestBody->content);
 
         $this->pathParameters = $this->getPathParameters($this->pathItem, $requestOperation);
+    }
+
+    public static function fromPsr7(string $apiPath, ServerRequestInterface $request): self
+    {
+        $method = Method::tryFrom(strtolower($request->getMethod())) ?? throw new Exception('not supported');
+
+        return new self($apiPath, $request->getUri()->getPath(), $method);
     }
 
     /** @return Parameter[] */
