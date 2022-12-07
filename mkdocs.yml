@@ -2,9 +2,10 @@ site_name: Membrane Documentation
 site_url: https://membrane-php.github.io
 nav:
   - Getting Started: index.md
-  - The Basics: basics.md
-  - The Builder: builder.md
-  - Result: result.md
+  - Processing A Class With Attributes: builder-attributes.md
+  - Processing An OpenAPI Request: builder-request.md
+  - Processing An OpenAPI Response: builder-response.md
+  - The Result Object: result.md
   - Processors: processors.md
   - Filters: filters.md
   - Validators: validators.md

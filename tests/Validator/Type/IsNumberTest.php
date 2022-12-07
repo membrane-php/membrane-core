@@ -37,47 +37,47 @@ class IsNumberTest extends TestCase
                 '4',
                 Result::invalid(
                     '4',
-                    new MessageSet(null, new Message('Value must be int or float, %s passed', ['string']))
+                    new MessageSet(null, new Message('Value must be a number, %s passed', ['string']))
                 ),
             ],
             'invalidates float string' => [
                 '5.6',
                 Result::invalid(
                     '5.6',
-                    new MessageSet(null, new Message('Value must be int or float, %s passed', ['string']))
+                    new MessageSet(null, new Message('Value must be a number, %s passed', ['string']))
                 ),
             ],
             'invalidates non-numeric string' => [
                 'six',
                 Result::invalid(
                     'six',
-                    new MessageSet(null, new Message('Value must be int or float, %s passed', ['string']))
+                    new MessageSet(null, new Message('Value must be a number, %s passed', ['string']))
                 ),
             ],
             'invalidates bool' => [
                 true,
                 Result::invalid(
                     true,
-                    new MessageSet(null, new Message('Value must be int or float, %s passed', ['boolean']))
+                    new MessageSet(null, new Message('Value must be a number, %s passed', ['boolean']))
                 ),
             ],
             'invalidates null' => [
                 null,
                 Result::invalid(
                     null,
-                    new MessageSet(null, new Message('Value must be int or float, %s passed', ['NULL']))
+                    new MessageSet(null, new Message('Value must be a number, %s passed', ['NULL']))
                 ),
             ],
             'invalidates array' => [
                 [1, 2, 3],
                 Result::invalid([1, 2, 3],
-                    new MessageSet(null, new Message('Value must be int or float, %s passed', ['array']))),
+                    new MessageSet(null, new Message('Value must be a number, %s passed', ['array']))),
             ],
             'invalidates object' => [
                 $class,
                 Result::invalid(
                     $class,
-                    new MessageSet(null, new Message('Value must be int or float, %s passed', ['object']))
+                    new MessageSet(null, new Message('Value must be a number, %s passed', ['object']))
                 ),
             ],
         ];

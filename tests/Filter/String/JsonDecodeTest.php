@@ -21,7 +21,7 @@ class JsonDecodeTest extends TestCase
     public function dataSetsToFilter(): array
     {
         return [
-            'value passed is not a string' => [
+            'value is not a string' => [
                 5,
                 Result::invalid(
                     5,
@@ -31,7 +31,7 @@ class JsonDecodeTest extends TestCase
                     )
                 ),
             ],
-            'value passed causes syntax error' => [
+            'value causes syntax error' => [
                 '"id": 1, "name": "Spike", "type": "dog"}',
                 Result::invalid(
                     null,
@@ -41,9 +41,17 @@ class JsonDecodeTest extends TestCase
                     )
                 ),
             ],
-            'value passed is correct json format' => [
+            'value is correct json format of an object' => [
                 '{"id": 1, "name": "Spike", "type": "dog"}',
                 Result::valid(['id' => '1', 'name' => 'Spike', 'type' => 'dog']),
+            ],
+            'value is correct json format of a string' => [
+                '"string"',
+                Result::valid('string'),
+            ],
+            'value is correct json format of an array' => [
+                '[ 1, 2, 3]',
+                Result::valid([1, 2, 3]),
             ],
         ];
     }

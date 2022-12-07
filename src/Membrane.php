@@ -7,8 +7,11 @@ namespace Membrane;
 use Membrane\Attribute\Builder as AttributeBuilder;
 use Membrane\Builder\Builder as BuilderInterface;
 use Membrane\Builder\Specification;
+use Membrane\OpenAPI\Builder\RequestBuilder;
+use Membrane\OpenAPI\Builder\ResponseBuilder;
 use Membrane\Result\FieldName;
 use Membrane\Result\Result;
+use RuntimeException;
 
 final class Membrane
 {
@@ -18,6 +21,8 @@ final class Membrane
     public function __construct()
     {
         $this->builders[] = new AttributeBuilder();
+        $this->builders[] = new RequestBuilder();
+        $this->builders[] = new ResponseBuilder();
     }
 
     public function process(mixed $data, Specification ...$against): Result
@@ -47,6 +52,6 @@ final class Membrane
         }
 
         //@TODO throw a proper exception here
-        throw new \RuntimeException('Unable to create processor for specification');
+        throw new RuntimeException('Unable to create processor for specification');
     }
 }

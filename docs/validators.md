@@ -50,8 +50,6 @@ The above example will output the following
 Result was valid
 ```
 
-## Collection
-
 ### Contained
 
 Checks that a collection contains the given value.
@@ -222,6 +220,40 @@ The above example will output the following
 Result was valid
 ```
 
+## FieldSet
+
+### RequiredFields
+
+Checks if array contains keys corresponding to all required fields.
+
+```php
+new RequiredFields(...$fields)
+```
+
+| Parameter  | Type   |
+|------------|--------|
+| ...$fields | string |
+
+**Example 1**
+
+```php
+<?php
+$requiredFields = new RequiredFields('a', 'c');
+$array = ['a' => 1, 'b' => 2, 'c' => 3]
+
+$result = $requiredFields->validate($array);
+
+echo $result->value;
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+
+The above example will output the following
+
+```text
+['a' => 1, 'b' => 2, 'c' => 3]
+Result was valid
+```
+
 ## Numeric
 
 ### Maximum
@@ -316,74 +348,6 @@ The above example will output the following
 
 ```text
 25
-Result was valid
-```
-
-## FieldSet
-
-### RequiredFields
-
-Checks if array contains keys corresponding to all required fields.
-
-```php
-new RequiredFields(...$fields)
-```
-
-| Parameter  | Type   |
-|------------|--------|
-| ...$fields | string |
-
-**Example 1**
-
-```php
-<?php
-$requiredFields = new RequiredFields('a', 'c');
-$array = ['a' => 1, 'b' => 2, 'c' => 3]
-
-$result = $requiredFields->validate($array);
-
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
-```
-
-The above example will output the following
-
-```text
-['a' => 1, 'b' => 2, 'c' => 3]
-Result was valid
-```
-
-## Numeric
-
-### Range
-
-Checks if an integer/float is between a specified minimum and maximum.
-
-```php
-new Range($min, $max)
-```
-
-| Parameter | Type               | Default Value | Notes                              |
-|-----------|--------------------|---------------|------------------------------------|
-| $min      | int, float or null | null          | If set to null, minimum is ignored |
-| $max      | int, float or null | null          | If set to null, maximum is ignored |
-
-**Example 1**
-
-```php
-<?php
-$range = new Range(-100, 99.99);
-
-$result = $range->validate(50);
-
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
-```
-
-The above example will output the following
-
-```text
-50
 Result was valid
 ```
 
@@ -692,6 +656,40 @@ The above example will output the following
 
 ```text
 NULL
+Result was valid
+```
+
+### IsNumber
+
+Checks if input is numeric.
+
+```php
+new IsNumber()
+```
+
+```php
+<?php
+$isNumber = new IsNumber();
+$values = [1, 2.0, '3']
+
+foreach($values as $value) {
+    $result = $isNumber->validate($value);
+    
+    echo $result->value;
+    echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+}
+
+
+```
+
+The above example will output the following
+
+```text
+1
+Result was valid
+2.0
+Result was valid
+"3"
 Result was valid
 ```
 
