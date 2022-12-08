@@ -10,7 +10,7 @@ class Result
     public const NO_RESULT = 0;
     public const INVALID = -1;
 
-    /** @var array|MessageSet[] */
+    /** @var MessageSet[] */
     public readonly array $messageSets;
 
     public function __construct(
