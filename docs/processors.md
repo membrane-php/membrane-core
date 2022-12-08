@@ -1,7 +1,8 @@
 # Processors
 
-When Membrane processes your data, behind the scenes it will build a Processor object tailored to validating data
-against your Specification(s).
+For most use-cases you will not need to interact with Processors directly,
+Membrane will build a Processor object for you behind the scenes
+tailored to validating data against your Specification(s).
 
 Each Processor is unique, designed with a specific purpose in mind.  
 That said, all Processors have two methods in common:
@@ -98,9 +99,9 @@ act.**
 new AfterSet(...$chain)
 ```
 
-| Parameter  | Type                |
-|------------|---------------------|
-| ...$chain  | Filter or Validator |
+| Parameter | Type                |
+|-----------|---------------------|
+| ...$chain | Filter or Validator |
 
 An AfterSet takes a chain of [Filters](filters.md) or [Validators](validators.md) that act on the entire List/Array,
 they do not validate individual items within it.
@@ -115,9 +116,9 @@ act.**
 new BeforeSet(...$chain)
 ```
 
-| Parameter  | Type                |
-|------------|---------------------|
-| ...$chain  | Filter or Validator |
+| Parameter | Type                |
+|-----------|---------------------|
+| ...$chain | Filter or Validator |
 
 A BeforeSet takes a chain of [Filters](filters.md) or [Validators](validators.md) that act on the entire List/Array,
 they do not validate individual items within it.

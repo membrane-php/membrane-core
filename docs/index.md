@@ -1,18 +1,11 @@
 # Getting Started
 
-Membrane requirements:
-
-```
-"php": ^8.1.0,
-"cebe/php-openapi": ^1.7.0
-```
-
 ## Installation
 
-To start; require Membrane in [Composer](https://getcomposer.org/)
+To start; require the `membrane/membrane` package in [Composer](https://getcomposer.org/):
 
 ```text
-composer require membrane-php/membrane-core
+composer require membrane/membrane
 ```
 
 ## The Basics
