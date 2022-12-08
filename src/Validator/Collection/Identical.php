@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Membrane\Validator\Collection;
 
 use Membrane\Result\Message;
