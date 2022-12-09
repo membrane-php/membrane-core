@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Membrane\Validator\FieldSet;
 
 use Membrane\Result\Message;
