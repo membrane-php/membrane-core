@@ -1,8 +1,7 @@
 # Filters
 
-Filters ensure that input is the correct format and may attempt
-to change the input to match the correct format.  
-If you do not wish to change the input: See [Validators](validators.md)
+Filters attempt to change data to the correct format.  
+If you do not want to change incoming data; See [Validators](validators.md)
 
 All Filters implement the Membrane\Filter interface:
 
@@ -13,9 +12,10 @@ interface Filter
 }
 ```
 
-Results returning from Filters will always be either noResult or invalid if it
-is unable to process the data provided. You should not rely on this behaviour,
-common best practice is to use validators to ensure the data passed can be filtered.
+[Results](result.md) returned from Filters will always be [Result::NO_RESULT or Result::INVALID](result.md#result).  
+Filters cannot validate data, they can only invalidate data.
+
+Best practice is to use Filters in combination with Validators to ensure data is returned in the correct format.
 
 ## Create Object
 
@@ -258,9 +258,9 @@ Deletes as many values as necessary from the end of a list to avoid exceeding th
 new Truncate($maxLength)
 ```
 
-| Parameter | Type | Notes                          |
-|------------|-----|--------------------------------|
-| $maxLength | int | Only accepts positive integers |
+| Parameter  | Type | Notes                          |
+|------------|------|--------------------------------|
+| $maxLength | int  | Only accepts positive integers |
 
 **Example**
 

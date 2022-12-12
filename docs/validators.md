@@ -1,8 +1,7 @@
 # Validators
 
-Validators check that input is in the correct format, it will not attempt to change the
-input.  
-If you wish to change the input: See [Filters](filters.md).
+Validators check data is in the correct format, Validators will never change data.  
+If you expect that you'll need to change incoming data; See [Filters](filters.md).
 
 All Validators implement the Membrane\Validator interface:
 
@@ -13,7 +12,7 @@ interface Validator
 }
 ```
 
-Results returning from Validators will always be valid or invalid.
+[Results](result.md) returned from Validators will always be [Result::VALID or Result::INVALID](result.md#result).
 
 ## Collection
 

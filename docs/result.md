@@ -23,11 +23,11 @@ This will return true as long as the data does not fail validation.
 
 If you find yourself needing to access the result property you will notice it has three states:
 
-* `Result::valid` means that the external data has been passed validation.
-* `Result::noResult` means that the external data has neither passed nor failed validation.  
+* `Result::VALID` means that the external data has been passed validation.
+* `Result::NO_RESULT` means that the external data has neither passed nor failed validation.  
   isValid() will still return true for noResult.  
   A common reason may be that it has only passed through Filters and no Validators have been used.
-* `Result::invalid` means that the external data has failed validation.
+* `Result::INVALID` means that the external data has failed validation.
 
 ## Message Set
 
