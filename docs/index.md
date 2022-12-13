@@ -1,26 +1,19 @@
 # Getting Started
 
-Membrane requirements:
-
-```
-"php": ^8.1.0,
-"cebe/php-openapi": ^1.7.0
-```
-
 ## Installation
 
-To start; require Membrane in [Composer](https://getcomposer.org/)
+To start; require the `membrane/membrane` package in [Composer](https://getcomposer.org/):
 
 ```text
-composer require membrane-php/membrane-core
+composer require membrane/membrane
 ```
 
 ## The Basics
 
 ### What Goes In
 
-Membrane needs a Specification to validate against.   
-These are the supported types of Specification:
+Membrane takes a Specification to validate against.   
+The Specifications currently supported are as follows:
 
 * [Class With Attributes](builder-attributes.md#specification)
 * [OpenAPI Request](builder-request.md#specification)
@@ -45,12 +38,11 @@ To check if the data is valid your Result has the following method:
 isValid(): bool
 ```
 
-If your data is valid, that's great, your application can now make use of the data with confidence.
+If your data is valid, that's great, your application can now use the data with confidence.
 
 What if your data is invalid?  
-Your Result object will create a new [MessageSet](result.md#message-set) for each validation failure, The MessageSet(s)
-will contain information
-aiming to clarify the reason the data is considered invalid.
+Your Result object will contain a [MessageSet](result.md#message-set) for each validation failure,
+The MessageSet(s) will contain information to clarify the reason the data is considered invalid.
 
 To get a nested list of messages in an HTML format you can use the following code snippet:
 
