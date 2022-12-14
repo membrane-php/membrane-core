@@ -13,7 +13,7 @@ use Membrane\Validator\Collection\Count;
 use Membrane\Validator\FieldSet\RequiredFields;
 
 
-#[SetFilterOrValidator(new RequiredFields('title', 'body', 'tags'), Placement::BEFORE)]
+#[SetFilterOrValidator(new RequiredFields('title', 'body'), Placement::BEFORE)]
 class BlogPostMaxTags
 {
     public function __construct(

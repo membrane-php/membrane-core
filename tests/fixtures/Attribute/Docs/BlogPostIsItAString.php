@@ -11,7 +11,7 @@ use Membrane\Attribute\Subtype;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Type\IsString;
 
-#[SetFilterOrValidator(new RequiredFields('title', 'body', 'tags'), Placement::BEFORE)]
+#[SetFilterOrValidator(new RequiredFields('title', 'body'), Placement::BEFORE)]
 class BlogPostIsItAString
 {
     public function __construct(

@@ -25,6 +25,7 @@ use Membrane\Fixtures\Attribute\ClassWithNoSubTypeHint;
 use Membrane\Fixtures\Attribute\ClassWithNoTypeHint;
 use Membrane\Fixtures\Attribute\ClassWithPromotedPropertyAfterSet;
 use Membrane\Fixtures\Attribute\ClassWithStringPropertyBeforeSet;
+use Membrane\Fixtures\Attribute\Docs\BlogPost;
 use Membrane\Fixtures\Attribute\Docs\BlogPostFromNamedArguments;
 use Membrane\Fixtures\Attribute\Docs\BlogPostIsItAString;
 use Membrane\Fixtures\Attribute\Docs\BlogPostMakeItAString;
@@ -361,88 +362,67 @@ class BuilderTest extends TestCase
     public function dataSetsWithDocExamples(): array
     {
         return [
+            'Blog Post: A' => [
+                new ClassWithAttributes(BlogPost::class),
+                ['title' => 'My Post', 'body' => 'My content'],
+                Result::noResult(['title' => 'My Post', 'body' => 'My content']),
+            ],
+            'Blog Post: B' => [
+                new ClassWithAttributes(BlogPost::class),
+                [],
+                Result::noResult([]),
+            ],
             'Blog Post: Required Fields A' => [
                 new ClassWithAttributes(BlogPostRequiredFields::class),
-                ['title' => 'My Post', 'body' => 'My content'],
-                Result::valid(['title' => 'My Post', 'body' => 'My content']),
+                ['title' => false, 'body' => null],
+                Result::valid(['title' => false, 'body' => null]),
             ],
             'Blog Post: Required Fields B' => [
                 new ClassWithAttributes(BlogPostRequiredFields::class),
-                ['title' => 123, 'body' => ''],
-                Result::valid(['title' => 123, 'body' => '']),
-            ],
-            'Blog Post: Required Fields C' => [
-                new ClassWithAttributes(BlogPostRequiredFields::class),
-                ['title' => 'My Post'],
+                [],
                 Result::invalid(
-                    ['title' => 'My Post'],
-                    new MessageSet(new FieldName('', '', ''), new Message('%s is a required field', ['body']))
+                    [],
+                    new MessageSet(
+                        new FieldName('', '', ''),
+                        new Message('%s is a required field', ['title']),
+                        new Message('%s is a required field', ['body'])
+                    )
                 ),
             ],
             'Blog Post: Is It A String? A' => [
                 new ClassWithAttributes(BlogPostIsItAString::class),
-                [
-                    'title' => 'My Post',
-                    'body' => 'My content',
-                    'tags' => ['tag1', 'tag2'],
-                ],
-                Result::valid(
-                    [
-                        'title' => 'My Post',
-                        'body' => 'My content',
-                        'tags' => ['tag1', 'tag2'],
-                    ]
-                ),
+                ['title' => 'My Post', 'body' => 'My content'],
+                Result::valid(['title' => 'My Post', 'body' => 'My content']),
             ],
             'Blog Post: Is It A String? B' => [
                 new ClassWithAttributes(BlogPostIsItAString::class),
-                [
-                    'title' => 123,
-                    'body' => 'My content',
-                    'tags' => ['tag1', 'tag2'],
-                ],
+                ['title' => false, 'body' => null],
                 Result::invalid(
-                    [
-                        'title' => 123,
-                        'body' => 'My content',
-                        'tags' => ['tag1', 'tag2'],
-                    ],
+                    ['title' => false, 'body' => null],
                     new MessageSet(
                         new FieldName('title', '', ''), new Message(
                             'IsString validator expects string value, %s passed instead',
-                            ['integer']
+                            ['boolean']
+                        )
+                    ),
+                    new MessageSet(
+                        new FieldName('body', '', ''), new Message(
+                            'IsString validator expects string value, %s passed instead',
+                            ['NULL']
                         )
                     )
                 ),
             ],
             'Blog Post: Make It A String A' => [
                 new ClassWithAttributes(BlogPostMakeItAString::class),
-                [
-                    'title' => 123,
-                    'body' => 'My content',
-                    'tags' => ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6', 'tag7'],
-                ],
-                Result::valid(
-                    [
-                        'title' => '123',
-                        'body' => 'My content',
-                        'tags' => ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6', 'tag7'],
-                    ]
-                ),
+                ['title' => false, 'body' => null],
+                Result::valid(['title' => '', 'body' => '']),
             ],
             'Blog Post: Make It A String B' => [
                 new ClassWithAttributes(BlogPostMakeItAString::class),
-                [
-                    'title' => [1, 2, 3],
-                    'body' => 'My content',
-                    'tags' => ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6', 'tag7'],
-                ],
+                ['title' => ['a', 'b'], 'body' => 'My content'],
                 Result::invalid(
-                    [
-                        'title' => [1, 2, 3],
-                        'body' => 'My content',
-                        'tags' => ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6', 'tag7'],
-                    ],
+                    ['title' => ['a', 'b'], 'body' => 'My content'],
                     new MessageSet(
                         new FieldName('title', '', ''), new Message(
                             'ToString filter only accepts objects, null or scalar values, %s given',
@@ -453,32 +433,14 @@ class BuilderTest extends TestCase
             ],
             'Blog Post: Maximum Number Of Tags A' => [
                 new ClassWithAttributes(BlogPostMaxTags::class),
-                [
-                    'title' => '',
-                    'body' => 'My content',
-                    'tags' => ['tag1', 'tag2', 'tag3', 'tag4'],
-                ],
-                Result::valid(
-                    [
-                        'title' => '',
-                        'body' => 'My content',
-                        'tags' => ['tag1', 'tag2', 'tag3', 'tag4'],
-                    ]
-                ),
+                ['title' => '', 'body' => '', 'tags' => ['a', 'b', 'c']],
+                Result::valid(['title' => '', 'body' => '', 'tags' => ['a', 'b', 'c']]),
             ],
             'Blog Post: Maximum Number Of Tags B' => [
                 new ClassWithAttributes(BlogPostMaxTags::class),
-                [
-                    'title' => 'TITLE WRITTEN ENTIRELY IN UPPER CASE AND UNNECESSARILY LONG',
-                    'body' => 'My content',
-                    'tags' => ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6', 'tag7'],
-                ],
+                ['title' => '', 'body' => '', 'tags' => ['a', 'b', 'c', 'd', 'e', 'f']],
                 Result::invalid(
-                    [
-                        'title' => 'TITLE WRITTEN ENTIRELY IN UPPER CASE AND UNNECESSARILY LONG',
-                        'body' => 'My content',
-                        'tags' => ['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6', 'tag7'],
-                    ],
+                    ['title' => '', 'body' => '', 'tags' => ['a', 'b', 'c', 'd', 'e', 'f']],
                     new MessageSet(
                         new FieldName('', '', '', 'tags'), new Message(
                             'Array is expected have a maximum of %d values',
@@ -489,31 +451,21 @@ class BuilderTest extends TestCase
             ],
             'Blog Post: Regex And Max Length A' => [
                 new ClassWithAttributes(BlogPostRegexAndMaxLength::class),
-                [
-                    'title' => 'Title With Proper Capitalization',
-                    'body' => 'My content',
-                    'tags' => ['tag1', 'tag2', 'tag3', 'tag4'],
-                ],
-                Result::valid(
-                    [
-                        'title' => 'Title With Proper Capitalization',
-                        'body' => 'My content',
-                        'tags' => ['tag1', 'tag2', 'tag3', 'tag4'],
-                    ]
-                ),
+                ['title' => 'My Title', 'body' => '', 'tags' => ['a', 'b', 'c']],
+                Result::valid(['title' => 'My Title', 'body' => '', 'tags' => ['a', 'b', 'c']]),
             ],
             'Blog Post: Regex And Max Length B' => [
                 new ClassWithAttributes(BlogPostRegexAndMaxLength::class),
                 [
-                    'title' => 'TITLE WRITTEN ENTIRELY IN UPPER CASE AND UNNECESSARILY LONG',
-                    'body' => 'My content',
-                    'tags' => ['tag1', 'tag2', 'tag3', 'tag4'],
+                    'title' => 'mY tItLe tHat iS uNnEcEsSaRiLlY lOnG wItH InCoRrEcT cApItIlIzAtIoN',
+                    'body' => '',
+                    'tags' => ['a', 'b', 'c'],
                 ],
                 Result::invalid(
                     [
-                        'title' => 'TITLE WRITTEN ENTIRELY IN UPPER CASE AND UNNECESSARILY LONG',
-                        'body' => 'My content',
-                        'tags' => ['tag1', 'tag2', 'tag3', 'tag4'],
+                        'title' => 'mY tItLe tHat iS uNnEcEsSaRiLlY lOnG wItH InCoRrEcT cApItIlIzAtIoN',
+                        'body' => '',
+                        'tags' => ['a', 'b', 'c'],
                     ],
                     new MessageSet(
                         new FieldName('title', '', ''), new Message(
@@ -525,31 +477,21 @@ class BuilderTest extends TestCase
             ],
             'Blog Post: All Of A' => [
                 new ClassWithAttributes(BlogPostWithAllOf::class),
-                [
-                    'title' => 'Title With Proper Capitalization',
-                    'body' => 'My content',
-                    'tags' => ['tag1', 'tag2', 'tag3', 'tag4'],
-                ],
-                Result::valid(
-                    [
-                        'title' => 'Title With Proper Capitalization',
-                        'body' => 'My content',
-                        'tags' => ['tag1', 'tag2', 'tag3', 'tag4'],
-                    ]
-                ),
+                ['title' => 'My Title', 'body' => '', 'tags' => ['a', 'b', 'c']],
+                Result::valid(['title' => 'My Title', 'body' => '', 'tags' => ['a', 'b', 'c']]),
             ],
             'Blog Post: All Of B' => [
                 new ClassWithAttributes(BlogPostWithAllOf::class),
                 [
-                    'title' => 'TITLE WRITTEN ENTIRELY IN UPPER CASE AND UNNECESSARILY LONG',
-                    'body' => 'My content',
-                    'tags' => ['tag1', 'tag2', 'tag3', 'tag4'],
+                    'title' => 'mY tItLe tHat iS uNnEcEsSaRiLlY lOnG wItH InCoRrEcT cApItIlIzAtIoN',
+                    'body' => '',
+                    'tags' => ['a', 'b', 'c'],
                 ],
                 Result::invalid(
                     [
-                        'title' => 'TITLE WRITTEN ENTIRELY IN UPPER CASE AND UNNECESSARILY LONG',
-                        'body' => 'My content',
-                        'tags' => ['tag1', 'tag2', 'tag3', 'tag4'],
+                        'title' => 'mY tItLe tHat iS uNnEcEsSaRiLlY lOnG wItH InCoRrEcT cApItIlIzAtIoN',
+                        'body' => '',
+                        'tags' => ['a', 'b', 'c'],
                     ],
                     new MessageSet(
                         new FieldName('title', '', ''),
@@ -567,13 +509,13 @@ class BuilderTest extends TestCase
             'Blog Post: Build Your Blog Post From Named Arguments' => [
                 new ClassWithAttributes(BlogPostFromNamedArguments::class),
                 [
-                    'title' => 'Title With Proper Capitalization',
+                    'title' => 'My Title',
                     'body' => 'My content',
                     'tags' => ['tag1', 'tag2', 'tag3', 'tag4'],
                 ],
                 Result::valid(
                     new BlogPostFromNamedArguments(
-                        'Title With Proper Capitalization',
+                        'My Title',
                         'My content',
                         ['tag1', 'tag2', 'tag3', 'tag4'],
                     )
