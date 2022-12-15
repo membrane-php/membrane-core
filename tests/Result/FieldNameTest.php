@@ -96,10 +96,10 @@ class FieldNameTest extends TestCase
     public function dataSetsForStringRepresentation(): array
     {
         return [
-            [[''], ''],
-            [['test field'], 'test field'],
-            [['', ''], '->'],
-            [['test field', 'this', 'is', 'a'], 'this->is->a->test field'],
+            'empty string ignored' => [[''], ''],
+            'non-empty string included' => [['a'], 'a'],
+            'multiple non-empty strings separated correctly' => [['d', 'a', 'b', 'c'], 'a->b->c->d'],
+            'empty strings between non-empty strings ignored' => [['', 'a', '', 'b', ''], 'a->b'],
         ];
     }
 

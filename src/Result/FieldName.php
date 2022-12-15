@@ -40,6 +40,7 @@ class FieldName
 
     public function getStringRepresentation(): string
     {
-        return implode('->', [...$this->stack, $this->fieldname]);
+        $nonEmptyFieldNames = array_filter([...$this->stack, $this->fieldname], fn($fieldName) => $fieldName !== '');
+        return implode('->', $nonEmptyFieldNames);
     }
 }
