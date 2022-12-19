@@ -36,7 +36,7 @@ class APISpecTest extends TestCase
     {
         self::expectExceptionObject(new Exception('File could not be found'));
 
-        new class('nonExistentFilePath', '/testpath') extends APISpec {
+        new class('', '/testpath') extends APISpec {
         };
     }
 
@@ -45,19 +45,19 @@ class APISpecTest extends TestCase
     {
         self::expectExceptionObject(new Exception('Invalid file type'));
 
-        new class(self::DIR . 'invalidFileType.txt', '/testpath') extends APISpec {
+        new class(__FILE__, '/testpath') extends APISpec {
         };
     }
 
     public function dataSetsForInvalidFormats(): array
     {
         return [
-            'json file that is not OpenAPI format' => [
-                'notOpenAPI.json',
+            'empty json file' => [
+                'empty.json',
                 'json file is not following OpenAPI specifications',
             ],
-            'yml/yaml file that is not OpenAPI format' => [
-                'notOpenAPI.yml',
+            'empty yml file' => [
+                'empty.yml',
                 'yml file is not following OpenAPI specifications',
             ],
         ];
