@@ -34,16 +34,16 @@ class APISpecTest extends TestCase
     /** @test */
     public function throwExceptionForNonExistentFilePaths(): void
     {
-        self::expectExceptionObject(new Exception('File could not be found'));
+        self::expectExceptionObject(new Exception(sprintf('File could not be found at %s', 'nowhere/nothing')));
 
-        new class('', '/testpath') extends APISpec {
+        new class('nowhere/nothing', '/testpath') extends APISpec {
         };
     }
 
     /** @test */
     public function throwExceptionForInvalidFileTypes(): void
     {
-        self::expectExceptionObject(new Exception('Invalid file type'));
+        self::expectExceptionObject(new Exception('Invalid file type, APISpec can only be created from json or yaml'));
 
         new class(__FILE__, '/testpath') extends APISpec {
         };
@@ -54,11 +54,11 @@ class APISpecTest extends TestCase
         return [
             'empty json file' => [
                 'empty.json',
-                'json file is not following OpenAPI specifications',
+                'json',
             ],
             'empty yml file' => [
                 'empty.yml',
-                'yml file is not following OpenAPI specifications',
+                'yml',
             ],
         ];
     }
@@ -67,10 +67,11 @@ class APISpecTest extends TestCase
      * @test
      * @dataProvider dataSetsForInvalidFormats
      */
-    public function throwsExceptionForInvalidFormats(string $filePath, string $exceptionMessage): void
+    public function throwsExceptionForInvalidFormats(string $filePath, string $fileType): void
     {
-        self::expectException(Exception::class);
-        self::expectExceptionMessage($exceptionMessage);
+        self::expectExceptionObject(
+            new Exception(sprintf('%s file is not following OpenAPI specifications', $fileType))
+        );
 
         new class(self::DIR . $filePath, '/path') extends APISpec {
         };
@@ -79,8 +80,7 @@ class APISpecTest extends TestCase
     /** @test */
     public function throwsExceptionForInvalidOpenAPI(): void
     {
-        self::expectException(Exception::class);
-        self::expectExceptionMessage('OpenAPI could not be validated');
+        self::expectExceptionObject(new Exception('OpenAPI could not be validated'));
 
         new class(self::DIR . 'invalidOpenAPI.json', '/path') extends APISpec {
         };
@@ -89,7 +89,7 @@ class APISpecTest extends TestCase
     /** @test */
     public function throwsExceptionIfNoPathMatches(): void
     {
-        self::expectExceptionObject(new Exception('url does not match any paths defined by API'));
+        self::expectExceptionObject(new Exception('API has no paths matching incorrect/path'));
 
         new class(self::DIR . 'noReferences.json', 'incorrect/path') extends APISpec {
         };

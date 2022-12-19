@@ -43,8 +43,7 @@ class RequestTest extends TestCase
      */
     public function getOperationThrowsExceptionForIncorrectMethod(string $filePath, string $url, Method $method): void
     {
-        self::expectException(Exception::class);
-        self::expectExceptionMessage('Method does not match any methods defined by path');
+        self::expectExceptionObject(new Exception(sprintf('%s method not specified on path', $method->value)));
 
         new Request(self::DIR . $filePath, $url, $method);
     }

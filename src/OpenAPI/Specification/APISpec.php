@@ -28,7 +28,7 @@ abstract class APISpec implements Specification
 
     public function __construct(string $filePath, string $url)
     {
-        $openAPI = $this->loadOpenAPIFile($filePath);
+        $openAPI = $this->readAPIFile($filePath);
         $openAPI->validate() ?: throw new Exception('OpenAPI could not be validated');
 
         $serverUrl = $this->matchServer($openAPI, $url);
@@ -41,14 +41,14 @@ abstract class APISpec implements Specification
             }
         }
 
-            $this->matchingPath ?? throw new Exception('url does not match any paths defined by API');
+            $this->matchingPath ?? throw new Exception(sprintf('API has no paths matching %s', $url));
     }
 
     protected function getOperation(Method $method): Operation
     {
         return $this->pathItem->getOperations()[$method->value]
             ??
-            throw new Exception('Method does not match any methods defined by path');
+            throw new Exception(sprintf('%s method not specified on path', $method->value));
     }
 
     /** @param MediaType[] $content */
@@ -67,10 +67,10 @@ abstract class APISpec implements Specification
     }
 
 
-    private function loadOpenAPIFile(string $filePath): OpenApi
+    private function readAPIFile(string $filePath): OpenApi
     {
         if (!file_exists($filePath)) {
-            throw new Exception('File could not be found');
+            throw new Exception(sprintf('File could not be found at %s', $filePath));
         }
 
         $fileExtension = pathinfo(strtolower($filePath), PATHINFO_EXTENSION);
@@ -86,7 +86,7 @@ abstract class APISpec implements Specification
             throw new Exception(sprintf('%s file is not following OpenAPI specifications', $fileExtension));
         }
 
-        throw new Exception('Invalid file type');
+        throw new Exception('Invalid file type, APISpec can only be created from json or yaml');
     }
 
     private function matchServer(OpenApi $openAPI, string $url): string
