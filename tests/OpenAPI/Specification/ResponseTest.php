@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Exception;
+use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
 use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Specification\Response;
 use PHPUnit\Framework\TestCase;
@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \Membrane\OpenAPI\Specification\Response
  * @covers \Membrane\OpenAPI\Specification\APISpec
+ * @covers \Membrane\OpenAPI\Exception\CannotReadOpenAPI
  * @uses   \Membrane\OpenAPI\PathMatcher
  */
 class ResponseTest extends TestCase
@@ -24,10 +25,10 @@ class ResponseTest extends TestCase
      */
     public function throwsExceptionIfApplicableResponseNotFound(): void
     {
-        self::expectException(Exception::class);
-        self::expectExceptionMessage('No applicable response found');
+        $httpStatus = '404';
+        self::expectExceptionObject(CannotReadOpenAPI::responseNotFound($httpStatus));
 
-        new Response(self::DIR . 'noReferences.json', 'http://test.com/path', Method::GET, '404');
+        new Response(self::DIR . 'noReferences.json', 'http://test.com/path', Method::GET, $httpStatus);
     }
 
     /**
@@ -35,8 +36,7 @@ class ResponseTest extends TestCase
      */
     public function throwsExceptionIfResponseContentNotJson(): void
     {
-        self::expectException(Exception::class);
-        self::expectExceptionMessage('APISpec requires application/json content');
+        self::expectExceptionObject(CannotReadOpenAPI::unsupportedContent());
 
         new Response(self::DIR . 'noReferences.json', 'http://test.com/path', Method::PUT, '200');
     }

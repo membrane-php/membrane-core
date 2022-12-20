@@ -11,8 +11,11 @@ class CannotReadOpenAPI extends \RuntimeException
     public const FILE_NOT_FOUND = 0;
     public const FILE_EXTENSION_NOT_SUPPORTED = 1;
     public const FORMAT_NOT_SUPPORTED = 2;
-    public const REFERENCES_NOT_RESOLVED = 3;
-    public const PATH_NOT_FOUND = 4;
+    public const CONTENT_NOT_SUPPORTED = 3;
+    public const REFERENCES_NOT_RESOLVED = 4;
+    public const PATH_NOT_FOUND = 5;
+    public const OPERATION_NOT_FOUND = 6;
+    public const RESPONSE_NOT_FOUND = 7;
 
     public static function fileNotFound(string $path): self
     {
@@ -32,6 +35,12 @@ class CannotReadOpenAPI extends \RuntimeException
         return new self($message, self::FORMAT_NOT_SUPPORTED);
     }
 
+    public static function unsupportedContent(): self
+    {
+        $message = sprintf('APISpec expects application/json content');
+        return new self($message, self::CONTENT_NOT_SUPPORTED);
+    }
+
     public static function unresolvedReference(string $fileName, UnresolvableReferenceException $e): self
     {
         $message = sprintf('Failed to resolve references in %s', $fileName);
@@ -42,5 +51,17 @@ class CannotReadOpenAPI extends \RuntimeException
     {
         $message = sprintf('%s does not match any specified paths in %s', $url, $fileName);
         return new self($message, self::PATH_NOT_FOUND);
+    }
+
+    public static function operationNotFound(string $method): self
+    {
+        $message = sprintf('%s operation not specified on path', $method);
+        return new self($message, self::OPERATION_NOT_FOUND);
+    }
+
+    public static function responseNotFound(string $httpStatus): self
+    {
+        $message = sprintf('No applicable response for %s http status code', $httpStatus);
+        return new self($message, self::RESPONSE_NOT_FOUND);
     }
 }

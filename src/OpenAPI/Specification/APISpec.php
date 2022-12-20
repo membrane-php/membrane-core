@@ -12,7 +12,6 @@ use cebe\openapi\spec\OpenApi;
 use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Schema;
-use Exception;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
 use Membrane\OpenAPI\Exception\InvalidOpenAPI;
@@ -52,7 +51,7 @@ abstract class APISpec implements Specification
     {
         return $this->pathItem->getOperations()[$method->value]
             ??
-            throw new Exception(sprintf('%s method not specified on path', $method->value));
+            throw CannotReadOpenAPI::operationNotFound($method->value);
     }
 
     /** @param MediaType[] $content */
@@ -62,9 +61,7 @@ abstract class APISpec implements Specification
             return null;
         }
 
-        $schema = $content['application/json']?->schema
-            ??
-            throw new Exception('APISpec requires application/json content');
+        $schema = $content['application/json']?->schema ?? throw CannotReadOpenAPI::unsupportedContent();
 
         assert($schema instanceof Schema);
         return $schema;
