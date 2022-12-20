@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Processor;
 
-use Exception;
+use Membrane\Exception\InvalidProcessorArguments;
 use Membrane\Processor;
 use Membrane\Result\FieldName;
 use Membrane\Result\Result;
@@ -19,7 +19,7 @@ class AllOf implements Processor
     public function __construct(private readonly string $processes, Processor ...$processors)
     {
         if (count($processors) < 2) {
-            throw new Exception('AllOf Processor expects at least 2 processors');
+            throw InvalidProcessorArguments::redundantProcessor(AllOf::class);
         }
         $this->processors = $processors;
     }

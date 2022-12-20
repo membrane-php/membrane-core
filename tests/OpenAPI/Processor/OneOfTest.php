@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace OpenAPI\Processor;
 
-use Exception;
+use Membrane\Exception\InvalidProcessorArguments;
 use Membrane\OpenAPI\Processor\OneOf;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Field;
@@ -24,6 +24,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\OpenAPI\Processor\OneOf
+ * @covers \Membrane\Exception\InvalidProcessorArguments
  * @uses   \Membrane\Processor\BeforeSet
  * @uses   \Membrane\Processor\Field
  * @uses   \Membrane\Processor\FieldSet
@@ -44,8 +45,7 @@ class OneOfTest extends TestCase
     /** @test */
     public function throwsExceptionIfLessThanTwoProcessors(): void
     {
-        self::expectException(Exception::class);
-        self::expectExceptionMessage('AllOf Processor expects at least 2 processors');
+        self::expectExceptionObject(InvalidProcessorArguments::redundantProcessor(OneOf::class));
 
         new OneOf('');
     }
