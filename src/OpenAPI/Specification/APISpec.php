@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Specification;
 
+use cebe\openapi\exceptions\TypeErrorException;
 use cebe\openapi\exceptions\UnresolvableReferenceException;
 use cebe\openapi\Reader;
 use cebe\openapi\spec\MediaType;
@@ -13,9 +14,12 @@ use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Schema;
 use Exception;
 use Membrane\Builder\Specification;
+use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
+use Membrane\OpenAPI\Exception\InvalidOpenAPI;
 use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\PathMatcher;
-use Throwable;
+use Symfony\Component\Yaml\Exception\ParseException;
+use TypeError;
 
 use function str_starts_with;
 
@@ -29,7 +33,7 @@ abstract class APISpec implements Specification
     public function __construct(string $filePath, string $url)
     {
         $openAPI = $this->readAPIFile($filePath);
-        $openAPI->validate() ?: throw new Exception('OpenAPI could not be validated');
+        $openAPI->validate() ?: throw InvalidOpenAPI::invalidOpenAPI(pathinfo($filePath, PATHINFO_BASENAME));
 
         $serverUrl = $this->matchServer($openAPI, $url);
         foreach ($openAPI->paths->getPaths() as $path => $pathItem) {
@@ -41,7 +45,7 @@ abstract class APISpec implements Specification
             }
         }
 
-            $this->matchingPath ?? throw new Exception(sprintf('API has no paths matching %s', $url));
+            $this->matchingPath ?? throw CannotReadOpenAPI::pathNotFound(pathinfo($filePath, PATHINFO_BASENAME), $url);
     }
 
     protected function getOperation(Method $method): Operation
@@ -70,7 +74,7 @@ abstract class APISpec implements Specification
     private function readAPIFile(string $filePath): OpenApi
     {
         if (!file_exists($filePath)) {
-            throw new Exception(sprintf('File could not be found at %s', $filePath));
+            throw CannotReadOpenAPI::fileNotFound($filePath);
         }
 
         $fileExtension = pathinfo(strtolower($filePath), PATHINFO_EXTENSION);
@@ -80,13 +84,16 @@ abstract class APISpec implements Specification
             } elseif ($fileExtension === 'yml' || $fileExtension === 'yaml') {
                 return Reader::readFromYamlFile($filePath);
             }
-        } catch (UnresolvableReferenceException) {
-            throw new Exception('absolute file path required to resolve references in OpenAPI specifications');
-        } catch (Throwable) {
-            throw new Exception(sprintf('%s file is not following OpenAPI specifications', $fileExtension));
+            /** @phpstan-ignore-next-line Missing annotation on underlying library */
+        } catch (TypeError | ParseException) {
+            throw CannotReadOpenAPI::unsupportedFormat(pathinfo($filePath, PATHINFO_BASENAME));
+        } catch (UnresolvableReferenceException $e) {
+            throw CannotReadOpenAPI::unresolvedReference(pathinfo($filePath, PATHINFO_BASENAME), $e);
+        } catch (TypeErrorException $e) {
+            throw InvalidOpenAPI::invalidSpecData($e);
         }
 
-        throw new Exception('Invalid file type, APISpec can only be created from json or yaml');
+        throw CannotReadOpenAPI::unsupportedFileType(pathinfo($filePath, PATHINFO_EXTENSION));
     }
 
     private function matchServer(OpenApi $openAPI, string $url): string
