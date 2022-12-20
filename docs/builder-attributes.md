@@ -334,7 +334,7 @@ class BlogPost
     public function __construct(
         #[FilterOrValidator(new ToString())]
         #[FilterOrValidator(new Length(5, 50))]
-        #[FilterOrValidator(new Regex('#^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$#'))]
+        #[FilterOrValidator(new Regex('^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$'))]
         public string $title,
         #[FilterOrValidator(new ToString())]
         public string $body,
@@ -403,7 +403,7 @@ class BlogPost
 {
     public function __construct(
         #[FilterOrValidator(new ToString())]
-        #[FilterOrValidator(new AllOf(new Length(5,50), new Regex('#^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$#')))]
+        #[FilterOrValidator(new AllOf(new Length(5,50), new Regex('^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$')))]
         public string $title,
         #[FilterOrValidator(new ToString())]
         public string $body,
@@ -457,7 +457,7 @@ foreach ($examples as $example) {
 ['title' => 'My Title', 'body' => '', 'tags' => ['a', 'b', 'c']] is valid
 ['title' => 'mY tItLe tHat iS uNnEcEsSaRiLlY lOnG wItH InCoRrEcT cApItIlIzAtIoN', 'body' => '', 'tags' => ['a', 'b', 'c']] is invalid
 String is expected to be a maximum of 50 characters
-String does not match the required pattern ^([A-Z][a-z]*\s){1,10}$
+String does not match the required pattern #^([A-Z][a-z]*\s){1,10}$#u
 ```
 
 Brilliant, now if a user makes an error with their title,
@@ -474,7 +474,7 @@ class BlogPost
 {
     public function __construct(
         #[FilterOrValidator(new ToString())]
-        #[FilterOrValidator(new AllOf(new Length(5,50), new Regex('#^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$#')))]
+        #[FilterOrValidator(new AllOf(new Length(5,50), new Regex('^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$')))]
         public string $title,
         #[FilterOrValidator(new ToString())]
         public string $body,

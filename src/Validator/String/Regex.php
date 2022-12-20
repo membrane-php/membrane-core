@@ -11,8 +11,11 @@ use Membrane\Validator;
 
 class Regex implements Validator
 {
-    public function __construct(private readonly string $pattern)
+    private readonly string $pattern;
+
+    public function __construct(string $pattern)
     {
+        $this->pattern = sprintf('#%s#u', str_replace('#', '\#', $pattern));
     }
 
     public function validate(mixed $value): Result

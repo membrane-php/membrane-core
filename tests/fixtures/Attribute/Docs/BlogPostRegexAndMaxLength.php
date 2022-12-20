@@ -21,7 +21,7 @@ class BlogPostRegexAndMaxLength
     public function __construct(
         #[FilterOrValidator(new ToString())]
         #[FilterOrValidator(new Length(5, 50))]
-        #[FilterOrValidator(new Regex('#^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$#'))]
+        #[FilterOrValidator(new Regex('^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$'))]
         public string $title,
         #[FilterOrValidator(new ToString())]
         public string $body,

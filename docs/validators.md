@@ -433,7 +433,7 @@ new Regex($pattern)
 
 ```php
 <?php
-$regex = new Regex('/\d{3}/');
+$regex = new Regex('\d{3}');
 $string = '123';
 
 $result = $regex->validate($string);

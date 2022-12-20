@@ -501,7 +501,7 @@ class BuilderTest extends TestCase
                         ),
                         new Message(
                             'String does not match the required pattern %s',
-                            ['#^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$#']
+                            ['#^([A-Z][a-z]*\s){0,9}([A-Z][a-z]*)$#u']
                         )
                     ),
                 ),

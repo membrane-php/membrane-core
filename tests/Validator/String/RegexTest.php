@@ -36,7 +36,9 @@ class RegexTest extends TestCase
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $regex = new Regex('');
-        $expected = Result::invalid($input, new MessageSet(
+        $expected = Result::invalid(
+            $input,
+            new MessageSet(
                 null,
                 new Message('Regex Validator requires a string, %s given', [$expectedVars])
             )
@@ -50,9 +52,18 @@ class RegexTest extends TestCase
     public function dataSetsThatPass(): array
     {
         return [
-            ['//', ''],
-            ['/[abc]/i', 'B'],
-            ['/\d{3}/', '123'],
+            'empty regex' => ['', ''],
+            'one digit' => ['\d', '1'],
+            'one lower-case letter' => ['[a-z]', 'f'],
+            'one letter' => ['[a-zA-Z]', 'F'],
+            '? quantifier, none provided' => ['^\d?$', ''],
+            '? quantifier, one provided' => ['^\d?$', '1'],
+            '* quantifier, none provided' => ['^\d*$', ''],
+            '* quantifier, many provided' => ['^\d*$', '123456789'],
+            '+ quantifier, one provided' => ['^\d+$', '1'],
+            '+ quantifier, many provided' => ['^\d+$', '123456789'],
+            '{min,max} quantifier, one provided' => ['^\d{2,5}$', '12'],
+            '{min,max} quantifier, many provided' => ['^\d{2,5}$', '12345'],
         ];
     }
 
@@ -73,9 +84,9 @@ class RegexTest extends TestCase
     public function dataSetsThatFail(): array
     {
         return [
-            ['/abc/', 'ABC'],
-            ['/[abc]/', 'd'],
-            ['/d{3}/', '12'],
+            ['abc', 'ABC'],
+            ['[abc]', 'd'],
+            ['\d{3}', '12'],
         ];
     }
 
@@ -86,7 +97,8 @@ class RegexTest extends TestCase
     public function stringsThatDoNotMatchPatternReturnInvalid(string $pattern, string $input): void
     {
         $regex = new Regex($pattern);
-        $expectedMessage = new Message('String does not match the required pattern %s', [$pattern]);
+        $expectedPattern = sprintf('#%s#u', str_replace('#', '\#', $pattern));
+        $expectedMessage = new Message('String does not match the required pattern %s', [$expectedPattern]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
 
         $result = $regex->validate($input);
