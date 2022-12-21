@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Exception;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 
 class Numeric extends APISchema
 {
@@ -19,7 +19,7 @@ class Numeric extends APISchema
     public function __construct(string $fieldName, Schema $schema, public readonly bool $strict = true)
     {
         if (!in_array($schema->type, ['number', 'integer'], true)) {
-            throw new Exception('Numeric Specification requires specified type of integer or number');
+            throw CannotProcessOpenAPI::mismatchedType(self::class, 'integer or number', $schema->type);
         }
 
         $this->type = $schema->type;

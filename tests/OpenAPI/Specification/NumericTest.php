@@ -5,24 +5,35 @@ declare(strict_types=1);
 namespace OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Exception;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Specification\Numeric;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\OpenAPI\Specification\Numeric
  * @covers \Membrane\OpenAPI\Specification\APISchema
+ * @covers \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
  */
 class NumericTest extends TestCase
 {
     /** @test */
-    public function throwsExceptionForInvalidType(): void
+    public function throwsExceptionForMissingType(): void
     {
         self::expectExceptionObject(
-            new Exception('Numeric Specification requires specified type of integer or number')
+            CannotProcessOpenAPI::mismatchedType(Numeric::class, 'integer or number', 'no type')
         );
 
         new Numeric('', new Schema([]));
+    }
+
+    /** @test */
+    public function throwsExceptionForInvalidType(): void
+    {
+        self::expectExceptionObject(
+            CannotProcessOpenAPI::mismatchedType(Numeric::class, 'integer or number', 'string')
+        );
+
+        new Numeric('', new Schema(['type' => 'string']));
     }
 
     public function dataSetsToConstruct(): array

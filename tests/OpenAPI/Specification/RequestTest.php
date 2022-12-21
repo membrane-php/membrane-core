@@ -8,7 +8,7 @@ use cebe\openapi\spec\Parameter;
 use cebe\openapi\spec\Schema;
 use Exception;
 use GuzzleHttp\Psr7\ServerRequest;
-use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessRequest;
 use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Specification\Request;
 use PHPUnit\Framework\TestCase;
@@ -16,7 +16,8 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \Membrane\OpenAPI\Specification\Request
  * @covers \Membrane\OpenAPI\Specification\APISpec
- * @covers \Membrane\OpenAPI\Exception\CannotReadOpenAPI
+ * @covers \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
+ * @covers \Membrane\OpenAPI\Exception\CannotProcessRequest
  * @uses   \Membrane\OpenAPI\PathMatcher
  */
 class RequestTest extends TestCase
@@ -45,7 +46,7 @@ class RequestTest extends TestCase
      */
     public function getOperationThrowsExceptionForIncorrectMethod(string $filePath, string $url, Method $method): void
     {
-        self::expectExceptionObject(CannotReadOpenAPI::operationNotFound($method->value));
+        self::expectExceptionObject(CannotProcessRequest::operationNotFound($method->value));
 
         new Request(self::DIR . $filePath, $url, $method);
     }
@@ -55,7 +56,7 @@ class RequestTest extends TestCase
      */
     public function throwsExceptionIfRequestBodyFoundButContentNotJson(): void
     {
-        self::expectExceptionObject(CannotReadOpenAPI::unsupportedContent());
+        self::expectExceptionObject(CannotProcessRequest::unsupportedContent());
 
         new Request(self::DIR . 'noReferences.json', 'http://test.com/path', Method::PUT);
     }

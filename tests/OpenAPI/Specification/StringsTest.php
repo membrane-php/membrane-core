@@ -5,24 +5,31 @@ declare(strict_types=1);
 namespace OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Exception;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Specification\Strings;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\OpenAPI\Specification\Strings
  * @covers \Membrane\OpenAPI\Specification\APISchema
+ * @covers \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
  */
 class StringsTest extends TestCase
 {
     /** @test */
-    public function throwsExceptionForInvalidType(): void
+    public function throwsExceptionForMissingType(): void
     {
-        self::expectExceptionObject(
-            new Exception('Strings Specification requires specified type of string')
-        );
+        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Strings::class, 'string', 'no type'));
 
         new Strings('', new Schema([]));
+    }
+
+    /** @test */
+    public function throwsExceptionForIncorrectType(): void
+    {
+        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Strings::class, 'string', 'integer'));
+
+        new Strings('', new Schema(['type' => 'integer']));
     }
 
     public function dataSetsToConstruct(): array

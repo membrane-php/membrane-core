@@ -6,16 +6,17 @@ namespace Membrane\OpenAPI\Exception;
 
 use cebe\openapi\exceptions\UnresolvableReferenceException;
 
+/*
+ * This exception occurs if Membrane fails to read your Open API spec
+ */
+
 class CannotReadOpenAPI extends \RuntimeException
 {
     public const FILE_NOT_FOUND = 0;
     public const FILE_EXTENSION_NOT_SUPPORTED = 1;
     public const FORMAT_NOT_SUPPORTED = 2;
-    public const CONTENT_NOT_SUPPORTED = 3;
-    public const REFERENCES_NOT_RESOLVED = 4;
-    public const PATH_NOT_FOUND = 5;
-    public const OPERATION_NOT_FOUND = 6;
-    public const RESPONSE_NOT_FOUND = 7;
+    public const REFERENCES_NOT_RESOLVED = 3;
+    public const INVALID_OPEN_API = 4;
 
     public static function fileNotFound(string $path): self
     {
@@ -23,45 +24,27 @@ class CannotReadOpenAPI extends \RuntimeException
         return new self($message, self::FILE_NOT_FOUND);
     }
 
-    public static function unsupportedFileType(string $fileExtension): self
+    public static function fileTypeNotSupported(string $fileExtension): self
     {
         $message = sprintf('APISpec expects json or yaml, %s provided', $fileExtension);
         return new self($message, self::FILE_EXTENSION_NOT_SUPPORTED);
     }
 
-    public static function unsupportedFormat(string $fileName): self
+    public static function cannotParse(string $fileName, \Throwable $e): self
     {
         $message = sprintf('%s is not following an OpenAPI format', $fileName);
-        return new self($message, self::FORMAT_NOT_SUPPORTED);
+        return new self($message, self::FORMAT_NOT_SUPPORTED, $e);
     }
 
-    public static function unsupportedContent(): self
+    public static function invalidOpenAPI(string $fileName): self
     {
-        $message = sprintf('APISpec expects application/json content');
-        return new self($message, self::CONTENT_NOT_SUPPORTED);
+        $message = sprintf('%s is not valid OpenAPI', $fileName);
+        return new self($message, self::INVALID_OPEN_API);
     }
 
     public static function unresolvedReference(string $fileName, UnresolvableReferenceException $e): self
     {
         $message = sprintf('Failed to resolve references in %s', $fileName);
         return new self($message, self::REFERENCES_NOT_RESOLVED, $e);
-    }
-
-    public static function pathNotFound(string $fileName, string $url): self
-    {
-        $message = sprintf('%s does not match any specified paths in %s', $url, $fileName);
-        return new self($message, self::PATH_NOT_FOUND);
-    }
-
-    public static function operationNotFound(string $method): self
-    {
-        $message = sprintf('%s operation not specified on path', $method);
-        return new self($message, self::OPERATION_NOT_FOUND);
-    }
-
-    public static function responseNotFound(string $httpStatus): self
-    {
-        $message = sprintf('No applicable response for %s http status code', $httpStatus);
-        return new self($message, self::RESPONSE_NOT_FOUND);
     }
 }

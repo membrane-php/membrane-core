@@ -8,16 +8,18 @@ use cebe\openapi\exceptions\UnresolvableReferenceException;
 use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Response;
+use Membrane\OpenAPI\Exception\CannotProcessRequest;
 use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
-use Membrane\OpenAPI\Exception\InvalidOpenAPI;
 use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Specification\APISpec;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Yaml\Exception\ParseException;
 
 /**
  * @covers \Membrane\OpenAPI\Specification\APISpec
  * @covers \Membrane\OpenAPI\Exception\CannotReadOpenAPI
- * @covers \Membrane\OpenAPI\Exception\InvalidOpenAPI
+ * @covers \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
+ * @covers \Membrane\OpenAPI\Exception\CannotProcessRequest
  * @uses   \Membrane\OpenAPI\PathMatcher
  */
 class APISpecTest extends TestCase
@@ -38,7 +40,7 @@ class APISpecTest extends TestCase
     {
         $fileName = 'petstore.yaml';
         $relativeFilePath = './tests/fixtures/OpenAPI/docs/' . $fileName;
-        $previous = self::createStub(UnresolvableReferenceException::class);
+        $previous = new UnresolvableReferenceException();
         self::expectExceptionObject(CannotReadOpenAPI::unresolvedReference($fileName, $previous));
 
         new class($relativeFilePath, '/path') extends APISpec {
@@ -49,7 +51,7 @@ class APISpecTest extends TestCase
     public function throwExceptionForInvalidFileType(): void
     {
         $filePath = __FILE__;
-        self::expectExceptionObject(CannotReadOpenAPI::unsupportedFileType(pathinfo($filePath, PATHINFO_EXTENSION)));
+        self::expectExceptionObject(CannotReadOpenAPI::fileTypeNotSupported(pathinfo($filePath, PATHINFO_EXTENSION)));
 
         new class($filePath, '/testpath') extends APISpec {
         };
@@ -58,10 +60,22 @@ class APISpecTest extends TestCase
     public function dataSetsNotFollowingOpenAPIFormat(): array
     {
         return [
-            'empty json' => ['empty.json'],
-            'empty yml' => ['empty.yml'],
-            'invalid json' => ['invalid.json'],
-            'invalid yaml' => ['invalid.yaml'],
+            'empty json' => [
+                'empty.json',
+                new \TypeError(),
+            ],
+            'empty yml' => [
+                'empty.yml',
+                new \TypeError(),
+            ],
+            'invalid json' => [
+                'invalid.json',
+                new \TypeError(),
+            ],
+            'invalid yaml' => [
+                'invalid.yaml',
+                new ParseException(''),
+            ],
         ];
     }
 
@@ -69,10 +83,10 @@ class APISpecTest extends TestCase
      * @test
      * @dataProvider dataSetsNotFollowingOpenAPIFormat
      */
-    public function throwExceptionForNotFollowingOpenAPIFormat(string $fileName): void
+    public function throwExceptionForNotFollowingOpenAPIFormat(string $fileName, \Throwable $e): void
     {
         $filePath = self::DIR . $fileName;
-        self::expectExceptionObject(CannotReadOpenAPI::unsupportedFormat($fileName));
+        self::expectExceptionObject(CannotReadOpenAPI::cannotParse($fileName, $e));
 
         new class($filePath, '/path') extends APISpec {
         };
@@ -96,7 +110,7 @@ class APISpecTest extends TestCase
      */
     public function throwsExceptionForInvalidOpenAPI(string $fileName): void
     {
-        self::expectExceptionObject(InvalidOpenAPI::invalidOpenAPI($fileName));
+        self::expectExceptionObject(CannotReadOpenAPI::invalidOpenAPI($fileName));
 
         new class(self::DIR . $fileName, '/path') extends APISpec {
         };
@@ -107,7 +121,7 @@ class APISpecTest extends TestCase
     {
         $fileName = 'noReferences.json';
         $url = 'incorrect/path';
-        self::expectExceptionObject(CannotReadOpenAPI::pathNotFound($fileName, $url));
+        self::expectExceptionObject(CannotProcessRequest::pathNotFound($fileName, $url));
 
         new class(self::DIR . $fileName, $url) extends APISpec {
         };
