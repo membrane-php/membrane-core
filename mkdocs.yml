@@ -9,5 +9,6 @@ nav:
   - Processors: processors.md
   - Filters: filters.md
   - Validators: validators.md
+  - Exceptions: exceptions.md
 
 theme: readthedocs

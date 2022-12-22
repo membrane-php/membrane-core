@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Exception;
 
+use RuntimeException;
+
 /*
  * This exception occurs if your Open API is valid and readable but your data still cannot be processed.
  * This may occur for one of the following reasons:
@@ -11,7 +13,7 @@ namespace Membrane\OpenAPI\Exception;
  * 2: Your OpenAPI spec does not contain the data you're trying to process.
  */
 
-class CannotProcessOpenAPI extends \RuntimeException
+class CannotProcessOpenAPI extends RuntimeException
 {
     public const INVALID_PATH_IN_OPEN_API = 0;
     public const RESPONSE_NOT_FOUND = 1;

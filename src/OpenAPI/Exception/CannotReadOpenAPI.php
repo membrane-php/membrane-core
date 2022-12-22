@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Exception;
 
 use cebe\openapi\exceptions\UnresolvableReferenceException;
+use RuntimeException;
 
 /*
- * This exception occurs if Membrane fails to read your Open API spec
+ * This exception occurs when the file specified cannot be read as an OpenAPI document.
+ * This may be due to one of the following reasons:
+ * 1: The file cannot be found on the path provided
+ * 2: The file is not following the OpenAPI specification
  */
 
-class CannotReadOpenAPI extends \RuntimeException
+class CannotReadOpenAPI extends RuntimeException
 {
     public const FILE_NOT_FOUND = 0;
     public const FILE_EXTENSION_NOT_SUPPORTED = 1;

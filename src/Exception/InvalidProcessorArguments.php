@@ -6,6 +6,15 @@ namespace Membrane\Exception;
 
 use RuntimeException;
 
+/*
+ * This exception occurs if invalid arguments have been passed to a processor.
+ * This error will never occur through the Membrane class or through a Builder.
+ * This will only occur by developer error when attempting to use a processor manually.
+ * This may be due to one of the following reasons:
+ * 1: Too many of one type of processor have been passed
+ * 2: The processor being used serves no purpose
+ */
+
 class InvalidProcessorArguments extends RuntimeException
 {
     public const TOO_MANY_PROCESSORS = 0;

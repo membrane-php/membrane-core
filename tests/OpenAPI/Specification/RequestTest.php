@@ -46,7 +46,7 @@ class RequestTest extends TestCase
      */
     public function getOperationThrowsExceptionForIncorrectMethod(string $filePath, string $url, Method $method): void
     {
-        self::expectExceptionObject(CannotProcessRequest::operationNotFound($method->value));
+        self::expectExceptionObject(CannotProcessRequest::methodNotFound($method->value));
 
         new Request(self::DIR . $filePath, $url, $method);
     }
