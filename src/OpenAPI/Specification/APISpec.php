@@ -44,7 +44,7 @@ abstract class APISpec implements Specification
             }
         }
 
-            $this->matchingPath ?? throw CannotProcessRequest::pathNotFound(
+        $this->matchingPath ?? throw CannotProcessRequest::pathNotFound(
             pathinfo($filePath, PATHINFO_BASENAME),
             $url
         );
@@ -84,7 +84,7 @@ abstract class APISpec implements Specification
             } elseif ($fileExtension === 'yml' || $fileExtension === 'yaml') {
                 return Reader::readFromYamlFile($filePath);
             }
-        } catch (TypeError|TypeErrorException|ParseException $e) {
+        } catch (TypeError | TypeErrorException | ParseException $e) {
             throw CannotReadOpenAPI::cannotParse(pathinfo($filePath, PATHINFO_BASENAME), $e);
         } catch (UnresolvableReferenceException $e) {
             throw CannotReadOpenAPI::unresolvedReference(pathinfo($filePath, PATHINFO_BASENAME), $e);
