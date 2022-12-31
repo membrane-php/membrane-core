@@ -77,7 +77,7 @@ class StringsTest extends TestCase
                             'type' => 'string',
                             'maxLength' => 100,
                             'minLength' => 0,
-                            'pattern' => '#.+#',
+                            'pattern' => '#.+',
                             'format' => 'date',
                             'enum' => ['1970/01/01', null],
                             'nullable' => true,
@@ -93,7 +93,7 @@ class StringsTest extends TestCase
                         new Contained(['1970/01/01', null]),
                         new DateString('Y-m-d'),
                         new Length(0, 100),
-                        new Regex('#.+#')
+                        new Regex('#\#.+#u')
                     )
                 ),
             ],

@@ -346,7 +346,7 @@ class ResponseBuilderTest extends TestCase
             ],
             'string, pattern' => [
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '227'),
-                new Field('', new IsString(), new Regex('#[A-Za-z]+#')),
+                new Field('', new IsString(), new Regex('#[A-Za-z]+#u')),
             ],
             'nullable string, enum, minLength, maxLength, pattern' => [
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '229'),
@@ -358,7 +358,7 @@ class ResponseBuilderTest extends TestCase
                         new IsString(),
                         new Contained(['a', 'b', 'c']),
                         new Length(5, 10),
-                        new Regex('#[A-Za-z]+#')
+                        new Regex('#[A-Za-z]+#u')
                     )
                 ),
             ],
