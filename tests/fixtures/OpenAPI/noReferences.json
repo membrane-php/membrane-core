@@ -694,7 +694,7 @@
               "application/json": {
                 "schema": {
                   "type": "string",
-                  "pattern": "#[A-Za-z]+#"
+                  "pattern": "[A-Za-z]+"
                 }
               }
             }
@@ -707,7 +707,7 @@
                   "type": "string",
                   "minLength": 5,
                   "maxLength": 10,
-                  "pattern": "#[A-Za-z]+#",
+                  "pattern": "[A-Za-z]+",
                   "enum": [
                     "a",
                     "b",

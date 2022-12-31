@@ -43,7 +43,9 @@ class Strings extends APIBuilder
         }
 
         if ($specification->pattern !== null) {
-            $chain[] = new Regex($specification->pattern);
+            $chain[] = new Regex(
+                sprintf('#%s#u', str_replace('#', '\#', $specification->pattern))
+            );
         }
 
         if ($specification->nullable) {
