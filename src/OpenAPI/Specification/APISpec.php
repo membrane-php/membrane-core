@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Specification;
 
+use cebe\openapi\exceptions\TypeErrorException;
 use cebe\openapi\exceptions\UnresolvableReferenceException;
 use cebe\openapi\Reader;
 use cebe\openapi\spec\MediaType;
@@ -11,11 +12,13 @@ use cebe\openapi\spec\OpenApi;
 use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Schema;
-use Exception;
 use Membrane\Builder\Specification;
+use Membrane\OpenAPI\Exception\CannotProcessRequest;
+use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
 use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\PathMatcher;
-use Throwable;
+use Symfony\Component\Yaml\Exception\ParseException;
+use TypeError;
 
 use function str_starts_with;
 
@@ -28,8 +31,8 @@ abstract class APISpec implements Specification
 
     public function __construct(string $filePath, string $url)
     {
-        $openAPI = $this->loadOpenAPIFile($filePath);
-        $openAPI->validate() ?: throw new Exception('OpenAPI could not be validated');
+        $openAPI = $this->readAPIFile($filePath);
+        $openAPI->validate() ?: throw CannotReadOpenAPI::invalidOpenAPI(pathinfo($filePath, PATHINFO_BASENAME));
 
         $serverUrl = $this->matchServer($openAPI, $url);
         foreach ($openAPI->paths->getPaths() as $path => $pathItem) {
@@ -41,14 +44,17 @@ abstract class APISpec implements Specification
             }
         }
 
-            $this->matchingPath ?? throw new Exception('url does not match any paths defined by API');
+        $this->matchingPath ?? throw CannotProcessRequest::pathNotFound(
+            pathinfo($filePath, PATHINFO_BASENAME),
+            $url
+        );
     }
 
     protected function getOperation(Method $method): Operation
     {
         return $this->pathItem->getOperations()[$method->value]
             ??
-            throw new Exception('Method does not match any methods defined by path');
+            throw CannotProcessRequest::methodNotFound($method->value);
     }
 
     /** @param MediaType[] $content */
@@ -58,19 +64,17 @@ abstract class APISpec implements Specification
             return null;
         }
 
-        $schema = $content['application/json']?->schema
-            ??
-            throw new Exception('APISpec requires application/json content');
+        $schema = $content['application/json']?->schema ?? throw CannotProcessRequest::unsupportedContent();
 
         assert($schema instanceof Schema);
         return $schema;
     }
 
 
-    private function loadOpenAPIFile(string $filePath): OpenApi
+    private function readAPIFile(string $filePath): OpenApi
     {
         if (!file_exists($filePath)) {
-            throw new Exception('File could not be found');
+            throw CannotReadOpenAPI::fileNotFound($filePath);
         }
 
         $fileExtension = pathinfo(strtolower($filePath), PATHINFO_EXTENSION);
@@ -80,13 +84,13 @@ abstract class APISpec implements Specification
             } elseif ($fileExtension === 'yml' || $fileExtension === 'yaml') {
                 return Reader::readFromYamlFile($filePath);
             }
-        } catch (UnresolvableReferenceException) {
-            throw new Exception('absolute file path required to resolve references in OpenAPI specifications');
-        } catch (Throwable) {
-            throw new Exception(sprintf('%s file is not following OpenAPI specifications', $fileExtension));
+        } catch (TypeError | TypeErrorException | ParseException $e) {
+            throw CannotReadOpenAPI::cannotParse(pathinfo($filePath, PATHINFO_BASENAME), $e);
+        } catch (UnresolvableReferenceException $e) {
+            throw CannotReadOpenAPI::unresolvedReference(pathinfo($filePath, PATHINFO_BASENAME), $e);
         }
 
-        throw new Exception('Invalid file type');
+        throw CannotReadOpenAPI::fileTypeNotSupported(pathinfo($filePath, PATHINFO_EXTENSION));
     }
 
     private function matchServer(OpenApi $openAPI, string $url): string

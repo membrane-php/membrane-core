@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI;
 
-use Exception;
-use Membrane\OpenAPI\Exception\InvalidOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 
 class PathMatcher
 {
@@ -29,11 +28,11 @@ class PathMatcher
             switch ($part) {
                 case '{':
                     $inParameter = !$inParameter ? true :
-                    throw InvalidOpenAPI::invalidPath($apiPath);
+                    throw CannotProcessOpenAPI::invalidPath($apiPath);
                     continue 2;
                 case '}':
                     $inParameter = $inParameter ? false :
-                    throw InvalidOpenAPI::invalidPath($apiPath);
+                    throw CannotProcessOpenAPI::invalidPath($apiPath);
                     continue 2;
             }
 
@@ -59,7 +58,7 @@ class PathMatcher
     public function getPathParams(string $requestPath): array
     {
         if (!$this->matches($requestPath)) {
-            throw new Exception('requestPath does not match expected pattern');
+            throw CannotProcessOpenAPI::mismatchedPath($this->regex, $requestPath);
         }
 
         $requestPath = $this->removeServerFromPath($requestPath);

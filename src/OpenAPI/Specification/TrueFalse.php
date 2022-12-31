@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Exception;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 
 class TrueFalse extends APISchema
 {
     public function __construct(string $fieldName, Schema $schema, public readonly bool $strict = true)
     {
         if ($schema->type !== 'boolean') {
-            throw new Exception('TrueFalse Specification requires specified type of boolean');
+            throw CannotProcessOpenAPI::mismatchedType(self::class, 'boolean', $schema->type);
         }
 
         parent::__construct($fieldName, $schema);

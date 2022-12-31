@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace OpenAPI;
 
-use Exception;
-use Membrane\OpenAPI\Exception\InvalidOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\PathMatcher;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers   \Membrane\OpenAPI\PathMatcher
- * @covers   \Membrane\OpenAPI\Exception\InvalidOpenAPI
+ * @covers   \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
  */
 class PathMatcherTest extends TestCase
 {
@@ -29,7 +28,7 @@ class PathMatcherTest extends TestCase
      */
     public function throwsExceptionsForImbalancedBracesInAPIPaths(string $apiPath): void
     {
-        self::expectExceptionObject(InvalidOpenAPI::invalidPath($apiPath));
+        self::expectExceptionObject(CannotProcessOpenAPI::invalidPath($apiPath));
 
         new PathMatcher('', $apiPath);
     }
@@ -130,7 +129,7 @@ class PathMatcherTest extends TestCase
     {
         $sut = new PathMatcher('https://www.server.com', '/pets/{id}');
 
-        self::expectExceptionObject(new Exception('requestPath does not match expected pattern'));
+        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedPath('#^/pets/(?<id>[^/]+)$#', '/hats/23',));
 
         $sut->getPathParams('/hats/23');
     }

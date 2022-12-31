@@ -5,24 +5,31 @@ declare(strict_types=1);
 namespace OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Exception;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Specification\Arrays;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\OpenAPI\Specification\Arrays
  * @covers \Membrane\OpenAPI\Specification\APISchema
+ * @covers \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
  */
 class ArraysTest extends TestCase
 {
     /** @test */
-    public function throwsExceptionForInvalidType(): void
+    public function throwsExceptionForMissingType(): void
     {
-        self::expectExceptionObject(
-            new Exception('Arrays Specification requires specified type of array')
-        );
+        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Arrays::class, 'array', 'no type'));
 
         new Arrays('', new Schema([]));
+    }
+
+    /** @test */
+    public function throwsExceptionForInvalidType(): void
+    {
+        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Arrays::class, 'array', 'string'));
+
+        new Arrays('', new Schema(['type' => 'string']));
     }
 
     public function dataSetsToConstruct(): array

@@ -6,7 +6,7 @@ namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec\Reference;
 use cebe\openapi\spec\Schema;
-use Exception;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 
 class Arrays extends APISchema
 {
@@ -18,7 +18,7 @@ class Arrays extends APISchema
     public function __construct(string $fieldName, Schema $schema)
     {
         if ($schema->type !== 'array') {
-            throw new Exception('Arrays Specification requires specified type of array');
+            throw CannotProcessOpenAPI::mismatchedType(self::class, 'array', $schema->type);
         }
 
         assert(!$schema->items instanceof Reference);

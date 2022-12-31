@@ -12,6 +12,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\OpenAPI\Filter\PathMatcher
+ * @covers \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
+ * @uses   \Membrane\OpenAPI\PathMatcher
  * @uses   \Membrane\Result\Message
  * @uses   \Membrane\Result\MessageSet
  * @uses   \Membrane\Result\Result
@@ -28,6 +30,22 @@ class PathMatcherTest extends TestCase
         $sut = new PathMatcher(self::createStub(\Membrane\OpenAPI\PathMatcher::class));
 
         $actual = $sut->filter(false);
+
+        self::assertEquals($expected, $actual);
+    }
+
+    /** @test */
+    public function invalidResultForMismatchedPath(): void
+    {
+        $expected = Result::invalid(
+            '/hats/23',
+            new MessageSet(null, new Message('requestPath does not match expected pattern', []))
+        );
+        $apiPath = '/pets/{id}';
+        $requestPath = '/hats/23';
+        $sut = new PathMatcher(new \Membrane\OpenAPI\PathMatcher('https://www.server.com', $apiPath));
+
+        $actual = $sut->filter($requestPath);
 
         self::assertEquals($expected, $actual);
     }

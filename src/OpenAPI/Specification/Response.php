@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Exception;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Method;
 
 class Response extends APISpec
@@ -29,6 +29,6 @@ class Response extends APISpec
             ??
             $operation->responses['default']
             ??
-            throw new Exception('No applicable response found');
+            throw CannotProcessOpenAPI::responseNotFound($httpStatus);
     }
 }
