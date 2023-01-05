@@ -221,6 +221,59 @@ Result was valid
 
 ## FieldSet
 
+### FixedFields
+
+Checks that array does not contain any additional fields.
+
+```php
+new Membrane\Validator\FieldSet\FixedFields(...$fields);
+```
+
+| Parameter  | Type   |
+|------------|--------|
+| ...$fields | string |
+
+```php
+<?php
+use Membrane\Validator\FieldSet\FixedFields;
+
+$fixedFields = new FixedFields('a', 'b');
+$arrayOfFields = [
+        [],
+        ['a' => 1],
+        ['a' => 1, 'b' => 2],
+        ['c' => 3],
+        ['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5],
+    ]
+
+foreach ($arrayOfFields as $fields) {
+    $result = $fixedFields->validate($fields);
+    
+    if ($result->isValid()) {
+        echo json_encode($result->value) . ' is valid \n';
+    } else {
+        echo json_encode($result->value) . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
+```
+
+The above example will output the following
+
+```text
+{} is valid
+{"a":1} is valid
+{"a":1,"b":2} is valid
+{c":3} is invalid
+    c is not a fixed field
+{"a":1,"b":2,"c":3, "d": 4, "e": 5} is invalid
+    c is not a fixed field
+    d is not a fixed field
+    e is not a fixed field
+```
+
 ### RequiredFields
 
 Checks if array contains keys corresponding to all required fields.
