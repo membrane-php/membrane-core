@@ -8,8 +8,10 @@ use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
+use Membrane\Processor\DefaultProcessor;
 use Membrane\Processor\FieldSet;
 use Membrane\Validator\Collection\Contained;
+use Membrane\Validator\FieldSet\FixedFields;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Type\IsArray;
 
@@ -34,14 +36,24 @@ class Objects extends APIBuilder
             $beforeChain[] = new RequiredFields(...$specification->required);
         }
 
+        if ($specification->additionalProperties === false) {
+            $beforeChain[] = new FixedFields(...array_keys($specification->properties));
+        }
         // @TODO support minProperties and maxProperties
 
         $beforeSet = new BeforeSet(...$beforeChain);
 
         $fields = [];
-        foreach ($specification->properties as $key => $value) {
-            assert($value instanceof Schema);
-            $fields [] = $this->fromSchema($value, $key);
+
+        foreach ($specification->properties as $key => $schema) {
+            assert($schema instanceof Schema);
+            $fields [] = $this->fromSchema($schema, $key);
+        }
+
+        if ($specification->additionalProperties instanceof Schema) {
+            $fields [] = new DefaultProcessor(
+                $this->fromSchema($specification->additionalProperties)
+            );
         }
 
         $processor = new FieldSet($specification->fieldName, $beforeSet, ...$fields);
