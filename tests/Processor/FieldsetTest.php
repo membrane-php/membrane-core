@@ -9,6 +9,7 @@ use Membrane\Filter;
 use Membrane\Processor;
 use Membrane\Processor\AfterSet;
 use Membrane\Processor\BeforeSet;
+use Membrane\Processor\DefaultField;
 use Membrane\Processor\Field;
 use Membrane\Processor\FieldSet;
 use Membrane\Result\FieldName;
@@ -23,6 +24,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Membrane\Exception\InvalidProcessorArguments
  * @uses   \Membrane\Processor\AfterSet
  * @uses   \Membrane\Processor\BeforeSet
+ * @uses   \Membrane\Processor\DefaultField
  * @uses   \Membrane\Result\Result
  * @uses   \Membrane\Result\MessageSet
  * @uses   \Membrane\Result\Message
@@ -60,9 +62,7 @@ class FieldsetTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function onlyAcceptsOneBeforeSet(): void
     {
         $beforeSet = new BeforeSet();
@@ -71,9 +71,7 @@ class FieldsetTest extends TestCase
         new FieldSet('field to process', $beforeSet, $beforeSet);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function onlyAcceptsOneAfterSet(): void
     {
         $afterSet = new AfterSet();
@@ -82,9 +80,16 @@ class FieldsetTest extends TestCase
         new FieldSet('field to process', $afterSet, $afterSet);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
+    public function onlyAcceptsOneDefaultField(): void
+    {
+        $defaultField = new DefaultField();
+        self::expectExceptionObject(InvalidProcessorArguments::multipleDefaultFieldsInFieldSet());
+
+        new FieldSet('field to process', $defaultField, $defaultField);
+    }
+
+    /** @test */
     public function processesTest(): void
     {
         $fieldName = 'field to process';
@@ -95,9 +100,7 @@ class FieldsetTest extends TestCase
         self::assertEquals($fieldName, $output);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function processMethodWithNoChainReturnsNoResult(): void
     {
         $value = [];
@@ -109,9 +112,7 @@ class FieldsetTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function processMethodCallsFieldProcessesMethod(): void
     {
         $input = ['a' => 1, 'b' => 2, 'c' => 3];
@@ -123,9 +124,7 @@ class FieldsetTest extends TestCase
         $fieldset->process(new FieldName('Parent field'), $input);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function processCallsBeforeSetProcessOnceAndProcessesNever(): void
     {
         $input = ['a' => 1, 'b' => 2, 'c' => 3];
@@ -141,9 +140,7 @@ class FieldsetTest extends TestCase
         $fieldset->process(new FieldName('Parent field'), $input);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function processCallsAfterSetProcessOnceAndProcessesNever(): void
     {
         $input = ['a' => 1, 'b' => 2, 'c' => 3];
@@ -165,6 +162,13 @@ class FieldsetTest extends TestCase
             public function filter(mixed $value): Result
             {
                 return Result::noResult(++$value);
+            }
+        };
+
+        $decrementFilter = new class implements Filter {
+            public function filter(mixed $value): Result
+            {
+                return Result::noResult(--$value);
             }
         };
 
@@ -217,6 +221,12 @@ class FieldsetTest extends TestCase
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::noResult(['a' => 2, 'b' => 2, 'c' => 3]),
                 new Field('a', $incrementFilter),
+            ],
+            'DefaultField only performs processes on undefined processes field' => [
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                Result::noResult(['a' => 2, 'b' => 1, 'c' => 2]),
+                new Field('a', $incrementFilter),
+                new DefaultField($decrementFilter),
             ],
             'Field processed values persist' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],

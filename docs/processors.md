@@ -91,9 +91,8 @@ changes the datatype, those Processors will throw an Exception.
 
 ### After Set
 
-AfterSets are a specialized [Field](processors.md#field). They work on a List or Array as a whole and **will always be
-the final processor to
-act.**
+AfterSets are a specialized [Field](processors.md#field).  
+They work on a List or Array as a whole and **will always be the final processor to act.**
 
 ```php
 new AfterSet(...$chain)
@@ -108,9 +107,8 @@ they do not validate individual items within it.
 
 ### Before Set
 
-AfterSets are a specialized [Field](processors.md#field). They work on a List or Array as a whole and **will always be
-the first processor to
-act.**
+BeforeSets are a specialized [Field](processors.md#field).  
+They work on a List or Array as a whole and **will always be the first processor to act.**
 
 ```php
 new BeforeSet(...$chain)
@@ -122,6 +120,22 @@ new BeforeSet(...$chain)
 
 A BeforeSet takes a chain of [Filters](filters.md) or [Validators](validators.md) that act on the entire List/Array,
 they do not validate individual items within it.
+
+### Default Field
+
+DefaultFields are a specialized [Field](processors.md#field).  
+Any item of data that is not processed by another [Field](processors.md#field) will be processed by the DefaultField.
+
+```php
+new DefaultField(...$chain)
+```
+
+| Parameter | Type                |
+|-----------|---------------------|
+| ...$chain | Filter or Validator |
+
+A DefaultField takes a chain of [Filters](filters.md) or [Validators](validators.md) that act on individual items of
+data.
 
 ## OpenAPI Processors
 

@@ -13,10 +13,11 @@ use Membrane\Result\Result;
 
 class FieldSet implements Processor
 {
-    /** @var Processor[] */
+    /** @var Processor[][] */
     private array $chain = [];
     private Processor $before;
     private Processor $after;
+    private Processor $default;
 
     public function __construct(
         private readonly string $processes,
@@ -33,8 +34,13 @@ class FieldSet implements Processor
                     throw InvalidProcessorArguments::multipleAfterSetsInFieldSet();
                 }
                 $this->after = $item;
+            } elseif ($item instanceof DefaultField) {
+                if (isset($this->default)) {
+                    throw InvalidProcessorArguments::multipleDefaultFieldsInFieldSet();
+                }
+                $this->default = $item;
             } else {
-                $this->chain[] = $item;
+                $this->chain[$item->processes()][] = $item;
             }
         }
     }
@@ -50,9 +56,7 @@ class FieldSet implements Processor
         $fieldSetResult = Result::noResult($value);
 
         if (isset($this->before)) {
-            $result = $this->before->process($fieldName, $value);
-            $value = $result->value;
-            $fieldSetResult = $fieldSetResult->merge($result);
+            $this->handleProcessor($this->before, $fieldName, $value, $fieldSetResult);
 
             if (!$fieldSetResult->isValid()) {
                 return $fieldSetResult;
@@ -79,12 +83,13 @@ class FieldSet implements Processor
                 );
             }
 
-            foreach ($this->chain as $item) {
-                $processes = $item->processes();
-                if (array_key_exists($processes, $value)) {
-                    $result = $item->process($fieldName, $value[$processes]);
-                    $value[$processes] = $result->value;
-                    $fieldSetResult = $fieldSetResult->merge($result);
+            foreach ($value as $fieldKey => $field) {
+                if (array_key_exists($fieldKey, $this->chain)) {
+                    foreach ($this->chain[$fieldKey] as $processor) {
+                        $this->handleProcessor($processor, $fieldName, $value[$fieldKey], $fieldSetResult);
+                    }
+                } elseif (isset($this->default)) {
+                    $this->handleProcessor($this->default, $fieldName, $value[$fieldKey], $fieldSetResult);
                 }
             }
         }
@@ -92,8 +97,7 @@ class FieldSet implements Processor
         $fieldSetResult = $fieldSetResult->merge(Result::noResult($value));
 
         if (isset($this->after) && $fieldSetResult->isValid()) {
-            $result = $this->after->process($fieldName, $value);
-            $fieldSetResult = $fieldSetResult->merge($result);
+            $this->handleProcessor($this->after, $fieldName, $value, $fieldSetResult);
 
             if (!$fieldSetResult->isValid()) {
                 return $fieldSetResult;
@@ -101,5 +105,16 @@ class FieldSet implements Processor
         }
 
         return $fieldSetResult;
+    }
+
+    private function handleProcessor(
+        Processor $processor,
+        FieldName $fieldName,
+        mixed &$value,
+        Result &$fieldSetResult
+    ): void {
+        $result = $processor->process($fieldName, $value);
+        $value = $result->value;
+        $fieldSetResult = $fieldSetResult->merge($result);
     }
 }

@@ -21,11 +21,18 @@ class InvalidProcessorArguments extends RuntimeException
     public const NOT_ENOUGH_PROCESSORS = 1;
     public const TOO_MANY_BEFORESETS = 2;
     public const TOO_MANY_AFTERSETS = 3;
+    public const TOO_MANY_DEFAULTS = 4;
 
     public static function multipleProcessorsInCollection(): self
     {
         $message = 'Cannot use more than one Processor on a Collection';
         return new self($message, self::TOO_MANY_PROCESSORS);
+    }
+
+    public static function redundantProcessor(string $processorName): self
+    {
+        $message = sprintf('%s Processor expects at least two Processors', $processorName);
+        return new self($message, self::NOT_ENOUGH_PROCESSORS);
     }
 
     public static function multipleBeforeSetsInFieldSet(): self
@@ -40,9 +47,9 @@ class InvalidProcessorArguments extends RuntimeException
         return new self($message, self::TOO_MANY_AFTERSETS);
     }
 
-    public static function redundantProcessor(string $processorName): self
+    public static function multipleDefaultFieldsInFieldSet(): self
     {
-        $message = sprintf('%s Processor expects at least two Processors', $processorName);
-        return new self($message, self::NOT_ENOUGH_PROCESSORS);
+        $message = 'Cannot use more than one DefaultField on a FieldSet';
+        return new self($message, self::TOO_MANY_DEFAULTS);
     }
 }
