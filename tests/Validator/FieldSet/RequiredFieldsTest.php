@@ -33,18 +33,18 @@ class RequiredFieldsTest extends TestCase
      * @test
      * @dataProvider dataSetsWithIncorrectTypes
      */
-    public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
+    public function incorrectTypesReturnInvalidResults($input, $inputType): void
     {
-        $requiredFields = new RequiredFields();
+        $sut = new RequiredFields();
         $expected = Result::invalid(
             $input,
             new MessageSet(
                 null,
-                new Message('RequiredFields Validator requires an array, %s given', [$expectedVars])
+                new Message('RequiredFields Validator requires an array, %s given', [$inputType])
             )
         );
 
-        $result = $requiredFields->validate($input);
+        $result = $sut->validate($input);
 
         self::assertEquals($expected, $result);
     }
