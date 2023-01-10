@@ -91,9 +91,8 @@ changes the datatype, those Processors will throw an Exception.
 
 ### After Set
 
-AfterSets are a specialized [Field](processors.md#field). They work on a List or Array as a whole and **will always be
-the final processor to
-act.**
+AfterSets are a specialized [Field](processors.md#field).  
+They work on a List or Array as a whole and **will always be the final processor to act.**
 
 ```php
 new AfterSet(...$chain)
@@ -108,9 +107,8 @@ they do not validate individual items within it.
 
 ### Before Set
 
-AfterSets are a specialized [Field](processors.md#field). They work on a List or Array as a whole and **will always be
-the first processor to
-act.**
+BeforeSets are a specialized [Field](processors.md#field).  
+They work on a List or Array as a whole and **will always be the first processor to act.**
 
 ```php
 new BeforeSet(...$chain)
@@ -122,6 +120,31 @@ new BeforeSet(...$chain)
 
 A BeforeSet takes a chain of [Filters](filters.md) or [Validators](validators.md) that act on the entire List/Array,
 they do not validate individual items within it.
+
+### Default Processor
+
+DefaultFields are a specialized [Field](processors.md#field).  
+They can be passed into a FieldSet to process individual items of data
+that are not processed by another [Field](processors.md#field).
+
+```php
+new DefaultProcessor($processor)
+```
+
+| Parameter  | Type      |
+|------------|-----------|
+| $processor | Processor |
+
+A DefaultField can instead be constructed from a chain of [Filters](filters.md) or [Validators](validators.md)
+using the following method.
+
+```php
+DefaultProcessor::fromFiltersAndValidators(...$chain)
+```
+
+| Parameter | Type                |
+|-----------|---------------------|
+| ...$chain | Filter or Validator |
 
 ## OpenAPI Processors
 

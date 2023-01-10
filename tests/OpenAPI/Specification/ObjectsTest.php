@@ -38,6 +38,7 @@ class ObjectsTest extends TestCase
             'default values' => [
                 new Schema(['type' => 'object',]),
                 [
+                    'additionalProperties' => true,
                     'properties' => [],
                     'required' => null,
                     'enum' => null,
@@ -45,9 +46,21 @@ class ObjectsTest extends TestCase
                     'nullable' => false,
                 ],
             ],
-            'assigned values' => [
+            'additionalProperties assigned false' => [
+                new Schema(['type' => 'object', 'additionalProperties' => false]),
+                [
+                    'additionalProperties' => false,
+                    'properties' => [],
+                    'required' => null,
+                    'enum' => null,
+                    'format' => null,
+                    'nullable' => false,
+                ],
+            ],
+            'all relevant keywords assigned values' => [
                 new Schema([
                     'type' => 'object',
+                    'additionalProperties' => new Schema(['type' => 'string']),
                     'properties' => ['id' => new Schema(['type' => 'integer'])],
                     'required' => ['id'],
                     'enum' => [false, null],
@@ -55,6 +68,7 @@ class ObjectsTest extends TestCase
                     'nullable' => true,
                 ]),
                 [
+                    'additionalProperties' => new Schema(['type' => 'string']),
                     'properties' => ['id' => new Schema(['type' => 'integer'])],
                     'required' => ['id'],
                     'enum' => [false, null],
@@ -74,11 +88,7 @@ class ObjectsTest extends TestCase
         $sut = new Objects('', $schema);
 
         foreach ($expected as $key => $value) {
-            if ($key === 'properties') {
-                self::assertEquals($value, $sut->$key, sprintf('%s does not meet expected value', $key));
-            } else {
-                self::assertSame($value, $sut->$key, sprintf('%s does not meet expected value', $key));
-            }
+            self::assertEquals($value, $sut->$key, sprintf('%s does not meet expected value', $key));
         }
     }
 }

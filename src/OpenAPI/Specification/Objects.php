@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Specification;
 
+use cebe\openapi\spec\Reference;
 use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 
 class Objects extends APISchema
 {
     // @TODO support minProperties and maxProperties
+    public readonly bool|Schema $additionalProperties;
     /** @var Schema[] */
     public readonly array $properties;
     /** @var string[]|null */
@@ -20,6 +22,9 @@ class Objects extends APISchema
         if ($schema->type !== 'object') {
             throw CannotProcessOpenAPI::mismatchedType(self::class, 'object', $schema->type);
         }
+
+        assert(!$schema->additionalProperties instanceof Reference);
+        $this->additionalProperties = $schema->additionalProperties;
 
         $this->properties = array_filter($schema->properties ?? [], fn($p) => $p instanceof Schema);
 

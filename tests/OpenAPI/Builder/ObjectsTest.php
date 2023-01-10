@@ -10,9 +10,11 @@ use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
+use Membrane\Processor\DefaultProcessor;
 use Membrane\Processor\Field;
 use Membrane\Processor\FieldSet;
 use Membrane\Validator\Collection\Contained;
+use Membrane\Validator\FieldSet\FixedFields;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Type\IsArray;
 use Membrane\Validator\Type\IsInt;
@@ -30,9 +32,11 @@ use PHPUnit\Framework\TestCase;
  * @uses   \Membrane\OpenAPI\Specification\Numeric
  * @uses   \Membrane\OpenAPI\Specification\Strings
  * @uses   \Membrane\Processor\BeforeSet
+ * @uses   \Membrane\Processor\DefaultProcessor
  * @uses   \Membrane\Processor\Field
  * @uses   \Membrane\Processor\FieldSet
  * @uses   \Membrane\Validator\Collection\Contained
+ * @uses   \Membrane\Validator\FieldSet\FixedFields
  * @uses   \Membrane\Validator\FieldSet\RequiredFields
  */
 class ObjectsTest extends TestCase
@@ -67,6 +71,18 @@ class ObjectsTest extends TestCase
                 new Specification\Objects('', new Schema(['type' => 'object'])),
                 new FieldSet('', new BeforeSet(new IsArray())),
             ],
+            'additionalProperties set to false' => [
+                new Specification\Objects(
+                    '', new Schema([
+                        'type' => 'object',
+                        'properties' => [
+                            'a' => new Schema(['type' => 'integer']),
+                        ],
+                        'additionalProperties' => false,
+                    ])
+                ),
+                new FieldSet('', new BeforeSet(new IsArray(), new FixedFields('a')), new Field('a', new IsInt())),
+            ],
             'detailed input' => [
                 new Specification\Objects(
                     '',
@@ -81,6 +97,7 @@ class ObjectsTest extends TestCase
                             'format' => 'pet',
                             'enum' => [['id' => 5, 'name' => 'Blink'], null],
                             'nullable' => true,
+                            'additionalProperties' => new Schema(['type' => 'string']),
                         ]
                     )
                 ),
@@ -94,6 +111,7 @@ class ObjectsTest extends TestCase
                             new Contained([['id' => 5, 'name' => 'Blink'], null]),
                             new RequiredFields('id', 'name')
                         ),
+                        DefaultProcessor::fromFiltersAndValidators(new IsString()),
                         new Field('id', new IsInt()),
                         new Field('name', new IsString())
                     )
