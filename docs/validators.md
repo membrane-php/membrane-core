@@ -18,10 +18,10 @@ interface Validator
 
 ### Count
 
-Checks that an array has a number of values between a specified minimum and maximum.
+Checks the number of values in a collection is between a specified minimum and maximum.
 
 ```php
-new Count($min, $max)
+new \Membrane\Validator\Collection\Count($min, $max)
 ```
 
 | Parameter | Type | Default Value | Notes                              |
@@ -29,124 +29,184 @@ new Count($min, $max)
 | $min      | int  | 0             |                                    |
 | $max      | int  | null          | If set to null, maximum is ignored |
 
-**Example 1**
+**Example**
 
 ```php
 <?php
-$count = new Count(0, 5);
-$array = ['a' => 1, 'b' => 2, 'c' => 3];
 
-$result = $count->validate($array);
+$count = new \Membrane\Validator\Collection\Count(1, 2);
 
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+$examples = [
+    [],
+    ['a'],
+    ['a', 'b'],
+    ['a', 'b', 'c'],
+];
+
+foreach ($examples as $example) {
+    $result = $count->validate($example);
+    
+    if ($result->isValid()) {
+        echo json_encode($result->value) . ' is valid \n';
+    } else {
+        echo json_encode($result->value) . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
-The above example will output the following
+The above example will output:
 
 ```text
-['a' => 1, 'b' => 2, 'c' => 3]
-Result was valid
+[] is invalid
+    Array is expected have a minimum of 1 values
+["a"] is valid
+["a","b"] is valid
+["a","b","c"] is invalid
+    Array is expected have a maximum of 2 values
 ```
 
 ### Contained
 
-Checks that a collection contains the given value.
+Checks a collection contains the given value.
 
 ```php
-new Contained(array $enum)
+new \Membrane\Validator\Collection\Contained(array $enum)
 ```
 
-**Example 1**
+**Example**
 
 ```php
-$contained = new Contained(['a', 'b', 'c']);
+<?php
 
-$result = $contained->validate('b');
+$contained = new \Membrane\Validator\Collection\Contained(['a', 'b', 'c']);
 
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+$examples = [
+    'a',
+    'b',
+    'c',
+];
+
+foreach ($examples as $example) {
+    $result = $contained->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
-The above example will output the following
+The above example will output:
 
 ```text
-b
-Result was valid
-```
-
-**Example 2**
-
-```php
-$contained = new Contained(['a', 'b', 'c']);
-
-$result = $contained->validate('e');
-
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
-```
-
-The above example will output the following
-
-```text
-e
-Result was invalid
+a is invalid
+    Contained validator did not find value within array
+b is valid
+c is invalid
+    Contained validator did not find value within array
 ```
 
 ### Identical
 
-Checks that all values in a collection are identical.
+Checks all values in a collection are identical.
 
 ```php
-new Identical()
+new \Membrane\Validator\Collection\Identical();
 ```
 
-**Example 1**
+**Example**
 
 ```php
 <?php
-$identical = new Identical();
-$list = ['a', 'a', 'a'];
 
-$result = $identical->validate($list);
+$identical = new \Membrane\Validator\Collection\Identical();
 
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+$examples = [
+    [],
+    ['a', 'a'],
+    ['a', 'b'],
+    ['a', 'b', 'b'],
+];
+
+foreach ($examples as $example) {
+    $result = $identical->validate($example);
+    
+    if ($result->isValid()) {
+        echo json_encode($result->value) . ' is valid \n';
+    } else {
+        echo json_encode($result->value) . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-['a', 'a', 'a']
-Result was valid
+[] is valid
+["a"] is valid
+["a","a"] is valid
+["a","b"] is invalid
+    Do not match
+["a","b","b"] is invalid
+    Do not match
 ```
 
 ### Unique
 
-Checks that all values in a collection are unique.
+Checks all values in a collection are unique.
 
 ```php
-new Unique()
+new \Membrane\Validator\Collection\Unique()
 ```
 
-**Example 1**
+**Example**
 
 ```php
 <?php
-$unique = new Unique();
-$list = ['a', 'b', 'c'];
 
-$result = $unique->validate($list);
+$unique = new \Membrane\Validator\Collection\Unique();
 
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+$examples = [
+    [],
+    ['a', 'a'],
+    ['a', 'b'],
+    ['a', 'b', 'b'],
+];
+
+foreach ($examples as $example) {
+    $result = $unique->validate($example);
+    
+    if ($result->isValid()) {
+        echo json_encode($result->value) . ' is valid \n';
+    } else {
+        echo json_encode($result->value) . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-['a', 'b', 'c']
-Result was valid
+[] is valid
+["a"] is valid
+["a","a"] is invalid
+    Collection contains duplicate values
+["a","b"] is valid
+["a","b","b"] is invalid
+    'Collection contains duplicate values'
 ```
 
 ## DateTime
