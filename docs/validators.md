@@ -116,6 +116,7 @@ c is invalid
 ### Identical
 
 Checks all values in a collection are identical.
+Values that are equal but not identical are considered invalid.
 
 ```php
 new \Membrane\Validator\Collection\Identical();
@@ -130,9 +131,11 @@ $identical = new \Membrane\Validator\Collection\Identical();
 
 $examples = [
     [],
+    ['a'],
     ['a', 'a'],
     ['a', 'b'],
     ['a', 'b', 'b'],
+    ['1', 1, 1.0]
 ];
 
 foreach ($examples as $example) {
@@ -159,11 +162,14 @@ The above example will output the following
     Do not match
 ["a","b","b"] is invalid
     Do not match
+["1",1,1.0] is invalid
+    Do not match
 ```
 
 ### Unique
 
-Checks all values in a collection are unique.
+Checks all values in a collection are unique.  
+Values that are equal but not identical are considered valid.
 
 ```php
 new \Membrane\Validator\Collection\Unique()
@@ -178,9 +184,11 @@ $unique = new \Membrane\Validator\Collection\Unique();
 
 $examples = [
     [],
+    ['a'],
     ['a', 'a'],
     ['a', 'b'],
     ['a', 'b', 'b'],
+    ['1', 1, 1.0]
 ];
 
 foreach ($examples as $example) {
@@ -206,7 +214,8 @@ The above example will output the following
     Collection contains duplicate values
 ["a","b"] is valid
 ["a","b","b"] is invalid
-    'Collection contains duplicate values'
+    Collection contains duplicate values
+["1",1,1.0] is valid
 ```
 
 ## DateTime
@@ -216,7 +225,7 @@ The above example will output the following
 Checks if a DateTime object corresponds to a time between a specified minimum and maximum.
 
 ```php
-new Range($min, $max)
+new \Membrane\Validator\DateTime\Range($min, $max)
 ```
 
 | Parameter | Type     | Default Value | Notes                              |
@@ -224,26 +233,41 @@ new Range($min, $max)
 | $min      | DateTime | null          | If set to null, minimum is ignored |
 | $max      | DateTime | null          | If set to null, maximum is ignored |
 
-**Example 1**
+**Example**
 
 ```php
 <?php
-$min = DateTime::createFromFormat('Y-m-d H:i:s', '1900-12-25 09:30:00');
-$max = DateTime::createFromFormat('Y-m-d H:i:s', '2050-04-15 16:05:33');
-$range = new Range($min, $max);
-$dateTime = DateTime::createFromFormat('Y-m-d H:i:s', '1970-01-01 00:00:00');
+$min = new \DateTime('1900-12-25 09:30:00');
+$max = new \DateTime('2050-04-15 16:05:33');
+$range = new \Membrane\Validator\DateTime\Range($min, $max);
+$examples = [
+    new \DateTime('1000-5-13 05:00:00'),
+    new \DateTime('1970-01-01 00:00:00'),
+    new \DateTime('2050-04-15 16:05:34'),
+];
 
-$result = $range->validate($dateTime);
-
-echo $result->value->format('Y-m-d H:i:s');
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+foreach ($examples as $example) {
+    $result = $range->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-1970-01-01 00:00:00
-Result was valid
+1000-5-13 05:00:00 is invalid
+    DateTime is expected to be after 1900-12-25 09:30:00
+1970-01-01 00:00:00 is valid
+2050-04-15 16:05:34 is invalid
+    DateTime is expected to be before 2050-04-15 16:05:33
 ```
 
 ### RangeDelta
@@ -251,7 +275,7 @@ Result was valid
 Checks if a DateTime object corresponds to a time between a specified minimum and maximum time from now.
 
 ```php
-new RangeDelta($min, $max)
+new \Membrane\Validator\DateTime\RangeDelta($min, $max)
 ```
 
 | Parameter | Type         | Default Value | Notes                              |
@@ -259,24 +283,42 @@ new RangeDelta($min, $max)
 | $min      | DateInterval | null          | If set to null, minimum is ignored |
 | $max      | DateInterval | null          | If set to null, maximum is ignored |
 
-**Example 1**
+**Example**
+
+The minimum and maximum of RangeDelta will update constantly, thus for the purpose of demonstration:  
+in this example, the date and time is 1970-01-01 00:00:00
 
 ```php
 <?php
-$rangeDelta = new RangeDelta(new DateInterval('P100Y'), new DateInterval('P100Y'));
-$dateTime = DateTime::createFromFormat('Y-m-d H:i:s', '2121-01-01 00:00:00');
+$rangeDelta = new \Membrane\Validator\DateTime\RangeDelta(new DateInterval('P100Y2M'), new DateInterval('P1M5D'));
+$examples = [
+    new \DateTime('1000-5-13 05:00:00'),
+    new \DateTime('1970-01-01 00:00:00'),
+    new \DateTime('2050-04-15 16:05:34'),
+];
 
-$result = $rangeDelta->validate($dateTime);
-
-echo $result->value->format('Y-m-d H:i:s');
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+foreach ($examples as $example) {
+    $result = $range->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-2121-01-01 00:00:00
-Result was valid
+1000-5-13 05:00:00 is invalid
+    DateTime is expected to be after 1869-10-00 00:00:00
+1970-01-01 00:00:00 is valid
+2050-04-15 16:05:34 is invalid
+    DateTime is expected to be before 1970-02-06 00:00:00
 ```
 
 ## FieldSet
