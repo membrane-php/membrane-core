@@ -328,18 +328,18 @@ The above example will output the following
 Checks that array does not contain any additional fields.
 
 ```php
-new Membrane\Validator\FieldSet\FixedFields(...$fields);
+new \Membrane\Validator\FieldSet\FixedFields(...$fields);
 ```
 
 | Parameter  | Type   |
 |------------|--------|
 | ...$fields | string |
 
+**Example**
+
 ```php
 <?php
-use Membrane\Validator\FieldSet\FixedFields;
-
-$fixedFields = new FixedFields('a', 'b');
+$fixedFields = new \Membrane\Validator\FieldSet\FixedFields('a', 'b');
 $arrayOfFields = [
         [],
         ['a' => 1],
@@ -368,7 +368,7 @@ The above example will output the following
 {} is valid
 {"a":1} is valid
 {"a":1,"b":2} is valid
-{c":3} is invalid
+{"c":3} is invalid
     c is not a fixed field
 {"a":1,"b":2,"c":3, "d": 4, "e": 5} is invalid
     c is not a fixed field
@@ -381,31 +381,53 @@ The above example will output the following
 Checks if array contains keys corresponding to all required fields.
 
 ```php
-new RequiredFields(...$fields)
+new \Membrane\Validator\FieldSet\RequiredFields(...$fields)
 ```
 
 | Parameter  | Type   |
 |------------|--------|
 | ...$fields | string |
 
-**Example 1**
+**Example**
 
 ```php
 <?php
-$requiredFields = new RequiredFields('a', 'c');
-$array = ['a' => 1, 'b' => 2, 'c' => 3]
+$requiredFields = new \Membrane\Validator\FieldSet\RequiredFields('a', 'c');
+$arrayOfFields = [
+        [],
+        ['a' => 1],
+        ['a' => 1, 'b' => 2],
+        ['c' => 3],
+        ['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5],
+    ]
 
-$result = $requiredFields->validate($array);
-
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+foreach ($arrayOfFields as $fields) {
+    $result = $requiredFields->validate($fields);
+    
+    if ($result->isValid()) {
+        echo json_encode($result->value) . ' is valid \n';
+    } else {
+        echo json_encode($result->value) . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-['a' => 1, 'b' => 2, 'c' => 3]
-Result was valid
+{} is invalid
+    a is a required field
+    c is a required field
+{"a":1} is invalid
+    c is a required field
+{"a":1,"b":2} is invalid
+    c is a required field
+{"c":3} is invalid
+    a is a required field
+{"a":1,"b":2,"c":3, "d": 4, "e": 5} is valid
 ```
 
 ## Numeric
