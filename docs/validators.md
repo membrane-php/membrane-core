@@ -437,7 +437,7 @@ The above example will output the following
 Checks if a given value complies with specified maximum.
 
 ```php
-new Maximum($max, $exclusive)
+new \Membrane\Validator\Numeric\Maximum($max, $exclusive)
 ```
 
 | Parameter  | Type         | Default Value | Notes                                                      |
@@ -445,23 +445,77 @@ new Maximum($max, $exclusive)
 | $max       | int or float |               |                                                            |
 | $exclusive | boolean      | false         | determines whether it is an exclusive or inclusive maximum |
 
-**Example 1**
+**Example 1 (Inclusive Maximum)**
 
 ```php
 <?php
-$max = new Maximum(10);
+$inclusiveMax = new \Membrane\Validator\Numeric\Maximum(10);
+$examples = [
+    5,
+    9.9,
+    10,
+    10.01
+];
 
-$result = $max->validate(5);
-
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+foreach ($examples as $example) {
+    $result = $inclusiveMax->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-5
-Result was valid
+5 is valid
+9.9 is valid
+10 is valid
+10.01 is invalid
+    Number has an exclusive maximum of 10
+```
+
+**Example 2 (Exclusive Maximum)**
+
+```php
+<?php
+$exclusiveMax = new \Membrane\Validator\Numeric\Maximum(10, true);
+$examples = [
+    5,
+    9.9,
+    10,
+    10.01
+];
+
+foreach ($examples as $example) {
+    $result = $exclusiveMax->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
+```
+
+The above example will output the following
+
+```text
+5 is valid
+9.9 is valid
+10 is invalid
+    Number has an exclusive maximum of 10
+10.01 is invalid
+    Number has an exclusive maximum of 10
 ```
 
 ### Minimum
@@ -469,7 +523,7 @@ Result was valid
 Checks if a given value complies with specified minimum.
 
 ```php
-new Minimum($min, $exclusive)
+new \Membrane\Validator\Numeric\Minimum($min, $exclusive)
 ```
 
 | Parameter  | Type         | Default Value | Notes                                                      |
@@ -477,23 +531,79 @@ new Minimum($min, $exclusive)
 | $min       | int or float |               |                                                            |
 | $exclusive | boolean      | false         | determines whether it is an exclusive or inclusive minimum |
 
-**Example 1**
+**Example 1 (Inclusive Minimum)**
 
 ```php
 <?php
-$min = new Minimum(10);
+$inclusiveMin = new \Membrane\Validator\Numeric\Minimum(10);
+$examples = [
+    5,
+    9.9,
+    10,
+    10.01
+];
 
-$result = $min->validate(15);
-
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+foreach ($examples as $example) {
+    $result = $inclusiveMin->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-15
-Result was valid
+5 is invalid
+    Number has an inclusive minimum of 10
+9.9 is invalid
+    Number has an inclusive minimum of 10
+10 is valid
+10.01 is valid
+```
+
+**Example 2 (Exclusive Maximum)**
+
+```php
+<?php
+$exclusiveMin = new \Membrane\Validator\Numeric\Minimum(10, true);
+$examples = [
+    5,
+    9.9,
+    10,
+    10.01
+];
+
+foreach ($examples as $example) {
+    $result = $exclusiveMin->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
+```
+
+The above example will output the following
+
+```text
+5 is invalid
+    Number has an exclusive minimum of 10
+9.9 is invalid
+    Number has an exclusive minimum of 10
+10 is invalid
+    Number has an exclusive minimum of 10
+10.01 is valid
 ```
 
 ### MultipleOf
@@ -501,30 +611,47 @@ Result was valid
 Checks if an integer/float is a multiple of a given value.
 
 ```php
-new MultipleOf ($factor)
+new \Membrane\Validator\Numeric\MultipleOf($factor)
 ```
 
-| Parameter | Type         |
-|-----------|--------------|
-| $factor   | int or float |
+| Parameter | Type         | Notes                  |
+|-----------|--------------|------------------------|
+| $factor   | int or float | must be greater than 0 |
 
-**Example 1**
+**Example**
 
 ```php
 <?php
-$multipleOf = new MultipleOf(5);
+$multipleOf = new \Membrane\Validator\Numeric\MultipleOf(5);
+$examples = [
+    5,
+    10.0,
+    10,
+    10.01
+];
 
-$result = $multipleOf->validate(25);
-
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+foreach ($examples as $example) {
+    $result = $multipleOf->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-25
-Result was valid
+5 is valid
+10.0 is valid
+10 is valid
+10.01 is invalid
+    Number is expected to be a multiple of 5
 ```
 
 ## String
