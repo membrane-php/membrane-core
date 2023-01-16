@@ -31,6 +31,37 @@ use PHPUnit\Framework\TestCase;
  */
 class AfterSetTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'No chain returns empty string' => [
+                '',
+                new AfterSet(),
+            ],
+            'Single item in chain returns one bullet point' => [
+                "\n\t- will return valid.",
+                new AfterSet(new Passes()),
+            ],
+            'guaranteed noResult in chain is ignored' => [
+                '',
+                new AfterSet(new Indifferent()),
+            ],
+            'Three items in chain returns three bullet points' => [
+                "\n\t- will return valid.\n\t- will return invalid.\n\t- will return valid.",
+                new AfterSet(new Passes(), new Fails(), new Passes()),
+            ],
+        ];
+    }
+
+    /** @test * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(string $expected, AfterSet $sut): void
+    {
+        $actual = (string)$sut;
+
+        self::assertSame($expected, $actual);
+    }
+
     /** @test */
     public function processesMethodReturnsEmptyString(): void
     {

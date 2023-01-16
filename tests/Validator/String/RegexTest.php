@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class RegexTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'matches the regex: "#^[a-zA-Z]+$#"';
+        $sut = new Regex('#^[a-zA-Z]+$#');
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [
@@ -36,7 +47,9 @@ class RegexTest extends TestCase
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $regex = new Regex('');
-        $expected = Result::invalid($input, new MessageSet(
+        $expected = Result::invalid(
+            $input,
+            new MessageSet(
                 null,
                 new Message('Regex Validator requires a string, %s given', [$expectedVars])
             )

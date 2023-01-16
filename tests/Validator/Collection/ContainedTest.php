@@ -18,6 +18,41 @@ use PHPUnit\Framework\TestCase;
  */
 class ContainedTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'no values' => [
+                [],
+                'will return invalid',
+            ],
+            'single integer value' => [
+                [1],
+                'is one of the following values: 1',
+            ],
+            'single string value' => [
+                ['a'],
+                'is one of the following values: "a"',
+            ],
+            'multiple fixed values' => [
+                [1, 'a', true],
+                'is one of the following values: 1, "a", true',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(array $enum, string $expected): void
+    {
+        $sut = new Contained($enum);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsToValidate(): array
     {
         return [

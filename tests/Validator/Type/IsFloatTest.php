@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class IsFloatTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'is a float';
+        $sut = new IsFloat();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     /**
      * @test
      */

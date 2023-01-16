@@ -13,4 +13,9 @@ class ArraySumFilter implements Filter
     {
         return Result::noResult(array_reduce($value, fn($x, $y) => $x + $y));
     }
+
+    public function __toString()
+    {
+        return 'return a sum of all numbers in given value';
+    }
 }

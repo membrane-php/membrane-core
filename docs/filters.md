@@ -3,19 +3,42 @@
 Filters attempt to change data to the correct format.  
 If you do not want to change incoming data; See [Validators](validators.md)
 
-All Filters implement the Membrane\Filter interface:
+## Interface
+
+All Filters implement the `Membrane\Filter` interface:
 
 ```php
 interface Filter
 {
     public function filter(mixed $value): Result;
+    
+    public function __toString(): string;
 }
 ```
+
+## Methods
+
+### Filter
+
+```php
+public function filter(mixed $value): Result
+```
+
+`filter()` will return a [Result](result.md) object detailing if and how the given value was filtered.
 
 [Results](result.md) returned from Filters will always be [Result::NO_RESULT or Result::INVALID](result.md#result).  
 Filters cannot validate data, they can only invalidate data.
 
 Best practice is to use Filters in combination with Validators to ensure data is returned in the correct format.
+
+### __ToString
+
+```php
+__toString(): string
+```
+
+`__toString()` returns a plain english description of what the filter does, you may find this useful for debugging.
+This method can also be called implicitly by typecasting your filter as string. i.e. `(string) $filter`
 
 ## Create Object
 

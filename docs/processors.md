@@ -4,14 +4,34 @@ For most use-cases you will not need to interact with Processors directly,
 Membrane will build a Processor object for you behind the scenes
 tailored to validating data against your Specification(s).
 
-Each Processor is unique, designed with a specific purpose in mind.  
-That said, all Processors have two methods in common:
+## Interface
+
+All Processors implement the `Membrane\Processor` interface:
+
+```php
+interface Processor
+{
+    public function processes(): string;
+
+    public function process(FieldName $parentFieldName, mixed $value): Result;
+    
+    public function __toString(): string;
+}
+```
+
+## Methods
+
+All Processors contain the following methods:
+
+### Processes
 
 ```php
 processes(): string
 ```
 
 `processes()` returns the name of the field it processes
+
+### Process
 
 ```php
 process(FieldName $parentFieldName, mixed $value): Result
@@ -21,6 +41,15 @@ process(FieldName $parentFieldName, mixed $value): Result
 It also asks for the `$parentFieldName` in the case of nested Processors this will make
 your [MessageSet's](result.md#message-set) [FieldName](result.md#field-name)
 more precise.
+
+### __ToString
+
+```php
+__toString(): string
+```
+
+`__toString()` returns a plain english description of what the processor does, you may find this useful for debugging.
+This method can also be called implicitly by typecasting your processor as string. i.e. `(string) $processor`
 
 ## General-Use Processors
 

@@ -11,6 +11,11 @@ use Membrane\Validator;
 
 class IsBool implements Validator
 {
+    public function __toString(): string
+    {
+        return 'is a boolean';
+    }
+
     public function validate(mixed $value): Result
     {
         $type = gettype($value);

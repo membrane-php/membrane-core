@@ -17,6 +17,11 @@ class PathMatcher implements Filter
     {
     }
 
+    public function __toString(): string
+    {
+        return 'convert url to a field set of path parameters';
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_string($value)) {

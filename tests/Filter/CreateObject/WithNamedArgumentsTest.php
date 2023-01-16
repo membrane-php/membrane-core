@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class WithNamedArgumentsTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'construct an instance of "\a\b" from named arguments contained in self';
+        $sut = new WithNamedArguments('\a\b');
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsThatPass(): array
     {
         $classWithNamedArguments = new class (a: 'default', b: 'arguments') {

@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class RenameTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'rename "a" to "b"';
+        $sut = new Rename('a', 'b');
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     /**
      * @test
      */

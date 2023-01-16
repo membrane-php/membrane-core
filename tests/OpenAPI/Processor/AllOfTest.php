@@ -6,6 +6,7 @@ namespace OpenAPI\Processor;
 
 use Membrane\Exception\InvalidProcessorArguments;
 use Membrane\OpenAPI\Processor\AllOf;
+use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Field;
 use Membrane\Processor\FieldSet;
@@ -42,6 +43,26 @@ use PHPUnit\Framework\TestCase;
  */
 class AllOfTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = <<<END
+            All of the following:
+            \t"id":
+            \t\t- condition.
+            \t"id":
+            \t\t- condition.
+            END;
+        $processor = self::createMock(Processor::class);
+        $processor->method('__toString')
+            ->willReturn("\"id\":\n\t- condition");
+        $sut = new AllOf('id', $processor, $processor);
+
+        $actual = (string)$sut;
+
+        self::assertSame($expected, $actual);
+    }
+
     /** @test */
     public function throwsExceptionIfLessThanTwoProcessors(): void
     {

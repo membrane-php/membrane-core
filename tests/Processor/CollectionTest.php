@@ -43,6 +43,68 @@ use PHPUnit\Framework\TestCase;
  */
 class CollectionTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'No chain returns empty string' => [
+                '',
+                new Collection('a'),
+            ],
+            'Chain with no conditions returns empty string' => [
+                '',
+                new Collection('a', new Field('')),
+            ],
+            'Chain with guaranteed noResult returns empty string' => [
+                '',
+                new Collection('a', new Field('', new Indifferent())),
+            ],
+            'Chain with conditions but processes empty string returns empty string' => [
+                '',
+                new Collection('', new Field('', new Passes())),
+            ],
+            'Chain with one condition returns one bullet point' => [
+                "Each field in \"a\":\n\t- will return valid.",
+                new Collection('a', new Field('', new Passes())),
+            ],
+            'Chain with three condition returns three bullet points' => [
+                "Each field in \"a\":\n\t- will return valid.\n\t- will return valid.\n\t- will return invalid.",
+                new Collection('a', new Field('', new Passes(), new Passes(), new Fails())),
+            ],
+            'BeforeSet adds a Firstly: section' => [
+                "Firstly \"a\":\n\t- will return valid.",
+                new Collection('a', new BeforeSet(new Passes())),
+            ],
+            'AfterSet adds a Lastly: section' => [
+                "Lastly \"a\":\n\t- will return valid.",
+                new Collection('a', new AfterSet(new Passes())),
+            ],
+            'Chain with BeforeSet, Field and AfterSet' => [
+                <<<END
+                Firstly "a":
+                \t- will return invalid.
+                Each field in "a":
+                \t- will return valid.
+                Lastly "a":
+                \t- will return valid.
+                END,
+                new Collection(
+                    'a', new BeforeSet(new Fails()), new Field('', new Passes()), new AfterSet(new Passes())
+                ),
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(string $expected, Collection $sut): void
+    {
+        $actual = (string)$sut;
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectValues(): array
     {
         $notArrayMessage = 'Value passed to %s in Collection chain must be a list, %s passed instead';

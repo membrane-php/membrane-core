@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class IsListTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'is a list';
+        $sut = new IsList();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsThatPass(): array
     {
         return [

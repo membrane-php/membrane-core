@@ -31,6 +31,39 @@ use PHPUnit\Framework\TestCase;
  */
 class DefaultProcessorTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'No chain returns empty string' => [
+                '',
+                DefaultProcessor::fromFiltersAndValidators(),
+            ],
+            'Single item in chain returns one bullet point' => [
+                "\n\t- will return valid.",
+                DefaultProcessor::fromFiltersAndValidators(new Passes()),
+            ],
+            'guaranteed noResult in chain is ignored' => [
+                '',
+                DefaultProcessor::fromFiltersAndValidators(new Indifferent()),
+            ],
+            'Three items in chain returns three bullet points' => [
+                "\n\t- will return valid.\n\t- will return invalid.\n\t- will return valid.",
+                DefaultProcessor::fromFiltersAndValidators(new Passes(), new Fails(), new Passes()),
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(string $expected, DefaultProcessor $sut): void
+    {
+        $actual = (string)$sut;
+
+        self::assertSame($expected, $actual);
+    }
+
     /** @test */
     public function processesTest(): void
     {

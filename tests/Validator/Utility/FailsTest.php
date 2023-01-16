@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class FailsTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'will return invalid';
+        $sut = new Fails();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSets(): array
     {
         return [[1], [1.1], ['one'], [true], [null],];
@@ -30,9 +41,9 @@ class FailsTest extends TestCase
     public function failsAlwaysReturnsInvalid(mixed $input): void
     {
         $expected = Result::invalid($input, new MessageSet(null, new Message('I always fail', [])));
-        $fail = new Fails();
+        $sut = new Fails();
 
-        $result = $fail->validate($input);
+        $result = $sut->validate($input);
 
         self::assertEquals($expected, $result);
     }

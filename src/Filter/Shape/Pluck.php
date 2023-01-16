@@ -21,6 +21,18 @@ class Pluck implements Filter
         $this->fieldNames = $fieldNames;
     }
 
+    public function __toString(): string
+    {
+        if ($this->fieldNames === []) {
+            return '';
+        }
+
+        return sprintf(
+            'collect "' . implode('", "', $this->fieldNames) . '" from "%s" and append them to self',
+            $this->fieldSet
+        );
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_array($value)) {

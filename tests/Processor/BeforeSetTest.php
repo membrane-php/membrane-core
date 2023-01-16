@@ -31,6 +31,39 @@ use PHPUnit\Framework\TestCase;
  */
 class BeforeSetTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'No chain returns empty string' => [
+                '',
+                new BeforeSet(),
+            ],
+            'Single item in chain returns one bullet point' => [
+                "\n\t- will return valid.",
+                new BeforeSet(new Passes()),
+            ],
+            'guaranteed noResult in chain is ignored' => [
+                '',
+                new BeforeSet(new Indifferent()),
+            ],
+            'Three items in chain returns three bullet points' => [
+                "\n\t- will return valid.\n\t- will return invalid.\n\t- will return valid.",
+                new BeforeSet(new Passes(), new Fails(), new Passes()),
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(string $expected, BeforeSet $sut): void
+    {
+        $actual = (string)$sut;
+
+        self::assertSame($expected, $actual);
+    }
+
     /**  @test */
     public function processesMethodReturnsEmptyString(): void
     {

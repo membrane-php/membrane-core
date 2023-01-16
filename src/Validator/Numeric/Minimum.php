@@ -17,6 +17,11 @@ class Minimum implements Validator
     ) {
     }
 
+    public function __toString(): string
+    {
+        return 'is greater than ' . ($this->exclusive ? '' : 'or equal to ') . $this->min;
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_numeric($value)) {

@@ -14,6 +14,17 @@ use PHPUnit\Framework\TestCase;
  */
 class IndifferentTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = '';
+        $sut = new Indifferent();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSets(): array
     {
         return [[1], [1.1], ['one'], [false], [null],];
@@ -25,10 +36,10 @@ class IndifferentTest extends TestCase
      */
     public function indifferentAlwaysReturnsNoResult(mixed $input): void
     {
-        $indifferent = new Indifferent();
+        $sut = new Indifferent();
         $expected = Result::noResult($input);
 
-        $result = $indifferent->validate($input);
+        $result = $sut->validate($input);
 
         self::assertEquals($expected, $result);
     }

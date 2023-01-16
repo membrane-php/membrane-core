@@ -30,6 +30,43 @@ use Psr\Http\Message\UriInterface;
  */
 class RequestTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        $processor = self::createMock(Processor::class);
+        $processor->method('__toString')
+            ->willReturn("\"id\":\n\t- condition");
+
+        return [
+            'request with no processors' => [
+                'Parse PSR-7 request',
+                [],
+            ],
+            'request with processors inside' => [
+                <<<END
+                Parse PSR-7 request:
+                \t"id":
+                \t\t- condition.
+                \t"id":
+                \t\t- condition.
+                END,
+                [$processor, $processor],
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(string $expected, array $processors): void
+    {
+        $sut = new Request('test', $processors);
+
+        $actual = (string)$sut;
+
+        self::assertSame($expected, $actual);
+    }
+
     /** @test */
     public function processesTest(): void
     {

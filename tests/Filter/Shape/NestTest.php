@@ -18,6 +18,37 @@ use PHPUnit\Framework\TestCase;
  */
 class NestTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'no fields' => [
+                [],
+                '',
+            ],
+            'single field' => [
+                ['a'],
+                'collect "a" from self and append them to a nested field set "new field set"',
+            ],
+            'multiple fields' => [
+                ['a', 'b', 'c'],
+                'collect "a", "b", "c" from self and append them to a nested field set "new field set"',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(array $fields, string $expected): void
+    {
+        $sut = new Nest('new field set', ...$fields);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [

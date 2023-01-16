@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class DateStringTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'matches the DateTime format: "#^[a-zA-Z]+$#"';
+        $sut = new DateString('#^[a-zA-Z]+$#');
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [
@@ -36,7 +47,9 @@ class DateStringTest extends TestCase
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $dateString = new DateString('');
-        $expected = Result::invalid($input, new MessageSet(
+        $expected = Result::invalid(
+            $input,
+            new MessageSet(
                 null,
                 new Message('DateString Validator requires a string, %s given', [$expectedVars])
             )

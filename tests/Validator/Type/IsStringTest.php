@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class IsStringTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'is a string';
+        $sut = new IsString();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     /**
      * @test
      */

@@ -18,6 +18,37 @@ use PHPUnit\Framework\TestCase;
  */
 class RequiredFieldsTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'no required fields' => [
+                [],
+                'will return valid',
+            ],
+            'single required field' => [
+                ['a'],
+                'contains the following fields: "a"',
+            ],
+            'multiple required fields' => [
+                ['a', 'b', 'c'],
+                'contains the following fields: "a", "b", "c"',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(array $fields, string $expected): void
+    {
+        $sut = new RequiredFields(...$fields);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [

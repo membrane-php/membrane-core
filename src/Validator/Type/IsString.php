@@ -11,6 +11,11 @@ use Membrane\Validator;
 
 class IsString implements Validator
 {
+    public function __toString(): string
+    {
+        return 'is a string';
+    }
+
     public function validate(mixed $value): Result
     {
         $type = gettype($value);

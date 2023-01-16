@@ -12,12 +12,23 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Filter\Type\ToInt
- * @uses \Membrane\Result\Result
- * @uses \Membrane\Result\MessageSet
- * @uses \Membrane\Result\Message
+ * @uses   \Membrane\Result\Result
+ * @uses   \Membrane\Result\MessageSet
+ * @uses   \Membrane\Result\Message
  */
 class ToIntTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'convert to an integer';
+        $sut = new ToInt();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithAcceptableInputs(): array
     {
         return [

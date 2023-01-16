@@ -22,6 +22,11 @@ class DefaultProcessor implements Processor
         return new self(new Field('', ...$chain));
     }
 
+    public function __toString(): string
+    {
+        return (string)$this->processor;
+    }
+
     public function processes(): string
     {
         return $this->processor->processes();

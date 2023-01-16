@@ -19,6 +19,17 @@ use PHPUnit\Framework\TestCase;
  */
 class MultipleOfTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'is a multiple of 5';
+        $sut = new MultipleOf(5);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsThatThrowExceptions(): array
     {
         return [

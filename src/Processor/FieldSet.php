@@ -45,6 +45,49 @@ class FieldSet implements Processor
         }
     }
 
+    public function __toString(): string
+    {
+        if ($this->processes === '') {
+            return '';
+        }
+
+        $conditions = [];
+
+        if (isset($this->before)) {
+            $condition = (string)$this->before;
+            if ($condition !== '') {
+                $conditions[] = sprintf('Firstly "%s":', $this->processes) . $condition;
+            }
+        }
+
+        if ($this->chain !== []) {
+            foreach ($this->chain as $processors) {
+                foreach ($processors as $processor) {
+                    $condition = $processor->processes() === '' ? '' : (string)$processor;
+                    if ($condition !== '') {
+                        $conditions[] = sprintf('"%s"->', $this->processes) . $condition;
+                    }
+                }
+            }
+        }
+
+        if (isset($this->default)) {
+            $condition = (string)$this->default;
+            if ($condition !== '') {
+                $conditions[] = sprintf('Any other fields in "%s":', $this->processes) . $condition;
+            }
+        }
+
+        if (isset($this->after)) {
+            $condition = (string)$this->after;
+            if ($condition !== '') {
+                $conditions[] = sprintf('Lastly "%s":', $this->processes) . $condition;
+            }
+        }
+
+        return $conditions === [] ? '' : implode("\n", $conditions);
+    }
+
     public function processes(): string
     {
         return $this->processes;

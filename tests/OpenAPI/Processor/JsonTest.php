@@ -23,6 +23,25 @@ use PHPUnit\Framework\TestCase;
  */
 class JsonTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = "\"pet\":\n\t- convert from json to a PHP value.\n\t- condition";
+        $wrapped = self::createMock(Processor\Field::class);
+        $sut = new Json($wrapped);
+
+        $wrapped->expects($this->once())
+            ->method('processes')
+            ->willReturn('pet');
+
+        $wrapped->expects(($this->once()))
+            ->method('__toString')
+            ->willReturn("\"pet\":\n\t- condition");
+
+        $actual = (string)$sut;
+
+        self::assertSame($expected, $actual);
+    }
 
     /** @test */
     public function processesTest(): void

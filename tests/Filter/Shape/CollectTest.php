@@ -18,6 +18,37 @@ use PHPUnit\Framework\TestCase;
  */
 class CollectTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'no fields' => [
+                [],
+                '',
+            ],
+            'single field' => [
+                ['a'],
+                'collect "a" from self and append their values to a nested collection "new collection"',
+            ],
+            'multiple fields' => [
+                ['a', 'b', 'c'],
+                'collect "a", "b", "c" from self and append their values to a nested collection "new collection"',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(array $fields, string $expected): void
+    {
+        $sut = new Collect('new collection', ...$fields);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [

@@ -18,6 +18,45 @@ use PHPUnit\Framework\TestCase;
  */
 class LengthTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'no conditions' => [
+                0,
+                null,
+                'will return valid',
+            ],
+            'non-zero minimum provided' => [
+                1,
+                null,
+                'is 1 characters or more',
+            ],
+            'maximum provided' => [
+                0,
+                5,
+                'is 5 characters or less',
+            ],
+            'minimum and maximum provided' => [
+                2,
+                4,
+                'is 2 characters or more and is 4 characters or less',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(int $min, ?int $max, string $expected): void
+    {
+        $sut = new Length($min, $max);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [
@@ -36,7 +75,9 @@ class LengthTest extends TestCase
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $length = new Length();
-        $expected = Result::invalid($input, new MessageSet(
+        $expected = Result::invalid(
+            $input,
+            new MessageSet(
                 null,
                 new Message('Length Validator requires a string, %s given', [$expectedVars])
             )

@@ -11,6 +11,11 @@ use Membrane\Validator;
 
 class IsList implements Validator
 {
+    public function __toString(): string
+    {
+        return 'is a list';
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_array($value)) {

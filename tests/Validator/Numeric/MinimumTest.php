@@ -18,6 +18,35 @@ use PHPUnit\Framework\TestCase;
  */
 class MinimumTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'inclusive min' => [
+                5,
+                false,
+                'is greater than or equal to 5',
+            ],
+            'exclusive min' => [
+                7,
+                true,
+                'is greater than 7',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(int $min, bool $exclusive, string $expected): void
+    {
+        $sut = new Minimum($min, $exclusive);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsOfNonNumericValues(): array
     {
         return [

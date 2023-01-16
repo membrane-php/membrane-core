@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class ToBoolTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'convert to a boolean';
+        $sut = new ToBool();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithAcceptableInputs(): array
     {
         return [

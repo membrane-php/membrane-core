@@ -24,6 +24,12 @@ class OneOf implements Processor
         $this->fieldSets = $fieldSets;
     }
 
+    public function __toString(): string
+    {
+        return "One of the following:\n\t" .
+            implode(".\n\t", array_map(fn($p) => preg_replace("#\n#m", "\n\t", (string)$p), $this->fieldSets)) . '.';
+    }
+
     public function processes(): string
     {
         return $this->processes;

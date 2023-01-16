@@ -20,6 +20,23 @@ class Count implements Validator
     ) {
     }
 
+    public function __toString(): string
+    {
+        if ($this->min <= 0 && $this->max === null) {
+            return 'will return valid';
+        }
+
+        $conditions = [];
+        if ($this->min > 0) {
+            $conditions[] = sprintf('greater than %d', $this->min);
+        }
+        if ($this->max !== null) {
+            $conditions[] = sprintf('fewer than %d', $this->max);
+        }
+
+        return 'has ' . implode(' and ', $conditions) . ' values';
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_array($value)) {

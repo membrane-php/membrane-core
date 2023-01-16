@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class HTTPParametersTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'convert query string to a field set of query parameters';
+        $sut = new HTTPParameters();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsToFilter(): array
     {
         return [

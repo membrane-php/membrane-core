@@ -16,15 +16,23 @@ class Not implements Validator
     ) {
     }
 
+    public function __toString(): string
+    {
+        return sprintf('must satisfy the opposite of the following: "%s"', $this->invertedValidator->__toString());
+    }
+
     public function validate(mixed $value): Result
     {
         $result = $this->invertedValidator->validate($value);
-        $messageSet = new MessageSet(null, new Message('Inner validator was valid', []));
+        $messageSet = new MessageSet(
+            null,
+            new Message('Inverted validator: %s returned valid', [$this->invertedValidator::class])
+        );
 
         return new Result(
             $result->value,
             $result->result * -1,
-            ...($result->isValid() ? [$messageSet] : [])
+            ...($result->result === Result::VALID ? [$messageSet] : [])
         );
     }
 }

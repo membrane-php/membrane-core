@@ -3,16 +3,42 @@
 Validators check data is in the correct format, Validators will never change data.  
 If you expect that you'll need to change incoming data; See [Filters](filters.md).
 
-All Validators implement the Membrane\Validator interface:
+## Interface
+
+All Validators implement the `Membrane\Validator` interface:
 
 ```php
 interface Validator
 {
     public function validate(mixed $value): Result;
+    
+    public function __toString(): string;
 }
 ```
 
-[Results](result.md) returned from Validators will always be [Result::VALID or Result::INVALID](result.md#result).
+## Methods
+
+All Validators contain the following methods:
+
+### Validate
+
+```php
+public function validate(mixed $value): Result
+```
+
+`validate()` will return a [Result](result.md) object detailing if and how the given value was validated.
+
+[Results](result.md) returned from Validators will always be [Result::VALID or Result::INVALID](result.md#result).  
+(Only the `Validators\Utility` namespace contains exceptions to this rule).
+
+### __ToString
+
+```php
+__toString(): string
+```
+
+`__toString()` returns a plain english description of what the validator does, you may find this useful for debugging.
+This method can also be called implicitly by typecasting your validator as string. i.e. `(string) $validator`
 
 ## Collection
 

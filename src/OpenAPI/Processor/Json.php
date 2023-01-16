@@ -19,6 +19,15 @@ class Json implements Processor
         $this->jsonDecode = new Field('', new JsonDecode());
     }
 
+    public function __toString()
+    {
+        $processes = $this->processes();
+
+        return sprintf('"%s":', $processes) .
+            (string)$this->jsonDecode .
+            str_replace(sprintf('"%s":', $processes), '', (string)$this->wrapped);
+    }
+
     public function processes(): string
     {
         return $this->wrapped->processes();

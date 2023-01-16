@@ -15,6 +15,11 @@ class Regex implements Validator
     {
     }
 
+    public function __toString(): string
+    {
+        return sprintf('matches the regex: "%s"', $this->pattern);
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_string($value)) {

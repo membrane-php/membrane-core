@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class IdenticalTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'contains only identical values';
+        $sut = new Identical();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [
@@ -36,7 +47,9 @@ class IdenticalTest extends TestCase
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $identical = new Identical();
-        $expected = Result::invalid($input, new MessageSet(
+        $expected = Result::invalid(
+            $input,
+            new MessageSet(
                 null,
                 new Message('Identical Validator requires an array, %s given', [$expectedVars])
             )

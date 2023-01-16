@@ -17,6 +17,23 @@ class Length implements Validator
     ) {
     }
 
+    public function __toString(): string
+    {
+        if ($this->min === 0 && $this->max === null) {
+            return 'will return valid';
+        }
+
+        $conditions = [];
+        if ($this->min > 0) {
+            $conditions[] = sprintf('is %d characters or more', $this->min);
+        }
+        if ($this->max !== null) {
+            $conditions[] = sprintf('is %d characters or less', $this->max);
+        }
+
+        return implode(' and ', $conditions);
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_string($value)) {

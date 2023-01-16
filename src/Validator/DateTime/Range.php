@@ -18,6 +18,23 @@ class Range implements Validator
     ) {
     }
 
+    public function __toString(): string
+    {
+        if ($this->min === null && $this->max === null) {
+            return 'will return valid';
+        }
+
+        $conditions = [];
+        if ($this->min !== null) {
+            $conditions[] = sprintf('after %s', $this->min->format('D, d M Y H:i:s'));
+        }
+        if ($this->max !== null) {
+            $conditions[] = sprintf('before %s', $this->max->format('D, d M Y H:i:s'));
+        }
+
+        return 'is ' . implode(' and ', $conditions);
+    }
+
     public function validate(mixed $value): Result
     {
         if ($this->min !== null && $value < $this->min) {

@@ -17,6 +17,11 @@ class Maximum implements Validator
     ) {
     }
 
+    public function __toString(): string
+    {
+        return 'is less than ' . ($this->exclusive ? '' : 'or equal to ') . $this->max;
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_numeric($value)) {

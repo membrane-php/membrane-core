@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class ToListTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'convert to a list';
+        $sut = new ToList();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithAcceptableInputs(): array
     {
         return [

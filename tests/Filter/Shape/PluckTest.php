@@ -18,6 +18,37 @@ use PHPUnit\Framework\TestCase;
  */
 class PluckTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'no fields' => [
+                [],
+                '',
+            ],
+            'single field' => [
+                ['a'],
+                'collect "a" from "existing field set" and append them to self',
+            ],
+            'multiple fields' => [
+                ['a', 'b', 'c'],
+                'collect "a", "b", "c" from "existing field set" and append them to self',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(array $fields, string $expected): void
+    {
+        $sut = new Pluck('existing field set', ...$fields);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Pluck filter requires arrays, %s given';

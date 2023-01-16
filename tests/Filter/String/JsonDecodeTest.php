@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class JsonDecodeTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'convert from json to a PHP value';
+        $sut = new JsonDecode();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsToFilter(): array
     {
         return [

@@ -18,6 +18,35 @@ use PHPUnit\Framework\TestCase;
  */
 class MaximumTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'inclusive max' => [
+                5,
+                false,
+                'is less than or equal to 5',
+            ],
+            'exclusive max' => [
+                7,
+                true,
+                'is less than 7',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(int $max, bool $exclusive, string $expected): void
+    {
+        $sut = new Maximum($max, $exclusive);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsOfNonNumericValues(): array
     {
         return [

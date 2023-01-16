@@ -19,6 +19,17 @@ use PHPUnit\Framework\TestCase;
  */
 class TruncateTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'truncate self to 5 fields or less';
+        $sut = new Truncate(5);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     /**
      * @test
      * @throws Exception

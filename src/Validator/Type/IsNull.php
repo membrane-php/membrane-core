@@ -11,6 +11,11 @@ use Membrane\Validator;
 
 class IsNull implements Validator
 {
+    public function __toString(): string
+    {
+        return 'is null';
+    }
+
     public function validate(mixed $value): Result
     {
         if ($value !== null) {

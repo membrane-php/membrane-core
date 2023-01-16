@@ -19,6 +19,15 @@ class Delete implements Filter
         $this->fieldNames = $fieldNames;
     }
 
+    public function __toString(): string
+    {
+        if ($this->fieldNames === []) {
+            return '';
+        }
+
+        return sprintf('delete "' . implode('", "', $this->fieldNames) . '" from self');
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_array($value)) {
