@@ -18,4 +18,9 @@ class ArraySumFilter implements Filter
     {
         return 'return a sum of all numbers in given value';
     }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
 }

@@ -20,6 +20,11 @@ class Regex implements Validator
         return sprintf('matches the regex: "%s"', $this->pattern);
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s("%s")', self::class, $this->pattern);
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_string($value)) {

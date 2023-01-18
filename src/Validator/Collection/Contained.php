@@ -27,6 +27,11 @@ class Contained implements Validator
             implode(', ', array_map(fn($p) => json_encode($p), $this->enum));
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s(%s)', self::class, json_encode($this->enum));
+    }
+
     public function validate(mixed $value): Result
     {
         if (!in_array($value, $this->enum, true)) {

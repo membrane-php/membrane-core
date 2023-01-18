@@ -17,6 +17,11 @@ class ToFloat implements Filter
     }
 
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function filter(mixed $value): Result
     {
         $type = gettype($value);

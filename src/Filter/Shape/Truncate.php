@@ -24,6 +24,11 @@ class Truncate implements Filter
         return sprintf('truncate self to %d fields or less', $this->maxLength);
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s(%d)', self::class, $this->maxLength);
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_array($value)) {

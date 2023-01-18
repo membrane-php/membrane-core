@@ -43,6 +43,27 @@ use PHPUnit\Framework\TestCase;
  */
 class AnyOfTest extends TestCase
 {
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            '2 validators' => [new AnyOf('a', new Field('b'), new Field('c'))],
+            '3 validators' => [
+                new AnyOf('a', new Field('b', new Passes()), new Field('c', new Fails()), new Field('d')),
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(AnyOf $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     /** @test */
     public function toStringTest(): void
     {

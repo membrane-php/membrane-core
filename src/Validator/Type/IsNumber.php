@@ -16,6 +16,11 @@ class IsNumber implements Validator
         return 'is a number';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function validate(mixed $value): Result
     {
         if (!(is_int($value) || is_float($value))) {

@@ -14,6 +14,11 @@ class Passes implements Validator
         return 'will return valid';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function validate(mixed $value): Result
     {
         return Result::valid($value);

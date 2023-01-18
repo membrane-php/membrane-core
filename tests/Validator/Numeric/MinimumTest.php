@@ -47,6 +47,25 @@ class MinimumTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'inclusive minimum' => [new Minimum(5)],
+            'exclusive minimum' => [new Minimum(5, true)],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(Minimum $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsOfNonNumericValues(): array
     {
         return [

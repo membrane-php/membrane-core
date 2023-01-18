@@ -105,6 +105,46 @@ class CollectionTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no chain' => [
+                new Collection('a'),
+            ],
+            '1 empty Field' => [
+                new Collection('b', new Field('')),
+            ],
+            '1 Field' => [
+                new Collection('c', new Field('', new Passes())),
+            ],
+            '1 BeforeSet' => [
+                new Collection('d', new BeforeSet(new Passes())),
+            ],
+            '1 AfterSet' => [
+                new Collection('e', new AfterSet(new Passes())),
+            ],
+            '1 Field, 1 BeforeSet, 1 AfterSet, 1 DefaultProcessor' => [
+                new Collection(
+                    'f',
+                    new Field('', new Fails()),
+                    new BeforeSet(new Passes()),
+                    new AfterSet(new Fails()),
+                ),
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(Collection $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsWithIncorrectValues(): array
     {
         $notArrayMessage = 'Value passed to %s in Collection chain must be a list, %s passed instead';
@@ -126,9 +166,9 @@ class CollectionTest extends TestCase
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $fieldName = 'field to process';
-        $fieldset = new Collection($fieldName, new Field(''));
+        $sut = new Collection($fieldName, new Field(''));
 
-        $result = $fieldset->process(new FieldName('parent field'), $input);
+        $result = $sut->process(new FieldName('parent field'), $input);
 
         self::assertEquals($expected, $result);
     }
@@ -146,9 +186,9 @@ class CollectionTest extends TestCase
     public function processesTest(): void
     {
         $fieldName = 'field to process';
-        $fieldset = new Collection($fieldName);
+        $sut = new Collection($fieldName);
 
-        $output = $fieldset->processes();
+        $output = $sut->processes();
 
         self::assertEquals($fieldName, $output);
     }
@@ -158,9 +198,9 @@ class CollectionTest extends TestCase
     {
         $value = [];
         $expected = Result::noResult($value);
-        $fieldset = new Collection('field to process');
+        $sut = new Collection('field to process');
 
-        $result = $fieldset->process(new FieldName('Parent field'), $value);
+        $result = $sut->process(new FieldName('Parent field'), $value);
 
         self::assertEquals($expected, $result);
     }

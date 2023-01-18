@@ -35,6 +35,18 @@ class Range implements Validator
         return 'is ' . implode(' and ', $conditions);
     }
 
+    public function __toPHP(): string
+    {
+        if ($this->min !== null) {
+            $min = sprintf('%s::createFromFormat(DATE_ATOM, "%s")', DateTime::class, $this->min->format(DATE_ATOM));
+        }
+        if ($this->max !== null) {
+            $max = sprintf('%s::createFromFormat(DATE_ATOM, "%s")', DateTime::class, $this->max->format(DATE_ATOM));
+        }
+
+        return sprintf('new %s(%s, %s)', self::class, $min ?? 'null', $max ?? 'null');
+    }
+
     public function validate(mixed $value): Result
     {
         if ($this->min !== null && $value < $this->min) {

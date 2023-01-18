@@ -49,6 +49,26 @@ class PluckTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no fields' => [new Pluck('field set')],
+            'one field' => [new Pluck('field set', 'a')],
+            'multiple fields' => [new Pluck('field set', 'a', 'b', 'c')],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(Pluck $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Pluck filter requires arrays, %s given';

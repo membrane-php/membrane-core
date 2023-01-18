@@ -27,6 +27,11 @@ class DefaultProcessor implements Processor
         return (string)$this->processor;
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s(%s)', self::class, $this->processor->__toPHP());
+    }
+
     public function processes(): string
     {
         return $this->processor->processes();

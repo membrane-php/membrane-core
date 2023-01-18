@@ -22,6 +22,11 @@ class Minimum implements Validator
         return 'is greater than ' . ($this->exclusive ? '' : 'or equal to ') . $this->min;
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s(%d, %s)', self::class, $this->min, $this->exclusive ? 'true' : 'false');
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_numeric($value)) {

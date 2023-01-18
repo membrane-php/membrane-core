@@ -37,6 +37,12 @@ class Count implements Validator
         return 'has ' . implode(' and ', $conditions) . ' values';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s(%d', self::class, $this->min) .
+            ($this->max === null ? ')' : sprintf(', %d)', $this->max));
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_array($value)) {

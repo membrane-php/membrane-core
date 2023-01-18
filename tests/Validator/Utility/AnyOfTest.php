@@ -25,6 +25,26 @@ use PHPUnit\Framework\TestCase;
  */
 class AnyOfTest extends TestCase
 {
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no validators' => [new AnyOf()],
+            '1 validator' => [new AnyOf(new Passes())],
+            '3 validators' => [new AnyOf(new Fails(), new Indifferent(), new Passes())],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(AnyOf $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsToConvertToString(): array
     {
         $validator = self::createMock(Validator::class);

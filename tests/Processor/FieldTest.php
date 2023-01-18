@@ -67,6 +67,27 @@ class FieldTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'empty processes string, no chain' => [new Field('')],
+            'no chain' => [new Field('b')],
+            '1 validator' => [new Field('c', new Passes())],
+            '3 validators' => [new Field('d', new Passes(), new Fails(), new Passes())],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(Field $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     /** @test */
     public function processesMethodReturnsProcessesString(): void
     {

@@ -14,4 +14,6 @@ interface Processor
     public function process(FieldName $parentFieldName, mixed $value): Result;
 
     public function __toString();
+
+    public function __toPHP(): string;
 }

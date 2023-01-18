@@ -24,6 +24,11 @@ class ToDateTime implements Filter
         return 'convert to a DateTime';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s("%s", %s)', self::class, $this->format, $this->immutable ? 'true' : 'false');
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_string($value)) {

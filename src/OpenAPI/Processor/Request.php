@@ -30,6 +30,16 @@ class Request implements Processor
             implode(".\n\t", array_map(fn($p) => preg_replace("#\n#m", "\n\t", (string)$p), $this->processors)) . '.';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf(
+            'new %s("%s", [%s])',
+            self::class,
+            $this->processes(),
+            implode(', ', array_map(fn($p) => $p->__toPHP(), $this->processors))
+        );
+    }
+
     public function processes(): string
     {
         return $this->processes;

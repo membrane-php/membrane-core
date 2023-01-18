@@ -16,6 +16,11 @@ class ToString implements Filter
         return 'convert to a string';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function filter(mixed $value): Result
     {
         if (!(is_object($value) || is_null($value) || is_scalar($value))) {

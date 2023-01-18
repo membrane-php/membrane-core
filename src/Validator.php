@@ -11,4 +11,6 @@ interface Validator
     public function validate(mixed $value): Result;
 
     public function __toString(): string;
+
+    public function __toPHP(): string;
 }

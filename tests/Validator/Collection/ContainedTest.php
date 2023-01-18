@@ -53,6 +53,26 @@ class ContainedTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'empty array' => [new Contained([])],
+            'array with 1 value' => [new Contained(['a'])],
+            'array with 3 values' => [new Contained(['a', 1, true])],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(Contained $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsToValidate(): array
     {
         return [

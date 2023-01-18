@@ -13,26 +13,28 @@ class PathMatcher
     private readonly array $parameters;
     private readonly string $pathUrl;
 
-    public function __construct(string $serverUrl, string $apiPath)
-    {
-        $parseUrl = parse_url($serverUrl, PHP_URL_PATH);
+    public function __construct(
+        public readonly string $serverUrl,
+        public readonly string $apiPath
+    ) {
+        $parseUrl = parse_url($this->serverUrl, PHP_URL_PATH);
         $this->pathUrl = is_string($parseUrl) ? $parseUrl : '';
 
         $parameterNames = [];
         $pregParts = [];
         $inParameter = false;
 
-        $parts = preg_split('#([{}])#', $apiPath, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $parts = preg_split('#([{}])#', $this->apiPath, -1, PREG_SPLIT_DELIM_CAPTURE);
         assert($parts !== false);
         foreach ($parts as $part) {
             switch ($part) {
                 case '{':
                     $inParameter = !$inParameter ? true :
-                    throw CannotProcessOpenAPI::invalidPath($apiPath);
+                    throw CannotProcessOpenAPI::invalidPath($this->apiPath);
                     continue 2;
                 case '}':
                     $inParameter = $inParameter ? false :
-                    throw CannotProcessOpenAPI::invalidPath($apiPath);
+                    throw CannotProcessOpenAPI::invalidPath($this->apiPath);
                     continue 2;
             }
 

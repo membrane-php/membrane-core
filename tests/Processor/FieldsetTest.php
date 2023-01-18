@@ -127,6 +127,38 @@ class FieldsetTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no chain' => [new FieldSet('a')],
+            '1 empty Field' => [new FieldSet('b', new Field(''))],
+            '1 Field' => [new FieldSet('c', new Field('', new Passes()))],
+            '1 BeforeSet' => [new FieldSet('d', new BeforeSet(new Passes()))],
+            '1 AfterSet' => [new FieldSet('e', new AfterSet(new Passes()))],
+            '1 DefaultProcessor' => [new FieldSet('f', DefaultProcessor::fromFiltersAndValidators(new Passes()))],
+            '1 Field, 1 BeforeSet, 1 AfterSet, 1 DefaultProcessor' => [
+                new FieldSet(
+                    'g',
+                    new Field('', new Fails()),
+                    new BeforeSet(new Passes()),
+                    new AfterSet(new Fails()),
+                    DefaultProcessor::fromFiltersAndValidators(new Passes())
+                ),
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(FieldSet $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsWithIncorrectValues(): array
     {
         $notArrayMessage = 'Value passed to FieldSet chain be an array, %s passed instead';

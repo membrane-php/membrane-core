@@ -67,6 +67,32 @@ class RequestTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no chain' => [new Request('a', []),],
+            '1 empty Field' => [new Request('b', [new Field('')]),],
+            '1 Field' => [new Request('c', [new Field('', new Passes())]),],
+            '3 Fields' => [
+                new Request(
+                    'd',
+                    [new Field('a', new Passes()), new Field('b', new Fails()), new Field('c', new Passes())]
+                ),
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(Request $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     /** @test */
     public function processesTest(): void
     {

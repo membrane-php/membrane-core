@@ -35,6 +35,13 @@ class Collect implements Filter
         );
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s("%s"', self::class, $this->newField) .
+            implode('', array_map(fn($p) => ', "' . $p . '"', $this->fields)) .
+            ')';
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_array($value)) {

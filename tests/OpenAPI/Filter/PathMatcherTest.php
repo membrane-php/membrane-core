@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace OpenAPI\Filter;
 
 use Membrane\OpenAPI\Filter\PathMatcher;
-use Membrane\OpenAPI\PathMatcher as PathMatcherClass;
+use Membrane\OpenAPI\PathMatcher as PathMatcherHelper;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
@@ -25,11 +25,23 @@ class PathMatcherTest extends TestCase
     public function toStringTest(): void
     {
         $expected = 'convert url to a field set of path parameters';
-        $sut = new PathMatcher(self::createStub(PathMatcherClass::class));
+        $sut = new PathMatcher(self::createStub(PathMatcherHelper::class));
 
         $actual = $sut->__toString();
 
         self::assertSame($expected, $actual);
+    }
+
+    /** @test */
+    public function toPHPTest(): void
+    {
+        $pathMatcherHelper = new PathMatcherHelper('/api', '/pets');
+        $sut = new PathMatcher($pathMatcherHelper);
+
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
     /** @test */
@@ -39,7 +51,7 @@ class PathMatcherTest extends TestCase
             false,
             new MessageSet(null, new Message('PathMatcher filter expects string, %s passed', ['boolean']))
         );
-        $sut = new PathMatcher(self::createStub(\Membrane\OpenAPI\PathMatcher::class));
+        $sut = new PathMatcher(self::createStub(PathMatcherHelper::class));
 
         $actual = $sut->filter(false);
 
@@ -55,7 +67,7 @@ class PathMatcherTest extends TestCase
         );
         $apiPath = '/pets/{id}';
         $requestPath = '/hats/23';
-        $sut = new PathMatcher(new \Membrane\OpenAPI\PathMatcher('https://www.server.com', $apiPath));
+        $sut = new PathMatcher(new PathMatcherHelper('https://www.server.com', $apiPath));
 
         $actual = $sut->filter($requestPath);
 
@@ -66,7 +78,7 @@ class PathMatcherTest extends TestCase
     public function filterTest(): void
     {
         $expected = Result::noResult(['filtered value']);
-        $observer = self::createMock(\Membrane\OpenAPI\PathMatcher::class);
+        $observer = self::createMock(PathMatcherHelper::class);
         $observer->expects($this->once())
             ->method('getPathParams')
             ->with('value')

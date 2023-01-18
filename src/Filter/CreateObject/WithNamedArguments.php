@@ -22,6 +22,11 @@ class WithNamedArguments implements Filter
         return sprintf('construct an instance of "%s" from named arguments contained in self', $this->className);
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s("%s")', self::class, $this->className);
+    }
+
     public function filter(mixed $value): Result
     {
         try {

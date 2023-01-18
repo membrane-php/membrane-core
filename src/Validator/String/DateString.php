@@ -21,6 +21,11 @@ class DateString implements Validator
         return sprintf('matches the DateTime format: "%s"', $this->format);
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s("%s")', self::class, $this->format);
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_string($value)) {

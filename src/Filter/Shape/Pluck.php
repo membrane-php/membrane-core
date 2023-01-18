@@ -33,6 +33,13 @@ class Pluck implements Filter
         );
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s("%s"', self::class, $this->fieldSet) .
+            implode('', array_map(fn($p) => ', "' . $p . '"', $this->fieldNames)) .
+            ')';
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_array($value)) {

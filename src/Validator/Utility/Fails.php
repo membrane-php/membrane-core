@@ -16,6 +16,11 @@ class Fails implements Validator
         return 'will return invalid';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function validate(mixed $value): Result
     {
         return Result::invalid($value, new MessageSet(null, new Message('I always fail', [])));

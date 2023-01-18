@@ -25,6 +25,16 @@ class PassesTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    /** @test */
+    public function toPHPTest(): void
+    {
+        $sut = new Passes();
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSets(): array
     {
         return [[1], [1.1], ['one'], [false], [null],];

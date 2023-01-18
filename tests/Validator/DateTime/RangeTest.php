@@ -58,6 +58,29 @@ class RangeTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no minimum, no maximum' => [null, null],
+            'minimum, no maximum' => [new DateTime('2001-02-03T04:05:06'), null],
+            'maximum, no minimum' => [null, new DateTime('2009-08-07T06:05:04')],
+            'minimum and maximum' => [new DateTime('2001-02-03T04:05:06'), new DateTime('2009-08-07T06:05:04')],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(?DateTime $min, ?DateTime $max): void
+    {
+        $sut = new Range($min, $max);
+
+        $actual = $sut->__toPHP();
+
+        self::assertEqualsWithDelta($sut, eval('return ' . $actual . ';'), 2);
+    }
+
     /**
      * @test
      */
