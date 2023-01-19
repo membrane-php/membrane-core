@@ -99,142 +99,124 @@ class CollectionTest extends TestCase
 
     public function dataSetsOfFields(): array
     {
-        $incrementFilter = new class implements Filter {
-            public function filter(mixed $value): Result
-            {
-                return Result::noResult(++$value);
-            }
-        };
+        $filter1To2 = self::createMock(Filter::class);
+        $filter1To2->method('filter')
+            ->with(1)
+            ->willReturn(Result::noResult(2));
 
-        $evenFilter = new class implements Filter {
-            public function filter(mixed $value): Result
-            {
-                return Result::noResult($value * 2);
-            }
-        };
+        $filter2To3 = self::createMock(Filter::class);
+        $filter2To3->method('filter')
+            ->with(2)
+            ->willReturn(Result::noResult(3));
 
-        $evenArrayFilter = new class implements Filter {
-            public function filter(mixed $value): Result
-            {
-                foreach (array_keys($value) as $key) {
-                    $value[$key] *= 2;
-                }
-                return Result::noResult($value);
-            }
-        };
+        $filter123ArrayTo321List = self::createMock(Filter::class);
+        $filter123ArrayTo321List->method('filter')
+            ->with([1, 2, 3])
+            ->willReturn(Result::noResult([3, 2, 1]));
 
-        $evenValidator = new class implements Validator {
-            public function validate(mixed $value): Result
-            {
-                if ($value % 2 !== 0) {
-                    return Result::invalid(
-                        $value,
-                        new MessageSet(
-                            null,
-                            new Message('not even', [])
-                        )
-                    );
-                }
-                return Result::valid($value);
-            }
-        };
+        $validate111List = self::createMock(Filter::class);
+        $validate111List->method('filter')
+            ->with([1, 1, 1])
+            ->willReturn(Result::valid([1, 1, 1]));
 
-        $evenArrayValidator = new class implements Validator {
-            public function validate(mixed $value): Result
-            {
-                foreach (array_keys($value) as $key) {
-                    if ($value[$key] % 2 !== 0) {
-                        return Result::invalid(
-                            $value,
-                            new MessageSet(
-                                null,
-                                new Message('not even', [])
-                            )
-                        );
-                    }
-                }
-                return Result::valid($value);
-            }
-        };
+        $validate222List = self::createMock(Filter::class);
+        $validate222List->method('filter')
+            ->with([2, 2, 2])
+            ->willReturn(Result::valid([2, 2, 2]));
+
+        $validate321List = self::createMock(Filter::class);
+        $validate321List->method('filter')
+            ->with([3, 2, 1])
+            ->willReturn(Result::valid([3, 2, 1]));
+
+        $invalidate123List = self::createMock(Filter::class);
+        $invalidate123List->method('filter')
+            ->with([1, 2, 3])
+            ->willReturn(Result::invalid([1, 2, 3], new MessageSet(null, new Message('oh no!', []))));
+
+        $validate1 = self::createMock(Validator::class);
+        $validate1->method('validate')
+            ->with(1)
+            ->willReturn(Result::valid(1));
+
+        $validate2 = self::createMock(Validator::class);
+        $validate2->method('validate')
+            ->with(2)
+            ->willReturn(Result::valid(2));
+
+        $invalidate1 = self::createMock(Validator::class);
+        $invalidate1->method('validate')
+            ->with(1)
+            ->willReturn(Result::invalid(1, new MessageSet(null, new Message('oh no!', []))));
 
         return [
             'Field process method is called for every item in array' => [
-                [1, 2, 3],
-                Result::noResult([2, 3, 4]),
-                new Field('a', $incrementFilter),
+                [1, 1, 1],
+                Result::noResult([2, 2, 2]),
+                new Field('a', $filter1To2),
             ],
             'Field processed values persist' => [
-                [1, 2, 3],
-                Result::noResult([3, 4, 5]),
-                new Field('b', $incrementFilter, $incrementFilter),
+                [1, 1, 1],
+                Result::noResult([3, 3, 3]),
+                new Field('b', $filter1To2, $filter2To3),
             ],
             'Field processed can return valid results' => [
-                [1, 2, 3],
-                Result::valid([2, 4, 6]),
-                new Field('b', $evenFilter, $evenValidator),
+                [1, 1, 1],
+                Result::valid([2, 2, 2]),
+                new Field('c', $filter1To2, $validate2),
             ],
             'Field processed can return invalid results' => [
-                [1, 2, 3],
+                [1, 1, 1],
                 Result::invalid(
-                    [1, 2, 3],
+                    [1, 1, 1],
                     new MessageSet(
-                        new FieldName('a', 'parent field', 'field to process', '0'),
-                        new Message('not even', [])
+                        new FieldName('d', 'parent field', 'field to process', '0'),
+                        new Message('oh no!', [])
                     ),
                     new MessageSet(
-                        new FieldName('a', 'parent field', 'field to process', '2'),
-                        new Message('not even', [])
+                        new FieldName('d', 'parent field', 'field to process', '1'),
+                        new Message('oh no!', [])
+                    ),
+                    new MessageSet(
+                        new FieldName('d', 'parent field', 'field to process', '2'),
+                        new Message('oh no!', [])
                     )
                 ),
-
-                new Field('a', $evenValidator),
+                new Field('d', $invalidate1),
             ],
             'BeforeSet processes before Field' => [
-                [1, 2, 3],
-                Result::valid([2, 4, 6]),
-                new BeforeSet($evenArrayFilter),
-                new Field('c', $evenValidator),
+                [1, 1, 1],
+                Result::valid([2, 2, 2]),
+                new BeforeSet($validate111List),
+                new Field('e', $filter1To2),
             ],
             'BeforeSet processes before AfterSet' => [
                 [1, 2, 3],
-                Result::valid([2, 4, 6]),
-                new BeforeSet($evenArrayFilter),
-                new AfterSet($evenArrayValidator),
+                Result::valid([3, 2, 1]),
+                new BeforeSet($filter123ArrayTo321List),
+                new AfterSet($validate321List),
             ],
             'AfterSet does not process if BeforeSet returns invalid' => [
                 [1, 2, 3],
                 Result::invalid(
                     [1, 2, 3],
-                    new MessageSet(
-                        new FieldName('', 'parent field', 'field to process'),
-                        new Message('not even', [])
-                    )
+                    new MessageSet(new FieldName('', 'parent field', 'field to process'), new Message('oh no!', []))
                 ),
-                new BeforeSet($evenArrayValidator),
-                new AfterSet($evenArrayFilter),
+                new BeforeSet($invalidate123List),
+                new AfterSet($filter123ArrayTo321List),
             ],
             'AfterSet processes after Field' => [
-                [1, 2, 3],
-                Result::invalid(
-                    [2, 3, 4],
-                    new MessageSet(
-                        new FieldName('', 'parent field', 'field to process'),
-                        new Message('not even', [])
-                    )
-                ),
-                new Field('a', $incrementFilter),
-                new AfterSet($evenArrayValidator),
+                [1, 1, 1],
+                Result::valid([2, 2, 2],),
+                new Field('a', $filter1To2),
+                new AfterSet($validate222List),
             ],
             'BeforeSet then Field then AfterSet' => [
-                [1, 2, 3],
-                Result::invalid([3, 5, 7],
-                    new MessageSet(
-                        new FieldName('', 'parent field', 'field to process'),
-                        new Message('not even', [])
-                    )),
-                new BeforeSet($evenArrayFilter),
-                new Field('b', $incrementFilter),
-                new AfterSet($evenArrayValidator),
+                [1, 1, 1],
+                Result::valid([2, 2, 2]),
+                new BeforeSet($validate111List),
+                new Field('b', $filter1To2),
+                new AfterSet($validate222List),
             ],
         ];
     }
@@ -245,10 +227,10 @@ class CollectionTest extends TestCase
      */
     public function processTest(array $input, Result $expected, Processor ...$chain): void
     {
-        $fieldset = new Collection('field to process', ...$chain);
+        $sut = new Collection('field to process', ...$chain);
 
-        $result = $fieldset->process(new FieldName('parent field'), $input);
+        $actual = $sut->process(new FieldName('parent field'), $input);
 
-        self::assertEquals($expected, $result);
+        self::assertEquals($expected, $actual);
     }
 }
