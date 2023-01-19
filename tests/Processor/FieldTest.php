@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Processor;
 
-use Membrane\Filter;
+use Membrane\Filter\Type\ToFloat;
 use Membrane\Processor\Field;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use Membrane\Validator;
+use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
 use Membrane\Validator\Utility\Passes;
@@ -19,6 +19,8 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \Membrane\Processor\Field
  * @uses   \Membrane\Result\FieldName
+ * @uses   \Membrane\Filter\Type\ToFloat
+ * @uses   \Membrane\Validator\Type\IsFloat
  * @uses   \Membrane\Validator\Utility\Fails
  * @uses   \Membrane\Validator\Utility\Indifferent
  * @uses   \Membrane\Validator\Utility\Passes
@@ -28,9 +30,7 @@ use PHPUnit\Framework\TestCase;
  */
 class FieldTest extends TestCase
 {
-    /**
-     * @test
-     */
+    /** @test */
     public function processesMethodReturnsProcessesString(): void
     {
         $input = 'FieldName to process';
@@ -41,122 +41,58 @@ class FieldTest extends TestCase
         self::assertEquals($output, $input);
     }
 
-    /**
-     * @test
-     */
-    public function noChainReturnsNoResult(): void
-    {
-        $input = ['a' => 1, 'b' => 2, 'c' => 3];
-        $expected = Result::noResult($input);
-        $field = new Field('FieldName to process');
-
-        $result = $field->process(new FieldName('Parent FieldName'), $input);
-
-        self::assertEquals($expected, $result);
-    }
-
     public function dataSetsForFiltersOrValidators(): array
     {
-        $incrementFilter = new class implements Filter {
-            public function filter(mixed $value): Result
-            {
-                foreach (array_keys($value) as $key) {
-                    $value[$key]++;
-                }
-
-                return Result::noResult($value);
-            }
-        };
-
-        $evenFilter = new class implements Filter {
-            public function filter(mixed $value): Result
-            {
-                foreach (array_keys($value) as $key) {
-                    $value[$key] *= 2;
-                }
-
-                return Result::noResult($value);
-            }
-        };
-
-        $evenValidator = new class implements Validator {
-            public function validate(mixed $value): Result
-            {
-                foreach (array_keys($value) as $key) {
-                    if ($value[$key] % 2 !== 0) {
-                        return Result::invalid($value, new MessageSet(
-                            null,
-                            new Message('not even', [])
-                        ));
-                    }
-                }
-                return Result::valid($value);
-            }
-        };
-
         return [
-            'checks it can return valid' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::valid(['a' => 1, 'b' => 2, 'c' => 3]),
-                'field to process',
-                new Passes(),
+            'No chain returns noResult' => [
+                Result::noResult(1),
+                new Field('a'),
+                1,
             ],
-            'checks it can return invalid' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::invalid(['a' => 1, 'b' => 2, 'c' => 3], new MessageSet(
-                    new FieldName('field to process', 'parent field'),
-                    new Message('I always fail', [])
-                )),
-                'field to process',
-                new Fails(),
+            'Can return valid' => [
+                Result::valid(1),
+                new Field('a', new Passes()),
+                1,
             ],
-            'checks it can return noResult' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::noResult(['a' => 1, 'b' => 2, 'c' => 3]),
-                'field to process',
-                new Indifferent(),
+            'Can return invalid' => [
+                Result::invalid(
+                    1,
+                    new MessageSet(new FieldName('b', 'parent field'), new Message('I always fail', []))
+                ),
+                new Field('b', new Fails()),
+                1,
+            ],
+            'Can return noResult' => [
+                Result::noResult(1),
+                new Field('c', new Indifferent()),
+                1,
             ],
             'checks it keeps track of previous results' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::valid(['a' => 1, 'b' => 2, 'c' => 3]),
-                'field to process',
-                new Passes(),
-                new Indifferent(),
-                new Indifferent(),
+                Result::valid(1),
+                new Field('d', new Passes(), new Indifferent(), new Indifferent()),
+                1,
+
             ],
             'checks it can make changes to value' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::noResult(['a' => 2, 'b' => 3, 'c' => 4]),
-                'a',
-                $incrementFilter,
+                Result::noResult(5.0),
+                new Field('e', new ToFloat()),
+                '5',
             ],
-            'checks that changes made to value persist' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::noResult(['a' => 3, 'b' => 4, 'c' => 5]),
-                'c',
-                $incrementFilter,
-                $incrementFilter,
-            ],
-            'checks that chain runs in correct order' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::invalid(['a' => 1, 'b' => 2, 'c' => 3], new MessageSet(
-                    new FieldName('b', 'parent field'),
-                    new Message('not even', [])
-                )),
-                'b',
-                $evenValidator,
-                $evenFilter,
+            'checks that changes made to value persist and chain runs in correct order' => [
+                Result::valid(5.0),
+                new Field('f', new ToFloat(), new IsFloat()),
+                '5',
             ],
             'checks that chain stops as soon as result is invalid' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::invalid(['a' => 2, 'b' => 3, 'c' => 4], new MessageSet(
-                    new FieldName('b', 'parent field'),
-                    new Message('not even', [])
-                )),
-                'b',
-                $incrementFilter,
-                $evenValidator,
-                $incrementFilter,
+                Result::invalid(
+                    '5',
+                    new MessageSet(
+                        new FieldName('g', 'parent field'),
+                        new Message('IsFloat expects float value, %s passed instead', ['string'])
+                    )
+                ),
+                new Field('g', new IsFloat(), new ToFloat()),
+                '5',
             ],
         ];
     }
@@ -165,16 +101,11 @@ class FieldTest extends TestCase
      * @test
      * @dataProvider dataSetsForFiltersOrValidators
      */
-    public function processesCallsFilterOrValidateMethods(
-        mixed $input,
-        Result $expected,
-        string $processes,
-        Filter|Validator ...$chain
-    ): void {
-        $field = new Field($processes, ...$chain);
+    public function processesCallsFilterOrValidateMethods(Result $expected, Field $sut, mixed $input): void
+    {
+        $actual = $sut->process(new FieldName('parent field'), $input);
 
-        $output = $field->process(new FieldName('parent field'), $input);
-
-        self::assertEquals($expected, $output);
+        self::assertEquals($expected, $actual);
+        self::assertSame($expected->value, $actual->value);
     }
 }

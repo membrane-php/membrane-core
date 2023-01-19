@@ -7,20 +7,26 @@ namespace OpenAPI\Processor;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\OpenAPI\Processor\Request;
 use Membrane\Processor;
+use Membrane\Processor\Field;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use Membrane\Validator\Utility\Fails;
+use Membrane\Validator\Utility\Passes;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 
 /**
  * @covers \Membrane\OpenAPI\Processor\Request
+ * @uses   \Membrane\Processor\Field
  * @uses   \Membrane\Result\FieldName
  * @uses   \Membrane\Result\MessageSet
  * @uses   \Membrane\Result\Message
  * @uses   \Membrane\Result\Result
+ * @uses   \Membrane\Validator\Utility\Fails
+ * @uses   \Membrane\Validator\Utility\Passes
  */
 class RequestTest extends TestCase
 {
@@ -61,29 +67,9 @@ class RequestTest extends TestCase
 
     public function dataSetsToProcess(): array
     {
-        $validProcessor = new class() implements Processor {
-            public function processes(): string
-            {
-                return '';
-            }
+        $validProcessor = new Field('', new Passes());
 
-            public function process(FieldName $parentFieldName, mixed $value): Result
-            {
-                return Result::valid($value);
-            }
-        };
-
-        $invalidProcessor = new class() implements Processor {
-            public function processes(): string
-            {
-                return '';
-            }
-
-            public function process(FieldName $parentFieldName, mixed $value): Result
-            {
-                return Result::invalid($value, new MessageSet(null, new Message('invalid result', [])));
-            }
-        };
+        $invalidProcessor = new Field('', new Fails());
 
         $uri = self::createMock(UriInterface::class);
         $uri->method('getPath')
@@ -143,8 +129,8 @@ class RequestTest extends TestCase
                     'cookie' => [],
                     'body' => '',
                 ],
-                    new MessageSet(null, new Message('invalid result', [])),
-                    new MessageSet(null, new Message('invalid result', []))
+                    new MessageSet(new FieldName('', ''), new Message('I always fail', [])),
+                    new MessageSet(new FieldName('', ''), new Message('I always fail', []))
                 ),
             ],
             'mock server request, no processors' => [
@@ -191,8 +177,8 @@ class RequestTest extends TestCase
                     'cookie' => [],
                     'body' => 'request body',
                 ],
-                    new MessageSet(null, new Message('invalid result', [])),
-                    new MessageSet(null, new Message('invalid result', []))
+                    new MessageSet(new FieldName('', ''), new Message('I always fail', [])),
+                    new MessageSet(new FieldName('', ''), new Message('I always fail', []))
                 ),
             ],
             'guzzle server request, valid processors' => [
