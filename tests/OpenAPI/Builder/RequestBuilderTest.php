@@ -186,7 +186,7 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'path param in path, operation param in query not required, no requestBody' => [
-                new Request(self::DIR . 'noReferences.json', '/requestpathone/{id}', Method::POST),
+                new Request(self::DIR . 'noReferences.json', 'http://www.test.com/requestpathone/{id}', Method::POST),
                 new RequestProcessor(
                     '',
                     [
@@ -212,7 +212,7 @@ class RequestBuilderTest extends TestCase
             'path param in path, operation param in query required, no requestBody' => [
                 new Request(
                     self::DIR . 'noReferences.json',
-                    '/requestpathone/{id}',
+                    'http://www.test.com/requestpathone/{id}',
                     Method::PUT
                 ),
                 new RequestProcessor(
@@ -241,7 +241,7 @@ class RequestBuilderTest extends TestCase
             'path param in path, operation param in query with json content, required, no requestBody' => [
                 new Request(
                     self::DIR . 'noReferences.json',
-                    '/requestpathone/{id}',
+                    'http://www.test.com/requestpathone/{id}',
                     Method::DELETE
                 ),
                 new RequestProcessor(
@@ -269,7 +269,7 @@ class RequestBuilderTest extends TestCase
             'path param in header, no requestBody' => [
                 new Request(
                     self::DIR . 'noReferences.json',
-                    '/requestpathtwo',
+                    'http://www.test.com/requestpathtwo',
                     Method::GET
                 ),
                 new RequestProcessor(
@@ -290,7 +290,7 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'path param in header, operation param in cookie, no requestBody' => [
-                new Request(self::DIR . 'noReferences.json', '/requestpathtwo', Method::POST),
+                new Request(self::DIR . 'noReferences.json', 'http://www.test.com/requestpathtwo', Method::POST),
                 new RequestProcessor(
                     '',
                     [
@@ -311,7 +311,7 @@ class RequestBuilderTest extends TestCase
             'identical param in header and query, no requestBody' => [
                 new Request(
                     self::DIR . 'noReferences.json',
-                    '/requestpathtwo',
+                    'http://www.test.com/requestpathtwo',
                     Method::PUT
                 ),
                 new RequestProcessor(
@@ -338,7 +338,7 @@ class RequestBuilderTest extends TestCase
             'same param in path and operation with different types, no requestBody' => [
                 new Request(
                     self::DIR . 'noReferences.json',
-                    '/requestpathtwo',
+                    'http://www.test.com/requestpathtwo',
                     Method::DELETE
                 ),
                 new RequestProcessor(
@@ -361,7 +361,7 @@ class RequestBuilderTest extends TestCase
             'requestBody param' => [
                 new Request(
                     self::DIR . 'noReferences.json',
-                    '/requestbodypath',
+                    'http://www.test.com/requestbodypath',
                     Method::GET
                 ),
                 new RequestProcessor(
@@ -384,7 +384,7 @@ class RequestBuilderTest extends TestCase
             'operation param in query, requestBody param' => [
                 new Request(
                     self::DIR . 'noReferences.json',
-                    '/requestbodypath',
+                    'http://www.test.com/requestbodypath',
                     Method::POST
                 ),
                 new RequestProcessor(
@@ -409,7 +409,7 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'path param in path, operation param in query, header, cookie, requestBody param' => [
-                new Request(self::DIR . 'noReferences.json', '/requestbodypath/{id}', Method::GET),
+                new Request(self::DIR . 'noReferences.json', 'http://www.test.com/requestbodypath/{id}', Method::GET),
                 new RequestProcessor(
                     '',
                     [
