@@ -36,7 +36,7 @@ class CannotProcessOpenAPI extends RuntimeException
     public static function mismatchedPath(string $expectedPathRegex, string $requestPath): self
     {
         $message = sprintf('%s does not match expected regex: "%s"', $requestPath, $expectedPathRegex);
-        return new self($message, self::TYPE_MISMATCH);
+        return new self($message, self::PATH_MISMATCH);
     }
 
     public static function mismatchedType(string $processor, string $expected, ?string $actual): self
