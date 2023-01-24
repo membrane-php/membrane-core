@@ -11,12 +11,12 @@ class PathMatcher
     private readonly string $regex;
     /** @var string[] */
     private readonly array $parameters;
-    private readonly string $serverUrl;
+    private readonly string $pathUrl;
 
     public function __construct(string $serverUrl, string $apiPath)
     {
         $parseUrl = parse_url($serverUrl, PHP_URL_PATH);
-        $this->serverUrl = is_string($parseUrl) ? $parseUrl : '';
+        $this->pathUrl = is_string($parseUrl) ? $parseUrl : '';
 
         $parameterNames = [];
         $pregParts = [];
@@ -77,6 +77,6 @@ class PathMatcher
         $parseUrl = parse_url($requestPath, PHP_URL_PATH);
         $requestPath = is_string($parseUrl) ? $parseUrl : $requestPath;
 
-        return substr($requestPath, strlen($this->serverUrl));
+        return substr($requestPath, strlen($this->pathUrl));
     }
 }
