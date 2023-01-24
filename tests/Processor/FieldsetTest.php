@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Processor;
 
 use Membrane\Exception\InvalidProcessorArguments;
-use Membrane\Filter;
+use Membrane\Filter\Shape\Rename;
+use Membrane\Filter\Type\ToFloat;
+use Membrane\Filter\Type\ToInt;
+use Membrane\Filter\Type\ToString;
 use Membrane\Processor;
 use Membrane\Processor\AfterSet;
 use Membrane\Processor\BeforeSet;
@@ -16,12 +19,22 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use Membrane\Validator;
+use Membrane\Validator\Collection\Identical;
+use Membrane\Validator\FieldSet\RequiredFields;
+use Membrane\Validator\Type\IsFloat;
+use Membrane\Validator\Utility\Fails;
+use Membrane\Validator\Utility\Indifferent;
+use Membrane\Validator\Utility\Passes;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Processor\FieldSet
  * @covers \Membrane\Exception\InvalidProcessorArguments
+ * @uses   \Membrane\Validator\Collection\Identical
+ * @uses   \Membrane\Filter\Shape\Rename
+ * @uses   \Membrane\Filter\Type\ToFloat
+ * @uses   \Membrane\Filter\Type\ToInt
+ * @uses   \Membrane\Filter\Type\ToString
  * @uses   \Membrane\Processor\AfterSet
  * @uses   \Membrane\Processor\BeforeSet
  * @uses   \Membrane\Processor\DefaultProcessor
@@ -30,6 +43,11 @@ use PHPUnit\Framework\TestCase;
  * @uses   \Membrane\Result\Message
  * @uses   \Membrane\Processor\Field
  * @uses   \Membrane\Result\FieldName
+ * @uses   \Membrane\Validator\FieldSet\RequiredFields
+ * @uses   \Membrane\Validator\Type\IsFloat
+ * @uses   \Membrane\Validator\Utility\Fails
+ * @uses   \Membrane\Validator\Utility\Indifferent
+ * @uses   \Membrane\Validator\Utility\Passes
  */
 class FieldsetTest extends TestCase
 {
@@ -101,18 +119,6 @@ class FieldsetTest extends TestCase
     }
 
     /** @test */
-    public function processMethodWithNoChainReturnsNoResult(): void
-    {
-        $value = [];
-        $expected = Result::noResult($value);
-        $fieldset = new FieldSet('field to process');
-
-        $result = $fieldset->process(new FieldName('Parent field'), $value);
-
-        self::assertEquals($expected, $result);
-    }
-
-    /** @test */
     public function processMethodCallsFieldProcessesMethod(): void
     {
         $input = ['a' => 1, 'b' => 2, 'c' => 3];
@@ -158,131 +164,77 @@ class FieldsetTest extends TestCase
 
     public function dataSetsOfFields(): array
     {
-        $incrementFilter = new class implements Filter {
-            public function filter(mixed $value): Result
-            {
-                return Result::noResult(++$value);
-            }
-        };
-
-        $decrementFilter = new class implements Filter {
-            public function filter(mixed $value): Result
-            {
-                return Result::noResult(--$value);
-            }
-        };
-
-        $evenArrayFilter = new class implements Filter {
-            public function filter(mixed $value): Result
-            {
-                foreach (array_keys($value) as $key) {
-                    $value[$key] *= 2;
-                }
-                return Result::noResult($value);
-            }
-        };
-
-        $evenValidator = new class implements Validator {
-            public function validate(mixed $value): Result
-            {
-                if ($value % 2 !== 0) {
-                    return Result::invalid(
-                        $value,
-                        new MessageSet(
-                            null,
-                            new Message('not even', [])
-                        )
-                    );
-                }
-                return Result::valid($value);
-            }
-        };
-
-        $evenArrayValidator = new class implements Validator {
-            public function validate(mixed $value): Result
-            {
-                foreach (array_keys($value) as $key) {
-                    if ($value[$key] % 2 !== 0) {
-                        return Result::invalid(
-                            $value,
-                            new MessageSet(
-                                null,
-                                new Message('not even', [])
-                            )
-                        );
-                    }
-                }
-                return Result::valid($value);
-            }
-        };
-
         return [
-            'Field only performs processes on defined processes field' => [
+            'No chain returns noResult' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::noResult(['a' => 2, 'b' => 2, 'c' => 3]),
-                new Field('a', $incrementFilter),
+                Result::noResult(['a' => 1, 'b' => 2, 'c' => 3]),
             ],
-            'DefaultProcessor only processes fields not processed by other Field Processors' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::noResult(['a' => 2, 'b' => 1, 'c' => 2]),
-                new Field('a', $incrementFilter),
-                DefaultProcessor::fromFiltersAndValidators($decrementFilter),
-            ],
-            'Field processed values persist' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::noResult(['a' => 1, 'b' => 4, 'c' => 3]),
-                new Field('b', $incrementFilter, $incrementFilter),
-            ],
-            'Field processed can return valid results' => [
+            'Return valid result' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::valid(['a' => 1, 'b' => 2, 'c' => 3]),
-                new Field('b', $evenValidator),
+                new Field('a', new Passes()),
             ],
-            'Field processed can return invalid results' => [
+            'Return noResult' => [
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                Result::noResult(['a' => 1, 'b' => 2, 'c' => 3]),
+                new Field('b', new Indifferent()),
+            ],
+            'Return invalid result' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::invalid(['a' => 1, 'b' => 2, 'c' => 3],
                     new MessageSet(
-                        new FieldName('a', 'parent field', 'field to process'),
-                        new Message('not even', [])
+                        new FieldName('c', 'parent field', 'field to process'),
+                        new Message('I always fail', [])
                     )),
-                new Field('a', $evenValidator),
+                new Field('c', new Fails()),
+            ],
+            'Field only performs processes on defined processes field' => [
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                Result::noResult(['a' => 1.0, 'b' => 2, 'c' => 3]),
+                new Field('a', new ToFloat()),
+            ],
+            'DefaultProcessor only processes fields not processed by other Field Processors' => [
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                Result::noResult(['a' => 1.0, 'b' => '2', 'c' => '3']),
+                new Field('a', new ToFloat()),
+                DefaultProcessor::fromFiltersAndValidators(new ToString()),
+            ],
+            'Field processed values persist' => [
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                Result::valid(['a' => 1, 'b' => 2.0, 'c' => 3]),
+                new Field('b', new ToFloat(), new IsFloat()),
             ],
             'Multiple Fields are accepted' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::valid(['a' => 2, 'b' => 3, 'c' => 3]),
-                new Field('a', $incrementFilter),
-                new Field('a', $evenValidator),
-                new Field('b', $incrementFilter),
+                Result::valid(['a' => 1.0, 'b' => 2, 'c' => '3']),
+                new Field('a', new ToFloat()),
+                new Field('a', new IsFloat()),
+                new Field('c', new ToString()),
             ],
-            'BeforeSetProcessesBeforeField' => [
+            'BeforeSet processes before Field' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::valid(['a' => 2, 'b' => 4, 'c' => 6]),
-                new BeforeSet($evenArrayFilter),
-                new Field('c', $evenValidator),
+                Result::noResult(['a' => 1, 'b' => 2, 'd' => 3.0]),
+                new BeforeSet(new Rename('c', 'd')),
+                new Field('d', new ToFloat()),
             ],
-            'BeforeSetProcessesBeforeAfterSet' => [
+            'BeforeSet processes before AfterSet' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::valid(['a' => 2, 'b' => 4, 'c' => 6]),
-                new BeforeSet($evenArrayFilter),
-                new AfterSet($evenArrayValidator),
+                Result::valid(['a' => 1, 'b' => 2, 'd' => 3]),
+                new BeforeSet(new Rename('c', 'd')),
+                new AfterSet(new RequiredFields('d')),
             ],
-            'AfterSetProcessesAfterField' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::valid(['a' => 2, 'b' => 2, 'c' => 4]),
-                new Field('a', $incrementFilter),
-                new Field('c', $incrementFilter),
-                new AfterSet($evenArrayValidator),
+            'AfterSet processes after Field' => [
+                ['a' => 1.0, 'b' => 1, 'c' => 1],
+                Result::valid(['a' => 1, 'b' => 1, 'c' => 1]),
+                new Field('a', new ToInt()),
+                new AfterSet(new Identical()),
             ],
-            'BeforeSetThenFieldThenAfterSet' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::invalid(['a' => 2, 'b' => 5, 'c' => 6],
-                    new MessageSet(
-                        new FieldName('', 'parent field', 'field to process'),
-                        new Message('not even', [])
-                    )),
-                new BeforeSet($evenArrayFilter),
-                new Field('b', $incrementFilter),
-                new AfterSet($evenArrayValidator),
+            'BeforeSet then Field then AfterSet' => [
+                ['a' => 1, 'b' => 1, 'c' => 1.0],
+                Result::valid(['a' => 1, 'b' => 1, 'd' => 1]),
+                new BeforeSet(new Rename('c', 'd')),
+                new Field('d', new ToInt()),
+                new AfterSet(new Identical()),
             ],
         ];
     }
@@ -296,8 +248,9 @@ class FieldsetTest extends TestCase
     {
         $fieldset = new FieldSet('field to process', ...$chain);
 
-        $result = $fieldset->process(new FieldName('parent field'), $input);
+        $actual = $fieldset->process(new FieldName('parent field'), $input);
 
-        self::assertEquals($expected, $result);
+        self::assertEquals($expected, $actual);
+        self::assertSame($expected->value, $actual->value);
     }
 }
