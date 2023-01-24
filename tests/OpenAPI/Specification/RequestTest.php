@@ -6,7 +6,6 @@ namespace OpenAPI\Specification;
 
 use cebe\openapi\spec\Parameter;
 use cebe\openapi\spec\Schema;
-use Exception;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\OpenAPI\Exception\CannotProcessRequest;
 use Membrane\OpenAPI\Method;
@@ -34,7 +33,7 @@ class RequestTest extends TestCase
             ],
             'delete not in parampath' => [
                 'noReferences.json',
-                'http://test.com/parampath/01',
+                'http://www.test.com/parampath/01',
                 Method::DELETE,
             ],
         ];
@@ -58,7 +57,7 @@ class RequestTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessRequest::unsupportedContent());
 
-        new Request(self::DIR . 'noReferences.json', 'http://test.com/path', Method::PUT);
+        new Request(self::DIR . 'noReferences.json', 'http://www.test.com/path', Method::PUT);
     }
 
 
@@ -66,7 +65,7 @@ class RequestTest extends TestCase
     {
         return [
             [
-                'http://test.com/path',
+                'http://www.test.com/path',
                 Method::DELETE,
                 'noReferences.json',
             ],
@@ -89,12 +88,12 @@ class RequestTest extends TestCase
     {
         return [
             'requestBody not found' => [
-                'http://test.com/path',
+                'http://www.test.com/path',
                 Method::GET,
                 'noReferences.json',
             ],
             'requestBody found with empty content array' => [
-                'http://test.com/path',
+                'http://www.test.com/path',
                 Method::POST,
                 'noReferences.json',
             ],
@@ -117,7 +116,7 @@ class RequestTest extends TestCase
      */
     public function mergesPathAndOperationParameters(): void
     {
-        $class = new Request(self::DIR . 'noReferences.json', 'http://test.com/parampath/01', Method::GET);
+        $class = new Request(self::DIR . 'noReferences.json', 'http://www.test.com/parampath/01', Method::GET);
 
         self::assertContainsOnlyInstancesOf(Parameter::class, $class->pathParameters);
 
@@ -130,12 +129,12 @@ class RequestTest extends TestCase
     {
         return [
             'json file with references that must be resolved' => [
-                'http://test.com/path',
+                'http://www.test.com/path',
                 Method::GET,
                 'references.json',
             ],
             'yaml file with references that must be resolved' => [
-                'http://test.com/path',
+                'http://www.test.com/path',
                 Method::GET,
                 'references.yaml',
             ],
@@ -158,7 +157,7 @@ class RequestTest extends TestCase
     /** @test */
     public function fromPsr7ThrowsExceptionIfUnsupportedMethod(): void
     {
-        self::expectExceptionObject(new Exception('not supported'));
+        self::expectExceptionObject(CannotProcessRequest::unsupportedMethod('UPDATE'));
 
         $serverRequest = new ServerRequest('UPDATE', 'http://test.com/path');
 
@@ -168,11 +167,23 @@ class RequestTest extends TestCase
     /** @test */
     public function fromPsr7SuccessfulConstructionTest(): void
     {
-        $expected = new Request(self::DIR . 'noReferences.json', 'http://test.com/path', Method::GET);
-        $serverRequest = new ServerRequest('GET', 'http://test.com/path');
+        $expected = new Request(self::DIR . 'noReferences.json', 'http://www.test.com/path', Method::GET);
+        $serverRequest = new ServerRequest('GET', 'http://www.test.com/path');
 
         $actual = Request::fromPsr7(self::DIR . 'noReferences.json', $serverRequest);
 
         self::assertEquals($expected, $actual);
+    }
+
+    /** @test */
+    public function throwExceptionForIncorrectServer(): void
+    {
+        self::expectExceptionObject(
+            CannotProcessRequest::serverNotFound(self::DIR . 'noReferences.json', 'http://www.pest.co.uk/path')
+        );
+
+        $serverRequest = new ServerRequest('GET', 'http://www.pest.co.uk/path');
+
+        Request::fromPsr7(self::DIR . 'noReferences.json', $serverRequest);
     }
 }

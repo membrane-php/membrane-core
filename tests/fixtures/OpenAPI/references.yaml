@@ -4,7 +4,7 @@ info:
   title: Test API
   version: 1.0.0
 servers:
-  - url: http://test.com
+  - url: http://www.test.com
 paths:
   "/path":
     get:

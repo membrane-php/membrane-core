@@ -9,7 +9,7 @@ use cebe\openapi\spec\Parameter;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Reference;
 use cebe\openapi\spec\Schema;
-use Exception;
+use Membrane\OpenAPI\Exception\CannotProcessRequest;
 use Membrane\OpenAPI\Method;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -35,9 +35,10 @@ class Request extends APISpec
 
     public static function fromPsr7(string $apiPath, ServerRequestInterface $request): self
     {
-        $method = Method::tryFrom(strtolower($request->getMethod())) ?? throw new Exception('not supported');
+        $method = Method::tryFrom(strtolower($request->getMethod())) ??
+            throw CannotProcessRequest::unsupportedMethod($request->getMethod());
 
-        return new self($apiPath, $request->getUri()->getPath(), $method);
+        return new self($apiPath, (string)$request->getUri(), $method);
     }
 
     /** @return Parameter[] */

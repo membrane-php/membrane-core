@@ -34,7 +34,7 @@ abstract class APISpec implements Specification
         $openAPI = $this->readAPIFile($filePath);
         $openAPI->validate() ?: throw CannotReadOpenAPI::invalidOpenAPI(pathinfo($filePath, PATHINFO_BASENAME));
 
-        $serverUrl = $this->matchServer($openAPI, $url);
+        $serverUrl = $this->matchServer($filePath, $openAPI, $url);
         foreach ($openAPI->paths->getPaths() as $path => $pathItem) {
             $pathMatcher = new PathMatcher($serverUrl, $path);
             if ($pathMatcher->matches($url)) {
@@ -44,10 +44,10 @@ abstract class APISpec implements Specification
             }
         }
 
-        $this->matchingPath ?? throw CannotProcessRequest::pathNotFound(
-            pathinfo($filePath, PATHINFO_BASENAME),
-            $url
-        );
+            $this->matchingPath ?? throw CannotProcessRequest::pathNotFound(
+                pathinfo($filePath, PATHINFO_BASENAME),
+                $url
+            );
     }
 
     protected function getOperation(Method $method): Operation
@@ -93,18 +93,21 @@ abstract class APISpec implements Specification
         throw CannotReadOpenAPI::fileTypeNotSupported(pathinfo($filePath, PATHINFO_EXTENSION));
     }
 
-    private function matchServer(OpenApi $openAPI, string $url): string
+    private function matchServer(string $filePath, OpenApi $openAPI, string $url): string
     {
-        $servers = $openAPI->servers;
-        uasort($servers, fn($a, $b) => strlen($b->url) <=> strlen($a->url));
+        $servers = [''];
+        foreach ($openAPI->servers as $server) {
+            $servers[] = rtrim($server->url, '/');
+        }
+
+        uasort($servers, fn($a, $b) => strlen($b) <=> strlen($a));
 
         foreach ($servers as $server) {
-            $serverUrl = rtrim($server->url, '/');
-            if (str_starts_with($url, $serverUrl . '/')) {
-                return $serverUrl;
+            if (str_starts_with($url, $server . '/')) {
+                return $server;
             }
         }
 
-        return '';
+        throw CannotProcessRequest::serverNotFound($filePath, $url);
     }
 }

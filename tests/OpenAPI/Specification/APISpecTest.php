@@ -120,7 +120,7 @@ class APISpecTest extends TestCase
     public function throwsExceptionIfNoPathMatches(): void
     {
         $fileName = 'noReferences.json';
-        $url = 'incorrect/path';
+        $url = 'http://www.test.com/notpath';
         self::expectExceptionObject(CannotProcessRequest::pathNotFound($fileName, $url));
 
         new class(self::DIR . $fileName, $url) extends APISpec {
@@ -132,27 +132,27 @@ class APISpecTest extends TestCase
         return [
             'GET does not have any content' => [
                 'noReferences.json',
-                'http://test.com/path',
+                'http://www.test.com/path',
                 Method::GET,
             ],
             'POST has empty content' => [
                 'noReferences.json',
-                'http://test.com/path',
+                'http://www.test.com/path',
                 Method::POST,
             ],
             'DELETE has application/json content' => [
                 'noReferences.json',
-                'http://test.com/path',
+                'http://www.test.com/path',
                 Method::DELETE,
             ],
             'path that contains reference that must be resolved .json' => [
                 'references.json',
-                'http://test.com/path',
+                'http://www.test.com/path',
                 Method::GET,
             ],
             'path that contains reference that must be resolved .yaml' => [
                 'references.json',
-                'http://test.com/path',
+                'http://www.test.com/path',
                 Method::GET,
             ],
         ];

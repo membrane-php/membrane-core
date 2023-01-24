@@ -30,7 +30,7 @@ class ResponseTest extends TestCase
         $httpStatus = '404';
         self::expectExceptionObject(CannotProcessOpenAPI::responseNotFound($httpStatus));
 
-        new Response(self::DIR . 'noReferences.json', 'http://test.com/path', Method::GET, $httpStatus);
+        new Response(self::DIR . 'noReferences.json', 'http://www.test.com/path', Method::GET, $httpStatus);
     }
 
     /**
@@ -40,7 +40,7 @@ class ResponseTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessRequest::unsupportedContent());
 
-        new Response(self::DIR . 'noReferences.json', 'http://test.com/path', Method::PUT, '200');
+        new Response(self::DIR . 'noReferences.json', 'http://www.test.com/path', Method::PUT, '200');
     }
 
     /**
@@ -48,7 +48,7 @@ class ResponseTest extends TestCase
      */
     public function returnsDefaultResponseIfExactMatchNotFound(): void
     {
-        $class = new Response(self::DIR . 'noReferences.json', 'http://test.com/path', Method::DELETE, '404');
+        $class = new Response(self::DIR . 'noReferences.json', 'http://www.test.com/path', Method::DELETE, '404');
 
         self::assertInstanceOf(Schema::class, $class->schema);
     }
@@ -58,7 +58,7 @@ class ResponseTest extends TestCase
      */
     public function schemaIsSchemaObjectIfContentJson(): void
     {
-        $class = new Response(self::DIR . 'noReferences.json', 'http://test.com/path', Method::DELETE, 'default');
+        $class = new Response(self::DIR . 'noReferences.json', 'http://www.test.com/path', Method::DELETE, 'default');
 
         self::assertInstanceOf(Schema::class, $class->schema);
     }
@@ -67,13 +67,13 @@ class ResponseTest extends TestCase
     {
         return [
             'response with no content' => [
-                'http://test.com/path',
+                'http://www.test.com/path',
                 Method::GET,
                 '200',
                 'noReferences.json',
             ],
             'response with empty content' => [
-                'http://test.com/path',
+                'http://www.test.com/path',
                 Method::POST,
                 '200',
                 'noReferences.json',
@@ -100,13 +100,13 @@ class ResponseTest extends TestCase
     {
         return [
             [
-                'http://test.com/path',
+                'http://www.test.com/path',
                 Method::GET,
                 '200',
                 'references.json',
             ],
             [
-                'http://test.com/path',
+                'http://www.test.com/path',
                 Method::GET,
                 '200',
                 'references.yaml',
