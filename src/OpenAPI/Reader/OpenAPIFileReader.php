@@ -35,7 +35,7 @@ class OpenAPIFileReader
 
         try {
             $openAPI = $readFrom($absoluteFilePath);
-        } catch (\TypeError|TypeErrorException|ParseException $e) {
+        } catch (\TypeError | TypeErrorException | ParseException $e) {
             throw CannotReadOpenAPI::cannotParse(pathinfo($absoluteFilePath, PATHINFO_BASENAME), $e);
         } catch (UnresolvableReferenceException $e) {
             throw CannotReadOpenAPI::unresolvedReference(pathinfo($absoluteFilePath, PATHINFO_BASENAME), $e);

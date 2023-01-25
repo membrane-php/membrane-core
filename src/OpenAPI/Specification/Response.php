@@ -12,9 +12,9 @@ class Response extends APISpec
 {
     public readonly ?Schema $schema;
 
-    public function __construct(string $filePath, string $url, Method $method, string $httpStatus)
+    public function __construct(string $absoluteFilePath, string $url, Method $method, string $httpStatus)
     {
-        parent::__construct($filePath, $url);
+        parent::__construct($absoluteFilePath, $url);
 
         $response = $this->getResponse($method, $httpStatus);
 

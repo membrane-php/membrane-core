@@ -46,6 +46,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @uses      \Membrane\OpenAPI\PathMatcher
  * @uses      \Membrane\OpenAPI\Processor\Json
  * @uses      \Membrane\OpenAPI\Processor\Request
+ * @uses      \Membrane\OpenAPI\Reader\OpenAPIFileReader
  * @uses      \Membrane\OpenAPI\Specification\APISchema
  * @uses      \Membrane\OpenAPI\Specification\APISpec
  * @uses      \Membrane\OpenAPI\Specification\Arrays
