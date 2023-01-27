@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Membrane\OpenAPI\Router;
+namespace Membrane\OpenAPI\Router\Collector;
 
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\PathItem;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Router\Collection\ServerCollection;
 
 class ServerCollector
 {
-    /** @return array{'operationIds': string[][], 'servers': string[]} */
-    public function collect(OpenApi $openApi): array
+    public function collect(OpenApi $openApi): ServerCollection
     {
         $collection = [];
 
@@ -39,11 +39,8 @@ class ServerCollector
         return $this->mapServers($collection);
     }
 
-    /**
-     * @param string[][] $collection
-     * @return array{'operationIds': string[][], 'servers': string[]}
-     */
-    private function mapServers(array $collection): array
+    /** @param string[][] $collection */
+    private function mapServers(array $collection): ServerCollection
     {
         $mapOperationIds = $mapServers = [];
 
@@ -56,8 +53,7 @@ class ServerCollector
             }
         }
 
-
-        return ['operationIds' => $mapOperationIds, 'servers' => $this->getCaptureGroup($mapServers)];
+        return new ServerCollection($mapOperationIds, $this->getCaptureGroup($mapServers));
     }
 
     /**

@@ -75,6 +75,42 @@
           }
         }
       }
+    },
+    "/however": {
+      "servers": [
+        {
+          "url": "http://weirdest.com"
+        }
+      ],
+      "get": {
+        "operationId": "get-however",
+        "servers": [
+          {
+            "url": "http://weirder.co.uk"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "operationId": "post-however",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "put": {
+        "operationId": "put-however",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
     }
   }
 }

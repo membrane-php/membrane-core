@@ -6,5 +6,4 @@ namespace Membrane\OpenAPI\Router;
 
 class Router
 {
-
 }
