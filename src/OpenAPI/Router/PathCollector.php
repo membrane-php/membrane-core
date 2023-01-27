@@ -15,7 +15,6 @@ class PathCollector
         $operationIdMap = $pathMap = [];
         $i = 0;
 
-
         foreach ($openApi->paths as $path => $pathItem) {
             $pathMap[$i] = $this->getPathRegex($path, $i);
             $operationIdMap[$i++] = $this->getOperations($pathItem);

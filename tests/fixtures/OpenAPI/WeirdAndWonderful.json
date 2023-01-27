@@ -14,7 +14,7 @@
       "variables": {
         "conjunction": {
           "default": "and",
-          "description": "An conjunction word such as 'and', 'but', 'or', etc."
+          "description": "A conjunction word such as 'and', 'but', 'or', etc."
         }
       }
     }

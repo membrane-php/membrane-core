@@ -20,7 +20,7 @@ class ServerCollectorTest extends TestCase
     {
         return [
             'simple.json' => [
-                ['operationIds' => [[]], 'servers' => ['/(*MARK:0)']],
+                ['operationIds' => [], 'servers' => []],
                 self::FIXTURES . 'simple.json',
             ],
             'petstore.yaml' => [

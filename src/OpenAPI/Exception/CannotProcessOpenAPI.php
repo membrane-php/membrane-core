@@ -19,6 +19,7 @@ class CannotProcessOpenAPI extends RuntimeException
     public const RESPONSE_NOT_FOUND = 1;
     public const PATH_MISMATCH = 2;
     public const TYPE_MISMATCH = 3;
+    public const MISSING_OPERATION_ID = 4;
 
 
     public static function invalidPath(string $path): self
@@ -43,5 +44,15 @@ class CannotProcessOpenAPI extends RuntimeException
     {
         $message = sprintf('%s expects %s data types, %s provided', $processor, $expected, $actual ?? 'no type');
         return new self($message, self::TYPE_MISMATCH);
+    }
+
+    public static function missingOperationId(string $path, string $method): self
+    {
+        $message = sprintf(
+            "An operationId is required for routing to the '%s' operation on the '%s' path.",
+            $method,
+            $path
+        );
+        return new self($message, self::MISSING_OPERATION_ID);
     }
 }

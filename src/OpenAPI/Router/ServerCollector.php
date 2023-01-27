@@ -7,78 +7,76 @@ namespace Membrane\OpenAPI\Router;
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\PathItem;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 
 class ServerCollector
 {
     /** @return array{'operationIds': string[][], 'servers': string[]} */
     public function collect(OpenApi $openApi): array
     {
-        $operationIdMap = $serverMap = [];
-        $i = 0;
+        $collection = [];
 
         $rootServers = $this->getServers($openApi);
-        foreach ($openApi->paths as $path) {
-            $pathServers = $this->getServers($path);
-            foreach ($path->getOperations() as $operation) {
-                $operationServers = $this->getServers($operation);
+        foreach ($openApi->paths as $path => $pathObject) {
+            $pathServers = $this->getServers($pathObject);
+            foreach ($pathObject->getOperations() as $operation => $operationObject) {
+                $operationServers = $this->getServers($operationObject);
+
+                if ($operationObject->operationId === null) {
+                    throw CannotProcessOpenAPI::missingOperationId($path, $operation);
+                }
 
                 if ($operationServers !== []) {
-                    $operationServers = $this->appendOperationId($operationServers, $operation->operationId);
-                    foreach ($operationServers as $operationServer => $operationIds) {
-                        $serverMap[$i] = $this->getServerRegex($operationServer, $i);
-                        $operationIdMap[$i++] = $operationIds;
-                    }
+                    $collection[$operationObject->operationId] = $operationServers;
                 } elseif ($pathServers !== []) {
-                    $pathServers = $this->appendOperationId($pathServers, $operation->operationId);
+                    $collection[$operationObject->operationId] = $pathServers;
                 } else {
-                    $rootServers = $this->appendOperationId($rootServers, $operation->operationId);
-                }
-            }
-
-            foreach ($pathServers as $pathServer => $operationIds) {
-                if ($pathServer !== []) {
-                    $serverMap[$i] = $this->getServerRegex($pathServer, $i);
-                    $operationIdMap[$i++] = $operationIds;
+                    $collection[$operationObject->operationId] = $rootServers;
                 }
             }
         }
-        foreach ($rootServers as $rootServer => $operationIds) {
-            if ($rootServer !== []) {
-                $serverMap[$i] = $this->getServerRegex($rootServer, $i);
-                $operationIdMap[$i++] = $operationIds;
-            }
-        }
 
-        return ['operationIds' => $operationIdMap, 'servers' => $serverMap];
+        return $this->mapServers($collection);
     }
 
     /**
-     * @param string[][] $servers
-     * @return string[][]
+     * @param string[][] $collection
+     * @return array{'operationIds': string[][], 'servers': string[]}
      */
-    private function appendOperationId(array $servers, string $operationId): array
+    private function mapServers(array $collection): array
     {
-        $newServers = $servers;
-        foreach ($servers as $server => $operationIds) {
-            $newServers[$server][] = $operationId;
+        $mapOperationIds = $mapServers = [];
+
+        foreach ($collection as $operationId => $servers) {
+            foreach ($servers as $server) {
+                if (!in_array($server, $mapServers)) {
+                    $mapServers[] = $server;
+                }
+                $mapOperationIds[array_search($server, $mapServers)][] = $operationId;
+            }
         }
 
-        return $newServers;
+
+        return ['operationIds' => $mapOperationIds, 'servers' => $this->getCaptureGroup($mapServers)];
     }
 
-    /** @return string[][] */
+    /**
+     * @param string[] $servers
+     * @return string[]
+     */
+    private function getCaptureGroup(array $servers): array
+    {
+        return array_map(fn($p) => sprintf('%s(*MARK:%d)', $p, array_search($p, $servers)), $servers);
+    }
+
+    /** @return string[] */
     private function getServers(OpenApi|PathItem|Operation $object): array
     {
-        $servers = [];
-        foreach ($object->servers as $server) {
-            $servers[$server->url] = [];
-        }
-
-        return $servers;
+        return array_map(fn($p) => $this->getServerRegex($p->url), $object->servers);
     }
 
-    private function getServerRegex(string $serverURL, int $captureGroup): string
+    private function getServerRegex(string $serverURL): string
     {
-        return sprintf('%s(*MARK:%d)', preg_replace('#{[^/]+}#', '([^/]+)', $serverURL), $captureGroup);
+        return sprintf('%s', preg_replace('#{[^/]+}#', '([^/]+)', $serverURL));
     }
 }
