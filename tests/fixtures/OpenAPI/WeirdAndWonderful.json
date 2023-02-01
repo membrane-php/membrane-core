@@ -7,7 +7,19 @@
   },
   "servers": [
     {
+      "url": ""
+    },
+    {
+      "url": "/"
+    },
+    {
+      "url": "/v1"
+    },
+    {
       "url": "http://wonderful.io"
+    },
+    {
+      "url": "http://wonderful.io/and"
     },
     {
       "url": "http://weird.io/{conjunction}",
@@ -20,7 +32,7 @@
     }
   ],
   "paths": {
-    "/and": {
+    "/and/{name}": {
       "servers": [
         {
           "url": "http://weirder.co.uk"

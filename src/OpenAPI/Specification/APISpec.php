@@ -38,10 +38,7 @@ abstract class APISpec implements Specification
             }
         }
 
-            $this->matchingPath ?? throw CannotProcessRequest::pathNotFound(
-                pathinfo($absoluteFilePath, PATHINFO_BASENAME),
-                $url
-            );
+            $this->matchingPath ?? throw CannotProcessRequest::pathNotFound($url);
     }
 
     protected function getOperation(Method $method): Operation

@@ -16,13 +16,20 @@ use RuntimeException;
 
 class CannotProcessRequest extends RuntimeException
 {
-    public const PATH_NOT_FOUND = 0;
-    public const METHOD_NOT_FOUND = 1;
-    public const CONTENT_TYPE_NOT_SUPPORTED = 2;
+    public const SERVER_NOT_FOUND = 0;
+    public const PATH_NOT_FOUND = 1;
+    public const METHOD_NOT_FOUND = 2;
+    public const CONTENT_TYPE_NOT_SUPPORTED = 3;
 
-    public static function pathNotFound(string $fileName, string $url): self
+    public static function serverNotFound(string $url): self
     {
-        $message = sprintf('%s does not match any specified paths in %s', $url, $fileName);
+        $message = sprintf('%s does not match any specified servers', $url);
+        return new self($message, self::SERVER_NOT_FOUND);
+    }
+
+    public static function pathNotFound(string $url): self
+    {
+        $message = sprintf('%s does not match any specified paths', $url);
         return new self($message, self::PATH_NOT_FOUND);
     }
 

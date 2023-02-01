@@ -29,7 +29,7 @@ class APISpecTest extends TestCase
     {
         $fileName = 'noReferences.json';
         $url = 'incorrect/path';
-        self::expectExceptionObject(CannotProcessRequest::pathNotFound($fileName, $url));
+        self::expectExceptionObject(CannotProcessRequest::pathNotFound($url));
 
         new class(self::FIXTURES . $fileName, $url) extends APISpec {
         };
