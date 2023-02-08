@@ -55,6 +55,7 @@ use PHPUnit\Framework\TestCase;
  * @uses     \Membrane\OpenAPI\Processor\AllOf
  * @uses     \Membrane\OpenAPI\Processor\AnyOf
  * @uses     \Membrane\OpenAPI\Processor\OneOf
+ * @uses     \Membrane\OpenAPI\Reader\OpenAPIFileReader
  * @uses     \Membrane\OpenAPI\Specification\APISchema
  * @uses     \Membrane\OpenAPI\Specification\APISpec
  * @uses     \Membrane\OpenAPI\Specification\Arrays

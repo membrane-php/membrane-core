@@ -17,6 +17,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
  * @covers \Membrane\OpenAPI\Exception\CannotProcessRequest
  * @uses   \Membrane\OpenAPI\PathMatcher
+ * @uses   \Membrane\OpenAPI\Reader\OpenAPIFileReader
  */
 class ResponseTest extends TestCase
 {
