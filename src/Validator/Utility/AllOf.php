@@ -18,6 +18,16 @@ class AllOf implements Validator
         $this->chain = $chain;
     }
 
+    public function __toString(): string
+    {
+        if ($this->chain === []) {
+            return '';
+        }
+
+        return "must satisfy all of the following:\n\t" .
+            implode("\n\t", array_map(fn($p) => '- ' . (string)$p . '.', $this->chain));
+    }
+
     public function validate(mixed $value): Result
     {
         $resultChain = [];

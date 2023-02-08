@@ -18,6 +18,45 @@ use PHPUnit\Framework\TestCase;
  */
 class CountTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'no minimum or maximum' => [
+                0,
+                null,
+                'will return valid',
+            ],
+            'a non-zero minimum' => [
+                5,
+                null,
+                'has greater than 5 values',
+            ],
+            'a maximum' => [
+                0,
+                10,
+                'has fewer than 10 values',
+            ],
+            'a minimum and maximum' => [
+                4,
+                8,
+                'has greater than 4 and fewer than 8 values',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(int $min, ?int $max, string $expected): void
+    {
+        $sut = new Count($min, $max);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [

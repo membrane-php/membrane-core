@@ -19,6 +19,11 @@ class AfterSet implements Processor
         $this->field = new Field('', ...$chain);
     }
 
+    public function __toString(): string
+    {
+        return (string)$this->field;
+    }
+
     public function processes(): string
     {
         return $this->field->processes();

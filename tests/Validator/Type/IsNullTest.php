@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class IsNullTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'is null';
+        $sut = new IsNull();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     /**
      * @test
      */

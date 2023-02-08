@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class ToFloatTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'convert to a float';
+        $sut = new ToFloat();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithAcceptableInputs(): array
     {
         return [

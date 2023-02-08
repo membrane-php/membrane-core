@@ -11,6 +11,11 @@ use Membrane\Validator;
 
 class IsInt implements Validator
 {
+    public function __toString(): string
+    {
+        return 'is an integer';
+    }
+
     public function validate(mixed $value): Result
     {
         $type = gettype($value);

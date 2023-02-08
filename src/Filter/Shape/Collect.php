@@ -21,6 +21,20 @@ class Collect implements Filter
         $this->fields = $fields;
     }
 
+    public function __toString(): string
+    {
+        if ($this->fields === []) {
+            return '';
+        }
+
+        return sprintf(
+            'collect "' .
+            implode('", "', $this->fields) .
+            '" from self and append their values to a nested collection "%s"',
+            $this->newField
+        );
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_array($value)) {

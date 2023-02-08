@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class UniqueTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'contains only unique values';
+        $sut = new Unique();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [

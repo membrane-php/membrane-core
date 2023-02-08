@@ -18,6 +18,16 @@ use PHPUnit\Framework\TestCase;
  */
 class IsNumberTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'is a number';
+        $sut = new IsNumber();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
 
     public function dataSetsToValidate(): array
     {

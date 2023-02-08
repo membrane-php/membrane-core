@@ -20,6 +20,17 @@ use PHPUnit\Framework\TestCase;
  */
 class ToDateTimeTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'convert to a DateTime';
+        $sut = new ToDateTime('');
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [
@@ -38,7 +49,9 @@ class ToDateTimeTest extends TestCase
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $toDateTime = new ToDateTime('');
-        $expected = Result::invalid($input, new MessageSet(
+        $expected = Result::invalid(
+            $input,
+            new MessageSet(
                 null,
                 new Message('ToDateTime filter requires a string, %s given', [$expectedVars])
             )

@@ -19,6 +19,11 @@ class ToDateTime implements Filter
     ) {
     }
 
+    public function __toString(): string
+    {
+        return 'convert to a DateTime';
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_string($value)) {

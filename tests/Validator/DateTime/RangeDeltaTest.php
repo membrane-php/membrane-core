@@ -20,6 +20,45 @@ use PHPUnit\Framework\TestCase;
  */
 class RangeDeltaTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'no minimum or maximum' => [
+                null,
+                null,
+                'will return valid',
+            ],
+            'minimum' => [
+                new DateInterval('P1Y'),
+                null,
+                'is after %s, %d %s %d %d:%d:%d',
+            ],
+            'maximum' => [
+                null,
+                new DateInterval('P1Y2M3D'),
+                'is before %s, %d %s %d %d:%d:%d',
+            ],
+            'minimum and maximum' => [
+                new DateInterval('P1Y'),
+                new DateInterval('P1Y2M3D'),
+                'is after %s, %d %s %d %d:%d:%d and before %s, %d %s %d %d:%d:%d',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(?DateInterval $min, ?DateInterval $max, string $expected): void
+    {
+        $sut = new RangeDelta($min, $max);
+
+        $actual = $sut->__toString();
+
+        self::assertStringMatchesFormat($expected, $actual);
+    }
+
     /**
      * @test
      */

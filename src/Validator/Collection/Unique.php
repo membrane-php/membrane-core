@@ -11,8 +11,9 @@ use Membrane\Validator;
 
 class Unique implements Validator
 {
-    public function __construct()
+    public function __toString(): string
     {
+        return 'contains only unique values';
     }
 
     public function validate(mixed $value): Result

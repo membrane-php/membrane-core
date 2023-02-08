@@ -20,6 +20,16 @@ class Request implements Processor
     ) {
     }
 
+    public function __toString()
+    {
+        if ($this->processors === []) {
+            return 'Parse PSR-7 request';
+        }
+
+        return "Parse PSR-7 request:\n\t" .
+            implode(".\n\t", array_map(fn($p) => preg_replace("#\n#m", "\n\t", (string)$p), $this->processors)) . '.';
+    }
+
     public function processes(): string
     {
         return $this->processes;

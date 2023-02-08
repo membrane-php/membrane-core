@@ -24,6 +24,12 @@ class AllOf implements Processor
         $this->processors = $processors;
     }
 
+    public function __toString(): string
+    {
+        return "All of the following:\n\t" .
+            implode(".\n\t", array_map(fn($p) => preg_replace("#\n#m", "\n\t", (string)$p), $this->processors)) . '.';
+    }
+
     public function processes(): string
     {
         return $this->processes;

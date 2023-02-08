@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class IsArrayTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'is an array with string keys';
+        $sut = new IsArray();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsThatPass(): array
     {
         return [

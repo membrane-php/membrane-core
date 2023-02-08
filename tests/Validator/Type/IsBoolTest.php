@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class IsBoolTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'is a boolean';
+        $sut = new IsBool();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     /**
      * @test
      */

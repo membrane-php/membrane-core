@@ -18,6 +18,37 @@ use PHPUnit\Framework\TestCase;
  */
 class FixedFieldsTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'no fixed fields' => [
+                [],
+                'does not contain any fields',
+            ],
+            'single fixed field' => [
+                ['a'],
+                'only contains the following fields: "a"',
+            ],
+            'multiple fixed fields' => [
+                ['a', 'b', 'c'],
+                'only contains the following fields: "a", "b", "c"',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(array $fields, string $expected): void
+    {
+        $sut = new FixedFields(...$fields);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [

@@ -17,6 +17,16 @@ class Contained implements Validator
     ) {
     }
 
+    public function __toString(): string
+    {
+        if ($this->enum === []) {
+            return 'will return invalid';
+        }
+
+        return sprintf('is one of the following values: ') .
+            implode(', ', array_map(fn($p) => json_encode($p), $this->enum));
+    }
+
     public function validate(mixed $value): Result
     {
         if (!in_array($value, $this->enum, true)) {

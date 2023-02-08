@@ -11,6 +11,11 @@ use Membrane\Result\Result;
 
 class ToNumber implements Filter
 {
+    public function __toString(): string
+    {
+        return 'convert to a number';
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_numeric($value)) {

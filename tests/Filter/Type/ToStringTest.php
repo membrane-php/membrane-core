@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class ToStringTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'convert to a string';
+        $sut = new ToString();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithAcceptableInputs(): array
     {
         $classWithMethod = new class () {

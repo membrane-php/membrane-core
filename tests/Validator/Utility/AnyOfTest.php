@@ -7,6 +7,7 @@ namespace Validator\Utility;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use Membrane\Validator;
 use Membrane\Validator\Utility\AnyOf;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
@@ -24,87 +25,128 @@ use PHPUnit\Framework\TestCase;
  */
 class AnyOfTest extends TestCase
 {
-    public function dataSetsThatReturnNoResult(): array
+    public function dataSetsToConvertToString(): array
     {
+        $validator = self::createMock(Validator::class);
+        $validator->method('__toString')
+            ->willReturn('condition');
+
         return [
-            [[]],
-            [[new Indifferent()]],
-            [[new Indifferent(), new Indifferent(), new Indifferent()]],
+            'no validators' => [
+                [],
+                '',
+            ],
+            'single validator' => [
+                [$validator],
+                <<<END
+                must satisfy at least one of the following:
+                \t- condition.
+                END,
+            ],
+            'multiple validators' => [
+                [$validator, $validator, $validator],
+                <<<END
+                must satisfy at least one of the following:
+                \t- condition.
+                \t- condition.
+                \t- condition.
+                END,
+            ],
         ];
     }
 
     /**
      * @test
-     * @dataProvider dataSetsThatReturnNoResult
+     * @dataProvider dataSetsToConvertToString
      */
-    public function noResultsReturnsNoResult(array $chain): void
+    public function toStringtest(array $chain, string $expected): void
     {
-        $input = 'this can be anything';
-        $oneOf = new AnyOf(...$chain);
-        $expected = Result::noResult($input);
+        $sut = new AnyOf(...$chain);
 
-        $result = $oneOf->validate($input);
+        $actual = $sut->__toString();
 
-        self::assertEquals($expected, $result);
+        self::assertSame($expected, $actual);
     }
 
-    public function dataSetsThatReturnInvalid(): array
+    public function dataSetsToValidate(): array
     {
-        $expectedMessage = new Message('I always fail', []);
         return [
-            [
+            'no validators' => [
+                'a',
+                [],
+                Result::noResult('a'),
+            ],
+            'single invalid result' => [
+                'b',
                 [new Fails()],
-                new MessageSet(null, $expectedMessage),
+                Result::invalid('b', new MessageSet(null, new Message('I always fail', []))),
             ],
-            [
+            'single noResult' => [
+                'c',
+                [new Indifferent()],
+                Result::noResult('c'),
+            ],
+            'single valid result' => [
+                'd',
+                [new Passes()],
+                Result::valid('d'),
+            ],
+            'multiple invalid results' => [
+                'e',
                 [new Fails(), new Fails(), new Fails()],
-                new MessageSet(null, $expectedMessage, $expectedMessage, $expectedMessage),
+                Result::invalid(
+                    'e',
+                    new MessageSet(
+                        null,
+                        new Message('I always fail', []),
+                        new Message('I always fail', []),
+                        new Message('I always fail', [])
+                    )
+                ),
             ],
-            [
-                [new Indifferent(), new Fails(), new Indifferent(), new Indifferent()],
-                new MessageSet(null, $expectedMessage),
+            'multiple noResults' => [
+                'f',
+                [new Indifferent(), new Indifferent(), new Indifferent()],
+                Result::noResult('f'),
+            ],
+            'multiple valid results' => [
+                'g',
+                [new Passes(), new Passes(), new Passes()],
+                Result::valid('g'),
+            ],
+            'mix of invalid and noResult' => [
+                'h',
+                [new Indifferent(), new Fails(), new Indifferent()],
+                Result::invalid('h', new MessageSet(null, new Message('I always fail', []))),
+            ],
+            'mix of invalid and valid results' => [
+                'i',
+                [new Fails(), new Passes(), new Fails()],
+                Result::valid('i'),
+            ],
+            'mix of valid and noResult' => [
+                'j',
+                [new Indifferent(), new Passes(), new Indifferent()],
+                Result::valid('j'),
+            ],
+            'mix of invalid, valid and noResult' => [
+                'k',
+                [new Fails(), new Indifferent(), new Passes()],
+                Result::valid('k'),
             ],
         ];
     }
 
     /**
      * @test
-     * @dataProvider dataSetsThatReturnInvalid
+     * @dataProvider dataSetsToValidate
      */
-    public function singleFailsReturnsInvalid(array $chain, MessageSet $expectedMessageSet): void
+    public function validateTest(mixed $value, array $chain, Result $expected): void
     {
-        $input = 'this can be anything';
-        $oneOf = new AnyOf(...$chain);
-        $expected = Result::invalid($input, $expectedMessageSet);
+        $sut = new AnyOf(...$chain);
 
-        $result = $oneOf->validate($input);
+        $actual = $sut->validate($value);
 
-        self::assertEquals($expected, $result);
-    }
-
-    public function dataSetsThatReturnValid(): array
-    {
-        return [
-            [[new Passes()]],
-            [[new Indifferent(), new Passes()]],
-            [[new Fails(), new Passes()]],
-            [[new Fails(), new Indifferent(), new Passes()]],
-            [[new Fails(), new Indifferent(), new Passes(), new Fails(), new Fails(), new Indifferent()]],
-        ];
-    }
-
-    /**
-     * @test
-     * @dataProvider dataSetsThatReturnValid
-     */
-    public function anyValidResultsReturnsValid(array $chain): void
-    {
-        $input = 'this can be anything';
-        $oneOf = new AnyOf(...$chain);
-        $expected = Result::valid($input);
-
-        $result = $oneOf->validate($input);
-
-        self::assertEquals($expected, $result);
+        self::assertEquals($expected, $actual);
     }
 }

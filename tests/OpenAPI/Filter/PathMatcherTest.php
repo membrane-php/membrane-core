@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenAPI\Filter;
 
 use Membrane\OpenAPI\Filter\PathMatcher;
+use Membrane\OpenAPI\PathMatcher as PathMatcherClass;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
@@ -20,6 +21,17 @@ use PHPUnit\Framework\TestCase;
  */
 class PathMatcherTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'convert url to a field set of path parameters';
+        $sut = new PathMatcher(self::createStub(PathMatcherClass::class));
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     /** @test */
     public function invalidResultForNonStringValues(): void
     {

@@ -18,6 +18,37 @@ use PHPUnit\Framework\TestCase;
  */
 class DeleteTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'no fields' => [
+                [],
+                '',
+            ],
+            'single field' => [
+                ['a'],
+                'delete "a" from self',
+            ],
+            'multiple fields' => [
+                ['a', 'b', 'c'],
+                'delete "a", "b", "c" from self',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(array $fields, string $expected): void
+    {
+        $sut = new Delete(...$fields);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Delete filter requires arrays, %s given';

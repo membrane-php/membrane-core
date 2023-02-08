@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class FromArrayTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'calls \a\b::fromArray';
+        $sut = new FromArray('\a\b');
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     /**
      * @test
      */

@@ -18,6 +18,17 @@ use PHPUnit\Framework\TestCase;
  */
 class ToNumberTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'convert to a number';
+        $sut = new ToNumber();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsToFilter(): array
     {
         $class = new class {

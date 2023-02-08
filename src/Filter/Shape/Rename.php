@@ -24,6 +24,11 @@ class Rename implements Filter
         $this->new = $new;
     }
 
+    public function __toString(): string
+    {
+        return sprintf('rename "%s" to "%s"', $this->old, $this->new);
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_array($value)) {

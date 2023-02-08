@@ -12,14 +12,19 @@ use Membrane\Validator;
 
 class MultipleOf implements Validator
 {
-    private readonly float|int $multiple;
+    private readonly float|int $factor;
 
     public function __construct(float|int $factor)
     {
         if ($factor <= 0) {
             throw new Exception('MultipleOf validator does not support numbers of zero or less');
         }
-        $this->multiple = $factor;
+        $this->factor = $factor;
+    }
+
+    public function __toString(): string
+    {
+        return sprintf('is a multiple of %d', $this->factor);
     }
 
     public function validate(mixed $value): Result
@@ -31,7 +36,7 @@ class MultipleOf implements Validator
             );
         }
 
-        if (abs(fmod((float)$value, $this->multiple)) === 0.0) {
+        if (abs(fmod((float)$value, $this->factor)) === 0.0) {
             return Result::valid($value);
         }
 
@@ -39,7 +44,7 @@ class MultipleOf implements Validator
             $value,
             new MessageSet(
                 null,
-                new Message('Number is expected to be a multiple of %d', [$this->multiple])
+                new Message('Number is expected to be a multiple of %d', [$this->factor])
             )
         );
     }

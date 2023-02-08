@@ -19,6 +19,45 @@ use PHPUnit\Framework\TestCase;
  */
 class RangeTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'no minimum or maximum' => [
+                null,
+                null,
+                'will return valid',
+            ],
+            'minimum' => [
+                DateTime::createFromFormat(DATE_ATOM, '1970-01-01T00:00:00Z'),
+                null,
+                'is after Thu, 01 Jan 1970 00:00:00',
+            ],
+            'maximum' => [
+                null,
+                DateTime::createFromFormat(DATE_ATOM, '2023-01-16T18:19:57Z'),
+                'is before Mon, 16 Jan 2023 18:19:57',
+            ],
+            'minimum and maximum' => [
+                DateTime::createFromFormat(DATE_ATOM, '1970-01-01T00:00:00Z'),
+                DateTime::createFromFormat(DATE_ATOM, '2023-01-16T18:19:57Z'),
+                'is after Thu, 01 Jan 1970 00:00:00 and before Mon, 16 Jan 2023 18:19:57',
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(?DateTime $min, ?DateTime $max, string $expected): void
+    {
+        $sut = new Range($min, $max);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     /**
      * @test
      */

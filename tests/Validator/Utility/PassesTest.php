@@ -14,6 +14,17 @@ use PHPUnit\Framework\TestCase;
  */
 class PassesTest extends TestCase
 {
+    /** @test */
+    public function toStringTest(): void
+    {
+        $expected = 'will return valid';
+        $sut = new Passes();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSets(): array
     {
         return [[1], [1.1], ['one'], [false], [null],];
@@ -26,9 +37,9 @@ class PassesTest extends TestCase
     public function passesAlwaysReturnsValid(mixed $input): void
     {
         $expected = Result::valid($input);
-        $pass = new Passes();
+        $sut = new Passes();
 
-        $result = $pass->validate($input);
+        $result = $sut->validate($input);
 
         self::assertEquals($expected, $result);
     }

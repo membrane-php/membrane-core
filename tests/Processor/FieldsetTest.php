@@ -51,6 +51,82 @@ use PHPUnit\Framework\TestCase;
  */
 class FieldsetTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'No chain returns empty string' => [
+                '',
+                new FieldSet('field set'),
+            ],
+            'Chain with no conditions returns empty string' => [
+                '',
+                new FieldSet('field set', new Field('a')),
+            ],
+            'Chain with guaranteed noResult returns empty string' => [
+                '',
+                new FieldSet('field set', new Field('a', new Indifferent())),
+            ],
+            'FieldSet processes empty string returns empty string' => [
+                '',
+                new FieldSet('', new Field('a', new Passes())),
+            ],
+            'Chain processors that process empty strings are ignored' => [
+                '',
+                new FieldSet('field set', new Field('', new Passes())),
+            ],
+            'Chain with one condition returns one bullet point' => [
+                "\"field set\"->\"a\":\n\t- will return valid.",
+                new FieldSet('field set', new Field('a', new Passes())),
+            ],
+            'Chain with three condition returns three bullet points' => [
+                "\"field set\"->\"a\":\n\t- will return valid.\n\t- will return valid.\n\t- will return invalid.",
+                new FieldSet('field set', new Field('a', new Passes(), new Passes(), new Fails())),
+            ],
+            'BeforeSet adds a Firstly: section' => [
+                "Firstly \"field set\":\n\t- will return valid.",
+                new FieldSet('field set', new BeforeSet(new Passes())),
+            ],
+            'AfterSet adds a Lastly: section' => [
+                "Lastly \"field set\":\n\t- will return valid.",
+                new FieldSet('field set', new AfterSet(new Passes())),
+            ],
+            'DefaultProcessor adds a Any other fields in "field set": section' => [
+                "Any other fields in \"field set\":\n\t- will return valid.",
+                new FieldSet('field set', DefaultProcessor::fromFiltersAndValidators(new Passes())),
+            ],
+            'Chain with BeforeSet, Field and AfterSet' => [
+                <<<END
+                Firstly "field set":
+                \t- will return invalid.
+                "field set"->"a":
+                \t- will return valid.
+                Any other fields in "field set":
+                \t- will return valid.
+                Lastly "field set":
+                \t- will return valid.
+                END,
+                new FieldSet(
+                    'field set',
+                    new BeforeSet(new Fails()),
+                    new Field('a', new Passes()),
+                    DefaultProcessor::fromFiltersAndValidators(new Passes()),
+                    new AfterSet(new Passes())
+                ),
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(string $expected, FieldSet $sut): void
+    {
+        $actual = (string)$sut;
+
+        self::assertSame($expected, $actual);
+    }
+
     public function dataSetsWithIncorrectValues(): array
     {
         $notArrayMessage = 'Value passed to FieldSet chain be an array, %s passed instead';

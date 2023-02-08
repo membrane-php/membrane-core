@@ -30,6 +30,43 @@ use PHPUnit\Framework\TestCase;
  */
 class FieldTest extends TestCase
 {
+    public function dataSetsToConvertToString(): array
+    {
+        return [
+            'No chain returns empty string' => [
+                '',
+                new Field('a'),
+            ],
+            'Single item in chain returns bulletpoint on own if processes empty string' => [
+                "\n\t- will return valid.",
+                new Field('', new Passes()),
+            ],
+            'Single item in chain returns one bullet point' => [
+                "\"c\":\n\t- will return valid.",
+                new Field('c', new Passes()),
+            ],
+            'guaranteed noResult in chain is ignored' => [
+                '',
+                new Field('d', new Indifferent()),
+            ],
+            'Three items in chain returns three bullet points' => [
+                "\"e\":\n\t- will return valid.\n\t- will return invalid.\n\t- will return valid.",
+                new Field('e', new Passes(), new Fails(), new Passes()),
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
+     */
+    public function toStringTest(string $expected, Field $sut): void
+    {
+        $actual = (string)$sut;
+
+        self::assertSame($expected, $actual);
+    }
+
     /** @test */
     public function processesMethodReturnsProcessesString(): void
     {

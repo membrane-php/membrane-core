@@ -11,6 +11,11 @@ use Membrane\Validator;
 
 class IsFloat implements Validator
 {
+    public function __toString(): string
+    {
+        return 'is a float';
+    }
+
     public function validate(mixed $value): Result
     {
         $type = gettype($value);
