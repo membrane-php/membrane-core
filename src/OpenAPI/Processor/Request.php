@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Processor;
 
+use Membrane\OpenAPI\Method;
 use Membrane\Processor;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
@@ -16,6 +17,8 @@ class Request implements Processor
     /** @param Processor[] $processors */
     public function __construct(
         private readonly string $processes,
+        private readonly string $operationId,
+        private readonly Method $method,
         private readonly array $processors
     ) {
     }
@@ -48,7 +51,12 @@ class Request implements Processor
                 )
             );
         }
-        $value = array_merge(['path' => '', 'query' => '', 'header' => [], 'cookie' => [], 'body' => ''], $value);
+
+        $request = ['method' => $this->method->value, 'operationId' => $this->operationId];
+        $value = array_merge(
+            ['request' => $request, 'path' => '', 'query' => '', 'header' => [], 'cookie' => [], 'body' => ''],
+            $value
+        );
 
         $result = Result::valid($value);
         foreach ($this->processors as $in => $processor) {

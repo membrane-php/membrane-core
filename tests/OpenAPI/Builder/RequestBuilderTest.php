@@ -146,6 +146,8 @@ class RequestBuilderTest extends TestCase
                 ),
                 new RequestProcessor(
                     '',
+                    '',
+                    Method::GET,
                     [
                         'path' => new FieldSet(
                             'path',
@@ -169,6 +171,8 @@ class RequestBuilderTest extends TestCase
                 ),
                 new RequestProcessor(
                     '',
+                    '',
+                    Method::GET,
                     [
                         'path' => new FieldSet(
                             'path',
@@ -190,6 +194,8 @@ class RequestBuilderTest extends TestCase
                 new Request(self::DIR . 'noReferences.json', 'http://www.test.com/requestpathone/{id}', Method::POST),
                 new RequestProcessor(
                     '',
+                    '',
+                    Method::POST,
                     [
                         'path' => new FieldSet(
                             'path',
@@ -218,6 +224,8 @@ class RequestBuilderTest extends TestCase
                 ),
                 new RequestProcessor(
                     '',
+                    '',
+                    Method::PUT,
                     [
                         'path' => new FieldSet(
                             'path',
@@ -247,6 +255,8 @@ class RequestBuilderTest extends TestCase
                 ),
                 new RequestProcessor(
                     '',
+                    '',
+                    Method::DELETE,
                     [
                         'path' => new FieldSet(
                             'path',
@@ -275,6 +285,8 @@ class RequestBuilderTest extends TestCase
                 ),
                 new RequestProcessor(
                     '',
+                    '',
+                    Method::GET,
                     [
                         'path' => new FieldSet(
                             'path',
@@ -294,6 +306,8 @@ class RequestBuilderTest extends TestCase
                 new Request(self::DIR . 'noReferences.json', 'http://www.test.com/requestpathtwo', Method::POST),
                 new RequestProcessor(
                     '',
+                    '',
+                    Method::POST,
                     [
                         'path' => new FieldSet(
                             'path',
@@ -317,6 +331,8 @@ class RequestBuilderTest extends TestCase
                 ),
                 new RequestProcessor(
                     '',
+                    '',
+                    Method::PUT,
                     [
                         'path' => new FieldSet(
                             'path',
@@ -344,6 +360,8 @@ class RequestBuilderTest extends TestCase
                 ),
                 new RequestProcessor(
                     '',
+                    '',
+                    Method::DELETE,
                     [
                         'path' => new FieldSet(
                             'path',
@@ -367,6 +385,8 @@ class RequestBuilderTest extends TestCase
                 ),
                 new RequestProcessor(
                     '',
+                    '',
+                    Method::GET,
                     [
                         'path' => new FieldSet(
                             'path',
@@ -390,6 +410,8 @@ class RequestBuilderTest extends TestCase
                 ),
                 new RequestProcessor(
                     '',
+                    '',
+                    Method::POST,
                     [
                         'path' => new FieldSet(
                             'path',
@@ -413,6 +435,8 @@ class RequestBuilderTest extends TestCase
                 new Request(self::DIR . 'noReferences.json', 'http://www.test.com/requestbodypath/{id}', Method::GET),
                 new RequestProcessor(
                     '',
+                    '',
+                    Method::GET,
                     [
                         'path' => new FieldSet(
                             'path',
@@ -461,6 +485,7 @@ class RequestBuilderTest extends TestCase
                 new ServerRequest('get', 'http://petstore.swagger.io/v1/pets'),
                 Result::valid(
                     [
+                        'request' => ['method' => 'get', 'operationId' => 'listPets'],
                         'path' => [],
                         'query' => [],
                         'header' => [],
@@ -474,6 +499,7 @@ class RequestBuilderTest extends TestCase
                 new ServerRequest('get', 'http://petstore.swagger.io/v1/pets/Harley'),
                 Result::valid(
                     [
+                        'request' => ['method' => 'get', 'operationId' => 'showPetById'],
                         'path' => ['petId' => 'Harley'],
                         'query' => [],
                         'header' => [],
@@ -491,6 +517,7 @@ class RequestBuilderTest extends TestCase
                 new ServerRequest('get', 'http://petstore.swagger.io/api/pets?limit=five'),
                 Result::invalid(
                     [
+                        'request' => ['method' => 'get', 'operationId' => 'findPets'],
                         'path' => [],
                         'query' => ['limit' => 'five'],
                         'header' => [],
@@ -512,6 +539,7 @@ class RequestBuilderTest extends TestCase
                 new ServerRequest('get', 'http://petstore.swagger.io/api/pets?limit=5&tags[]=cat&tags[]=tabby'),
                 Result::valid(
                     [
+                        'request' => ['method' => 'get', 'operationId' => 'findPets'],
                         'path' => [],
                         'query' => ['limit' => 5, 'tags' => ['cat', 'tabby']],
                         'header' => [],
