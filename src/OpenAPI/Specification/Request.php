@@ -18,12 +18,14 @@ class Request extends APISpec
     /** @var Parameter[] */
     public readonly array $pathParameters;
     public readonly ?Schema $requestBodySchema;
+    public readonly string $operationId;
 
     public function __construct(string $absoluteFilePath, string $url, Method $method)
     {
-        parent::__construct($absoluteFilePath, $url);
+        parent::__construct($absoluteFilePath, $url, $method);
 
         $requestOperation = $this->getOperation($method);
+        $this->operationId = $requestOperation->operationId ?? '';
 
         $requestBody = $requestOperation->requestBody ?? null;
 

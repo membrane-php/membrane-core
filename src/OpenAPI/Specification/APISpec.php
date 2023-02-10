@@ -24,7 +24,7 @@ abstract class APISpec implements Specification
 
     // @TODO support alternative servers found in both Path or PathItem objects
 
-    public function __construct(string $absoluteFilePath, string $url)
+    public function __construct(string $absoluteFilePath, string $url, public readonly Method $method)
     {
         $openAPI = (new OpenAPIFileReader())->readFromAbsoluteFilePath($absoluteFilePath);
 
@@ -38,10 +38,10 @@ abstract class APISpec implements Specification
             }
         }
 
-            $this->matchingPath ?? throw CannotProcessRequest::pathNotFound(
-                pathinfo($absoluteFilePath, PATHINFO_BASENAME),
-                $url
-            );
+        $this->matchingPath ?? throw CannotProcessRequest::pathNotFound(
+            pathinfo($absoluteFilePath, PATHINFO_BASENAME),
+            $url
+        );
     }
 
     protected function getOperation(Method $method): Operation
