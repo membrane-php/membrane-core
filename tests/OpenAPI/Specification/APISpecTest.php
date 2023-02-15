@@ -31,7 +31,7 @@ class APISpecTest extends TestCase
         $url = 'incorrect/path';
         self::expectExceptionObject(CannotProcessRequest::pathNotFound($fileName, $url));
 
-        new class(self::FIXTURES . $fileName, $url) extends APISpec {
+        new class(self::FIXTURES . $fileName, $url, Method::from('get')) extends APISpec {
         };
     }
 
@@ -77,7 +77,7 @@ class APISpecTest extends TestCase
 
             public function __construct(string $absoluteFilePath, string $url, Method $method)
             {
-                parent::__construct($absoluteFilePath, $url);
+                parent::__construct($absoluteFilePath, $url, $method);
                 $this->requestOperation = $this->getOperation($method);
             }
         };

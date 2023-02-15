@@ -109,6 +109,7 @@ Outputs
 ```text
 DataSet A is valid.
 [
+    'request' => ['method' => 'get', 'operationId' => 'listPets'],
     'path' => [],
     'query' => [],
     'header' => [],
@@ -118,6 +119,7 @@ DataSet A is valid.
 
 DataSet B is valid.
 [
+    'request' => ['method' => 'get', 'operationId' => 'findPets'],
     'path' => [],
     'query' => ['limit' => 5, 'tags' => ['cat', 'tabby']],
     'header' => [],

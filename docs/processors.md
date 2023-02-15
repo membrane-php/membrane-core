@@ -228,6 +228,7 @@ Designed specifically to convert HTTP Requests into an array format, like so:
 
 ```php
 [
+    'request' => ['method' => '...', 'operationId' => '...'],
     'path' => '...',
     'query' => '...',
     'header' => [...],

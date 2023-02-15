@@ -34,7 +34,12 @@ class RequestBuilder extends APIBuilder
         $processors = $this->fromParameters($specification);
         $processors['body'] = new Json($this->fromRequestBody($specification));
 
-        return new RequestProcessor('', $processors);
+        return new RequestProcessor(
+            '',
+            $specification->operationId,
+            $specification->method,
+            $processors
+        );
     }
 
     private function fromRequestBody(Request $specification): Processor

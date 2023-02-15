@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenAPI\Processor;
 
 use GuzzleHttp\Psr7\ServerRequest;
+use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Processor\Request;
 use Membrane\Processor;
 use Membrane\Processor\Field;
@@ -60,7 +61,7 @@ class RequestTest extends TestCase
      */
     public function toStringTest(string $expected, array $processors): void
     {
-        $sut = new Request('test', $processors);
+        $sut = new Request('test', '', Method::GET, $processors);
 
         $actual = (string)$sut;
 
@@ -70,7 +71,7 @@ class RequestTest extends TestCase
     /** @test */
     public function processesTest(): void
     {
-        $sut = new Request('test', []);
+        $sut = new Request('test', '', Method::GET, []);
 
         self::assertEquals('test', $sut->processes());
     }
@@ -95,7 +96,7 @@ class RequestTest extends TestCase
             'cookie' => $observer,
             'body' => $observer,
         ];
-        $sut = new Request('', $processors);
+        $sut = new Request('', '', Method::GET, $processors);
 
         $actual = $sut->process(new FieldName(''), 5);
 
@@ -126,6 +127,7 @@ class RequestTest extends TestCase
                 [],
                 [],
                 Result::valid([
+                    'request' => ['method' => 'get', 'operationId' => ''],
                     'path' => '',
                     'query' => '',
                     'header' => [],
@@ -143,6 +145,7 @@ class RequestTest extends TestCase
                     'body' => $validProcessor,
                 ],
                 Result::valid([
+                    'request' => ['method' => 'get', 'operationId' => ''],
                     'path' => '',
                     'query' => '',
                     'header' => [],
@@ -160,6 +163,7 @@ class RequestTest extends TestCase
                     'body' => $validProcessor,
                 ],
                 Result::invalid([
+                    'request' => ['method' => 'get', 'operationId' => ''],
                     'path' => '',
                     'query' => '',
                     'header' => [],
@@ -174,6 +178,7 @@ class RequestTest extends TestCase
                 $serverRequest,
                 [],
                 Result::valid([
+                    'request' => ['method' => 'get', 'operationId' => ''],
                     'path' => '/pets',
                     'query' => 'limit=5',
                     'header' => [],
@@ -191,6 +196,7 @@ class RequestTest extends TestCase
                     'body' => $validProcessor,
                 ],
                 Result::valid([
+                    'request' => ['method' => 'get', 'operationId' => ''],
                     'path' => '/pets',
                     'query' => 'limit=5',
                     'header' => [],
@@ -208,6 +214,7 @@ class RequestTest extends TestCase
                     'body' => $validProcessor,
                 ],
                 Result::invalid([
+                    'request' => ['method' => 'get', 'operationId' => ''],
                     'path' => '/pets',
                     'query' => 'limit=5',
                     'header' => [],
@@ -228,6 +235,7 @@ class RequestTest extends TestCase
                     'body' => $validProcessor,
                 ],
                 Result::valid([
+                    'request' => ['method' => 'get', 'operationId' => ''],
                     'path' => '/pets',
                     'query' => 'limit=5',
                     'header' => [],
@@ -244,7 +252,7 @@ class RequestTest extends TestCase
      */
     public function processTest(mixed $value, array $processors, Result $expected): void
     {
-        $sut = new Request('', $processors);
+        $sut = new Request('', '', Method::GET, $processors);
 
         $actual = $sut->process(new FieldName(''), $value);
 
