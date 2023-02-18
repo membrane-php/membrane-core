@@ -71,12 +71,14 @@ class RequestTest extends TestCase
     public function dataSetsToConvertToPHPString(): array
     {
         return [
-            'no chain' => [new Request('a', []),],
-            '1 empty Field' => [new Request('b', [new Field('')]),],
-            '1 Field' => [new Request('c', [new Field('', new Passes())]),],
+            'no chain' => [new Request('a', 'operationId', Method::GET, []),],
+            '1 empty Field' => [new Request('b', 'operationId', Method::GET, [new Field('')]),],
+            '1 Field' => [new Request('c', 'operationId', Method::GET, [new Field('', new Passes())]),],
             '3 Fields' => [
                 new Request(
                     'd',
+                    'operationId',
+                    Method::GET,
                     [new Field('a', new Passes()), new Field('b', new Fails()), new Field('c', new Passes())]
                 ),
             ],
