@@ -53,13 +53,41 @@ class AfterSetTest extends TestCase
         ];
     }
 
-    /** @test * @dataProvider dataSetsToConvertToString
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToString
      */
     public function toStringTest(string $expected, AfterSet $sut): void
     {
         $actual = (string)$sut;
 
         self::assertSame($expected, $actual);
+    }
+
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no chain' => [
+                new AfterSet(),
+            ],
+            '1 validator' => [
+                new AfterSet(new Passes()),
+            ],
+            '3 validators' => [
+                new AfterSet(new Passes(), new Fails(), new Passes()),
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(AfterSet $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
     /** @test */

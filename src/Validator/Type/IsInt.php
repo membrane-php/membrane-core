@@ -16,6 +16,11 @@ class IsInt implements Validator
         return 'is an integer';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function validate(mixed $value): Result
     {
         $type = gettype($value);

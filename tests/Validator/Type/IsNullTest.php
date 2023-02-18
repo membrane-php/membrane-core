@@ -29,6 +29,16 @@ class IsNullTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    /** @test */
+    public function toPHPTest(): void
+    {
+        $sut = new IsNull();
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     /**
      * @test
      */

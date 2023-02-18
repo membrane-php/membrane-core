@@ -59,6 +59,29 @@ class RangeDeltaTest extends TestCase
         self::assertStringMatchesFormat($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no minimum, no maximum' => [null, null,],
+            'minimum, no maximum' => [new DateInterval('P1Y2M3DT4H5M6S'), null],
+            'maximum, no minimum' => [null, new DateInterval('P9Y8M7DT6H5M4S')],
+            'minimum and maximum' => [new DateInterval('P1Y2M3DT4H5M6S'), new DateInterval('P9Y8M7DT6H5M4S')],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(?DateInterval $min, ?DateInterval $max): void
+    {
+        $sut = new RangeDelta($min, $max);
+
+        $actual = $sut->__toPHP();
+
+        self::assertEqualsWithDelta($sut, eval('return ' . $actual . ';'), 2);
+    }
+
     /**
      * @test
      */

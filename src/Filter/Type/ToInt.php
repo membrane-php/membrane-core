@@ -16,6 +16,11 @@ class ToInt implements Filter
         return 'convert to an integer';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function filter(mixed $value): Result
     {
         $type = gettype($value);

@@ -42,6 +42,16 @@ class Field implements Processor
         }
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf(
+            'new %s("%s"%s)',
+            self::class,
+            $this->processes(),
+            implode('', array_map(fn($p) => ', ' . $p->__toPHP(), $this->chain))
+        );
+    }
+
     public function processes(): string
     {
         return $this->processes;

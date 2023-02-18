@@ -16,6 +16,11 @@ class Unique implements Validator
         return 'contains only unique values';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_array($value)) {

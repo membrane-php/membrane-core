@@ -16,6 +16,11 @@ class HTTPParameters implements Filter
         return 'convert query string to a field set of query parameters';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_string($value)) {

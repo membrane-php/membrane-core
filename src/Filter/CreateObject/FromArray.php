@@ -21,6 +21,11 @@ class FromArray implements Filter
         return sprintf('calls %s::fromArray', $this->className);
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s("%s")', self::class, $this->className);
+    }
+
     public function filter(mixed $value): Result
     {
         if (!method_exists($this->className, 'fromArray')) {

@@ -49,6 +49,26 @@ class RequiredFieldsTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no fields' => [new RequiredFields()],
+            '1 field' => [new RequiredFields('a')],
+            '3 fields' => [new RequiredFields('a', 'b', 'c')],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(RequiredFields $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [

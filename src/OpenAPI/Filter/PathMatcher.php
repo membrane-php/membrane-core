@@ -22,6 +22,17 @@ class PathMatcher implements Filter
         return 'convert url to a field set of path parameters';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf(
+            'new %s(new %s("%s", "%s"))',
+            self::class,
+            $this->pathMatcher::class,
+            $this->pathMatcher->serverUrl,
+            $this->pathMatcher->apiPath
+        );
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_string($value)) {

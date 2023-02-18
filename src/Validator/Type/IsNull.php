@@ -16,6 +16,11 @@ class IsNull implements Validator
         return 'is null';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function validate(mixed $value): Result
     {
         if ($value !== null) {

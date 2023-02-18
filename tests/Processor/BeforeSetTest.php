@@ -64,7 +64,34 @@ class BeforeSetTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /**  @test */
+
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no chain' => [
+                new BeforeSet(),
+            ],
+            '1 validator' => [
+                new BeforeSet(new Passes()),
+            ],
+            '3 validators' => [
+                new BeforeSet(new Passes(), new Fails(), new Passes()),
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(BeforeSet $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    /** @test */
     public function processesMethodReturnsEmptyString(): void
     {
         $expected = '';

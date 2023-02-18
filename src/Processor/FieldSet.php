@@ -88,6 +88,32 @@ class FieldSet implements Processor
         return $conditions === [] ? '' : implode("\n", $conditions);
     }
 
+    public function __toPHP(): string
+    {
+        $processors = [];
+        if (isset($this->before)) {
+            $processors[] = $this->before->__toPHP();
+        }
+        foreach ($this->chain as $field) {
+            foreach ($field as $processor) {
+                $processors[] = $processor->__toPHP();
+            }
+        }
+        if (isset($this->default)) {
+            $processors[] = $this->default->__toPHP();
+        }
+        if (isset($this->after)) {
+            $processors[] = $this->after->__toPHP();
+        }
+
+        return sprintf(
+            'new %s("%s"%s)',
+            self::class,
+            $this->processes(),
+            implode('', array_map(fn($p) => ', ' . $p, $processors))
+        );
+    }
+
     public function processes(): string
     {
         return $this->processes;

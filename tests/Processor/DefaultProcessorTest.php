@@ -64,6 +64,32 @@ class DefaultProcessorTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no chain' => [
+                DefaultProcessor::fromFiltersAndValidators(),
+            ],
+            '1 validator' => [
+                DefaultProcessor::fromFiltersAndValidators(new Passes()),
+            ],
+            '3 validators' => [
+                DefaultProcessor::fromFiltersAndValidators(new Passes(), new Fails(), new Passes()),
+            ],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(DefaultProcessor $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     /** @test */
     public function processesTest(): void
     {

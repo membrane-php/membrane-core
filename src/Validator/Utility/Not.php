@@ -21,6 +21,11 @@ class Not implements Validator
         return sprintf('must satisfy the opposite of the following: "%s"', $this->invertedValidator->__toString());
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s(%s)', self::class, $this->invertedValidator->__toPHP());
+    }
+
     public function validate(mixed $value): Result
     {
         $result = $this->invertedValidator->validate($value);

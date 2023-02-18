@@ -10,12 +10,14 @@ use Membrane\Result\Result;
 use Membrane\Validator;
 use Membrane\Validator\Utility\AllOf;
 use Membrane\Validator\Utility\Fails;
+use Membrane\Validator\Utility\Indifferent;
 use Membrane\Validator\Utility\Passes;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Membrane\Validator\Utility\AllOf
  * @uses   \Membrane\Validator\Utility\Fails
+ * @uses   \Membrane\Validator\Utility\Indifferent
  * @uses   \Membrane\Validator\Utility\Passes
  * @uses   \Membrane\Result\Result
  * @uses   \Membrane\Result\MessageSet
@@ -64,6 +66,26 @@ class AllOfTest extends TestCase
         $actual = $sut->__toString();
 
         self::assertSame($expected, $actual);
+    }
+
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no validators' => [new AllOf()],
+            '1 validator' => [new AllOf(new Passes())],
+            '3 validators' => [new AllOf(new Fails(), new Indifferent(), new Passes())],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(AllOf $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
     /**

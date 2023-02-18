@@ -28,6 +28,11 @@ class Json implements Processor
             str_replace(sprintf('"%s":', $processes), '', (string)$this->wrapped);
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s(%s)', self::class, $this->wrapped->__toPHP());
+    }
+
     public function processes(): string
     {
         return $this->wrapped->processes();

@@ -29,6 +29,16 @@ class ToListTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    /** @test */
+    public function toPHPTest(): void
+    {
+        $sut = new ToList();
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsWithAcceptableInputs(): array
     {
         return [

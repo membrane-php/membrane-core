@@ -30,6 +30,16 @@ class TruncateTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    /** @test */
+    public function toPHPTest(): void
+    {
+        $sut = new Truncate(5);
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     /**
      * @test
      * @throws Exception

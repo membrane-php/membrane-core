@@ -16,6 +16,11 @@ class IsArray implements Validator
         return 'is an array with string keys';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_array($value)) {

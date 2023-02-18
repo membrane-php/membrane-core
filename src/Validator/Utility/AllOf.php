@@ -28,6 +28,13 @@ class AllOf implements Validator
             implode("\n\t", array_map(fn($p) => '- ' . (string)$p . '.', $this->chain));
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s(', self::class) .
+            implode(', ', array_map(fn($p) => $p->__toPHP(), $this->chain)) .
+            ')';
+    }
+
     public function validate(mixed $value): Result
     {
         $resultChain = [];

@@ -29,6 +29,16 @@ class WithNamedArgumentsTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    /** @test */
+    public function toPHPTest(): void
+    {
+        $sut = new WithNamedArguments('Arbitrary\Class');
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsThatPass(): array
     {
         $classWithNamedArguments = new class (a: 'default', b: 'arguments') {

@@ -6,6 +6,7 @@ namespace OpenAPI\Processor;
 
 use Membrane\OpenAPI\Processor\Json;
 use Membrane\Processor;
+use Membrane\Processor\Field;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
@@ -41,6 +42,16 @@ class JsonTest extends TestCase
         $actual = (string)$sut;
 
         self::assertSame($expected, $actual);
+    }
+
+    /** @test */
+    public function toPHPTest(): void
+    {
+        $sut = new Json(new Field('a'));
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
     /** @test */

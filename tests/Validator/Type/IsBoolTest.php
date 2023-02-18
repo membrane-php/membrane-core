@@ -29,6 +29,16 @@ class IsBoolTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    /** @test */
+    public function toPHPTest(): void
+    {
+        $sut = new IsBool();
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     /**
      * @test
      */

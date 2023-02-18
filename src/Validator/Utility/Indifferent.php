@@ -14,6 +14,11 @@ class Indifferent implements Validator
         return '';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function validate(mixed $value): Result
     {
         return Result::noResult($value);

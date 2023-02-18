@@ -29,6 +29,16 @@ class DateStringTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    /** @test */
+    public function toPHPTest(): void
+    {
+        $sut = new DateString('Y-m-d');
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [

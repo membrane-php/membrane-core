@@ -29,6 +29,16 @@ class ToFloatTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    /** @test */
+    public function toPHPTest(): void
+    {
+        $sut = new ToFloat();
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsWithAcceptableInputs(): array
     {
         return [

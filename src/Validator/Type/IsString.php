@@ -16,6 +16,11 @@ class IsString implements Validator
         return 'is a string';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function validate(mixed $value): Result
     {
         $type = gettype($value);

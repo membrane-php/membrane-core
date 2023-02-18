@@ -47,6 +47,25 @@ class MaximumTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'inclusive maximum' => [new Maximum(5)],
+            'exclusive maximum' => [new Maximum(5, true)],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(Maximum $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsOfNonNumericValues(): array
     {
         return [

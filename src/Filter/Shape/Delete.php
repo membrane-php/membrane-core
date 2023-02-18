@@ -28,6 +28,13 @@ class Delete implements Filter
         return sprintf('delete "' . implode('", "', $this->fieldNames) . '" from self');
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s(', self::class) .
+            implode(', ', array_map(fn($p) => '"' . $p . '"', $this->fieldNames)) .
+            ')';
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_array($value)) {

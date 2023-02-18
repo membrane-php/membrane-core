@@ -49,6 +49,26 @@ class DeleteTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no fields' => [new Delete(),],
+            'one field' => [new Delete('a'),],
+            'multiple fields' => [new Delete('a', 'b', 'c'),],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(Delete $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Delete filter requires arrays, %s given';

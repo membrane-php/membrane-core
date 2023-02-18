@@ -16,10 +16,42 @@ class RangeDelta implements Validator
     private ?DateTime $min;
     private ?DateTime $max;
 
-    public function __construct(?DateInterval $min = null, ?DateInterval $max = null)
+    public function __construct(
+        private readonly ?DateInterval $minInterval = null,
+        private readonly ?DateInterval $maxInterval = null
+    ) {
+        $this->min = $this->minInterval === null ? null : (new DateTime())->sub($this->minInterval);
+        $this->max = $this->maxInterval === null ? null : (new DateTime())->add($this->maxInterval);
+    }
+
+    public function __toPHP(): string
     {
-        $this->min = $min === null ? null : (new DateTime())->sub($min);
-        $this->max = $max === null ? null : (new DateTime())->add($max);
+        if ($this->minInterval !== null) {
+            $minInterval = sprintf(
+                'new %s("P%dY%dM%dDT%dH%dM%dS")',
+                DateInterval::class,
+                $this->minInterval->y,
+                $this->minInterval->m,
+                $this->minInterval->d,
+                $this->minInterval->h,
+                $this->minInterval->i,
+                $this->minInterval->s,
+            );
+        }
+        if ($this->maxInterval !== null) {
+            $maxInterval = sprintf(
+                'new %s("P%dY%dM%dDT%dH%dM%dS")',
+                DateInterval::class,
+                $this->maxInterval->y,
+                $this->maxInterval->m,
+                $this->maxInterval->d,
+                $this->maxInterval->h,
+                $this->maxInterval->i,
+                $this->maxInterval->s,
+            );
+        }
+
+        return sprintf('new %s(%s, %s)', self::class, $minInterval ?? 'null', $maxInterval ?? 'null');
     }
 
     public function __toString(): string

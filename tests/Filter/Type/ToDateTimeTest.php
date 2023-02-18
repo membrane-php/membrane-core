@@ -31,6 +31,25 @@ class ToDateTimeTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'immutable' => [new ToDateTime('Y-m-d', true)],
+            'mutable' => [new ToDateTime('Y-m-d', false)],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(ToDateTime $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [

@@ -16,6 +16,11 @@ class IsList implements Validator
         return 'is a list';
     }
 
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_array($value)) {

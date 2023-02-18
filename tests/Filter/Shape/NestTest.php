@@ -49,6 +49,26 @@ class NestTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no fields' => [new Nest('new field'),],
+            'one field' => [new Nest('new field', 'a'),],
+            'multiple fields' => [new Nest('new field', 'a', 'b', 'c'),],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(Nest $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [

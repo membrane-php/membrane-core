@@ -41,6 +41,28 @@ class NotTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function toPHPProvider(): array
+    {
+        return [
+            'fails' => [new Fails()],
+            'indifferent' => [new Indifferent()],
+            'passes' => [new Passes()],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider toPHPProvider
+     */
+    public function toPHPTest(Validator $invertedValidator): void
+    {
+        $sut = new Not($invertedValidator);
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsToValidate(): array
     {
         return [

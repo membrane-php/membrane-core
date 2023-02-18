@@ -49,6 +49,26 @@ class CollectTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
+    public function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no fields' => [new Collect('collection')],
+            'one field' => [new Collect('collection', 'a')],
+            'multiple fields' => [new Collect('collection', 'a', 'b', 'c')],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider dataSetsToConvertToPHPString
+     */
+    public function toPHPTest(Collect $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
     public function dataSetsWithIncorrectTypes(): array
     {
         return [
