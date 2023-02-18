@@ -36,9 +36,12 @@ class Request implements Processor
     public function __toPHP(): string
     {
         return sprintf(
-            'new %s("%s", [%s])',
+            'new %s("%s", "%s", %s::%s, [%s])',
             self::class,
             $this->processes(),
+            $this->operationId,
+            Method::class,
+            $this->method->name,
             implode(', ', array_map(fn($p) => $p->__toPHP(), $this->processors))
         );
     }
