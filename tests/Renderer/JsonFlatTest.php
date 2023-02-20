@@ -9,15 +9,17 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Renderer\JsonFlat
- * @uses   \Membrane\Result\FieldName
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Result
- */
+#[CoversClass(JsonFlat::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class JsonFlatTest extends TestCase
 {
     public static function dataSetsToRenderAsArrays(): array
@@ -72,10 +74,8 @@ class JsonFlatTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToRenderAsArrays
-     */
+    #[DataProvider('dataSetsToRenderAsArrays')]
+    #[Test]
     public function toArrayTest(Result $result, array $expected): void
     {
         $sut = new JsonFlat($result);
@@ -85,7 +85,7 @@ class JsonFlatTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function JsonSerializeTest(): void
     {
         $result = Result::invalid(
@@ -101,7 +101,7 @@ class JsonFlatTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $result = Result::invalid(

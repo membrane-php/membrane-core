@@ -10,14 +10,16 @@ use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\DateTime\RangeDelta;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\DateTime\RangeDelta
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(RangeDelta::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class RangeDeltaTest extends TestCase
 {
     public static function dataSetsToConvertToString(): array
@@ -46,10 +48,8 @@ class RangeDeltaTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringTest(?DateInterval $min, ?DateInterval $max, string $expected): void
     {
         $sut = new RangeDelta($min, $max);
@@ -69,10 +69,8 @@ class RangeDeltaTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(?DateInterval $min, ?DateInterval $max): void
     {
         $sut = new RangeDelta($min, $max);
@@ -82,9 +80,7 @@ class RangeDeltaTest extends TestCase
         self::assertEqualsWithDelta($sut, eval('return ' . $actual . ';'), 2);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function noMinAndMaxReturnsValid(): void
     {
         $input = new DateTime('1970-01-01 00:00:00 UTC');
@@ -106,10 +102,8 @@ class RangeDeltaTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithDatesEarlierThanMin
-     */
+    #[DataProvider('dataSetsWithDatesEarlierThanMin')]
+    #[Test]
     public function datesEarlierThanMinReturnInvalid(DateTime $input, DateInterval $min): void
     {
         $now = new DateTime();
@@ -132,10 +126,8 @@ class RangeDeltaTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithDatesLaterThanMax
-     */
+    #[DataProvider('dataSetsWithDatesLaterThanMax')]
+    #[Test]
     public function datesLaterThanMaxReturnInvalid(DateTime $input, DateInterval $max): void
     {
         $now = new DateTime();
@@ -157,10 +149,8 @@ class RangeDeltaTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithDatesWithinRange
-     */
+    #[DataProvider('dataSetsWithDatesWithinRange')]
+    #[Test]
     public function datesWithinRangeReturnValid(DateTime $input, DateInterval $min, DateInterval $max): void
     {
         $expected = Result::valid($input);

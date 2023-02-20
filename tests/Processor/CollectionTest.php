@@ -21,26 +21,28 @@ use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Processor\Collection
- * @covers \Membrane\Exception\InvalidProcessorArguments
- * @uses   \Membrane\Filter\Shape\Truncate
- * @uses   \Membrane\Filter\Type\ToFloat
- * @uses   \Membrane\Processor\BeforeSet
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Processor\AfterSet
- * @uses   \Membrane\Result\FieldName
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Validator\Collection\Count
- * @uses   \Membrane\Validator\Type\IsFloat
- * @uses   \Membrane\Validator\Utility\Passes
- * @uses   \Membrane\Validator\Utility\Indifferent
- * @uses   \Membrane\Validator\Utility\Fails
- */
+#[CoversClass(Collection::class)]
+#[CoversClass(InvalidProcessorArguments::class)]
+#[UsesClass(Truncate::class)]
+#[UsesClass(ToFloat::class)]
+#[UsesClass(BeforeSet::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(AfterSet::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(Count::class)]
+#[UsesClass(IsFloat::class)]
+#[UsesClass(Passes::class)]
+#[UsesClass(Indifferent::class)]
+#[UsesClass(Fails::class)]
 class CollectionTest extends TestCase
 {
     public static function dataSetsToConvertToString(): array
@@ -94,10 +96,8 @@ class CollectionTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringTest(string $expected, Collection $sut): void
     {
         $actual = (string)$sut;
@@ -134,10 +134,8 @@ class CollectionTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(Collection $sut): void
     {
         $actual = $sut->__toPHP();
@@ -158,10 +156,8 @@ class CollectionTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectValues
-     */
+    #[DataProvider('dataSetsWithIncorrectValues')]
+    #[Test]
     public function onlyAcceptsArrayValues(mixed $input, Message $expectedMessage): void
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
@@ -173,7 +169,7 @@ class CollectionTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /** @test */
+    #[Test]
     public function onlyAcceptsOneField(): void
     {
         $field = new Field('field to process');
@@ -182,7 +178,7 @@ class CollectionTest extends TestCase
         new Collection('field to process', $field, $field);
     }
 
-    /** @test */
+    #[Test]
     public function processesTest(): void
     {
         $fieldName = 'field to process';
@@ -193,7 +189,7 @@ class CollectionTest extends TestCase
         self::assertEquals($fieldName, $output);
     }
 
-    /** @test */
+    #[Test]
     public function processMethodWithNoChainReturnsNoResult(): void
     {
         $value = [];
@@ -296,10 +292,8 @@ class CollectionTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsOfFields
-     */
+    #[DataProvider('dataSetsOfFields')]
+    #[Test]
     public function processTest(array $input, Result $expected, Processor ...$chain): void
     {
         $sut = new Collection('field to process', ...$chain);

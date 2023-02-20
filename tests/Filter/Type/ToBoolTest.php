@@ -8,17 +8,19 @@ use Membrane\Filter\Type\ToBool;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\Type\ToBool
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(ToBool::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class ToBoolTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'convert to a boolean';
@@ -29,7 +31,7 @@ class ToBoolTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new ToBool();
@@ -57,10 +59,8 @@ class ToBoolTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithAcceptableInputs
-     */
+    #[DataProvider('dataSetsWithAcceptableInputs')]
+    #[Test]
     public function acceptableTypesReturnBooleanValues($input, $expectedValue): void
     {
         $toBool = new ToBool();
@@ -111,10 +111,8 @@ class ToBoolTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithUnacceptableInputs
-     */
+    #[DataProvider('dataSetsWithUnacceptableInputs')]
+    #[Test]
     public function unacceptableTypesReturnInvalid($input, $expectedMessage): void
     {
         $toBool = new ToBool();

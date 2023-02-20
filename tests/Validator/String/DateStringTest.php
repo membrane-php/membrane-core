@@ -8,17 +8,19 @@ use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\String\DateString;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\String\DateString
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(DateString::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class DateStringTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'matches the DateTime format: "#^[a-zA-Z]+$#"';
@@ -29,7 +31,7 @@ class DateStringTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new DateString('Y-m-d');
@@ -50,10 +52,8 @@ class DateStringTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectTypes
-     */
+    #[DataProvider('dataSetsWithIncorrectTypes')]
+    #[Test]
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $dateString = new DateString('');
@@ -79,10 +79,8 @@ class DateStringTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatPass
-     */
+    #[DataProvider('dataSetsThatPass')]
+    #[Test]
     public function stringsThatMatchFormatReturnValid(string $format, string $input): void
     {
         $dateString = new DateString($format);
@@ -102,10 +100,8 @@ class DateStringTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatFail
-     */
+    #[DataProvider('dataSetsThatFail')]
+    #[Test]
     public function stringsThatDoNotMatchFormatReturnInvalid(string $format, string $input): void
     {
         $dateString = new DateString($format);

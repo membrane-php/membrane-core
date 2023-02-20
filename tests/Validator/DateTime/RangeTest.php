@@ -9,14 +9,16 @@ use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\DateTime\Range;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\DateTime\Range
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Range::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class RangeTest extends TestCase
 {
     public static function dataSetsToConvertToString(): array
@@ -45,10 +47,8 @@ class RangeTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringTest(?DateTime $min, ?DateTime $max, string $expected): void
     {
         $sut = new Range($min, $max);
@@ -68,10 +68,8 @@ class RangeTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(?DateTime $min, ?DateTime $max): void
     {
         $sut = new Range($min, $max);
@@ -81,9 +79,7 @@ class RangeTest extends TestCase
         self::assertEqualsWithDelta($sut, eval('return ' . $actual . ';'), 2);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function noMinAndMaxReturnsValid(): void
     {
         $input = new DateTime('1970-01-01 00:00:00 UTC');
@@ -103,10 +99,8 @@ class RangeTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithDatesEarlierThanMin
-     */
+    #[DataProvider('dataSetsWithDatesEarlierThanMin')]
+    #[Test]
     public function datesEarlierThanMinReturnInvalid(DateTime $input, DateTime $min): void
     {
         $expectedMessage = new Message('DateTime is expected to be after %s', [$min]);
@@ -126,10 +120,8 @@ class RangeTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithDatesLaterThanMax
-     */
+    #[DataProvider('dataSetsWithDatesLaterThanMax')]
+    #[Test]
     public function datesLaterThanMaxReturnInvalid(DateTime $input, DateTime $max): void
     {
         $expectedMessage = new Message('DateTime is expected to be before %s', [$max]);
@@ -158,10 +150,8 @@ class RangeTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithDatesWithinRange
-     */
+    #[DataProvider('dataSetsWithDatesWithinRange')]
+    #[Test]
     public function datesWithinRangeReturnValid(DateTime $input, DateTime $min, DateTime $max): void
     {
         $expected = Result::valid($input);

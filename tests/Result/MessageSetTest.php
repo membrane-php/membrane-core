@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Result;
@@ -6,13 +7,15 @@ namespace Result;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\FieldName
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(MessageSet::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(Message::class)]
 class MessageSetTest extends TestCase
 {
     public static function dataSetsThatCanMerge(): array
@@ -41,10 +44,8 @@ class MessageSetTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatCanMerge
-     */
+    #[DataProvider('dataSetsThatCanMerge')]
+    #[Test]
     public function mergeMessageSets(MessageSet $firstInput, MessageSet $secondInput, MessageSet $expected): void
     {
         $result = $firstInput->merge($secondInput);
@@ -52,9 +53,7 @@ class MessageSetTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mergeDifferentFieldNameThrowsError(): void
     {
         $firstFieldName = new FieldName('field a');
@@ -78,10 +77,8 @@ class MessageSetTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForIsEmptyTest
-     */
+    #[DataProvider('dataSetsForIsEmptyTest')]
+    #[Test]
     public function isEmptyTest(MessageSet $messageSet, bool $expected): void
     {
         $result = $messageSet->isEmpty();

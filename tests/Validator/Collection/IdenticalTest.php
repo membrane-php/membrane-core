@@ -8,17 +8,19 @@ use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Collection\Identical;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Collection\Identical
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Identical::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class IdenticalTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'contains only identical values';
@@ -29,7 +31,7 @@ class IdenticalTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new Identical();
@@ -50,10 +52,8 @@ class IdenticalTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectTypes
-     */
+    #[DataProvider('dataSetsWithIncorrectTypes')]
+    #[Test]
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $identical = new Identical();
@@ -83,10 +83,8 @@ class IdenticalTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForValidResults
-     */
+    #[DataProvider('dataSetsForValidResults')]
+    #[Test]
     public function returnsValidIfEveryInputIsIdentical(mixed $input): void
     {
         $expected = Result::valid($input);
@@ -113,10 +111,8 @@ class IdenticalTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForInvalidResults
-     */
+    #[DataProvider('dataSetsForInvalidResults')]
+    #[Test]
     public function returnsInvalidIfAnyInputIsDifferent(mixed $input): void
     {
         $expected = Result::invalid($input, new MessageSet(null, new Message('Do not match', [])));

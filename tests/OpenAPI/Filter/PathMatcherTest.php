@@ -4,24 +4,26 @@ declare(strict_types=1);
 
 namespace OpenAPI\Filter;
 
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\PathMatcher as PathMatcherHelper;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Filter\PathMatcher
- * @covers \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
- * @uses   \Membrane\OpenAPI\PathMatcher
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Result
- */
+#[CoversClass(PathMatcher::class)]
+#[CoversClass(CannotProcessOpenAPI::class)]
+#[UsesClass(PathMatcherHelper::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Result::class)]
 class PathMatcherTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'convert url to a field set of path parameters';
@@ -32,7 +34,7 @@ class PathMatcherTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $pathMatcherHelper = new PathMatcherHelper('/api', '/pets');
@@ -44,7 +46,7 @@ class PathMatcherTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    /** @test */
+    #[Test]
     public function invalidResultForNonStringValues(): void
     {
         $expected = Result::invalid(
@@ -58,7 +60,7 @@ class PathMatcherTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function invalidResultForMismatchedPath(): void
     {
         $expected = Result::invalid(
@@ -74,7 +76,7 @@ class PathMatcherTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function filterTest(): void
     {
         $expected = Result::noResult(['filtered value']);

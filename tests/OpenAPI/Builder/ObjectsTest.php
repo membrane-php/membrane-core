@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace OpenAPI\Builder;
 
 use cebe\openapi\spec\Schema;
+use Membrane\OpenAPI\Builder\APIBuilder;
+use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\Objects;
+use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
 use Membrane\Processor;
@@ -20,30 +23,30 @@ use Membrane\Validator\Type\IsArray;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Type\IsString;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Builder\Objects
- * @covers \Membrane\OpenAPI\Builder\APIBuilder
- * @uses   \Membrane\OpenAPI\Builder\Numeric
- * @uses   \Membrane\OpenAPI\Builder\Strings
- * @uses   \Membrane\OpenAPI\Processor\AnyOf
- * @uses   \Membrane\OpenAPI\Specification\APISchema
- * @uses   \Membrane\OpenAPI\Specification\Numeric
- * @uses   \Membrane\OpenAPI\Specification\Strings
- * @uses   \Membrane\Processor\BeforeSet
- * @uses   \Membrane\Processor\DefaultProcessor
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Processor\FieldSet
- * @uses   \Membrane\Validator\Collection\Contained
- * @uses   \Membrane\Validator\FieldSet\FixedFields
- * @uses   \Membrane\Validator\FieldSet\RequiredFields
- */
+#[CoversClass(Objects::class)]
+#[CoversClass(APIBuilder::class)]
+#[UsesClass(Numeric::class)]
+#[UsesClass(Strings::class)]
+#[UsesClass(AnyOf::class)]
+#[UsesClass(Specification\APISchema::class)]
+#[UsesClass(Specification\Numeric::class)]
+#[UsesClass(Specification\Strings::class)]
+#[UsesClass(BeforeSet::class)]
+#[UsesClass(DefaultProcessor::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(FieldSet::class)]
+#[UsesClass(Contained::class)]
+#[UsesClass(FixedFields::class)]
+#[UsesClass(RequiredFields::class)]
 class ObjectsTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function supportsArraysSpecification(): void
     {
         $specification = self::createStub(Specification\Objects::class);
@@ -52,9 +55,7 @@ class ObjectsTest extends TestCase
         self::assertTrue($sut->supports($specification));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function doesNotSupportSpecificationsThatAreNotArrays(): void
     {
         $specification = self::createStub(Specification\APISpec::class);
@@ -119,10 +120,8 @@ class ObjectsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider specificationsToBuild
-     */
+    #[DataProvider('specificationsToBuild')]
+    #[Test]
     public function buildTest(Specification\Objects $specification, Processor $expected): void
     {
         $sut = new Objects();

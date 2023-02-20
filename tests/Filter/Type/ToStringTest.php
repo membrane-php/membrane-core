@@ -8,17 +8,19 @@ use Membrane\Filter\Type\ToString;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\Type\ToString
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(ToString::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class ToStringTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'convert to a string';
@@ -29,7 +31,7 @@ class ToStringTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new ToString();
@@ -57,10 +59,8 @@ class ToStringTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithAcceptableInputs
-     */
+    #[DataProvider('dataSetsWithAcceptableInputs')]
+    #[Test]
     public function acceptableInputsReturnStrings($input, $expectedValue)
     {
         $toString = new ToString();
@@ -94,10 +94,8 @@ class ToStringTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithUnacceptableInputs
-     */
+    #[DataProvider('dataSetsWithUnacceptableInputs')]
+    #[Test]
     public function unacceptableTypesReturnInvalid($input, $expectedMessage): void
     {
         $toString = new ToString();

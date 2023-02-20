@@ -25,30 +25,32 @@ use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Processor\FieldSet
- * @covers \Membrane\Exception\InvalidProcessorArguments
- * @uses   \Membrane\Validator\Collection\Identical
- * @uses   \Membrane\Filter\Shape\Rename
- * @uses   \Membrane\Filter\Type\ToFloat
- * @uses   \Membrane\Filter\Type\ToInt
- * @uses   \Membrane\Filter\Type\ToString
- * @uses   \Membrane\Processor\AfterSet
- * @uses   \Membrane\Processor\BeforeSet
- * @uses   \Membrane\Processor\DefaultProcessor
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Result\FieldName
- * @uses   \Membrane\Validator\FieldSet\RequiredFields
- * @uses   \Membrane\Validator\Type\IsFloat
- * @uses   \Membrane\Validator\Utility\Fails
- * @uses   \Membrane\Validator\Utility\Indifferent
- * @uses   \Membrane\Validator\Utility\Passes
- */
+#[CoversClass(FieldSet::class)]
+#[CoversClass(InvalidProcessorArguments::class)]
+#[UsesClass(Identical::class)]
+#[UsesClass(Rename::class)]
+#[UsesClass(ToFloat::class)]
+#[UsesClass(ToInt::class)]
+#[UsesClass(ToString::class)]
+#[UsesClass(AfterSet::class)]
+#[UsesClass(BeforeSet::class)]
+#[UsesClass(DefaultProcessor::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(RequiredFields::class)]
+#[UsesClass(IsFloat::class)]
+#[UsesClass(Fails::class)]
+#[UsesClass(Indifferent::class)]
+#[UsesClass(Passes::class)]
 class FieldsetTest extends TestCase
 {
     public static function dataSetsToConvertToString(): array
@@ -116,10 +118,8 @@ class FieldsetTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringTest(string $expected, FieldSet $sut): void
     {
         $actual = (string)$sut;
@@ -148,10 +148,8 @@ class FieldsetTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(FieldSet $sut): void
     {
         $actual = $sut->__toPHP();
@@ -173,10 +171,8 @@ class FieldsetTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectValues
-     */
+    #[DataProvider('dataSetsWithIncorrectValues')]
+    #[Test]
     public function onlyAcceptsArrayValues(mixed $input, Message $expectedMessage): void
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
@@ -188,7 +184,7 @@ class FieldsetTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /** @test */
+    #[Test]
     public function onlyAcceptsOneBeforeSet(): void
     {
         $beforeSet = new BeforeSet();
@@ -197,7 +193,7 @@ class FieldsetTest extends TestCase
         new FieldSet('field to process', $beforeSet, $beforeSet);
     }
 
-    /** @test */
+    #[Test]
     public function onlyAcceptsOneAfterSet(): void
     {
         $afterSet = new AfterSet();
@@ -206,7 +202,7 @@ class FieldsetTest extends TestCase
         new FieldSet('field to process', $afterSet, $afterSet);
     }
 
-    /** @test */
+    #[Test]
     public function onlyAcceptsOneDefaultField(): void
     {
         $defaultField = DefaultProcessor::fromFiltersAndValidators();
@@ -215,7 +211,7 @@ class FieldsetTest extends TestCase
         new FieldSet('field to process', $defaultField, $defaultField);
     }
 
-    /** @test */
+    #[Test]
     public function processesTest(): void
     {
         $fieldName = 'field to process';
@@ -226,7 +222,7 @@ class FieldsetTest extends TestCase
         self::assertEquals($fieldName, $output);
     }
 
-    /** @test */
+    #[Test]
     public function processMethodCallsFieldProcessesMethod(): void
     {
         $input = ['a' => 1, 'b' => 2, 'c' => 3];
@@ -238,7 +234,7 @@ class FieldsetTest extends TestCase
         $fieldset->process(new FieldName('Parent field'), $input);
     }
 
-    /** @test */
+    #[Test]
     public function processCallsBeforeSetProcessOnceAndProcessesNever(): void
     {
         $input = ['a' => 1, 'b' => 2, 'c' => 3];
@@ -254,7 +250,7 @@ class FieldsetTest extends TestCase
         $fieldset->process(new FieldName('Parent field'), $input);
     }
 
-    /** @test */
+    #[Test]
     public function processCallsAfterSetProcessOnceAndProcessesNever(): void
     {
         $input = ['a' => 1, 'b' => 2, 'c' => 3];
@@ -348,10 +344,8 @@ class FieldsetTest extends TestCase
     }
 
 
-    /**
-     * @test
-     * @dataProvider dataSetsOfFields
-     */
+    #[DataProvider('dataSetsOfFields')]
+    #[Test]
     public function processTest(array $input, Result $expected, Processor ...$chain): void
     {
         $fieldset = new FieldSet('field to process', ...$chain);

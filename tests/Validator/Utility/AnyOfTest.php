@@ -11,17 +11,19 @@ use Membrane\Validator\Utility\AnyOf;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Utility\AnyOf
- * @uses   \Membrane\Validator\Utility\Fails
- * @uses   \Membrane\Validator\Utility\Indifferent
- * @uses   \Membrane\Validator\Utility\Passes
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(AnyOf::class)]
+#[UsesClass(Fails::class)]
+#[UsesClass(Indifferent::class)]
+#[UsesClass(Passes::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class AnyOfTest extends TestCase
 {
     public static function dataSetsToConvertToPHPString(): array
@@ -33,10 +35,8 @@ class AnyOfTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(AnyOf $sut): void
     {
         $actual = $sut->__toPHP();
@@ -69,10 +69,8 @@ class AnyOfTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringtest(array $chain, string $expected): void
     {
         $sut = new AnyOf(...$chain);
@@ -151,10 +149,8 @@ class AnyOfTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToValidate
-     */
+    #[DataProvider('dataSetsToValidate')]
+    #[Test]
     public function validateTest(mixed $value, array $chain, Result $expected): void
     {
         $sut = new AnyOf(...$chain);

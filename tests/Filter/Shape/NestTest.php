@@ -8,14 +8,16 @@ use Membrane\Filter\Shape\Nest;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\Shape\Nest
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Nest::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class NestTest extends TestCase
 {
     public static function dataSetsToConvertToString(): array
@@ -36,10 +38,8 @@ class NestTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringTest(array $fields, string $expected): void
     {
         $sut = new Nest('new field set', ...$fields);
@@ -58,10 +58,8 @@ class NestTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(Nest $sut): void
     {
         $actual = $sut->__toPHP();
@@ -85,10 +83,8 @@ class NestTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectTypes
-     */
+    #[DataProvider('dataSetsWithIncorrectTypes')]
+    #[Test]
     public function incorrectFilterInputReturnsInvalid(mixed $input, string $expectedMessage, array $expectedVars): void
     {
         $nest = new Nest('new field', 'a', 'b');
@@ -120,10 +116,8 @@ class NestTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithCorrectTypes
-     */
+    #[DataProvider('dataSetsWithCorrectTypes')]
+    #[Test]
     public function correctFilterInputReturnsResult(array $input, array $fieldsToCollect, array $expectedValue): void
     {
         $nest = new Nest('new field', ...$fieldsToCollect);

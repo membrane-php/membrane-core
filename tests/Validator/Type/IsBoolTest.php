@@ -8,17 +8,19 @@ use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Type\IsBool;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Type\IsBool
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(IsBool::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class IsBoolTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'is a boolean';
@@ -29,7 +31,7 @@ class IsBoolTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new IsBool();
@@ -39,9 +41,7 @@ class IsBoolTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function booleanReturnValid(): void
     {
         $input = false;
@@ -64,10 +64,8 @@ class IsBoolTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatFail
-     */
+    #[DataProvider('dataSetsThatFail')]
+    #[Test]
     public function typesThatAreNotBooleanReturnInvalid($input, $expectedVar): void
     {
         $isBool = new IsBool();

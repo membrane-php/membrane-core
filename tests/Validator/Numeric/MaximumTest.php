@@ -8,14 +8,16 @@ use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Numeric\Maximum;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Numeric\Maximum
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Maximum::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class MaximumTest extends TestCase
 {
     public static function dataSetsToConvertToString(): array
@@ -34,10 +36,8 @@ class MaximumTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringTest(int $max, bool $exclusive, string $expected): void
     {
         $sut = new Maximum($max, $exclusive);
@@ -55,10 +55,8 @@ class MaximumTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(Maximum $sut): void
     {
         $actual = $sut->__toPHP();
@@ -88,10 +86,8 @@ class MaximumTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsOfNonNumericValues
-     */
+    #[DataProvider('dataSetsOfNonNumericValues')]
+    #[Test]
     public function invalidForNonNumericValues(mixed $value, array $messageVars): void
     {
         $expected = Result::invalid(
@@ -189,10 +185,8 @@ class MaximumTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToValidate
-     */
+    #[DataProvider('dataSetsToValidate')]
+    #[Test]
     public function validateTest(int|float $max, bool $exclusive, int|float $value, Result $expected): void
     {
         $sut = new Maximum($max, $exclusive);

@@ -8,17 +8,19 @@ use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Type\IsNull;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Type\IsNull
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(IsNull::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class IsNullTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'is null';
@@ -29,7 +31,7 @@ class IsNullTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new IsNull();
@@ -39,9 +41,7 @@ class IsNullTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function validForNullValue(): void
     {
         $sut = new IsNull();
@@ -63,10 +63,8 @@ class IsNullTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatFail
-     */
+    #[DataProvider('dataSetsThatFail')]
+    #[Test]
     public function invalidForNotNullTypes($input, $expectedVar): void
     {
         $sut = new IsNull();

@@ -8,14 +8,16 @@ use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\FieldSet\RequiredFields;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\FieldSet\RequiredFields
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(RequiredFields::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class RequiredFieldsTest extends TestCase
 {
     public static function dataSetsToConvertToString(): array
@@ -36,10 +38,8 @@ class RequiredFieldsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringTest(array $fields, string $expected): void
     {
         $sut = new RequiredFields(...$fields);
@@ -58,10 +58,8 @@ class RequiredFieldsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(RequiredFields $sut): void
     {
         $actual = $sut->__toPHP();
@@ -80,10 +78,8 @@ class RequiredFieldsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectTypes
-     */
+    #[DataProvider('dataSetsWithIncorrectTypes')]
+    #[Test]
     public function incorrectTypesReturnInvalidResults($input, $inputType): void
     {
         $sut = new RequiredFields();
@@ -133,10 +129,8 @@ class RequiredFieldsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForValidResults
-     */
+    #[DataProvider('dataSetsForValidResults')]
+    #[Test]
     public function ifRequiredFieldsAreFilledReturnValid(array $requiredFields, array $input): void
     {
         $expected = Result::valid($input);
@@ -176,10 +170,8 @@ class RequiredFieldsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForInvalidResults
-     */
+    #[DataProvider('dataSetsForInvalidResults')]
+    #[Test]
     public function ifRequiredFieldsAreNotFilledReturnInvalid(
         array $requiredFields,
         array $input,

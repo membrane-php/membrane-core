@@ -8,13 +8,19 @@ use Exception;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;
 use Membrane\Filter\Type\ToInt;
+use Membrane\OpenAPI\Builder\APIBuilder;
+use Membrane\OpenAPI\Builder\Arrays;
+use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\RequestBuilder;
+use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\Filter\HTTPParameters;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\PathMatcher as PathMatcherClass;
 use Membrane\OpenAPI\Processor\Json;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
+use Membrane\OpenAPI\Reader\OpenAPIFileReader;
+use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\APISpec;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\Processor;
@@ -27,53 +33,56 @@ use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\FieldSet\RequiredFields;
+use Membrane\Validator\Numeric\Maximum;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
 use Membrane\Validator\Type\IsString;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
-/**
- * @covers    \Membrane\OpenAPI\Builder\RequestBuilder
- * @covers    \Membrane\OpenAPI\Builder\APIBuilder
- * @uses      \Membrane\OpenAPI\Builder\Arrays
- * @uses      \Membrane\OpenAPI\Builder\Numeric
- * @uses      \Membrane\OpenAPI\Builder\Strings
- * @uses      \Membrane\OpenAPI\Filter\HTTPParameters
- * @uses      \Membrane\OpenAPI\Filter\PathMatcher
- * @uses      \Membrane\OpenAPI\PathMatcher
- * @uses      \Membrane\OpenAPI\Processor\Json
- * @uses      \Membrane\OpenAPI\Processor\Request
- * @uses      \Membrane\OpenAPI\Reader\OpenAPIFileReader
- * @uses      \Membrane\OpenAPI\Specification\APISchema
- * @uses      \Membrane\OpenAPI\Specification\APISpec
- * @uses      \Membrane\OpenAPI\Specification\Arrays
- * @uses      \Membrane\OpenAPI\Specification\Numeric
- * @uses      \Membrane\OpenAPI\Specification\Strings
- * @uses      \Membrane\OpenAPI\Specification\Request
- * @uses      \Membrane\Filter\Type\ToInt
- * @uses      \Membrane\Processor\BeforeSet
- * @uses      \Membrane\Processor\Collection
- * @uses      \Membrane\Processor\Field
- * @uses      \Membrane\Processor\FieldSet
- * @uses      \Membrane\Result\FieldName
- * @uses      \Membrane\Result\Message
- * @uses      \Membrane\Result\MessageSet
- * @uses      \Membrane\Result\Result
- * @uses      \Membrane\Validator\FieldSet\RequiredFields
- * @uses      \Membrane\Validator\Numeric\Maximum
- * @uses      \Membrane\Validator\Type\IsInt
- * @uses      \Membrane\Validator\Type\IsList
- * @uses      \Membrane\Validator\Type\IsString
- * @uses      \Membrane\Validator\Utility\Passes
- */
+#[CoversClass(RequestBuilder::class)]
+#[CoversClass(APIBuilder::class)]
+#[UsesClass(Arrays::class)]
+#[UsesClass(Numeric::class)]
+#[UsesClass(Strings::class)]
+#[UsesClass(HTTPParameters::class)]
+#[UsesClass(PathMatcher::class)]
+#[UsesClass(PathMatcherClass::class)]
+#[UsesClass(Json::class)]
+#[UsesClass(RequestProcessor::class)]
+#[UsesClass(OpenAPIFileReader::class)]
+#[UsesClass(APISchema::class)]
+#[UsesClass(APISpec::class)]
+#[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
+#[UsesClass(\Membrane\OpenAPI\Specification\Numeric::class)]
+#[UsesClass(\Membrane\OpenAPI\Specification\Strings::class)]
+#[UsesClass(Request::class)]
+#[UsesClass(ToInt::class)]
+#[UsesClass(BeforeSet::class)]
+#[UsesClass(Collection::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(FieldSet::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(RequiredFields::class)]
+#[UsesClass(Maximum::class)]
+#[UsesClass(IsInt::class)]
+#[UsesClass(IsList::class)]
+#[UsesClass(IsString::class)]
+#[UsesClass(Passes::class)]
 class RequestBuilderTest extends TestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';
 
-    /** @test */
+    #[Test]
     public function throwsExceptionIfParameterHasContentThatIsNotJson(): void
     {
         $specification = new Request(
@@ -90,7 +99,7 @@ class RequestBuilderTest extends TestCase
         $sut->build($specification);
     }
 
-    /** @test */
+    #[Test]
     public function throwsExceptionIfParameterHasNoSchemaNorContent(): void
     {
         $specification = new Request(self::DIR . 'noReferences.json', '/requestpathexceptions', Method::GET);
@@ -103,9 +112,7 @@ class RequestBuilderTest extends TestCase
         $sut->build($specification);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function supportsNumericSpecification(): void
     {
         $specification = self::createStub(Request::class);
@@ -114,9 +121,7 @@ class RequestBuilderTest extends TestCase
         self::assertTrue($sut->supports($specification));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function doesNotSupportNonNumericSpecification(): void
     {
         $specification = self::createStub(APISpec::class);
@@ -450,10 +455,8 @@ class RequestBuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForBuild
-     */
+    #[DataProvider('dataSetsForBuild')]
+    #[Test]
     public function buildTest(Specification $spec, Processor $expected): void
     {
         $sut = new RequestBuilder();
@@ -541,10 +544,8 @@ class RequestBuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForDocExamples
-     */
+    #[DataProvider('dataSetsForDocExamples')]
+    #[Test]
     public function docsTest(
         Request $specification,
         array|ServerRequestInterface $serverRequest,

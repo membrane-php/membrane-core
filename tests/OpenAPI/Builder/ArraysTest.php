@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace OpenAPI\Builder;
 
 use cebe\openapi\spec\Schema;
+use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Arrays;
+use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
 use Membrane\Processor;
@@ -18,27 +20,27 @@ use Membrane\Validator\Collection\Unique;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
 use Membrane\Validator\Type\IsNull;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Builder\Arrays
- * @covers \Membrane\OpenAPI\Builder\APIBuilder
- * @uses   \Membrane\OpenAPI\Builder\Numeric
- * @uses   \Membrane\OpenAPI\Processor\AnyOf
- * @uses   \Membrane\OpenAPI\Specification\APISchema
- * @uses   \Membrane\OpenAPI\Specification\Numeric
- * @uses   \Membrane\Processor\BeforeSet
- * @uses   \Membrane\Processor\Collection
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Validator\Collection\Contained
- * @uses   \Membrane\Validator\Collection\Count
- * @uses   \Membrane\Validator\Collection\Unique
- */
+#[CoversClass(Arrays::class)]
+#[CoversClass(APIBuilder::class)]
+#[UsesClass(Numeric::class)]
+#[UsesClass(AnyOf::class)]
+#[UsesClass(Specification\APISchema::class)]
+#[UsesClass(Specification\Numeric::class)]
+#[UsesClass(BeforeSet::class)]
+#[UsesClass(Collection::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(Contained::class)]
+#[UsesClass(Count::class)]
+#[UsesClass(Unique::class)]
 class ArraysTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function supportsArraysSpecification(): void
     {
         $specification = self::createStub(Specification\Arrays::class);
@@ -47,9 +49,7 @@ class ArraysTest extends TestCase
         self::assertTrue($sut->supports($specification));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function doesNotSupportNonArraysSpecification(): void
     {
         $specification = self::createStub(Specification\APISpec::class);
@@ -117,10 +117,8 @@ class ArraysTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider specificationsToBuild
-     */
+    #[DataProvider('specificationsToBuild')]
+    #[Test]
     public function buildTest(Specification\Arrays $specification, Processor $expected): void
     {
         $sut = new Arrays();

@@ -6,6 +6,7 @@ namespace Processor;
 
 use Membrane\Filter\Type\ToFloat;
 use Membrane\Processor\BeforeSet;
+use Membrane\Processor\Field;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
@@ -14,21 +15,23 @@ use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Processor\BeforeSet
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Filter\Type\ToFloat
- * @uses   \Membrane\Validator\Type\IsFloat
- * @uses   \Membrane\Validator\Utility\Fails
- * @uses   \Membrane\Validator\Utility\Indifferent
- * @uses   \Membrane\Validator\Utility\Passes
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Result\FieldName
- */
+#[CoversClass(BeforeSet::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(ToFloat::class)]
+#[UsesClass(IsFloat::class)]
+#[UsesClass(Fails::class)]
+#[UsesClass(Indifferent::class)]
+#[UsesClass(Passes::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(FieldName::class)]
 class BeforeSetTest extends TestCase
 {
     public static function dataSetsToConvertToString(): array
@@ -53,10 +56,8 @@ class BeforeSetTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringTest(string $expected, BeforeSet $sut): void
     {
         $actual = (string)$sut;
@@ -80,10 +81,8 @@ class BeforeSetTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(BeforeSet $sut): void
     {
         $actual = $sut->__toPHP();
@@ -91,7 +90,7 @@ class BeforeSetTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    /** @test */
+    #[Test]
     public function processesMethodReturnsEmptyString(): void
     {
         $expected = '';
@@ -158,10 +157,8 @@ class BeforeSetTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForFiltersOrValidators
-     */
+    #[DataProvider('dataSetsForFiltersOrValidators')]
+    #[Test]
     public function processesCallsFilterOrValidateMethods(Result $expected, BeforeSet $sut, mixed $input): void
     {
         $actual = $sut->process(new FieldName('parent field'), $input);

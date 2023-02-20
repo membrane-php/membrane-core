@@ -6,9 +6,14 @@ namespace Attribute;
 
 use Membrane\Attribute\Builder;
 use Membrane\Attribute\ClassWithAttributes;
+use Membrane\Attribute\FilterOrValidator;
+use Membrane\Attribute\OverrideProcessorType;
+use Membrane\Attribute\SetFilterOrValidator;
+use Membrane\Attribute\Subtype;
 use Membrane\Builder\Specification;
 use Membrane\Exception\CannotProcessProperty;
 use Membrane\Filter\CreateObject\WithNamedArguments;
+use Membrane\Filter\Type\ToString;
 use Membrane\Fixtures\Attribute\ArraySumFilter;
 use Membrane\Fixtures\Attribute\ClassThatOverridesProcessorType;
 use Membrane\Fixtures\Attribute\ClassWithClassArrayPropertyIsIntValidator;
@@ -44,44 +49,49 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use Membrane\Validator\Collection\Count;
 use Membrane\Validator\FieldSet\RequiredFields;
+use Membrane\Validator\String\Length;
+use Membrane\Validator\String\Regex;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
+use Membrane\Validator\Type\IsString;
+use Membrane\Validator\Utility\AllOf;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers   \Membrane\Attribute\Builder
- * @covers   \Membrane\Exception\CannotProcessProperty
- * @uses     \Membrane\Attribute\ClassWithAttributes
- * @uses     \Membrane\Attribute\FilterOrValidator
- * @uses     \Membrane\Attribute\SetFilterOrValidator
- * @uses     \Membrane\Attribute\OverrideProcessorType
- * @uses     \Membrane\Attribute\Subtype
- * @uses     \Membrane\Result\Result
- * @uses     \Membrane\Result\MessageSet
- * @uses     \Membrane\Result\Message
- * @uses     \Membrane\Result\FieldName
- * @uses     \Membrane\Processor\Collection
- * @uses     \Membrane\Processor\FieldSet
- * @uses     \Membrane\Processor\Field
- * @uses     \Membrane\Processor\BeforeSet
- * @uses     \Membrane\Processor\AfterSet
- * @uses     \Membrane\Validator\FieldSet\RequiredFields
- * @uses     \Membrane\Validator\Type\IsList
- * @uses     \Membrane\Validator\Type\IsInt
- * @uses     \Membrane\Validator\Type\IsString
- * @uses     \Membrane\Filter\Type\ToString
- * @uses     \Membrane\Validator\String\Length
- * @uses     \Membrane\Validator\String\Regex
- * @uses     \Membrane\Validator\Utility\AllOf
- * @uses     \Membrane\Validator\Collection\Count
- * @uses     \Membrane\Filter\CreateObject\WithNamedArguments
- */
+#[CoversClass(Builder::class)]
+#[CoversClass(CannotProcessProperty::class)]
+#[UsesClass(ClassWithAttributes::class)]
+#[UsesClass(FilterOrValidator::class)]
+#[UsesClass(SetFilterOrValidator::class)]
+#[UsesClass(OverrideProcessorType::class)]
+#[UsesClass(Subtype::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(Collection::class)]
+#[UsesClass(FieldSet::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(BeforeSet::class)]
+#[UsesClass(AfterSet::class)]
+#[UsesClass(RequiredFields::class)]
+#[UsesClass(IsList::class)]
+#[UsesClass(IsInt::class)]
+#[UsesClass(IsString::class)]
+#[UsesClass(ToString::class)]
+#[UsesClass(Length::class)]
+#[UsesClass(Regex::class)]
+#[UsesClass(AllOf::class)]
+#[UsesClass(Count::class)]
+#[UsesClass(WithNamedArguments::class)]
 class BuilderTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function supportsReturnsFalseIfSpecificationIsNotClassWithAttributes(): void
     {
         $specification = new class implements Specification {
@@ -93,9 +103,7 @@ class BuilderTest extends TestCase
         self::assertFalse($result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function supportsReturnsTrueIfSpecificationIsClassWithAttributes(): void
     {
         $class = new class {
@@ -108,9 +116,7 @@ class BuilderTest extends TestCase
         self::assertTrue($result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function noTypeHintThrowsException(): void
     {
         $specification = new ClassWithAttributes(ClassWithNoTypeHint::class);
@@ -122,9 +128,7 @@ class BuilderTest extends TestCase
         $builder->build($specification);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function noSubTypeHintThrowsException(): void
     {
         $specification = new ClassWithAttributes(ClassWithNoSubTypeHint::class);
@@ -136,9 +140,7 @@ class BuilderTest extends TestCase
         $builder->build($specification);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function compoundPropertyThrowsException(): void
     {
         $specification = new ClassWithAttributes(ClassWithCompoundPropertyType::class);
@@ -152,9 +154,7 @@ class BuilderTest extends TestCase
         $builder->build($specification);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function nestedCollectionThrowsException(): void
     {
         $specification = new ClassWithAttributes(ClassWithNestedCollection::class);
@@ -260,10 +260,8 @@ class BuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetOfClassesToBuild
-     */
+    #[DataProvider('dataSetOfClassesToBuild')]
+    #[Test]
     public function BuildingProcessorsTest(Specification $specification, FieldSet $expected): void
     {
         $builder = new Builder();
@@ -345,10 +343,8 @@ class BuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetOfInputsAndOutputs
-     */
+    #[DataProvider('dataSetOfInputsAndOutputs')]
+    #[Test]
     public function InputsAndOutputsTest(Specification $specification, mixed $input, mixed $expected): void
     {
         $builder = new Builder();
@@ -524,10 +520,8 @@ class BuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithDocExamples
-     */
+    #[DataProvider('dataSetsWithDocExamples')]
+    #[Test]
     public function docExamplesTest(Specification $specification, array $input, Result $expected): void
     {
         $builder = new Builder();

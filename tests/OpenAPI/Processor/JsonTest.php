@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OpenAPI\Processor;
 
+use Membrane\Filter\String\JsonDecode;
 use Membrane\OpenAPI\Processor\Json;
 use Membrane\Processor;
 use Membrane\Processor\Field;
@@ -11,24 +12,25 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Processor\Json
- * @uses   \Membrane\Filter\String\JsonDecode
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Result\FieldName
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Result
- */
+#[CoversClass(Json::class)]
+#[UsesClass(JsonDecode::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Result::class)]
 class JsonTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = "\"pet\":\n\t- convert from json to a PHP value.\n\t- condition";
-        $wrapped = self::createMock(Processor\Field::class);
+        $wrapped = self::createMock(Field::class);
         $sut = new Json($wrapped);
 
         $wrapped->expects($this->once())
@@ -44,7 +46,7 @@ class JsonTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new Json(new Field('a'));
@@ -54,7 +56,7 @@ class JsonTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    /** @test */
+    #[Test]
     public function processesTest(): void
     {
         $expected = 'fieldName that observer processes';
@@ -69,7 +71,7 @@ class JsonTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function processStopsEarlyIfJsonDecodeFails(): void
     {
         $expected = Result::invalid(
@@ -89,7 +91,7 @@ class JsonTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function processTest(): void
     {
         $expected = Result::valid(['id' => 5]);

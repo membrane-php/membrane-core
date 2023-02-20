@@ -13,9 +13,9 @@ use Membrane\Validator\Type\IsInt;
 #[SetFilterOrValidator(new WithNamedArguments(ClassWithPromotedPropertyAfterSet::class), Placement::AFTER)]
 class ClassWithPromotedPropertyAfterSet
 {
- public function __construct(
-     #[FilterOrValidator(new IsInt())]
-     public int $promotedProperty)
- {
- }
+    public function __construct(
+        #[FilterOrValidator(new IsInt())]
+        public int $promotedProperty
+    ) {
+    }
 }

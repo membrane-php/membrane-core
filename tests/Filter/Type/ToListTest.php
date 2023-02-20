@@ -8,17 +8,19 @@ use Membrane\Filter\Type\ToList;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\Type\ToList
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(ToList::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class ToListTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'convert to a list';
@@ -29,7 +31,7 @@ class ToListTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new ToList();
@@ -48,10 +50,8 @@ class ToListTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithAcceptableInputs
-     */
+    #[DataProvider('dataSetsWithAcceptableInputs')]
+    #[Test]
     public function acceptableTypesReturnListValues($input, $expectedValue): void
     {
         $toList = new ToList();
@@ -97,10 +97,8 @@ class ToListTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithUnacceptableInputs
-     */
+    #[DataProvider('dataSetsWithUnacceptableInputs')]
+    #[Test]
     public function unacceptableTypesReturnInvalid($input, $expectedMessage): void
     {
         $toList = new ToList();

@@ -15,18 +15,20 @@ use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Processor\Request
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Result\FieldName
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Validator\Utility\Fails
- * @uses   \Membrane\Validator\Utility\Passes
- */
+#[CoversClass(Request::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(Fails::class)]
+#[UsesClass(Passes::class)]
 class RequestTest extends TestCase
 {
     public static function dataSetsToConvertToString(): array
@@ -49,10 +51,8 @@ class RequestTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringTest(string $expected, array $processors): void
     {
         $sut = new Request('test', '', Method::GET, $processors);
@@ -79,10 +79,8 @@ class RequestTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(Request $sut): void
     {
         $actual = $sut->__toPHP();
@@ -90,7 +88,7 @@ class RequestTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    /** @test */
+    #[Test]
     public function processesTest(): void
     {
         $sut = new Request('test', '', Method::GET, []);
@@ -98,7 +96,7 @@ class RequestTest extends TestCase
         self::assertEquals('test', $sut->processes());
     }
 
-    /** @test */
+    #[Test]
     public function unsupportedValuesDoNotGetProcessed(): void
     {
         $expected = Result::invalid(
@@ -236,10 +234,8 @@ class RequestTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToProcess
-     */
+    #[DataProvider('dataSetsToProcess')]
+    #[Test]
     public function processTest(mixed $value, array $processors, Result $expected): void
     {
         $sut = new Request('', '', Method::GET, $processors);

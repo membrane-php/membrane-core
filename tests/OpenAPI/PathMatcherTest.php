@@ -6,12 +6,13 @@ namespace OpenAPI;
 
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\PathMatcher;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers   \Membrane\OpenAPI\PathMatcher
- * @covers   \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
- */
+#[CoversClass(PathMatcher::class)]
+#[CoversClass(CannotProcessOpenAPI::class)]
 class PathMatcherTest extends TestCase
 {
     public static function dataSetsWithImbalancedBraces(): array
@@ -22,10 +23,8 @@ class PathMatcherTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithImbalancedBraces
-     */
+    #[DataProvider('dataSetsWithImbalancedBraces')]
+    #[Test]
     public function throwsExceptionsForImbalancedBracesInAPIPaths(string $apiPath): void
     {
         self::expectExceptionObject(CannotProcessOpenAPI::invalidPath($apiPath));
@@ -111,10 +110,8 @@ class PathMatcherTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToMatch
-     */
+    #[DataProvider('dataSetsToMatch')]
+    #[Test]
     public function matchesTest(string $serverUrl, string $apiPath, string $requestPath, bool $expected): void
     {
         $sut = new PathMatcher($serverUrl, $apiPath);
@@ -124,7 +121,7 @@ class PathMatcherTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function throwsExceptionGettingParamsForNonMatchingPaths(): void
     {
         $sut = new PathMatcher('https://www.server.com', '/pets/{id}');
@@ -160,10 +157,8 @@ class PathMatcherTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToGetPathParams
-     */
+    #[DataProvider('dataSetsToGetPathParams')]
+    #[Test]
     public function getPathParamsTest(string $apiUrl, string $requestUrl, array $expected): void
     {
         $sut = new PathMatcher('https://www.server.com', $apiUrl);

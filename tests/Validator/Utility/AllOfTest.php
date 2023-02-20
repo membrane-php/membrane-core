@@ -11,23 +11,23 @@ use Membrane\Validator\Utility\AllOf;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Utility\AllOf
- * @uses   \Membrane\Validator\Utility\Fails
- * @uses   \Membrane\Validator\Utility\Indifferent
- * @uses   \Membrane\Validator\Utility\Passes
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(AllOf::class)]
+#[UsesClass(Fails::class)]
+#[UsesClass(Indifferent::class)]
+#[UsesClass(Passes::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class AllOfTest extends TestCase
 {
     public static function dataSetsToConvertToString(): array
     {
-        $validator = new Passes();
-
         return [
             'no validators' => [
                 [],
@@ -51,10 +51,8 @@ class AllOfTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringtest(array $chain, string $expected): void
     {
         $sut = new AllOf(...$chain);
@@ -73,10 +71,8 @@ class AllOfTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(AllOf $sut): void
     {
         $actual = $sut->__toPHP();
@@ -84,9 +80,7 @@ class AllOfTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function noValidatorsReturnsNoResults(): void
     {
         $input = 'this can be anything';
@@ -98,9 +92,7 @@ class AllOfTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function singlePassReturnsValid(): void
     {
         $input = 'this can be anything';
@@ -112,9 +104,7 @@ class AllOfTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function singleFailsReturnsInvalid(): void
     {
         $input = 'this can be anything';
@@ -127,9 +117,7 @@ class AllOfTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function twoPassesReturnsValid(): void
     {
         $input = 'this can be anything';
@@ -141,9 +129,7 @@ class AllOfTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function twoFailsReturnsInvalid(): void
     {
         $input = 'this can be anything';
@@ -156,9 +142,7 @@ class AllOfTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function failAndPassesReturnsInvalid(): void
     {
         $input = 'this can be anything';
@@ -171,9 +155,7 @@ class AllOfTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function multipleFailsAndPassesReturnsInvalid(): void
     {
         $input = 'this can be anything';

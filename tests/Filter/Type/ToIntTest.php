@@ -8,17 +8,19 @@ use Membrane\Filter\Type\ToInt;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\Type\ToInt
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(ToInt::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class ToIntTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'convert to an integer';
@@ -29,7 +31,7 @@ class ToIntTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new ToInt();
@@ -50,10 +52,8 @@ class ToIntTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithAcceptableInputs
-     */
+    #[DataProvider('dataSetsWithAcceptableInputs')]
+    #[Test]
     public function acceptableTypesReturnIntegerValues($input, $expectedValue): void
     {
         $toInt = new ToInt();
@@ -91,10 +91,8 @@ class ToIntTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithUnacceptableInputs
-     */
+    #[DataProvider('dataSetsWithUnacceptableInputs')]
+    #[Test]
     public function unacceptableTypesReturnInvalid($input, $expectedMessage): void
     {
         $toInt = new ToInt();

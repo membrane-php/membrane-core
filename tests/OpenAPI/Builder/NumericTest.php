@@ -8,6 +8,7 @@ use cebe\openapi\spec\Schema;
 use Membrane\Filter\Type\ToFloat;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
+use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
@@ -21,23 +22,23 @@ use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Type\IsNumber;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Builder\Numeric
- * @covers \Membrane\OpenAPI\Builder\APIBuilder
- * @uses   \Membrane\OpenAPI\Processor\AnyOf
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Validator\Collection\Contained
- * @uses   \Membrane\Validator\Numeric\Maximum
- * @uses   \Membrane\Validator\Numeric\Minimum
- * @uses   \Membrane\Validator\Numeric\MultipleOf
- */
+#[CoversClass(Numeric::class)]
+#[CoversClass(APIBuilder::class)]
+#[UsesClass(AnyOf::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(Contained::class)]
+#[UsesClass(Maximum::class)]
+#[UsesClass(Minimum::class)]
+#[UsesClass(MultipleOf::class)]
 class NumericTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function supportsNumericSpecification(): void
     {
         $specification = self::createStub(Specification\Numeric::class);
@@ -46,9 +47,7 @@ class NumericTest extends TestCase
         self::assertTrue($sut->supports($specification));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function doesNotSupportNonNumericSpecification(): void
     {
         $specification = self::createStub(Specification\APISpec::class);
@@ -119,10 +118,8 @@ class NumericTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider specificationsToBuild
-     */
+    #[DataProvider('specificationsToBuild')]
+    #[Test]
     public function buildTest(Specification\Numeric $specification, Processor $expected): void
     {
         $sut = new Numeric();

@@ -6,15 +6,17 @@ namespace Validator\Utility;
 
 use Membrane\Result\Result;
 use Membrane\Validator\Utility\Indifferent;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Utility\Indifferent
- * @uses   \Membrane\Result\Result
- */
+#[CoversClass(Indifferent::class)]
+#[UsesClass(Result::class)]
 class IndifferentTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = '';
@@ -25,7 +27,7 @@ class IndifferentTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new Indifferent();
@@ -40,10 +42,8 @@ class IndifferentTest extends TestCase
         return [[1], [1.1], ['one'], [false], [null],];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSets
-     */
+    #[DataProvider('dataSets')]
+    #[Test]
     public function indifferentAlwaysReturnsNoResult(mixed $input): void
     {
         $sut = new Indifferent();
