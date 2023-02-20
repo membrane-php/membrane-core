@@ -39,7 +39,7 @@ class UniqueTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectTypes(): array
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [123, 'integer'],
@@ -70,7 +70,7 @@ class UniqueTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsToValidate(): array
+    public static function dataSetsToValidate(): array
     {
         $invalidMessageSet = new MessageSet(null, new Message('Collection contains duplicate values', []));
         return [

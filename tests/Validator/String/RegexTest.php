@@ -39,7 +39,7 @@ class RegexTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectTypes(): array
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [123, 'integer'],
@@ -70,7 +70,7 @@ class RegexTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatPass(): array
+    public static function dataSetsThatPass(): array
     {
         return [
             ['//', ''],
@@ -93,7 +93,7 @@ class RegexTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatFail(): array
+    public static function dataSetsThatFail(): array
     {
         return [
             ['/abc/', 'ABC'],

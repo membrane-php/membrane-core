@@ -39,7 +39,7 @@ class ToStringTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithAcceptableInputs(): array
+    public static function dataSetsWithAcceptableInputs(): array
     {
         $classWithMethod = new class () {
             public function __toString(): string
@@ -72,7 +72,7 @@ class ToStringTest extends TestCase
         self::assertEquals($expected->result, $result->result);
     }
 
-    public function dataSetsWithUnacceptableInputs(): array
+    public static function dataSetsWithUnacceptableInputs(): array
     {
         $message = 'ToString filter only accepts objects, null or scalar values, %s given';
         $classWithoutMethod = new class () {

@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class MinimumTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'inclusive min' => [
@@ -47,7 +47,7 @@ class MinimumTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'inclusive minimum' => [new Minimum(5)],
@@ -66,7 +66,7 @@ class MinimumTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsOfNonNumericValues(): array
+    public static function dataSetsOfNonNumericValues(): array
     {
         return [
             [
@@ -105,7 +105,7 @@ class MinimumTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
-    public function dataSetsToValidate(): array
+    public static function dataSetsToValidate(): array
     {
         return [
             'greater than min (int, inclusive)' => [

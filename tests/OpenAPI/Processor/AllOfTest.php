@@ -43,7 +43,7 @@ use PHPUnit\Framework\TestCase;
  */
 class AllOfTest extends TestCase
 {
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             '2 validators' => [new AllOf('a', new Field('b'), new Field('c'))],
@@ -74,7 +74,7 @@ class AllOfTest extends TestCase
             \t"id":
             \t\t- condition.
             END;
-        $processor = self::createMock(Processor::class);
+        $processor = $this->createMock(Processor::class);
         $processor->method('__toString')
             ->willReturn("\"id\":\n\t- condition");
         $sut = new AllOf('id', $processor, $processor);
@@ -101,7 +101,7 @@ class AllOfTest extends TestCase
         self::assertEquals($processes, $sut->processes());
     }
 
-    public function dataSetsToProcess(): array
+    public static function dataSetsToProcess(): array
     {
         return [
             'two valid results' => [

@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class LengthTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'no conditions' => [
@@ -57,7 +57,7 @@ class LengthTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'default arguments' => [new Length()],
@@ -76,7 +76,7 @@ class LengthTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectTypes(): array
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [123, 'integer'],
@@ -107,7 +107,7 @@ class LengthTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatPass(): array
+    public static function dataSetsThatPass(): array
     {
         return [
             ['', 0, 0],
@@ -132,7 +132,7 @@ class LengthTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatFail(): array
+    public static function dataSetsThatFail(): array
     {
         return [
             ['', 1, 5, new Message('String is expected to be a minimum of %d characters', [1])],

@@ -41,7 +41,7 @@ class NotTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function toPHPProvider(): array
+    public static function toPHPProvider(): array
     {
         return [
             'fails' => [new Fails()],
@@ -63,7 +63,7 @@ class NotTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsToValidate(): array
+    public static function dataSetsToValidate(): array
     {
         return [
             'inverted invalid results will be valid' => [

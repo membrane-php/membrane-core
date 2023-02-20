@@ -51,7 +51,7 @@ class TruncateTest extends TestCase
         $truncate = new Truncate(-1);
     }
 
-    public function dataSetsWithIncorrectInputs(): array
+    public static function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Truncate filter requires lists, %s given';
         $arrayMessage = 'Truncate filter requires lists, for arrays use Delete';
@@ -92,7 +92,7 @@ class TruncateTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsToFilter(): array
+    public static function dataSetsToFilter(): array
     {
         return [
             [

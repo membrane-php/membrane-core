@@ -31,7 +31,7 @@ use PHPUnit\Framework\TestCase;
  */
 class AfterSetTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'No chain returns empty string' => [
@@ -64,7 +64,7 @@ class AfterSetTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'no chain' => [
@@ -101,7 +101,7 @@ class AfterSetTest extends TestCase
         self::assertSame($expected, $result);
     }
 
-    public function dataSetsForFiltersOrValidators(): array
+    public static function dataSetsForFiltersOrValidators(): array
     {
         return [
             'No chain returns noResult' => [

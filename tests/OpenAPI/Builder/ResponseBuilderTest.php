@@ -11,7 +11,7 @@ use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Processor\AllOf;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
-use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPI\Specification\APISpec;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
@@ -102,39 +102,29 @@ class ResponseBuilderTest extends TestCase
         $sut->build($response);
     }
 
-    public function dataSetsforSupports(): array
+    /**
+     * @test
+     */
+    public function supportsNumericSpecification(): void
     {
-        return [
-            [
-                new class() implements Specification {
-                },
-                false,
-            ],
-            [
-                self::createStub(Request::class),
-                false,
-            ],
-            [
-                self::createStub(Response::class),
-                true,
-            ],
-        ];
+        $specification = self::createStub(Response::class);
+        $sut = new ResponseBuilder();
+
+        self::assertTrue($sut->supports($specification));
     }
 
     /**
      * @test
-     * @dataProvider dataSetsforSupports
      */
-    public function supportsTest(Specification $spec, bool $expected): void
+    public function doesNotSupportNonNumericSpecification(): void
     {
+        $specification = self::createStub(APISpec::class);
         $sut = new ResponseBuilder();
 
-        $supported = $sut->supports($spec);
-
-        self::assertSame($expected, $supported);
+        self::assertFalse($sut->supports($specification));
     }
 
-    public function dataSetsforBuilds(): array
+    public static function dataSetsforBuilds(): array
     {
         return [
             'no properties' => [
@@ -867,7 +857,7 @@ class ResponseBuilderTest extends TestCase
         self::assertEquals($expected, $processor);
     }
 
-    public function dataSetsForDocExamples(): array
+    public static function dataSetsForDocExamples(): array
     {
         $petStore1 = new Response(
             self::DIR . 'docs/petstore.yaml',

@@ -37,7 +37,7 @@ class FieldNameTest extends TestCase
         self::assertTrue($result);
     }
 
-    public function dataSetsWithEqualStringRepresentations(): array
+    public static function dataSetsWithEqualStringRepresentations(): array
     {
         return [
             [
@@ -63,7 +63,7 @@ class FieldNameTest extends TestCase
         ];
     }
 
-    public function dataSetsWithDifferentStringRepresentations(): array
+    public static function dataSetsWithDifferentStringRepresentations(): array
     {
         return [
             [
@@ -93,7 +93,7 @@ class FieldNameTest extends TestCase
         self::assertEquals($expected, $mergable);
     }
 
-    public function dataSetsForStringRepresentation(): array
+    public static function dataSetsForStringRepresentation(): array
     {
         return [
             'empty string ignored' => [[''], ''],

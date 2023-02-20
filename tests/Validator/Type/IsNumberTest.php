@@ -39,7 +39,7 @@ class IsNumberTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsToValidate(): array
+    public static function dataSetsToValidate(): array
     {
         $class = new class {
         };

@@ -39,7 +39,7 @@ class ToBoolTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithAcceptableInputs(): array
+    public static function dataSetsWithAcceptableInputs(): array
     {
         return [
             [1, true],
@@ -72,7 +72,7 @@ class ToBoolTest extends TestCase
         self::assertEquals($expected->result, $result->result);
     }
 
-    public function dataSetsWithUnacceptableInputs(): array
+    public static function dataSetsWithUnacceptableInputs(): array
     {
         $unacceptableMessage = 'ToBool filter only accepts scalar values, %s given';
         $failureMessage = 'ToBool filter failed to convert value to boolean';

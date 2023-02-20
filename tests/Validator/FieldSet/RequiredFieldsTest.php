@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class RequiredFieldsTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'no required fields' => [
@@ -49,7 +49,7 @@ class RequiredFieldsTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'no fields' => [new RequiredFields()],
@@ -69,7 +69,7 @@ class RequiredFieldsTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectTypes(): array
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [123, 'integer'],
@@ -100,7 +100,7 @@ class RequiredFieldsTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsForValidResults(): array
+    public static function dataSetsForValidResults(): array
     {
         return [
             'no required fields' => [
@@ -147,7 +147,7 @@ class RequiredFieldsTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsForInvalidResults(): array
+    public static function dataSetsForInvalidResults(): array
     {
         return [
             'one required field, none filled' => [

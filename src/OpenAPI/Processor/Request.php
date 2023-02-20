@@ -30,7 +30,7 @@ class Request implements Processor
         }
 
         return "Parse PSR-7 request:\n\t" .
-            implode(".\n\t", array_map(fn($p) => preg_replace("#\n#m", "\n\t", (string)$p), $this->processors)) . '.';
+            implode("\n\t", array_map(fn($p) => preg_replace("#\n#m", "\n\t", (string)$p), $this->processors));
     }
 
     public function __toPHP(): string

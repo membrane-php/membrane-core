@@ -169,7 +169,7 @@ class BuilderTest extends TestCase
         $builder->build($specification);
     }
 
-    public function dataSetOfClassesToBuild(): array
+    public static function dataSetOfClassesToBuild(): array
     {
         return [
             EmptyClass::class => [
@@ -273,7 +273,7 @@ class BuilderTest extends TestCase
         self::assertEquals($expected, $output);
     }
 
-    public function dataSetOfInputsAndOutputs(): array
+    public static function dataSetOfInputsAndOutputs(): array
     {
         return [
             EmptyClass::class => [
@@ -359,7 +359,7 @@ class BuilderTest extends TestCase
         self::assertEquals($expected, $output);
     }
 
-    public function dataSetsWithDocExamples(): array
+    public static function dataSetsWithDocExamples(): array
     {
         return [
             'Blog Post: A' => [

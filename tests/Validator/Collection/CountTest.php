@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class CountTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'no minimum or maximum' => [
@@ -57,7 +57,7 @@ class CountTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'default arguments' => [new Count()],
@@ -76,7 +76,7 @@ class CountTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectTypes(): array
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [123, 'integer'],
@@ -121,7 +121,7 @@ class CountTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsWithLessThanMinimum(): array
+    public static function dataSetsWithLessThanMinimum(): array
     {
         return [
             [[], 1],
@@ -144,7 +144,7 @@ class CountTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsWithMoreThanMaximum(): array
+    public static function dataSetsWithMoreThanMaximum(): array
     {
         return [
             [['two', 'values'], 1],
@@ -167,7 +167,7 @@ class CountTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsWithinRange(): array
+    public static function dataSetsWithinRange(): array
     {
         return [
             [['two', 'values'], 1, 3],

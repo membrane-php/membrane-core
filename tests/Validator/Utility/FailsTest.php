@@ -39,7 +39,7 @@ class FailsTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSets(): array
+    public static function dataSets(): array
     {
         return [[1], [1.1], ['one'], [true], [null],];
     }

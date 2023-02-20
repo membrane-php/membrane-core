@@ -52,7 +52,7 @@ class IsNullTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
-    public function dataSetsThatFail(): array
+    public static function dataSetsThatFail(): array
     {
         return [
             [true, 'boolean'],

@@ -32,7 +32,7 @@ class StringsTest extends TestCase
         new Strings('', new Schema(['type' => 'integer']));
     }
 
-    public function dataSetsToConstruct(): array
+    public static function dataSetsToConstruct(): array
     {
         return [
             'default values' => [

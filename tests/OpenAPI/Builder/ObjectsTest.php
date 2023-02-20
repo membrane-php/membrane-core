@@ -41,30 +41,29 @@ use PHPUnit\Framework\TestCase;
  */
 class ObjectsTest extends TestCase
 {
-    public function specificationsToSupport(): array
+    /**
+     * @test
+     */
+    public function supportsArraysSpecification(): void
     {
-        return [
-            [
-                new class() implements \Membrane\Builder\Specification {
-                },
-                false,
-            ],
-            [self::createStub(Specification\Objects::class), true],
-        ];
+        $specification = self::createStub(Specification\Objects::class);
+        $sut = new Objects();
+
+        self::assertTrue($sut->supports($specification));
     }
 
     /**
      * @test
-     * @dataProvider specificationsToSupport
      */
-    public function supportsTest(\Membrane\Builder\Specification $specification, bool $expected): void
+    public function doesNotSupportSpecificationsThatAreNotArrays(): void
     {
+        $specification = self::createStub(Specification\APISpec::class);
         $sut = new Objects();
 
-        self::assertSame($expected, $sut->supports($specification));
+        self::assertFalse($sut->supports($specification));
     }
 
-    public function specificationsToBuild(): array
+    public static function specificationsToBuild(): array
     {
         return [
             'minimum input' => [

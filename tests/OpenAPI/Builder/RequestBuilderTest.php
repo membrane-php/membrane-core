@@ -15,8 +15,8 @@ use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\PathMatcher as PathMatcherClass;
 use Membrane\OpenAPI\Processor\Json;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
+use Membrane\OpenAPI\Specification\APISpec;
 use Membrane\OpenAPI\Specification\Request;
-use Membrane\OpenAPI\Specification\Response;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -103,39 +103,29 @@ class RequestBuilderTest extends TestCase
         $sut->build($specification);
     }
 
-    public function dataSetsforSupports(): array
+    /**
+     * @test
+     */
+    public function supportsNumericSpecification(): void
     {
-        return [
-            [
-                new class() implements Specification {
-                },
-                false,
-            ],
-            [
-                self::createStub(Request::class),
-                true,
-            ],
-            [
-                self::createStub(Response::class),
-                false,
-            ],
-        ];
+        $specification = self::createStub(Request::class);
+        $sut = new RequestBuilder();
+
+        self::assertTrue($sut->supports($specification));
     }
 
     /**
      * @test
-     * @dataProvider dataSetsforSupports
      */
-    public function supportsTest(Specification $spec, bool $expected): void
+    public function doesNotSupportNonNumericSpecification(): void
     {
+        $specification = self::createStub(APISpec::class);
         $sut = new RequestBuilder();
 
-        $supported = $sut->supports($spec);
-
-        self::assertSame($expected, $supported);
+        self::assertFalse($sut->supports($specification));
     }
 
-    public function dataSetsForBuild(): array
+    public static function dataSetsForBuild(): array
     {
         return [
             'no path params, no operation params, no requestBody' => [
@@ -474,7 +464,7 @@ class RequestBuilderTest extends TestCase
     }
 
 
-    public function dataSetsForDocExamples(): array
+    public static function dataSetsForDocExamples(): array
     {
         $api = self::DIR . '/docs/petstore.yaml';
         $expanded = self::DIR . '/docs/petstore-expanded.json';

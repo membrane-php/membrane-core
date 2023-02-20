@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class FixedFieldsTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'no fixed fields' => [
@@ -49,7 +49,7 @@ class FixedFieldsTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'no fields' => [new FixedFields()],
@@ -69,7 +69,7 @@ class FixedFieldsTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectTypes(): array
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [123, 'integer'],
@@ -100,7 +100,7 @@ class FixedFieldsTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsToValidate(): array
+    public static function dataSetsToValidate(): array
     {
         return [
             'no fixed fields, no input' => [

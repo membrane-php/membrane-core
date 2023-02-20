@@ -43,7 +43,7 @@ use PHPUnit\Framework\TestCase;
  */
 class CollectionTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'No chain returns empty string' => [
@@ -105,7 +105,7 @@ class CollectionTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'no chain' => [
@@ -145,7 +145,7 @@ class CollectionTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectValues(): array
+    public static function dataSetsWithIncorrectValues(): array
     {
         $notArrayMessage = 'Value passed to %s in Collection chain must be a list, %s passed instead';
         return [
@@ -205,7 +205,7 @@ class CollectionTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsOfFields(): array
+    public static function dataSetsOfFields(): array
     {
         return [
             'No chain returns noResult' => [

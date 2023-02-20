@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class PluckTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'no fields' => [
@@ -49,7 +49,7 @@ class PluckTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'no fields' => [new Pluck('field set')],
@@ -69,7 +69,7 @@ class PluckTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectInputs(): array
+    public static function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Pluck filter requires arrays, %s given';
         $listMessage = 'Pluck filter requires arrays with key-value pairs';
@@ -124,7 +124,7 @@ class PluckTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatPass(): array
+    public static function dataSetsThatPass(): array
     {
         return [
             [

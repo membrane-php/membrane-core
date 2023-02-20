@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
  */
 class RangeDeltaTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'no minimum or maximum' => [
@@ -59,7 +59,7 @@ class RangeDeltaTest extends TestCase
         self::assertStringMatchesFormat($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'no minimum, no maximum' => [null, null,],
@@ -96,7 +96,7 @@ class RangeDeltaTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsWithDatesEarlierThanMin(): array
+    public static function dataSetsWithDatesEarlierThanMin(): array
     {
         $now = new DateTime();
 
@@ -122,7 +122,7 @@ class RangeDeltaTest extends TestCase
         self::assertEqualsWithDelta($expected, $result, 2);
     }
 
-    public function dataSetsWithDatesLaterThanMax(): array
+    public static function dataSetsWithDatesLaterThanMax(): array
     {
         $now = new DateTime();
 
@@ -148,7 +148,7 @@ class RangeDeltaTest extends TestCase
         self::assertEqualsWithDelta($expected, $result, 2);
     }
 
-    public function dataSetsWithDatesWithinRange(): array
+    public static function dataSetsWithDatesWithinRange(): array
     {
         $now = new DateTime();
 

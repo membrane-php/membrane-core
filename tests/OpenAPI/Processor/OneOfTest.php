@@ -43,7 +43,7 @@ use PHPUnit\Framework\TestCase;
  */
 class OneOfTest extends TestCase
 {
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             '2 validators' => [new OneOf('a', new Field('b'), new Field('c'))],
@@ -101,7 +101,7 @@ class OneOfTest extends TestCase
         self::assertEquals($processes, $sut->processes());
     }
 
-    public function dataSetsToProcess(): array
+    public static function dataSetsToProcess(): array
     {
         return [
             'two Fields with valid results' => [

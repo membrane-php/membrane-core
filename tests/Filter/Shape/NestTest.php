@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class NestTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'no fields' => [
@@ -49,7 +49,7 @@ class NestTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'no fields' => [new Nest('new field'),],
@@ -69,7 +69,7 @@ class NestTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectTypes(): array
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [
@@ -99,7 +99,7 @@ class NestTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsWithCorrectTypes(): array
+    public static function dataSetsWithCorrectTypes(): array
     {
         return [
             'nesting all items in array' => [

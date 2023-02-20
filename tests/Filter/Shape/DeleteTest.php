@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class DeleteTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'no fields' => [
@@ -49,7 +49,7 @@ class DeleteTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'no fields' => [new Delete(),],
@@ -69,7 +69,7 @@ class DeleteTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectInputs(): array
+    public static function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Delete filter requires arrays, %s given';
         $listMessage = 'Delete filter requires arrays, for lists use Truncate';
@@ -96,7 +96,7 @@ class DeleteTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsToFilter(): array
+    public static function dataSetsToFilter(): array
     {
         return [
             [

@@ -39,7 +39,7 @@ class ToListTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithAcceptableInputs(): array
+    public static function dataSetsWithAcceptableInputs(): array
     {
         return [
             [[], []],
@@ -63,7 +63,7 @@ class ToListTest extends TestCase
         self::assertEquals($expected->result, $result->result);
     }
 
-    public function dataSetsWithUnacceptableInputs(): array
+    public static function dataSetsWithUnacceptableInputs(): array
     {
         $message = 'ToList filter only accepts arrays, %s given';
         $class = new class () {

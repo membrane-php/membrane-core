@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class MaximumTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'inclusive max' => [
@@ -47,7 +47,7 @@ class MaximumTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'inclusive maximum' => [new Maximum(5)],
@@ -66,7 +66,7 @@ class MaximumTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsOfNonNumericValues(): array
+    public static function dataSetsOfNonNumericValues(): array
     {
         return [
             [
@@ -105,7 +105,7 @@ class MaximumTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
-    public function dataSetsToValidate(): array
+    public static function dataSetsToValidate(): array
     {
         return [
             'less than max (int, inclusive)' => [

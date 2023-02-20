@@ -35,7 +35,7 @@ class APISpecTest extends TestCase
         };
     }
 
-    public function dataSetsThatPass(): array
+    public static function dataSetsThatPass(): array
     {
         return [
             'GET does not have any content' => [

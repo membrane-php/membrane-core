@@ -39,7 +39,7 @@ class ToFloatTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithAcceptableInputs(): array
+    public static function dataSetsWithAcceptableInputs(): array
     {
         return [
             [1, 1.0],
@@ -65,7 +65,7 @@ class ToFloatTest extends TestCase
         self::assertEquals($expected->result, $result->result);
     }
 
-    public function dataSetsWithUnacceptableInputs(): array
+    public static function dataSetsWithUnacceptableInputs(): array
     {
         $message = 'ToFloat filter only accepts null or scalar values, %s given';
         $class = new class () {

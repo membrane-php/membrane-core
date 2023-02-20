@@ -7,7 +7,6 @@ namespace Validator\Utility;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use Membrane\Validator;
 use Membrane\Validator\Utility\AllOf;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
@@ -25,11 +24,9 @@ use PHPUnit\Framework\TestCase;
  */
 class AllOfTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
-        $validator = self::createMock(Validator::class);
-        $validator->method('__toString')
-            ->willReturn('condition');
+        $validator = new Passes();
 
         return [
             'no validators' => [
@@ -37,19 +34,18 @@ class AllOfTest extends TestCase
                 '',
             ],
             'single validator' => [
-                [$validator],
+                [new Passes()],
                 <<<END
                 must satisfy all of the following:
-                \t- condition.
+                \t- will return valid.
                 END,
             ],
             'multiple validators' => [
-                [$validator, $validator, $validator],
+                [new Fails(), new Indifferent(), new Passes()],
                 <<<END
                 must satisfy all of the following:
-                \t- condition.
-                \t- condition.
-                \t- condition.
+                \t- will return invalid.
+                \t- will return valid.
                 END,
             ],
         ];
@@ -68,7 +64,7 @@ class AllOfTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'no validators' => [new AllOf()],

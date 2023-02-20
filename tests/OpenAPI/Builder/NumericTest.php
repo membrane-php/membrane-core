@@ -35,30 +35,29 @@ use PHPUnit\Framework\TestCase;
  */
 class NumericTest extends TestCase
 {
-    public function specificationsToSupport(): array
+    /**
+     * @test
+     */
+    public function supportsNumericSpecification(): void
     {
-        return [
-            [
-                new class() implements \Membrane\Builder\Specification {
-                },
-                false,
-            ],
-            [self::createStub(Specification\Numeric::class), true],
-        ];
+        $specification = self::createStub(Specification\Numeric::class);
+        $sut = new Numeric();
+
+        self::assertTrue($sut->supports($specification));
     }
 
     /**
      * @test
-     * @dataProvider specificationsToSupport
      */
-    public function supportsTest(\Membrane\Builder\Specification $specification, bool $expected): void
+    public function doesNotSupportNonNumericSpecification(): void
     {
+        $specification = self::createStub(Specification\APISpec::class);
         $sut = new Numeric();
 
-        self::assertSame($expected, $sut->supports($specification));
+        self::assertFalse($sut->supports($specification));
     }
 
-    public function specificationsToBuild(): array
+    public static function specificationsToBuild(): array
     {
         return [
             'non-strict integer input' => [

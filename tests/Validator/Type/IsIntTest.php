@@ -53,7 +53,7 @@ class IsIntTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatFail(): array
+    public static function dataSetsThatFail(): array
     {
         return [
             ['1', 'string'],

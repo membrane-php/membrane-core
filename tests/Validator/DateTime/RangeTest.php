@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
  */
 class RangeTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'no minimum or maximum' => [
@@ -58,7 +58,7 @@ class RangeTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'no minimum, no maximum' => [null, null],
@@ -95,7 +95,7 @@ class RangeTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsWithDatesEarlierThanMin(): array
+    public static function dataSetsWithDatesEarlierThanMin(): array
     {
         return [
             [new DateTime('1960-01-01 00:00:00 UTC'), new DateTime('1970-01-01 00:00:00 UTC')],
@@ -118,7 +118,7 @@ class RangeTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsWithDatesLaterThanMax(): array
+    public static function dataSetsWithDatesLaterThanMax(): array
     {
         return [
             [new DateTime('1980-01-01 00:00:00 UTC'), new DateTime('1970-01-01 00:00:00 UTC')],
@@ -141,7 +141,7 @@ class RangeTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsWithDatesWithinRange(): array
+    public static function dataSetsWithDatesWithinRange(): array
     {
         return [
             [

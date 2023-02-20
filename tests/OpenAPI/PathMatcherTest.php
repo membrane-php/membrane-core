@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
  */
 class PathMatcherTest extends TestCase
 {
-    public function dataSetsWithImbalancedBraces(): array
+    public static function dataSetsWithImbalancedBraces(): array
     {
         return [
             ['/pets/{id{name}}'],
@@ -33,7 +33,7 @@ class PathMatcherTest extends TestCase
         new PathMatcher('', $apiPath);
     }
 
-    public function dataSetsToMatch(): array
+    public static function dataSetsToMatch(): array
     {
         return [
             'path is identical, server missing, server path missing' => [
@@ -134,7 +134,7 @@ class PathMatcherTest extends TestCase
         $sut->getPathParams('/hats/23');
     }
 
-    public function dataSetsToGetPathParams(): array
+    public static function dataSetsToGetPathParams(): array
     {
         return [
             [

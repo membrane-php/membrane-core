@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  */
 class MessageSetTest extends TestCase
 {
-    public function dataSetsThatCanMerge(): array
+    public static function dataSetsThatCanMerge(): array
     {
         $fieldName = new FieldName('field a');
         $firstMessage = new Message('message 1', ['a', 'c']);
@@ -69,7 +69,7 @@ class MessageSetTest extends TestCase
         $firstMessageSet->merge($secondMessageSet);
     }
 
-    public function dataSetsForIsEmptyTest(): array
+    public static function dataSetsForIsEmptyTest(): array
     {
         return [
             [new MessageSet(null), true],

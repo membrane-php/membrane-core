@@ -7,7 +7,6 @@ namespace Validator\Utility;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use Membrane\Validator;
 use Membrane\Validator\Utility\AnyOf;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
@@ -25,7 +24,7 @@ use PHPUnit\Framework\TestCase;
  */
 class AnyOfTest extends TestCase
 {
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'no validators' => [new AnyOf()],
@@ -45,31 +44,26 @@ class AnyOfTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
-        $validator = self::createMock(Validator::class);
-        $validator->method('__toString')
-            ->willReturn('condition');
-
         return [
             'no validators' => [
                 [],
                 '',
             ],
             'single validator' => [
-                [$validator],
+                [new Passes()],
                 <<<END
                 must satisfy at least one of the following:
-                \t- condition.
+                \t- will return valid.
                 END,
             ],
             'multiple validators' => [
-                [$validator, $validator, $validator],
+                [new Fails(), new Indifferent(), new Passes()],
                 <<<END
                 must satisfy at least one of the following:
-                \t- condition.
-                \t- condition.
-                \t- condition.
+                \t- will return invalid.
+                \t- will return valid.
                 END,
             ],
         ];
@@ -88,7 +82,7 @@ class AnyOfTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToValidate(): array
+    public static function dataSetsToValidate(): array
     {
         return [
             'no validators' => [

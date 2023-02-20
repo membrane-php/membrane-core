@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
  */
 class HumanReadableTest extends TestCase
 {
-    public function dataSetsToRenderAsArrays(): array
+    public static function dataSetsToRenderAsArrays(): array
     {
         $msg = fn($var) => new Message('%s', [$var]);
 
@@ -102,7 +102,7 @@ class HumanReadableTest extends TestCase
     }
 
 
-    public function dataSetsToRenderAsStrings(): array
+    public static function dataSetsToRenderAsStrings(): array
     {
         $msg = fn($var) => new Message('%s', [$var]);
 

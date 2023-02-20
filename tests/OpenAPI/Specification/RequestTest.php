@@ -25,7 +25,7 @@ class RequestTest extends TestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';
 
-    public function dataSetsWithIncorrectMethods(): array
+    public static function dataSetsWithIncorrectMethods(): array
     {
         return [
             'no methods in path' => [
@@ -63,7 +63,7 @@ class RequestTest extends TestCase
     }
 
 
-    public function dataSetsWithValidSchemas(): array
+    public static function dataSetsWithValidSchemas(): array
     {
         return [
             [
@@ -86,7 +86,7 @@ class RequestTest extends TestCase
     }
 
 
-    public function dataSetsWithNullSchemas(): array
+    public static function dataSetsWithNullSchemas(): array
     {
         return [
             'requestBody not found' => [
@@ -127,7 +127,7 @@ class RequestTest extends TestCase
         self::assertContains('name', $names);
     }
 
-    public function dataSetsWithReferences(): array
+    public static function dataSetsWithReferences(): array
     {
         return [
             'json file with references that must be resolved' => [

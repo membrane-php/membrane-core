@@ -40,7 +40,7 @@ class MultipleOfTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsThatThrowExceptions(): array
+    public static function dataSetsThatThrowExceptions(): array
     {
         return [
             [0],
@@ -62,7 +62,7 @@ class MultipleOfTest extends TestCase
         new MultipleOf($multiple);
     }
 
-    public function dataSetsToValidate(): array
+    public static function dataSetsToValidate(): array
     {
         $notNumMessage = 'MultipleOf validator requires a number, %s given';
 

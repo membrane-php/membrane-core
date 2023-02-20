@@ -31,7 +31,7 @@ class ToDateTimeTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'immutable' => [new ToDateTime('Y-m-d', true)],
@@ -50,7 +50,7 @@ class ToDateTimeTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectTypes(): array
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [123, 'integer'],
@@ -81,7 +81,7 @@ class ToDateTimeTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatPass(): array
+    public static function dataSetsThatPass(): array
     {
         return [
             ['', ''],
@@ -120,7 +120,7 @@ class ToDateTimeTest extends TestCase
         self::assertTrue($result->value instanceof DateTime);
     }
 
-    public function dataSetsThatFail(): array
+    public static function dataSetsThatFail(): array
     {
         // @TODO once min requirement is PHP 8.2: remove version_compare statements
         return [

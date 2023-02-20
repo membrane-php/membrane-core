@@ -50,7 +50,7 @@ class RenameTest extends TestCase
         new Rename('a', 'a');
     }
 
-    public function dataSetsWithIncorrectInputs(): array
+    public static function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Rename filter requires arrays, %s given';
         $listMessage = 'Rename filter requires arrays with key-value pairs';
@@ -91,7 +91,7 @@ class RenameTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsToFilter(): array
+    public static function dataSetsToFilter(): array
     {
         return [
             [

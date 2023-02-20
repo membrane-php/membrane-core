@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
  */
 class JsonFlatTest extends TestCase
 {
-    public function dataSetsToRenderAsArrays(): array
+    public static function dataSetsToRenderAsArrays(): array
     {
         $msg = fn($var) => new Message('%s', [$var]);
 

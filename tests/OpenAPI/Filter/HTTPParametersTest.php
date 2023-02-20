@@ -39,7 +39,7 @@ class HTTPParametersTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsToFilter(): array
+    public static function dataSetsToFilter(): array
     {
         return [
             [

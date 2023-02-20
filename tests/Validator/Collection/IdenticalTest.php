@@ -39,7 +39,7 @@ class IdenticalTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectTypes(): array
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [123, 'integer'],
@@ -70,7 +70,7 @@ class IdenticalTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsForValidResults(): array
+    public static function dataSetsForValidResults(): array
     {
         return [
             [[]],
@@ -97,7 +97,7 @@ class IdenticalTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsForInvalidResults(): array
+    public static function dataSetsForInvalidResults(): array
     {
         return [
             [[null, 1], Result::INVALID],

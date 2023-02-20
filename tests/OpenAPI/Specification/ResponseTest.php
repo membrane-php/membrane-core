@@ -64,7 +64,7 @@ class ResponseTest extends TestCase
         self::assertInstanceOf(Schema::class, $class->schema);
     }
 
-    public function dataSetsWithNullSchemas(): array
+    public static function dataSetsWithNullSchemas(): array
     {
         return [
             'response with no content' => [
@@ -97,7 +97,7 @@ class ResponseTest extends TestCase
         self::assertNull($class->schema);
     }
 
-    public function dataSetsWithReferences(): array
+    public static function dataSetsWithReferences(): array
     {
         return [
             [

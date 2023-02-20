@@ -39,7 +39,7 @@ class IsListTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsThatPass(): array
+    public static function dataSetsThatPass(): array
     {
         return [
             [['this', 'is', 'a', 'list']],
@@ -61,7 +61,7 @@ class IsListTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatAreNotArraysOrLists(): array
+    public static function dataSetsThatAreNotArraysOrLists(): array
     {
         return [
             ['true', 'string'],

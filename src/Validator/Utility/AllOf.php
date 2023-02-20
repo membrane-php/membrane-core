@@ -20,12 +20,13 @@ class AllOf implements Validator
 
     public function __toString(): string
     {
-        if ($this->chain === []) {
+        $conditions = array_filter($this->chain, fn($p) => (string)$p !== '');
+        if ($conditions === []) {
             return '';
         }
 
         return "must satisfy all of the following:\n\t" .
-            implode("\n\t", array_map(fn($p) => '- ' . (string)$p . '.', $this->chain));
+            implode("\n\t", array_map(fn($p) => '- ' . (string)$p . '.', $conditions));
     }
 
     public function __toPHP(): string

@@ -32,7 +32,7 @@ class ArraysTest extends TestCase
         new Arrays('', new Schema(['type' => 'string']));
     }
 
-    public function dataSetsToConstruct(): array
+    public static function dataSetsToConstruct(): array
     {
         return [
             'default values' => [

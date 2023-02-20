@@ -39,7 +39,7 @@ class WithNamedArgumentsTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsThatPass(): array
+    public static function dataSetsThatPass(): array
     {
         $classWithNamedArguments = new class (a: 'default', b: 'arguments') {
             public function __construct(public string $a, public string $b)
@@ -75,7 +75,7 @@ class WithNamedArgumentsTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatFail(): array
+    public static function dataSetsThatFail(): array
     {
         $classWithNamedArguments = new class (a: 'default', b: 'arguments') {
             public function __construct(public string $a, public string $b)

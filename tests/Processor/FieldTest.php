@@ -30,7 +30,7 @@ use PHPUnit\Framework\TestCase;
  */
 class FieldTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'No chain returns empty string' => [
@@ -67,7 +67,7 @@ class FieldTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'empty processes string, no chain' => [new Field('')],
@@ -99,7 +99,7 @@ class FieldTest extends TestCase
         self::assertEquals($output, $input);
     }
 
-    public function dataSetsForFiltersOrValidators(): array
+    public static function dataSetsForFiltersOrValidators(): array
     {
         return [
             'No chain returns noResult' => [

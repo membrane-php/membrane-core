@@ -51,7 +51,7 @@ use PHPUnit\Framework\TestCase;
  */
 class FieldsetTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'No chain returns empty string' => [
@@ -127,7 +127,7 @@ class FieldsetTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'no chain' => [new FieldSet('a')],
@@ -159,7 +159,7 @@ class FieldsetTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectValues(): array
+    public static function dataSetsWithIncorrectValues(): array
     {
         $notArrayMessage = 'Value passed to FieldSet chain be an array, %s passed instead';
         $listMessage = 'Value passed to FieldSet chain must be an array, list passed instead';
@@ -270,7 +270,7 @@ class FieldsetTest extends TestCase
         $fieldset->process(new FieldName('Parent field'), $input);
     }
 
-    public function dataSetsOfFields(): array
+    public static function dataSetsOfFields(): array
     {
         return [
             'No chain returns noResult' => [

@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ContainedTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'no values' => [
@@ -53,7 +53,7 @@ class ContainedTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'empty array' => [new Contained([])],
@@ -73,7 +73,7 @@ class ContainedTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsToValidate(): array
+    public static function dataSetsToValidate(): array
     {
         return [
             'value contained in array' => [

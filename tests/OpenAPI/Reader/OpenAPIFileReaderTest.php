@@ -19,7 +19,7 @@ class OpenAPIFileReaderTest extends TestCase
 {
     public const FIXTURES = __DIR__ . '/../../fixtures/OpenAPI/';
 
-    public function dataSetsThatThrowExceptions(): array
+    public static function dataSetsThatThrowExceptions(): array
     {
         return [
             'Non-existent file throws CannotReadOpenAPI::fileNotFound' => [
