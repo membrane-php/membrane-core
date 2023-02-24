@@ -7,7 +7,6 @@ namespace Membrane\OpenAPI\Specification;
 use cebe\openapi\spec as Cebe;
 use Membrane\Builder\Specification;
 
-
 class Path implements Specification
 {
     /** @var array<string, Cebe\Server> */

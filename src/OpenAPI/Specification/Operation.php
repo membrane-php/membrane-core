@@ -54,6 +54,4 @@ class Operation implements Specification
         }
         return $parameterArray;
     }
-
-    
 }
