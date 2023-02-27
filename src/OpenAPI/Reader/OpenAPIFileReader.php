@@ -34,15 +34,16 @@ class OpenAPIFileReader
         $readFrom = $this->supportedFileTypes[$fileType] ?? throw CannotReadOpenAPI::fileTypeNotSupported($fileType);
 
         try {
-            $openAPI = $readFrom($absoluteFilePath);
+            $openApi = $readFrom($absoluteFilePath);
         } catch (\TypeError | TypeErrorException | ParseException $e) {
             throw CannotReadOpenAPI::cannotParse(pathinfo($absoluteFilePath, PATHINFO_BASENAME), $e);
         } catch (UnresolvableReferenceException $e) {
             throw CannotReadOpenAPI::unresolvedReference(pathinfo($absoluteFilePath, PATHINFO_BASENAME), $e);
         }
 
-        $openAPI->validate() ?: throw CannotReadOpenAPI::invalidOpenAPI(pathinfo($absoluteFilePath, PATHINFO_BASENAME));
+        assert($openApi instanceof OpenApi);
+        $openApi->validate() ?: throw CannotReadOpenAPI::invalidOpenAPI(...$openApi->getErrors());
 
-        return $openAPI;
+        return $openApi;
     }
 }

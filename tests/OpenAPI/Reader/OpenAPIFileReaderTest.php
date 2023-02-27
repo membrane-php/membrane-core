@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace OpenAPI\Reader;
 
 use cebe\openapi\exceptions\UnresolvableReferenceException;
+use cebe\openapi\Reader;
 use cebe\openapi\spec\OpenApi;
 use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
 use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Yaml\Exception\ParseException;
 use TypeError;
@@ -21,7 +23,7 @@ class OpenAPIFileReaderTest extends TestCase
 {
     public const FIXTURES = __DIR__ . '/../../fixtures/OpenAPI/';
 
-    public static function dataSetsThatThrowExceptions(): array
+    public static function provideInvalidFiles(): array
     {
         return [
             'Non-existent file throws CannotReadOpenAPI::fileNotFound' => [
@@ -52,22 +54,38 @@ class OpenAPIFileReaderTest extends TestCase
                 CannotReadOpenAPI::cannotParse('invalid.yaml', new ParseException('')),
                 self::FIXTURES . 'invalid.yaml',
             ],
-            '.json file in invalid OpenAPI format throws CannotReadOpenAPI::invalidOpenAPI' => [
-                CannotReadOpenAPI::invalidOpenAPI('invalidAPI.json'),
-                self::FIXTURES . 'invalidAPI.json',
-            ],
-            '.yaml file in invalid OpenAPI format throws CannotReadOpenAPI::invalidOpenAPI' => [
-                CannotReadOpenAPI::invalidOpenAPI('invalidAPI.yaml'),
-                self::FIXTURES . 'invalidAPI.yaml',
-            ],
         ];
     }
 
-    #[DataProvider('dataSetsThatThrowExceptions')]
+    #[DataProvider('provideInvalidFiles')]
     #[Test]
     public function exceptionHandlingTest(CannotReadOpenAPI $expected, string $filePath): void
     {
         self::expectExceptionObject($expected);
+
+        (new OpenAPIFileReader())->readFromAbsoluteFilePath($filePath);
+    }
+
+    public static function provideInvalidOpenAPI(): array
+    {
+        return [
+            '.json file in invalid OpenAPI format throws CannotReadOpenAPI::invalidOpenAPI' => [
+                self::FIXTURES . 'invalidAPI.json',
+                (Reader::readFromJsonFile(self::FIXTURES . 'invalidAPI.json'))->getErrors(),
+            ],
+            '.yaml file in invalid OpenAPI format throws CannotReadOpenAPI::invalidOpenAPI' => [
+                self::FIXTURES . 'invalidAPI.yaml',
+                (Reader::readFromYamlFile(self::FIXTURES . 'invalidAPI.yaml'))->getErrors(),
+            ],
+        ];
+    }
+
+    #[Test]
+    #[TestDox('Invalid Open API Specs will throw Exceptions which contain reasons it was considered invalid')]
+    #[DataProvider('provideInvalidOpenAPI')]
+    public function throwsExceptionForInvalidOpenAPISpecs(string $filePath, array $errors): void
+    {
+        self::expectExceptionObject(CannotReadOpenAPI::invalidOpenAPI(...$errors));
 
         (new OpenAPIFileReader())->readFromAbsoluteFilePath($filePath);
     }
