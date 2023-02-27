@@ -40,9 +40,13 @@ class CannotReadOpenAPI extends RuntimeException
         return new self($message, self::FORMAT_NOT_SUPPORTED, $e);
     }
 
-    public static function invalidOpenAPI(string $fileName): self
+    public static function invalidOpenAPI(string $fileName, string ...$errors): self
     {
-        $message = sprintf('%s is not valid OpenAPI', $fileName);
+        $message = sprintf(
+            "%s is invalid OpenAPI due to the following:\n\t- %s",
+            $fileName,
+            implode("\n\t- ", $errors)
+        );
         return new self($message, self::INVALID_OPEN_API);
     }
 
