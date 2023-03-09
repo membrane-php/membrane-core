@@ -6,17 +6,19 @@ namespace OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Objects;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Specification\Objects
- * @covers \Membrane\OpenAPI\Specification\APISchema
- * @covers \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
- */
+#[CoversClass(Objects::class)]
+#[CoversClass(APISchema::class)]
+#[CoversClass(CannotProcessOpenAPI::class)]
 class ObjectsTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function throwsExceptionForMissingType(): void
     {
         self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Objects::class, 'object', 'no type'));
@@ -24,7 +26,7 @@ class ObjectsTest extends TestCase
         new Objects('', new Schema([]));
     }
 
-    /** @test */
+    #[Test]
     public function throwsExceptionForIncorrectType(): void
     {
         self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Objects::class, 'object', 'string'));
@@ -32,7 +34,7 @@ class ObjectsTest extends TestCase
         new Objects('', new Schema(['type' => 'string']));
     }
 
-    public function dataSetsToConstruct(): array
+    public static function dataSetsToConstruct(): array
     {
         return [
             'default values' => [
@@ -79,10 +81,8 @@ class ObjectsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConstruct
-     */
+    #[DataProvider('dataSetsToConstruct')]
+    #[Test]
     public function constructTest(Schema $schema, array $expected): void
     {
         $sut = new Objects('', $schema);

@@ -8,17 +8,19 @@ use Membrane\Filter\Type\ToNumber;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\Type\ToNumber
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Result
- */
+#[CoversClass(ToNumber::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Result::class)]
 class ToNumberTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'convert to a number';
@@ -29,7 +31,7 @@ class ToNumberTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new ToNumber();
@@ -39,7 +41,7 @@ class ToNumberTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsToFilter(): array
+    public static function dataSetsToFilter(): array
     {
         $class = new class {
         };
@@ -97,10 +99,8 @@ class ToNumberTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToFilter
-     */
+    #[DataProvider('dataSetsToFilter')]
+    #[Test]
     public function validateTest(mixed $value, Result $expected): void
     {
         $sut = new ToNumber();

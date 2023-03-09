@@ -8,24 +8,30 @@ use cebe\openapi\spec\Parameter;
 use cebe\openapi\spec\Schema;
 use Exception;
 use GuzzleHttp\Psr7\ServerRequest;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessRequest;
 use Membrane\OpenAPI\Method;
+use Membrane\OpenAPI\PathMatcher;
+use Membrane\OpenAPI\Reader\OpenAPIFileReader;
+use Membrane\OpenAPI\Specification\APISpec;
 use Membrane\OpenAPI\Specification\Request;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Specification\Request
- * @covers \Membrane\OpenAPI\Specification\APISpec
- * @covers \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
- * @covers \Membrane\OpenAPI\Exception\CannotProcessRequest
- * @uses   \Membrane\OpenAPI\PathMatcher
- * @uses   \Membrane\OpenAPI\Reader\OpenAPIFileReader
- */
+#[CoversClass(Request::class)]
+#[CoversClass(APISpec::class)]
+#[CoversClass(CannotProcessOpenAPI::class)]
+#[CoversClass(CannotProcessRequest::class)]
+#[UsesClass(PathMatcher::class)]
+#[UsesClass(OpenAPIFileReader::class)]
 class RequestTest extends TestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';
 
-    public function dataSetsWithIncorrectMethods(): array
+    public static function dataSetsWithIncorrectMethods(): array
     {
         return [
             'no methods in path' => [
@@ -41,10 +47,8 @@ class RequestTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectMethods
-     */
+    #[DataProvider('dataSetsWithIncorrectMethods')]
+    #[Test]
     public function getOperationThrowsExceptionForIncorrectMethod(string $filePath, string $url, Method $method): void
     {
         self::expectExceptionObject(CannotProcessRequest::methodNotFound($method->value));
@@ -52,9 +56,7 @@ class RequestTest extends TestCase
         new Request(self::DIR . $filePath, $url, $method);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function throwsExceptionIfRequestBodyFoundButContentNotJson(): void
     {
         self::expectExceptionObject(CannotProcessRequest::unsupportedContent());
@@ -63,7 +65,7 @@ class RequestTest extends TestCase
     }
 
 
-    public function dataSetsWithValidSchemas(): array
+    public static function dataSetsWithValidSchemas(): array
     {
         return [
             [
@@ -74,10 +76,8 @@ class RequestTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithValidSchemas
-     */
+    #[DataProvider('dataSetsWithValidSchemas')]
+    #[Test]
     public function schemaIsSchemaObjectIfRequestBodyWithContentJson(string $url, Method $method, $filePath): void
     {
         $class = new Request(self::DIR . $filePath, $url, $method);
@@ -86,7 +86,7 @@ class RequestTest extends TestCase
     }
 
 
-    public function dataSetsWithNullSchemas(): array
+    public static function dataSetsWithNullSchemas(): array
     {
         return [
             'requestBody not found' => [
@@ -102,10 +102,8 @@ class RequestTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithNullSchemas
-     */
+    #[DataProvider('dataSetsWithNullSchemas')]
+    #[Test]
     public function schemaIsNullIfNoRequestBodyNorContent(string $url, Method $method, $filePath): void
     {
         $class = new Request(self::DIR . $filePath, $url, $method);
@@ -113,9 +111,7 @@ class RequestTest extends TestCase
         self::assertNull($class->requestBodySchema);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mergesPathAndOperationParameters(): void
     {
         $class = new Request(self::DIR . 'noReferences.json', 'http://test.com/parampath/01', Method::GET);
@@ -127,7 +123,7 @@ class RequestTest extends TestCase
         self::assertContains('name', $names);
     }
 
-    public function dataSetsWithReferences(): array
+    public static function dataSetsWithReferences(): array
     {
         return [
             'json file with references that must be resolved' => [
@@ -143,10 +139,8 @@ class RequestTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithReferences
-     */
+    #[DataProvider('dataSetsWithReferences')]
+    #[Test]
     public function ParameterSchemaReferencesResolved(string $url, Method $method, string $filePath): void
     {
         $class = new Request(self::DIR . $filePath, $url, $method);
@@ -156,7 +150,7 @@ class RequestTest extends TestCase
         self::assertInstanceOf(Schema::class, $class->pathParameters[0]->schema);
     }
 
-    /** @test */
+    #[Test]
     public function fromPsr7ThrowsExceptionIfUnsupportedMethod(): void
     {
         self::expectExceptionObject(new Exception('not supported'));
@@ -166,7 +160,7 @@ class RequestTest extends TestCase
         Request::fromPsr7(self::DIR . 'noReferences.json', $serverRequest);
     }
 
-    /** @test */
+    #[Test]
     public function fromPsr7SuccessfulConstructionTest(): void
     {
         $expected = new Request(self::DIR . 'noReferences.json', 'http://test.com/path', Method::GET);

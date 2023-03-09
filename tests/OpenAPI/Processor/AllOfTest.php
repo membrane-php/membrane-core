@@ -21,29 +21,31 @@ use Membrane\Validator\Type\IsString;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Processor\AllOf
- * @covers \Membrane\Exception\InvalidProcessorArguments
- * @uses   \Membrane\Processor\BeforeSet
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Processor\FieldSet
- * @uses   \Membrane\Result\FieldName
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Validator\FieldSet\RequiredFields
- * @uses   \Membrane\Validator\Type\IsArray
- * @uses   \Membrane\Validator\Type\IsInt
- * @uses   \Membrane\Validator\Type\IsString
- * @uses   \Membrane\Validator\Utility\Fails
- * @uses   \Membrane\Validator\Utility\Indifferent
- * @uses   \Membrane\Validator\Utility\Passes
- */
+#[CoversClass(AllOf::class)]
+#[CoversClass(InvalidProcessorArguments::class)]
+#[UsesClass(BeforeSet::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(FieldSet::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(RequiredFields::class)]
+#[UsesClass(IsArray::class)]
+#[UsesClass(IsInt::class)]
+#[UsesClass(IsString::class)]
+#[UsesClass(Fails::class)]
+#[UsesClass(Indifferent::class)]
+#[UsesClass(Passes::class)]
 class AllOfTest extends TestCase
 {
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             '2 validators' => [new AllOf('a', new Field('b'), new Field('c'))],
@@ -53,10 +55,8 @@ class AllOfTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(AllOf $sut): void
     {
         $actual = $sut->__toPHP();
@@ -64,7 +64,7 @@ class AllOfTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = <<<END
@@ -74,7 +74,7 @@ class AllOfTest extends TestCase
             \t"id":
             \t\t- condition.
             END;
-        $processor = self::createMock(Processor::class);
+        $processor = $this->createMock(Processor::class);
         $processor->method('__toString')
             ->willReturn("\"id\":\n\t- condition");
         $sut = new AllOf('id', $processor, $processor);
@@ -84,7 +84,7 @@ class AllOfTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function throwsExceptionIfLessThanTwoProcessors(): void
     {
         self::expectExceptionObject(InvalidProcessorArguments::redundantProcessor(AllOf::class));
@@ -92,7 +92,7 @@ class AllOfTest extends TestCase
         new AllOf('');
     }
 
-    /** @test */
+    #[Test]
     public function processesTest(): void
     {
         $processes = 'test';
@@ -101,7 +101,7 @@ class AllOfTest extends TestCase
         self::assertEquals($processes, $sut->processes());
     }
 
-    public function dataSetsToProcess(): array
+    public static function dataSetsToProcess(): array
     {
         return [
             'two valid results' => [
@@ -236,10 +236,8 @@ class AllOfTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToProcess
-     */
+    #[DataProvider('dataSetsToProcess')]
+    #[Test]
     public function processTest(
         string $processes,
         array $processors,

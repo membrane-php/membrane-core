@@ -12,20 +12,22 @@ use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
 use Membrane\Validator\Utility\Not;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Utility\Not
- * @uses   \Membrane\Validator\Utility\Fails
- * @uses   \Membrane\Validator\Utility\Indifferent
- * @uses   \Membrane\Validator\Utility\Passes
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Not::class)]
+#[UsesClass(Fails::class)]
+#[UsesClass(Indifferent::class)]
+#[UsesClass(Passes::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class NotTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'must satisfy the opposite of the following: "inverted condition"';
@@ -41,7 +43,7 @@ class NotTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function toPHPProvider(): array
+    public static function toPHPProvider(): array
     {
         return [
             'fails' => [new Fails()],
@@ -50,10 +52,8 @@ class NotTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider toPHPProvider
-     */
+    #[DataProvider('toPHPProvider')]
+    #[Test]
     public function toPHPTest(Validator $invertedValidator): void
     {
         $sut = new Not($invertedValidator);
@@ -63,7 +63,7 @@ class NotTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsToValidate(): array
+    public static function dataSetsToValidate(): array
     {
         return [
             'inverted invalid results will be valid' => [
@@ -87,10 +87,8 @@ class NotTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToValidate
-     */
+    #[DataProvider('dataSetsToValidate')]
+    #[Test]
     public function notInvertsInnerValidator(mixed $input, Validator $invertedValidator, Result $expected): void
     {
         $sut = new Not($invertedValidator);

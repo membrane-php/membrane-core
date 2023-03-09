@@ -6,17 +6,19 @@ namespace OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Numeric;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Specification\Numeric
- * @covers \Membrane\OpenAPI\Specification\APISchema
- * @covers \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
- */
+#[CoversClass(Numeric::class)]
+#[CoversClass(APISchema::class)]
+#[CoversClass(CannotProcessOpenAPI::class)]
 class NumericTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function throwsExceptionForMissingType(): void
     {
         self::expectExceptionObject(
@@ -26,7 +28,7 @@ class NumericTest extends TestCase
         new Numeric('', new Schema([]));
     }
 
-    /** @test */
+    #[Test]
     public function throwsExceptionForInvalidType(): void
     {
         self::expectExceptionObject(
@@ -36,7 +38,7 @@ class NumericTest extends TestCase
         new Numeric('', new Schema(['type' => 'string']));
     }
 
-    public function dataSetsToConstruct(): array
+    public static function dataSetsToConstruct(): array
     {
         return [
             'default values for number' => [
@@ -116,10 +118,8 @@ class NumericTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConstruct
-     */
+    #[DataProvider('dataSetsToConstruct')]
+    #[Test]
     public function constructTest(Schema $schema, array $expected): void
     {
         $sut = new Numeric('', $schema);

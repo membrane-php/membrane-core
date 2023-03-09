@@ -8,17 +8,19 @@ use Membrane\Filter\Shape\Collect;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\Shape\Collect
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Collect::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class CollectTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'no fields' => [
@@ -36,10 +38,8 @@ class CollectTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringTest(array $fields, string $expected): void
     {
         $sut = new Collect('new collection', ...$fields);
@@ -49,7 +49,7 @@ class CollectTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'no fields' => [new Collect('collection')],
@@ -58,10 +58,8 @@ class CollectTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(Collect $sut): void
     {
         $actual = $sut->__toPHP();
@@ -69,7 +67,7 @@ class CollectTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectTypes(): array
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [
@@ -85,10 +83,8 @@ class CollectTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectTypes
-     */
+    #[DataProvider('dataSetsWithIncorrectTypes')]
+    #[Test]
     public function incorrectFilterInputReturnsInvalid(mixed $input, string $expectedMessage, array $expectedVars): void
     {
         $collect = new Collect('new field', 'a', 'b');
@@ -99,7 +95,7 @@ class CollectTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsWithCorrectTypes(): array
+    public static function dataSetsWithCorrectTypes(): array
     {
         return [
             'collecting all items in array' => [
@@ -120,10 +116,8 @@ class CollectTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithCorrectTypes
-     */
+    #[DataProvider('dataSetsWithCorrectTypes')]
+    #[Test]
     public function correctFilterInputReturnsResult(array $input, array $fieldsToCollect, array $expectedValue): void
     {
         $collect = new Collect('new field', ...$fieldsToCollect);

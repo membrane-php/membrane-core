@@ -6,15 +6,17 @@ namespace Validator\Utility;
 
 use Membrane\Result\Result;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Utility\Passes
- * @uses   \Membrane\Result\Result
- */
+#[CoversClass(Passes::class)]
+#[UsesClass(Result::class)]
 class PassesTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'will return valid';
@@ -25,7 +27,7 @@ class PassesTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new Passes();
@@ -35,15 +37,13 @@ class PassesTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSets(): array
+    public static function dataSets(): array
     {
         return [[1], [1.1], ['one'], [false], [null],];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSets
-     */
+    #[DataProvider('dataSets')]
+    #[Test]
     public function passesAlwaysReturnsValid(mixed $input): void
     {
         $expected = Result::valid($input);

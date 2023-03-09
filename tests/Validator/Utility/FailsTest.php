@@ -8,17 +8,19 @@ use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Utility\Fails;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Utility\Fails
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Fails::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class FailsTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'will return invalid';
@@ -29,7 +31,7 @@ class FailsTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new Fails();
@@ -39,15 +41,13 @@ class FailsTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSets(): array
+    public static function dataSets(): array
     {
         return [[1], [1.1], ['one'], [true], [null],];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSets
-     */
+    #[DataProvider('dataSets')]
+    #[Test]
     public function failsAlwaysReturnsInvalid(mixed $input): void
     {
         $expected = Result::invalid($input, new MessageSet(null, new Message('I always fail', [])));

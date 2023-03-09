@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace Result;
 
 use Membrane\Result\FieldName;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Result\FieldName
- */
+#[CoversClass(FieldName::class)]
 class FieldNameTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function pushTest(): void
     {
         $expected = new FieldName('new field', 'original field');
@@ -25,9 +24,7 @@ class FieldNameTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function fieldNameIsAlwaysMergableByItself(): void
     {
         $fieldName = new FieldName('test field');
@@ -37,7 +34,7 @@ class FieldNameTest extends TestCase
         self::assertTrue($result);
     }
 
-    public function dataSetsWithEqualStringRepresentations(): array
+    public static function dataSetsWithEqualStringRepresentations(): array
     {
         return [
             [
@@ -63,7 +60,7 @@ class FieldNameTest extends TestCase
         ];
     }
 
-    public function dataSetsWithDifferentStringRepresentations(): array
+    public static function dataSetsWithDifferentStringRepresentations(): array
     {
         return [
             [
@@ -79,11 +76,9 @@ class FieldNameTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithEqualStringRepresentations
-     * @dataProvider dataSetsWithDifferentStringRepresentations
-     */
+    #[DataProvider('dataSetsWithEqualStringRepresentations')]
+    #[DataProvider('dataSetsWithDifferentStringRepresentations')]
+    #[Test]
     public function mergableTest(FieldName $firstFieldName, FieldName $secondFieldName, bool $expected): void
     {
         $equals = $firstFieldName->equals($secondFieldName);
@@ -93,7 +88,7 @@ class FieldNameTest extends TestCase
         self::assertEquals($expected, $mergable);
     }
 
-    public function dataSetsForStringRepresentation(): array
+    public static function dataSetsForStringRepresentation(): array
     {
         return [
             'empty string ignored' => [[''], ''],
@@ -103,10 +98,8 @@ class FieldNameTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForStringRepresentation
-     */
+    #[DataProvider('dataSetsForStringRepresentation')]
+    #[Test]
     public function stringRepresentationTest(array $input, string $expected): void
     {
         $fieldName = new FieldName(...$input);

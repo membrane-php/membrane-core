@@ -9,17 +9,19 @@ use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Numeric\MultipleOf;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Numeric\MultipleOf
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(MultipleOf::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class MultipleOfTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'is a multiple of 5';
@@ -30,7 +32,7 @@ class MultipleOfTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new MultipleOf(5);
@@ -40,7 +42,7 @@ class MultipleOfTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsThatThrowExceptions(): array
+    public static function dataSetsThatThrowExceptions(): array
     {
         return [
             [0],
@@ -50,10 +52,8 @@ class MultipleOfTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatThrowExceptions
-     */
+    #[DataProvider('dataSetsThatThrowExceptions')]
+    #[Test]
     public function throwsExceptionForZeroOrNegatives(int|float $multiple): void
     {
         self::expectException(Exception::class);
@@ -62,7 +62,7 @@ class MultipleOfTest extends TestCase
         new MultipleOf($multiple);
     }
 
-    public function dataSetsToValidate(): array
+    public static function dataSetsToValidate(): array
     {
         $notNumMessage = 'MultipleOf validator requires a number, %s given';
 
@@ -142,10 +142,8 @@ class MultipleOfTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToValidate
-     */
+    #[DataProvider('dataSetsToValidate')]
+    #[Test]
     public function validateTest(mixed $value, float|int $multiple, $expected): void
     {
         $multipleOf = new MultipleOf($multiple);

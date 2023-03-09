@@ -15,28 +15,24 @@ use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
 
-/**
- * @covers \Membrane\OpenAPI\Processor\Request
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Result\FieldName
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Validator\Utility\Fails
- * @uses   \Membrane\Validator\Utility\Passes
- */
+#[CoversClass(Request::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(Fails::class)]
+#[UsesClass(Passes::class)]
 class RequestTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
-        $processor = self::createMock(Processor::class);
-        $processor->method('__toString')
-            ->willReturn("\"id\":\n\t- condition");
-
         return [
             'request with no processors' => [
                 'Parse PSR-7 request',
@@ -46,19 +42,17 @@ class RequestTest extends TestCase
                 <<<END
                 Parse PSR-7 request:
                 \t"id":
-                \t\t- condition.
+                \t\t- will return valid.
                 \t"id":
-                \t\t- condition.
+                \t\t- will return invalid.
                 END,
-                [$processor, $processor],
+                [new Field('id', new Passes()), new Field('id', new Fails())],
             ],
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringTest(string $expected, array $processors): void
     {
         $sut = new Request('test', '', Method::GET, $processors);
@@ -68,7 +62,7 @@ class RequestTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'no chain' => [new Request('a', 'operationId', Method::GET, []),],
@@ -85,10 +79,8 @@ class RequestTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(Request $sut): void
     {
         $actual = $sut->__toPHP();
@@ -96,7 +88,7 @@ class RequestTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    /** @test */
+    #[Test]
     public function processesTest(): void
     {
         $sut = new Request('test', '', Method::GET, []);
@@ -104,7 +96,7 @@ class RequestTest extends TestCase
         self::assertEquals('test', $sut->processes());
     }
 
-    /** @test */
+    #[Test]
     public function unsupportedValuesDoNotGetProcessed(): void
     {
         $expected = Result::invalid(
@@ -131,24 +123,10 @@ class RequestTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
-    public function dataSetsToProcess(): array
+    public static function dataSetsToProcess(): array
     {
         $validProcessor = new Field('', new Passes());
-
         $invalidProcessor = new Field('', new Fails());
-
-        $uri = self::createMock(UriInterface::class);
-        $uri->method('getPath')
-            ->willReturn('/pets');
-        $uri->method('getQuery')
-            ->willReturn('limit=5');
-
-        $serverRequest = self::createMock(ServerRequestInterface::class);
-        $serverRequest->method('getUri')
-            ->willReturn($uri);
-        $serverRequest->method('getBody')
-            ->willReturn('request body');
-
 
         return [
             'array, no processors' => [
@@ -202,8 +180,8 @@ class RequestTest extends TestCase
                     new MessageSet(new FieldName('', ''), new Message('I always fail', []))
                 ),
             ],
-            'mock server request, no processors' => [
-                $serverRequest,
+            'guzzle server request, no processors' => [
+                new ServerRequest('get', 'https://www.swaggerstore.io/pets?limit=5', [], 'request body'),
                 [],
                 Result::valid([
                     'request' => ['method' => 'get', 'operationId' => ''],
@@ -213,45 +191,6 @@ class RequestTest extends TestCase
                     'cookie' => [],
                     'body' => 'request body',
                 ]),
-            ],
-            'mock server request, valid processors' => [
-                $serverRequest,
-                [
-                    'path' => $validProcessor,
-                    'query' => $validProcessor,
-                    'header' => $validProcessor,
-                    'cookie' => $validProcessor,
-                    'body' => $validProcessor,
-                ],
-                Result::valid([
-                    'request' => ['method' => 'get', 'operationId' => ''],
-                    'path' => '/pets',
-                    'query' => 'limit=5',
-                    'header' => [],
-                    'cookie' => [],
-                    'body' => 'request body',
-                ]),
-            ],
-            'mock server request, valid and invalid processors' => [
-                $serverRequest,
-                [
-                    'path' => $validProcessor,
-                    'query' => $invalidProcessor,
-                    'header' => $validProcessor,
-                    'cookie' => $invalidProcessor,
-                    'body' => $validProcessor,
-                ],
-                Result::invalid([
-                    'request' => ['method' => 'get', 'operationId' => ''],
-                    'path' => '/pets',
-                    'query' => 'limit=5',
-                    'header' => [],
-                    'cookie' => [],
-                    'body' => 'request body',
-                ],
-                    new MessageSet(new FieldName('', ''), new Message('I always fail', [])),
-                    new MessageSet(new FieldName('', ''), new Message('I always fail', []))
-                ),
             ],
             'guzzle server request, valid processors' => [
                 new ServerRequest('get', 'https://www.swaggerstore.io/pets?limit=5', [], 'request body'),
@@ -271,13 +210,32 @@ class RequestTest extends TestCase
                     'body' => 'request body',
                 ]),
             ],
+            'guzzle server request, valid and invalid processors' => [
+                new ServerRequest('get', 'https://www.swaggerstore.io/pets?limit=5', [], 'request body'),
+                [
+                    'path' => $validProcessor,
+                    'query' => $invalidProcessor,
+                    'header' => $validProcessor,
+                    'cookie' => $invalidProcessor,
+                    'body' => $validProcessor,
+                ],
+                Result::invalid([
+                    'request' => ['method' => 'get', 'operationId' => ''],
+                    'path' => '/pets',
+                    'query' => 'limit=5',
+                    'header' => [],
+                    'cookie' => [],
+                    'body' => 'request body',
+                ],
+                    new MessageSet(new FieldName('', ''), new Message('I always fail', [])),
+                    new MessageSet(new FieldName('', ''), new Message('I always fail', []))
+                ),
+            ],
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToProcess
-     */
+    #[DataProvider('dataSetsToProcess')]
+    #[Test]
     public function processTest(mixed $value, array $processors, Result $expected): void
     {
         $sut = new Request('', '', Method::GET, $processors);

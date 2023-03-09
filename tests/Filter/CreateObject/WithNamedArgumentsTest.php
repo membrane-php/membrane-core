@@ -8,17 +8,19 @@ use Membrane\Filter\CreateObject\WithNamedArguments;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\CreateObject\WithNamedArguments
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(WithNamedArguments::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class WithNamedArgumentsTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'construct an instance of "\a\b" from named arguments contained in self';
@@ -29,7 +31,7 @@ class WithNamedArgumentsTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new WithNamedArguments('Arbitrary\Class');
@@ -39,7 +41,7 @@ class WithNamedArgumentsTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsThatPass(): array
+    public static function dataSetsThatPass(): array
     {
         $classWithNamedArguments = new class (a: 'default', b: 'arguments') {
             public function __construct(public string $a, public string $b)
@@ -61,10 +63,8 @@ class WithNamedArgumentsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatPass
-     */
+    #[DataProvider('dataSetsThatPass')]
+    #[Test]
     public function createsNewInstanceOfClassWithNamedArguments(object $class, array $input): void
     {
         $withNamedArgs = new WithNamedArguments(get_class($class));
@@ -75,7 +75,7 @@ class WithNamedArgumentsTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatFail(): array
+    public static function dataSetsThatFail(): array
     {
         $classWithNamedArguments = new class (a: 'default', b: 'arguments') {
             public function __construct(public string $a, public string $b)
@@ -102,10 +102,8 @@ class WithNamedArgumentsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatFail
-     */
+    #[DataProvider('dataSetsThatFail')]
+    #[Test]
     public function invalidParameterTest(object $class, array $input, string $expectedMessage): void
     {
         $withNamedArgs = new WithNamedArguments(get_class($class));

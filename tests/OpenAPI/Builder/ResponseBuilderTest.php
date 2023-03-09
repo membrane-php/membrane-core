@@ -6,13 +6,22 @@ namespace OpenAPI\Builder;
 
 use Exception;
 use Membrane\Builder\Specification;
+use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\ResponseBuilder;
 use Membrane\OpenAPI\Method;
+use Membrane\OpenAPI\PathMatcher;
 use Membrane\OpenAPI\Processor\AllOf;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
-use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPI\Reader\OpenAPIFileReader;
+use Membrane\OpenAPI\Specification\APISchema;
+use Membrane\OpenAPI\Specification\APISpec;
+use Membrane\OpenAPI\Specification\Arrays;
+use Membrane\OpenAPI\Specification\Numeric;
+use Membrane\OpenAPI\Specification\Objects;
 use Membrane\OpenAPI\Specification\Response;
+use Membrane\OpenAPI\Specification\Strings;
+use Membrane\OpenAPI\Specification\TrueFalse;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -41,57 +50,59 @@ use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Type\IsNumber;
 use Membrane\Validator\Type\IsString;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers   \Membrane\OpenAPI\Builder\ResponseBuilder
- * @covers   \Membrane\OpenAPI\Builder\APIBuilder
- * @uses     \Membrane\OpenAPI\Builder\Arrays
- * @uses     \Membrane\OpenAPI\Builder\TrueFalse
- * @uses     \Membrane\OpenAPI\Builder\Numeric
- * @uses     \Membrane\OpenAPI\Builder\Objects
- * @uses     \Membrane\OpenAPI\Builder\Strings
- * @uses     \Membrane\OpenAPI\PathMatcher
- * @uses     \Membrane\OpenAPI\Processor\AllOf
- * @uses     \Membrane\OpenAPI\Processor\AnyOf
- * @uses     \Membrane\OpenAPI\Processor\OneOf
- * @uses     \Membrane\OpenAPI\Reader\OpenAPIFileReader
- * @uses     \Membrane\OpenAPI\Specification\APISchema
- * @uses     \Membrane\OpenAPI\Specification\APISpec
- * @uses     \Membrane\OpenAPI\Specification\Arrays
- * @uses     \Membrane\OpenAPI\Specification\TrueFalse
- * @uses     \Membrane\OpenAPI\Specification\Numeric
- * @uses     \Membrane\OpenAPI\Specification\Objects
- * @uses     \Membrane\OpenAPI\Specification\Strings
- * @uses     \Membrane\OpenAPI\Specification\Response
- * @uses     \Membrane\Processor\BeforeSet
- * @uses     \Membrane\Processor\Collection
- * @uses     \Membrane\Processor\Field
- * @uses     \Membrane\Processor\FieldSet
- * @uses     \Membrane\Result\FieldName
- * @uses     \Membrane\Result\Message
- * @uses     \Membrane\Result\MessageSet
- * @uses     \Membrane\Result\Result
- * @uses     \Membrane\Validator\Collection\Contained
- * @uses     \Membrane\Validator\Collection\Count
- * @uses     \Membrane\Validator\Collection\Unique
- * @uses     \Membrane\Validator\FieldSet\RequiredFields
- * @uses     \Membrane\Validator\Numeric\Maximum
- * @uses     \Membrane\Validator\Numeric\Minimum
- * @uses     \Membrane\Validator\Numeric\MultipleOf
- * @uses     \Membrane\Validator\String\DateString
- * @uses     \Membrane\Validator\String\Length
- * @uses     \Membrane\Validator\String\Regex
- * @uses     \Membrane\Validator\Type\IsArray
- * @uses     \Membrane\Validator\Type\IsInt
- * @uses     \Membrane\Validator\Type\IsList
- * @uses     \Membrane\Validator\Type\IsString
- */
+#[CoversClass(ResponseBuilder::class)]
+#[CoversClass(APIBuilder::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\Arrays::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\TrueFalse::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\Numeric::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\Objects::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\Strings::class)]
+#[UsesClass(PathMatcher::class)]
+#[UsesClass(AllOf::class)]
+#[UsesClass(AnyOf::class)]
+#[UsesClass(OneOf::class)]
+#[UsesClass(OpenAPIFileReader::class)]
+#[UsesClass(APISchema::class)]
+#[UsesClass(APISpec::class)]
+#[UsesClass(Arrays::class)]
+#[UsesClass(TrueFalse::class)]
+#[UsesClass(Numeric::class)]
+#[UsesClass(Objects::class)]
+#[UsesClass(Strings::class)]
+#[UsesClass(Response::class)]
+#[UsesClass(BeforeSet::class)]
+#[UsesClass(Collection::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(FieldSet::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(Contained::class)]
+#[UsesClass(Count::class)]
+#[UsesClass(Unique::class)]
+#[UsesClass(RequiredFields::class)]
+#[UsesClass(Maximum::class)]
+#[UsesClass(Minimum::class)]
+#[UsesClass(MultipleOf::class)]
+#[UsesClass(DateString::class)]
+#[UsesClass(Length::class)]
+#[UsesClass(Regex::class)]
+#[UsesClass(IsArray::class)]
+#[UsesClass(IsInt::class)]
+#[UsesClass(IsList::class)]
+#[UsesClass(IsString::class)]
 class ResponseBuilderTest extends TestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';
 
-    /** @test */
+    #[Test]
     public function throwsExceptionIfNotIsFound(): void
     {
         $sut = new ResponseBuilder();
@@ -102,39 +113,25 @@ class ResponseBuilderTest extends TestCase
         $sut->build($response);
     }
 
-    public function dataSetsforSupports(): array
+    #[Test]
+    public function supportsNumericSpecification(): void
     {
-        return [
-            [
-                new class() implements Specification {
-                },
-                false,
-            ],
-            [
-                self::createStub(Request::class),
-                false,
-            ],
-            [
-                self::createStub(Response::class),
-                true,
-            ],
-        ];
-    }
-
-    /**
-     * @test
-     * @dataProvider dataSetsforSupports
-     */
-    public function supportsTest(Specification $spec, bool $expected): void
-    {
+        $specification = self::createStub(Response::class);
         $sut = new ResponseBuilder();
 
-        $supported = $sut->supports($spec);
-
-        self::assertSame($expected, $supported);
+        self::assertTrue($sut->supports($specification));
     }
 
-    public function dataSetsforBuilds(): array
+    #[Test]
+    public function doesNotSupportNonNumericSpecification(): void
+    {
+        $specification = self::createStub(APISpec::class);
+        $sut = new ResponseBuilder();
+
+        self::assertFalse($sut->supports($specification));
+    }
+
+    public static function dataSetsforBuilds(): array
     {
         return [
             'no properties' => [
@@ -854,10 +851,8 @@ class ResponseBuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsforBuilds
-     */
+    #[DataProvider('dataSetsforBuilds')]
+    #[Test]
     public function buildsTest(Specification $spec, Processor $expected): void
     {
         $sut = new ResponseBuilder();
@@ -867,7 +862,7 @@ class ResponseBuilderTest extends TestCase
         self::assertEquals($expected, $processor);
     }
 
-    public function dataSetsForDocExamples(): array
+    public static function dataSetsForDocExamples(): array
     {
         $petStore1 = new Response(
             self::DIR . 'docs/petstore.yaml',
@@ -929,10 +924,8 @@ class ResponseBuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForDocExamples
-     */
+    #[DataProvider('dataSetsForDocExamples')]
+    #[Test]
     public function docsTest(Specification $spec, array $data, Result $expected): void
     {
         $sut = new ResponseBuilder();

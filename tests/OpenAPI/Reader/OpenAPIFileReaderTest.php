@@ -8,18 +8,20 @@ use cebe\openapi\exceptions\UnresolvableReferenceException;
 use cebe\openapi\spec\OpenApi;
 use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
 use Membrane\OpenAPI\Reader\OpenAPIFileReader;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Yaml\Exception\ParseException;
+use TypeError;
 
-/**
- * @covers \Membrane\OpenAPI\Reader\OpenAPIFileReader
- * @covers \Membrane\OpenAPI\Exception\CannotReadOpenAPI
- */
+#[CoversClass(OpenAPIFileReader::class)]
+#[CoversClass(CannotReadOpenAPI::class)]
 class OpenAPIFileReaderTest extends TestCase
 {
     public const FIXTURES = __DIR__ . '/../../fixtures/OpenAPI/';
 
-    public function dataSetsThatThrowExceptions(): array
+    public static function dataSetsThatThrowExceptions(): array
     {
         return [
             'Non-existent file throws CannotReadOpenAPI::fileNotFound' => [
@@ -35,15 +37,15 @@ class OpenAPIFileReaderTest extends TestCase
                 __FILE__,
             ],
             'Empty .json file throws CannotReadOpenAPI::cannotParse' => [
-                CannotReadOpenAPI::cannotParse('empty.json', new \TypeError()),
+                CannotReadOpenAPI::cannotParse('empty.json', new TypeError()),
                 self::FIXTURES . 'empty.json',
             ],
             'Empty .yml file throws CannotReadOpenAPI::cannotParse' => [
-                CannotReadOpenAPI::cannotParse('empty.yml', new \TypeError()),
+                CannotReadOpenAPI::cannotParse('empty.yml', new TypeError()),
                 self::FIXTURES . 'empty.yml',
             ],
             '.json file in invalid json format throws CannotReadOpenAPI::cannotParse' => [
-                CannotReadOpenAPI::cannotParse('invalid.json', new \TypeError()),
+                CannotReadOpenAPI::cannotParse('invalid.json', new TypeError()),
                 self::FIXTURES . 'invalid.json',
             ],
             '.yaml file in invalid yaml format throws CannotReadOpenAPI::cannotParse' => [
@@ -61,10 +63,8 @@ class OpenAPIFileReaderTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatThrowExceptions
-     */
+    #[DataProvider('dataSetsThatThrowExceptions')]
+    #[Test]
     public function exceptionHandlingTest(CannotReadOpenAPI $expected, string $filePath): void
     {
         self::expectExceptionObject($expected);
@@ -72,7 +72,7 @@ class OpenAPIFileReaderTest extends TestCase
         (new OpenAPIFileReader())->readFromAbsoluteFilePath($filePath);
     }
 
-    /** @test */
+    #[Test]
     public function readFromAbsoluteFilePathTest(): void
     {
         $expected = OpenApi::class;

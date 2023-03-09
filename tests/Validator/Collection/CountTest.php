@@ -8,17 +8,19 @@ use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Collection\Count;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Collection\Count
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Count::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class CountTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'no minimum or maximum' => [
@@ -44,10 +46,8 @@ class CountTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringTest(int $min, ?int $max, string $expected): void
     {
         $sut = new Count($min, $max);
@@ -57,7 +57,7 @@ class CountTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'default arguments' => [new Count()],
@@ -65,10 +65,8 @@ class CountTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(Count $sut): void
     {
         $actual = $sut->__toPHP();
@@ -76,7 +74,7 @@ class CountTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsWithIncorrectTypes(): array
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [123, 'integer'],
@@ -87,10 +85,8 @@ class CountTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectTypes
-     */
+    #[DataProvider('dataSetsWithIncorrectTypes')]
+    #[Test]
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $count = new Count();
@@ -107,9 +103,7 @@ class CountTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function noMinAndNoMaxReturnsValid(): void
     {
         $input = ['this', 'has', 'four', 'values'];
@@ -121,7 +115,7 @@ class CountTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsWithLessThanMinimum(): array
+    public static function dataSetsWithLessThanMinimum(): array
     {
         return [
             [[], 1],
@@ -129,10 +123,8 @@ class CountTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithLessThanMinimum
-     */
+    #[DataProvider('dataSetsWithLessThanMinimum')]
+    #[Test]
     public function arraysWithLessValuesThanMinimumReturnInvalid(array $input, int $min): void
     {
         $expectedMessage = new Message('Array is expected have a minimum of %d values', [$min]);
@@ -144,7 +136,7 @@ class CountTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsWithMoreThanMaximum(): array
+    public static function dataSetsWithMoreThanMaximum(): array
     {
         return [
             [['two', 'values'], 1],
@@ -152,10 +144,8 @@ class CountTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithMoreThanMaximum
-     */
+    #[DataProvider('dataSetsWithMoreThanMaximum')]
+    #[Test]
     public function arraysWithMoreValuesThanMaximumReturnInvalid(array $input, int $max): void
     {
         $expectedMessage = new Message('Array is expected have a maximum of %d values', [$max]);
@@ -167,7 +157,7 @@ class CountTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsWithinRange(): array
+    public static function dataSetsWithinRange(): array
     {
         return [
             [['two', 'values'], 1, 3],
@@ -175,10 +165,8 @@ class CountTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithinRange
-     */
+    #[DataProvider('dataSetsWithinRange')]
+    #[Test]
     public function arraysWithinRangeReturnValid(array $input, int $min, int $max): void
     {
         $expected = Result::valid($input);

@@ -7,6 +7,7 @@ namespace OpenAPI\Builder;
 
 use cebe\openapi\spec\Schema;
 use Membrane\Filter\Type\ToBool;
+use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\TrueFalse;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
@@ -15,43 +16,39 @@ use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
 use Membrane\Validator\Type\IsBool;
 use Membrane\Validator\Type\IsNull;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Builder\TrueFalse
- * @covers \Membrane\OpenAPI\Builder\APIBuilder
- * @uses   \Membrane\OpenAPI\Processor\AnyOf
- * @uses   \Membrane\OpenAPI\Specification\TrueFalse
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Validator\Collection\Contained
- */
+#[CoversClass(TrueFalse::class)]
+#[CoversClass(APIBuilder::class)]
+#[UsesClass(AnyOf::class)]
+#[UsesClass(Specification\TrueFalse::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(Contained::class)]
 class TrueFalseTest extends TestCase
 {
-
-    public function specificationsToSupport(): array
+    #[Test]
+    public function supportsNumericSpecification(): void
     {
-        return [
-            [
-                new class() implements \Membrane\Builder\Specification {
-                },
-                false,
-            ],
-            [self::createStub(Specification\TrueFalse::class), true],
-        ];
-    }
-
-    /**
-     * @test
-     * @dataProvider specificationsToSupport
-     */
-    public function supportsTest(\Membrane\Builder\Specification $specification, bool $expected): void
-    {
+        $specification = self::createStub(Specification\TrueFalse::class);
         $sut = new TrueFalse();
 
-        self::assertSame($expected, $sut->supports($specification));
+        self::assertTrue($sut->supports($specification));
     }
 
-    public function specificationsToBuild(): array
+    #[Test]
+    public function doesNotSupportNonNumericSpecification(): void
+    {
+        $specification = self::createStub(Specification\APISpec::class);
+        $sut = new TrueFalse();
+
+        self::assertFalse($sut->supports($specification));
+    }
+
+    public static function specificationsToBuild(): array
     {
         return [
             'non-strict input' => [
@@ -84,10 +81,8 @@ class TrueFalseTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider specificationsToBuild
-     */
+    #[DataProvider('specificationsToBuild')]
+    #[Test]
     public function buildTest(Specification\TrueFalse $specification, Processor $expected): void
     {
         $sut = new TrueFalse();

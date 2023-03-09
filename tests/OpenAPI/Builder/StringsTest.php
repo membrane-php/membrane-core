@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenAPI\Builder;
 
 use cebe\openapi\spec\Schema;
+use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
@@ -16,45 +17,42 @@ use Membrane\Validator\String\Length;
 use Membrane\Validator\String\Regex;
 use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Type\IsString;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Builder\Strings
- * @covers \Membrane\OpenAPI\Builder\APIBuilder
- * @uses   \Membrane\OpenAPI\Processor\AnyOf
- * @uses   \Membrane\OpenAPI\Specification\Strings
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Validator\Collection\Contained
- * @uses   \Membrane\Validator\String\DateString
- * @uses   \Membrane\Validator\String\Length
- * @uses   \Membrane\Validator\String\Regex
- */
+#[CoversClass(Strings::class)]
+#[CoversClass(APIBuilder::class)]
+#[UsesClass(AnyOf::class)]
+#[UsesClass(Specification\Strings::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(Contained::class)]
+#[UsesClass(DateString::class)]
+#[UsesClass(Length::class)]
+#[UsesClass(Regex::class)]
 class StringsTest extends TestCase
 {
-    public function specificationsToSupport(): array
+    #[Test]
+    public function supportsNumericSpecification(): void
     {
-        return [
-            [
-                new class() implements \Membrane\Builder\Specification {
-                },
-                false,
-            ],
-            [self::createStub(Specification\Strings::class), true],
-        ];
-    }
-
-    /**
-     * @test
-     * @dataProvider specificationsToSupport
-     */
-    public function supportsTest(\Membrane\Builder\Specification $specification, bool $expected): void
-    {
+        $specification = self::createStub(Specification\Strings::class);
         $sut = new Strings();
 
-        self::assertSame($expected, $sut->supports($specification));
+        self::assertTrue($sut->supports($specification));
     }
 
-    public function specificationsToBuild(): array
+    #[Test]
+    public function doesNotSupportNonNumericSpecification(): void
+    {
+        $specification = self::createStub(Specification\APISpec::class);
+        $sut = new Strings();
+
+        self::assertFalse($sut->supports($specification));
+    }
+
+    public static function specificationsToBuild(): array
     {
         return [
             'minimum input' => [
@@ -100,10 +98,8 @@ class StringsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider specificationsToBuild
-     */
+    #[DataProvider('specificationsToBuild')]
+    #[Test]
     public function buildTest(Specification\Strings $specification, Processor $expected): void
     {
         $sut = new Strings();

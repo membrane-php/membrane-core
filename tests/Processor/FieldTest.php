@@ -14,23 +14,25 @@ use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Processor\Field
- * @uses   \Membrane\Result\FieldName
- * @uses   \Membrane\Filter\Type\ToFloat
- * @uses   \Membrane\Validator\Type\IsFloat
- * @uses   \Membrane\Validator\Utility\Fails
- * @uses   \Membrane\Validator\Utility\Indifferent
- * @uses   \Membrane\Validator\Utility\Passes
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Field::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(ToFloat::class)]
+#[UsesClass(IsFloat::class)]
+#[UsesClass(Fails::class)]
+#[UsesClass(Indifferent::class)]
+#[UsesClass(Passes::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class FieldTest extends TestCase
 {
-    public function dataSetsToConvertToString(): array
+    public static function dataSetsToConvertToString(): array
     {
         return [
             'No chain returns empty string' => [
@@ -56,10 +58,8 @@ class FieldTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToString
-     */
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
     public function toStringTest(string $expected, Field $sut): void
     {
         $actual = (string)$sut;
@@ -67,7 +67,7 @@ class FieldTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    public function dataSetsToConvertToPHPString(): array
+    public static function dataSetsToConvertToPHPString(): array
     {
         return [
             'empty processes string, no chain' => [new Field('')],
@@ -77,10 +77,8 @@ class FieldTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConvertToPHPString
-     */
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
     public function toPHPTest(Field $sut): void
     {
         $actual = $sut->__toPHP();
@@ -88,7 +86,7 @@ class FieldTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    /** @test */
+    #[Test]
     public function processesMethodReturnsProcessesString(): void
     {
         $input = 'FieldName to process';
@@ -99,7 +97,7 @@ class FieldTest extends TestCase
         self::assertEquals($output, $input);
     }
 
-    public function dataSetsForFiltersOrValidators(): array
+    public static function dataSetsForFiltersOrValidators(): array
     {
         return [
             'No chain returns noResult' => [
@@ -155,10 +153,8 @@ class FieldTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForFiltersOrValidators
-     */
+    #[DataProvider('dataSetsForFiltersOrValidators')]
+    #[Test]
     public function processesCallsFilterOrValidateMethods(Result $expected, Field $sut, mixed $input): void
     {
         $actual = $sut->process(new FieldName('parent field'), $input);

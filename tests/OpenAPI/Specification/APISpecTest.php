@@ -7,24 +7,30 @@ namespace OpenAPI\Specification;
 use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Response;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessRequest;
+use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
 use Membrane\OpenAPI\Method;
+use Membrane\OpenAPI\PathMatcher;
+use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 use Membrane\OpenAPI\Specification\APISpec;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Specification\APISpec
- * @covers \Membrane\OpenAPI\Exception\CannotReadOpenAPI
- * @covers \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
- * @covers \Membrane\OpenAPI\Exception\CannotProcessRequest
- * @uses   \Membrane\OpenAPI\PathMatcher
- * @uses   \Membrane\OpenAPI\Reader\OpenAPIFileReader
- */
+#[CoversClass(APISpec::class)]
+#[CoversClass(CannotReadOpenAPI::class)]
+#[CoversClass(CannotProcessOpenAPI::class)]
+#[CoversClass(CannotProcessRequest::class)]
+#[UsesClass(PathMatcher::class)]
+#[UsesClass(OpenAPIFileReader::class)]
 class APISpecTest extends TestCase
 {
     public const FIXTURES = __DIR__ . '/../../fixtures/OpenAPI/';
 
-    /** @test */
+    #[Test]
     public function throwsExceptionIfNoPathMatches(): void
     {
         $fileName = 'noReferences.json';
@@ -35,7 +41,7 @@ class APISpecTest extends TestCase
         };
     }
 
-    public function dataSetsThatPass(): array
+    public static function dataSetsThatPass(): array
     {
         return [
             'GET does not have any content' => [
@@ -66,10 +72,8 @@ class APISpecTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatPass
-     */
+    #[DataProvider('dataSetsThatPass')]
+    #[Test]
     public function successfulConstructionForValidInputs(string $filePath, string $url, Method $method): void
     {
         $class = new class(self::FIXTURES . $filePath, $url, $method) extends APISpec {

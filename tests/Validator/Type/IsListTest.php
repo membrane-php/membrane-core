@@ -8,17 +8,19 @@ use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Type\IsList;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Type\IsList
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(IsList::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class IsListTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function toStringTest(): void
     {
         $expected = 'is a list';
@@ -29,7 +31,7 @@ class IsListTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function toPHPTest(): void
     {
         $sut = new IsList();
@@ -39,7 +41,7 @@ class IsListTest extends TestCase
         self::assertEquals($sut, eval('return ' . $actual . ';'));
     }
 
-    public function dataSetsThatPass(): array
+    public static function dataSetsThatPass(): array
     {
         return [
             [['this', 'is', 'a', 'list']],
@@ -47,10 +49,8 @@ class IsListTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatPass
-     */
+    #[DataProvider('dataSetsThatPass')]
+    #[Test]
     public function listReturnsValid($input): void
     {
         $isList = new IsList();
@@ -61,7 +61,7 @@ class IsListTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatAreNotArraysOrLists(): array
+    public static function dataSetsThatAreNotArraysOrLists(): array
     {
         return [
             ['true', 'string'],
@@ -72,10 +72,8 @@ class IsListTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatAreNotArraysOrLists
-     */
+    #[DataProvider('dataSetsThatAreNotArraysOrLists')]
+    #[Test]
     public function typesThatAreNotArraysOrListsReturnInvalid($input, $expectedVar): void
     {
         $isList = new IsList();
@@ -90,9 +88,7 @@ class IsListTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function arrayReturnsInvalid(): void
     {
         $input = ['a' => 'this is', 'b' => 'an array'];
