@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI;
 
+use Membrane\OpenAPI\Builder\ExtractsPathParameters;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 
-class PathMatcher
+class PathMatcher implements ExtractsPathParameters
 {
     private readonly string $regex;
     /** @var string[] */
