@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Membrane\OpenAPI;
+namespace Membrane\OpenAPI\ExtractPathParameters;
 
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\ExtractPathParameters;
 
-class PathParameterExtractor implements Builder\ExtractsPathParameters
+class PathParameterExtractor implements ExtractPathParameters\ExtractsPathParameters
 {
     private readonly string $regex;
     /** @var string[] */
     private readonly array $parameters;
 
     public function __construct(
-        string $relativeUrl
+        private readonly string $relativeUrl
     ) {
         $parameterNames = [];
         $pregParts = [];
@@ -59,5 +60,10 @@ class PathParameterExtractor implements Builder\ExtractsPathParameters
         preg_match($this->regex, $requestPath, $parameters);
 
         return array_filter($parameters, fn($key) => in_array($key, $this->parameters), ARRAY_FILTER_USE_KEY);
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s("%s")', self::class, $this->relativeUrl);
     }
 }

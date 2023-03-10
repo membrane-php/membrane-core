@@ -11,21 +11,24 @@ use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessRequest;
+use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
 use Membrane\OpenAPI\Method;
-use Membrane\OpenAPI\PathMatcher;
 use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 
 use function str_starts_with;
 
 abstract class APISpec implements Specification
 {
-    public readonly PathItem $pathItem;
-    public readonly PathMatcher $matchingPath;
+    private readonly PathItem $pathItem;
+    private readonly PathMatcher $matchingPath;
 
     // @TODO support alternative servers found in both Path or PathItem objects
 
-    public function __construct(string $absoluteFilePath, string $url, public readonly Method $method)
-    {
+    public function __construct(
+        string $absoluteFilePath,
+        string $url,
+        private readonly Method $method
+    ) {
         $openAPI = (new OpenAPIFileReader())->readFromAbsoluteFilePath($absoluteFilePath);
 
         $serverUrl = $this->matchServer($openAPI, $url);
@@ -38,10 +41,10 @@ abstract class APISpec implements Specification
             }
         }
 
-        $this->matchingPath ?? throw CannotProcessRequest::pathNotFound(
-            pathinfo($absoluteFilePath, PATHINFO_BASENAME),
-            $url
-        );
+            $this->matchingPath ?? throw CannotProcessRequest::pathNotFound(
+                pathinfo($absoluteFilePath, PATHINFO_BASENAME),
+                $url
+            );
     }
 
     protected function getOperation(Method $method): Operation
@@ -77,5 +80,20 @@ abstract class APISpec implements Specification
         }
 
         return '';
+    }
+
+    public function getPathItem(): PathItem
+    {
+        return $this->pathItem;
+    }
+
+    public function getPathParameterExtractor(): PathMatcher
+    {
+        return $this->matchingPath;
+    }
+
+    public function getMethod(): Method
+    {
+        return $this->method;
     }
 }

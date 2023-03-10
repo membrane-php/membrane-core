@@ -12,7 +12,7 @@ use Membrane\OpenAPI\Filter\HTTPParameters;
 use Membrane\OpenAPI\Filter\PathMatcher as PathMatcherFilter;
 use Membrane\OpenAPI\Processor\Json;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
-use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPI\Specification\RequestSpec;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Field;
@@ -24,50 +24,50 @@ class RequestBuilder extends APIBuilder
 {
     public function supports(Specification $specification): bool
     {
-        return ($specification instanceof Request);
+        return ($specification instanceof RequestSpec);
     }
 
     public function build(Specification $specification): Processor
     {
-        assert($specification instanceof Request);
+        assert($specification instanceof RequestSpec);
 
         $processors = $this->fromParameters($specification);
         $processors['body'] = new Json($this->fromRequestBody($specification));
 
         return new RequestProcessor(
             '',
-            $specification->operationId,
-            $specification->method,
+            $specification->getOperationId(),
+            $specification->getMethod(),
             $processors
         );
     }
 
-    private function fromRequestBody(Request $specification): Processor
+    private function fromRequestBody(RequestSpec $specification): Processor
     {
-        if ($specification->requestBodySchema === null) {
+        if ($specification->getRequestBody() === null) {
             return new Field('requestBody', new Passes());
         }
 
-        return $this->fromSchema($specification->requestBodySchema, 'requestBody');
+        return $this->fromSchema($specification->getRequestBody(), 'requestBody');
     }
 
     /**
      * @return Processor[]
      */
-    private function fromParameters(Request $specification): array
+    private function fromParameters(RequestSpec $specification): array
     {
         $locationFields = [
             'path' => [
                 'required' => [],
                 'fields' => [],
-                'beforeSet' => [new PathMatcherFilter($specification->matchingPath)],
+                'beforeSet' => [new PathMatcherFilter($specification->getPathParameterExtractor())],
             ],
             'query' => ['required' => [], 'fields' => [], 'beforeSet' => [new HTTPParameters()]],
             'header' => ['required' => [], 'fields' => [], 'beforeSet' => []],
             'cookie' => ['required' => [], 'fields' => [], 'beforeSet' => []],
         ];
 
-        foreach ($specification->pathParameters as $p) {
+        foreach ($specification->getParameters() as $p) {
             $locationFields[$p->in]['fields'][] = $this->fromSchema($this->findSchema($p), $p->name, false);
             if ($p->required) {
                 $locationFields[$p->in]['required'][] = $p->name;

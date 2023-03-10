@@ -13,12 +13,12 @@ use Exception;
 use Membrane\OpenAPI\Method;
 use Psr\Http\Message\ServerRequestInterface;
 
-class Request extends APISpec
+class Request extends APISpec implements RequestSpec
 {
-    /** @var Parameter[] */
-    public readonly array $pathParameters;
-    public readonly ?Schema $requestBodySchema;
-    public readonly string $operationId;
+    /** @var array<string,Parameter> */
+    private readonly array $parameters;
+    private readonly ?Schema $requestBodySchema;
+    private readonly string $operationId;
 
     public function __construct(string $absoluteFilePath, string $url, Method $method)
     {
@@ -32,7 +32,7 @@ class Request extends APISpec
         assert(!($requestBody instanceof Reference));
         $this->requestBodySchema = $requestBody === null ? null : $this->getSchema($requestBody->content);
 
-        $this->pathParameters = $this->getPathParameters($this->pathItem, $requestOperation);
+        $this->parameters = $this->setParameters($this->getPathItem(), $requestOperation);
     }
 
     public static function fromPsr7(string $apiPath, ServerRequestInterface $request): self
@@ -42,8 +42,8 @@ class Request extends APISpec
         return new self($apiPath, $request->getUri()->getPath(), $method);
     }
 
-    /** @return Parameter[] */
-    private function getPathParameters(PathItem $path, Operation $operation): array
+    /** @return array<string,Parameter> */
+    private function setParameters(PathItem $path, Operation $operation): array
     {
         $parameters = array_filter(
             array_merge($path->parameters, $operation->parameters),
@@ -52,6 +52,21 @@ class Request extends APISpec
 
         $parameters = array_combine(array_map(fn($p) => $p->name, $parameters), $parameters);
 
-        return array_values($parameters);
+        return $parameters;
+    }
+
+    public function getOperationId(): string
+    {
+        return $this->operationId;
+    }
+
+    public function getParameters(): array
+    {
+        return $this->parameters;
+    }
+
+    public function getRequestBody(): ?Schema
+    {
+        return $this->requestBodySchema;
     }
 }

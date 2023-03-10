@@ -10,8 +10,8 @@ use Exception;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessRequest;
+use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
 use Membrane\OpenAPI\Method;
-use Membrane\OpenAPI\PathMatcher;
 use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 use Membrane\OpenAPI\Specification\APISpec;
 use Membrane\OpenAPI\Specification\Request;
@@ -82,7 +82,7 @@ class RequestTest extends TestCase
     {
         $class = new Request(self::DIR . $filePath, $url, $method);
 
-        self::assertInstanceOf(Schema::class, $class->requestBodySchema);
+        self::assertInstanceOf(Schema::class, $class->getRequestBody());
     }
 
 
@@ -108,7 +108,7 @@ class RequestTest extends TestCase
     {
         $class = new Request(self::DIR . $filePath, $url, $method);
 
-        self::assertNull($class->requestBodySchema);
+        self::assertNull($class->getRequestBody());
     }
 
     #[Test]
@@ -116,9 +116,9 @@ class RequestTest extends TestCase
     {
         $class = new Request(self::DIR . 'noReferences.json', 'http://test.com/parampath/01', Method::GET);
 
-        self::assertContainsOnlyInstancesOf(Parameter::class, $class->pathParameters);
+        self::assertContainsOnlyInstancesOf(Parameter::class, $class->getParameters());
 
-        $names = array_map(fn(Parameter $p) => $p->name, $class->pathParameters);
+        $names = array_map(fn(Parameter $p) => $p->name, $class->getParameters());
         self::assertContains('id', $names);
         self::assertContains('name', $names);
     }
@@ -145,9 +145,9 @@ class RequestTest extends TestCase
     {
         $class = new Request(self::DIR . $filePath, $url, $method);
 
-        self::assertContainsOnlyInstancesOf(Parameter::class, $class->pathParameters);
+        self::assertContainsOnlyInstancesOf(Parameter::class, $class->getParameters());
 
-        self::assertInstanceOf(Schema::class, $class->pathParameters[0]->schema);
+        self::assertContainsOnlyInstancesOf(Schema::class, array_map(fn($p) => $p->schema, $class->getParameters()));
     }
 
     #[Test]

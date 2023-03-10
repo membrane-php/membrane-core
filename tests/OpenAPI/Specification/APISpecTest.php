@@ -10,8 +10,8 @@ use cebe\openapi\spec\Response;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessRequest;
 use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
+use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
 use Membrane\OpenAPI\Method;
-use Membrane\OpenAPI\PathMatcher;
 use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 use Membrane\OpenAPI\Specification\APISpec;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -86,8 +86,8 @@ class APISpecTest extends TestCase
             }
         };
 
-        self::assertInstanceOf(PathItem::class, $class->pathItem);
+        self::assertInstanceOf(PathItem::class, $class->getPathItem());
         self::assertInstanceOf(Operation::class, $class->requestOperation);
-        self::assertInstanceOf(Response::class, $class->pathItem->get->responses->getResponse('200'));
+        self::assertInstanceOf(Response::class, $class->getPathItem()->get->responses->getResponse('200'));
     }
 }

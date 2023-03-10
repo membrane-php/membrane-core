@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Membrane\OpenAPI;
+namespace Membrane\OpenAPI\ExtractPathParameters;
 
-use Membrane\OpenAPI\Builder\ExtractsPathParameters;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 
 class PathMatcher implements ExtractsPathParameters
@@ -49,6 +48,11 @@ class PathMatcher implements ExtractsPathParameters
 
         $this->regex = '#^' . implode($pregParts) . '$#';
         $this->parameters = $parameterNames;
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s("%s", "%s")', self::class, $this->serverUrl, $this->apiPath);
     }
 
     public function matches(string $requestPath): bool
