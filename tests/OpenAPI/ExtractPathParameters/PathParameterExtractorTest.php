@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI;
+namespace OpenAPI\ExtractPathParameters;
 
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
-use Membrane\OpenAPI\PathParameterExtractor;
+use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -16,7 +16,17 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(CannotProcessOpenAPI::class)]
 class PathParameterExtractorTest extends TestCase
 {
-    public function providePathsWithImbalancedBraces(): array
+    #[Test, TestDox('__toPHP() will return a string of evaluatable PHP code capable of constructing the same object')]
+    public function toPHPReturnsPHPCodeToConstructSelf(): void
+    {
+        $sut = new PathParameterExtractor('/biscuits/{quantity}');
+
+        $phpCode = 'return ' . $sut->__toPHP() . ';';
+
+        self::assertEquals($sut, eval($phpCode));
+    }
+
+    public static function providePathsWithImbalancedBraces(): array
     {
         return [
             ['/pets/{id{name}}'],
@@ -33,7 +43,7 @@ class PathParameterExtractorTest extends TestCase
         new PathParameterExtractor($apiPath);
     }
 
-    public function providePathsAndParameters(): array
+    public static function providePathsAndParameters(): array
     {
         return [
             [

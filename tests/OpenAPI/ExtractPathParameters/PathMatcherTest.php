@@ -2,19 +2,30 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI;
+namespace OpenAPI\ExtractPathParameters;
 
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
-use Membrane\OpenAPI\PathMatcher;
+use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(PathMatcher::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
 class PathMatcherTest extends TestCase
 {
+    #[Test, TestDox('__toPHP() will return a string of evaluatable PHP code capable of constructing the same object')]
+    public function toPHPReturnsPHPCodeToConstructSelf(): void
+    {
+        $sut = new PathMatcher('http://www.tea.social', '/biscuits/{quantity}');
+
+        $phpCode = 'return ' . $sut->__toPHP() . ';';
+
+        self::assertEquals($sut, eval($phpCode));
+    }
+
     public static function dataSetsWithImbalancedBraces(): array
     {
         return [

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace OpenAPI\Filter;
 
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\ExtractPathParameters\PathMatcher as PathMatcherHelper;
 use Membrane\OpenAPI\Filter\PathMatcher;
-use Membrane\OpenAPI\PathMatcher as PathMatcherHelper;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;

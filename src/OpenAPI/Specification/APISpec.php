@@ -11,8 +11,8 @@ use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessRequest;
+use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
 use Membrane\OpenAPI\Method;
-use Membrane\OpenAPI\PathMatcher;
 use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 
 use function str_starts_with;
@@ -38,10 +38,10 @@ abstract class APISpec implements Specification
             }
         }
 
-        $this->matchingPath ?? throw CannotProcessRequest::pathNotFound(
-            pathinfo($absoluteFilePath, PATHINFO_BASENAME),
-            $url
-        );
+            $this->matchingPath ?? throw CannotProcessRequest::pathNotFound(
+                pathinfo($absoluteFilePath, PATHINFO_BASENAME),
+                $url
+            );
     }
 
     protected function getOperation(Method $method): Operation

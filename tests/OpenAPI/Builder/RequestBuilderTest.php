@@ -13,10 +13,10 @@ use Membrane\OpenAPI\Builder\Arrays;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\RequestBuilder;
 use Membrane\OpenAPI\Builder\Strings;
+use Membrane\OpenAPI\ExtractPathParameters\PathMatcher as PathMatcherClass;
 use Membrane\OpenAPI\Filter\HTTPParameters;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Method;
-use Membrane\OpenAPI\PathMatcher as PathMatcherClass;
 use Membrane\OpenAPI\Processor\Json;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Reader\OpenAPIFileReader;
@@ -548,7 +548,7 @@ class RequestBuilderTest extends TestCase
     #[Test]
     public function docsTest(
         Request $specification,
-        array|ServerRequestInterface $serverRequest,
+        array | ServerRequestInterface $serverRequest,
         Result $expected
     ): void {
         $sut = new RequestBuilder();
