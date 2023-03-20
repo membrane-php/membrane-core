@@ -17,5 +17,8 @@
     "phpstan/phpstan": "^1.8",
     "squizlabs/php_codesniffer": "^3.7",
     "guzzlehttp/psr7": "^2.4"
-  }
+  },
+  "bin": [
+    "bin/membrane"
+  ]
 }
