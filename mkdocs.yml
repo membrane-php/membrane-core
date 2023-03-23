@@ -10,5 +10,6 @@ nav:
   - Filters: filters.md
   - Validators: validators.md
   - Exceptions: exceptions.md
+  - Production Setup: production-setup.md
 
 theme: readthedocs
