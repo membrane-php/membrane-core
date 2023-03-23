@@ -38,7 +38,7 @@ class PathParameterExtractorTest extends TestCase
     #[DataProvider('providePathsWithImbalancedBraces')]
     public function throwsExceptionsForImbalancedBracesInAPIPaths(string $apiPath): void
     {
-        self::expectExceptionObject(CannotProcessOpenAPI::invalidPath($apiPath));
+        self::expectExceptionObject(CannotProcessOpenAPI::invalidOpenAPI($apiPath));
 
         new PathParameterExtractor($apiPath);
     }

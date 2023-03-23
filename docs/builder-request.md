@@ -2,17 +2,32 @@
 
 ## Specification
 
+This Specification is an OpenAPI Request from an [OpenAPI document](https://github.com/OAI/OpenAPI-Specification).
+
+### Basic Construct
+
 ```php
 \Membrane\OpenAPI\Specification\Request($filePath, $url, $method)
 ```
 
-This Specification is an OpenAPI Request from an [OpenAPI document](https://github.com/OAI/OpenAPI-Specification).
+| Parameter | Type   | Notes                                                                   |
+|-----------|--------|-------------------------------------------------------------------------|
+| $filePath | string | The **absolute** file path of the OpenAPI schema the request belongs to |
+| $url      | string | The url of the path the request belongs to                              |
+| $method   | Method | The method of the request                                               |
 
-| Parameter   | Type   | Notes                                                                   |
-|-------------|--------|-------------------------------------------------------------------------|
-| $filePath   | string | The **absolute** file path of the OpenAPI schema the request belongs to |
-| $url        | string | The url of the path the request belongs to                              |
-| $method     | Method | The method of the request                                               |
+### Construct From PSR7 Requests
+
+```php
+\Membrane\OpenAPI\Specification\Request::fromPsr7($filePath, $serverRequest)
+```
+
+| Parameter      | Type                                    | Notes                                                                   |
+|----------------|-----------------------------------------|-------------------------------------------------------------------------|
+| $filePath      | string                                  | The **absolute** file path of the OpenAPI schema the request belongs to |
+| $serverRequest | Psr\Http\Message\ServerRequestInterface | A server request implementing the Psr ServerRequestInterface            |
+
+### Notes
 
 Both Json and Yaml schemas are supported.  
 Only application/json content is supported.
@@ -23,8 +38,8 @@ Only application/json content is supported.
 
 Referencing
 the [OpenAPI petstore-expanded.json](https://github.com/OAI/OpenAPI-Specification/blob/main/examples/v3.0/petstore-expanded.json):   
-To validate HTTP requests to visit `'http://petstore.swagger.io/api/pets'` using the `'get'` operation then this is the
-schema it should follow:
+For HTTP requests to visit `'http://petstore.swagger.io/api/pets'` using the `'get'` method, we would need to validate
+against the following schema:
 
 ```json
 {
@@ -65,7 +80,8 @@ schema it should follow:
 Our Specification might look like this:
 
 ```php
-use Membrane\OpenAPI\Method;use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPI\Method;
+use Membrane\OpenAPI\Specification\Request;
 
 $specification = new Request(__DIR__ . './api/OpenAPI.json', 'http://petstore.swagger.io/api/pets', Method::GET);
 ```

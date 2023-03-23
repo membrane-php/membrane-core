@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenAPI\Filter;
 
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher as PathMatcherHelper;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\Result\Message;
@@ -17,6 +18,7 @@ use PHPUnit\Framework\TestCase;
 
 #[CoversClass(PathMatcher::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
+#[CoversClass(CannotProcessSpecification::class)]
 #[UsesClass(PathMatcherHelper::class)]
 #[UsesClass(Message::class)]
 #[UsesClass(MessageSet::class)]

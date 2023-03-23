@@ -48,9 +48,9 @@ class NumericTest extends TestCase
     }
 
     #[Test]
-    public function doesNotSupportNonNumericSpecification(): void
+    public function doesNotSupportSpecificationsOtherThanNumeric(): void
     {
-        $specification = self::createStub(Specification\APISpec::class);
+        $specification = self::createStub(\Membrane\Builder\Specification::class);
         $sut = new Numeric();
 
         self::assertFalse($sut->supports($specification));

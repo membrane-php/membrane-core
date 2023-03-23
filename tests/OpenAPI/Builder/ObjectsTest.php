@@ -58,7 +58,7 @@ class ObjectsTest extends TestCase
     #[Test]
     public function doesNotSupportSpecificationsThatAreNotArrays(): void
     {
-        $specification = self::createStub(Specification\APISpec::class);
+        $specification = self::createStub(\Membrane\Builder\Specification::class);
         $sut = new Objects();
 
         self::assertFalse($sut->supports($specification));

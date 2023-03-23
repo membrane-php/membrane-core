@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\TrueFalse;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -15,13 +15,13 @@ use PHPUnit\Framework\TestCase;
 
 #[CoversClass(TrueFalse::class)]
 #[CoversClass(APISchema::class)]
-#[CoversClass(CannotProcessOpenAPI::class)]
+#[CoversClass(CannotProcessSpecification::class)]
 class TrueFalseTest extends TestCase
 {
     #[Test]
     public function throwsExceptionForMissingType(): void
     {
-        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(TrueFalse::class, 'boolean', 'no type'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(TrueFalse::class, 'boolean', 'no type'));
 
         new TrueFalse('', new Schema([]));
     }
@@ -29,7 +29,7 @@ class TrueFalseTest extends TestCase
     #[Test]
     public function throwsExceptionForInvalidType(): void
     {
-        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(TrueFalse::class, 'boolean', 'string'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(TrueFalse::class, 'boolean', 'string'));
 
         new TrueFalse('', new Schema(['type' => 'string']));
     }

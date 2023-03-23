@@ -8,6 +8,7 @@ use cebe\openapi\exceptions\TypeErrorException;
 use cebe\openapi\exceptions\UnresolvableReferenceException;
 use cebe\openapi\Reader;
 use cebe\openapi\spec\OpenApi;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
 use Symfony\Component\Yaml\Exception\ParseException;
 
@@ -31,18 +32,18 @@ class OpenAPIFileReader
 
         $fileType = strtolower(pathinfo($absoluteFilePath, PATHINFO_EXTENSION));
 
-        $readFrom = $this->supportedFileTypes[$fileType] ?? throw CannotReadOpenAPI::fileTypeNotSupported($fileType);
+        $readFrom = $this->supportedFileTypes[$fileType] ?? throw CannotReadOpenAPI::invalidFormat($fileType);
 
         try {
             $openApi = $readFrom($absoluteFilePath);
         } catch (\TypeError | TypeErrorException | ParseException $e) {
-            throw CannotReadOpenAPI::cannotParse(pathinfo($absoluteFilePath, PATHINFO_BASENAME), $e);
+            throw CannotReadOpenAPI::notRecognizedAsOpenAPI(pathinfo($absoluteFilePath, PATHINFO_BASENAME), $e);
         } catch (UnresolvableReferenceException $e) {
-            throw CannotReadOpenAPI::unresolvedReference(pathinfo($absoluteFilePath, PATHINFO_BASENAME), $e);
+            throw CannotProcessOpenAPI::unresolvedReference(pathinfo($absoluteFilePath, PATHINFO_BASENAME), $e);
         }
 
         assert($openApi instanceof OpenApi);
-        $openApi->validate() ?: throw CannotReadOpenAPI::invalidOpenAPI($absoluteFilePath, ...$openApi->getErrors());
+        $openApi->validate() ?: throw CannotProcessOpenAPI::invalidOpenAPI($absoluteFilePath, ...$openApi->getErrors());
 
         return $openApi;
     }

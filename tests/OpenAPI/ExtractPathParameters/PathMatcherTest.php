@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenAPI\ExtractPathParameters;
 
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -14,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 
 #[CoversClass(PathMatcher::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
+#[CoversClass(CannotProcessSpecification::class)]
 class PathMatcherTest extends TestCase
 {
     #[Test, TestDox('__toPHP() will return a string of evaluatable PHP code capable of constructing the same object')]
@@ -38,7 +40,7 @@ class PathMatcherTest extends TestCase
     #[Test]
     public function throwsExceptionsForImbalancedBracesInAPIPaths(string $apiPath): void
     {
-        self::expectExceptionObject(CannotProcessOpenAPI::invalidPath($apiPath));
+        self::expectExceptionObject(CannotProcessOpenAPI::invalidOpenAPI($apiPath));
 
         new PathMatcher('', $apiPath);
     }
@@ -137,7 +139,7 @@ class PathMatcherTest extends TestCase
     {
         $sut = new PathMatcher('https://www.server.com', '/pets/{id}');
 
-        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedPath('#^/pets/(?<id>[^/]+)$#', '/hats/23',));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedPath('#^/pets/(?<id>[^/]+)$#', '/hats/23',));
 
         $sut->getPathParams('/hats/23');
     }

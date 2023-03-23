@@ -26,13 +26,13 @@ class PathParameterExtractor implements ExtractPathParameters\ExtractsPathParame
             switch ($part) {
                 case '{':
                     if ($inParameter) {
-                        throw CannotProcessOpenAPI::invalidPath($relativeUrl);
+                        throw CannotProcessOpenAPI::invalidOpenAPI($relativeUrl);
                     }
                     $inParameter = true;
                     continue 2;
                 case '}':
                     if (!$inParameter) {
-                        throw CannotProcessOpenAPI::invalidPath($relativeUrl);
+                        throw CannotProcessOpenAPI::invalidOpenAPI($relativeUrl);
                     }
                     $inParameter = false;
                     continue 2;

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Strings;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -15,13 +15,13 @@ use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Strings::class)]
 #[CoversClass(APISchema::class)]
-#[CoversClass(CannotProcessOpenAPI::class)]
+#[CoversClass(CannotProcessSpecification::class)]
 class StringsTest extends TestCase
 {
     #[Test]
     public function throwsExceptionForMissingType(): void
     {
-        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Strings::class, 'string', 'no type'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Strings::class, 'string', 'no type'));
 
         new Strings('', new Schema([]));
     }
@@ -29,7 +29,7 @@ class StringsTest extends TestCase
     #[Test]
     public function throwsExceptionForIncorrectType(): void
     {
-        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Strings::class, 'string', 'integer'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Strings::class, 'string', 'integer'));
 
         new Strings('', new Schema(['type' => 'integer']));
     }

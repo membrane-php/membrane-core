@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Arrays;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -15,13 +15,13 @@ use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Arrays::class)]
 #[CoversClass(APISchema::class)]
-#[CoversClass(CannotProcessOpenAPI::class)]
+#[CoversClass(CannotProcessSpecification::class)]
 class ArraysTest extends TestCase
 {
     #[Test]
     public function throwsExceptionForMissingType(): void
     {
-        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Arrays::class, 'array', 'no type'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Arrays::class, 'array', 'no type'));
 
         new Arrays('', new Schema([]));
     }
@@ -29,7 +29,7 @@ class ArraysTest extends TestCase
     #[Test]
     public function throwsExceptionForInvalidType(): void
     {
-        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Arrays::class, 'array', 'string'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Arrays::class, 'array', 'string'));
 
         new Arrays('', new Schema(['type' => 'string']));
     }

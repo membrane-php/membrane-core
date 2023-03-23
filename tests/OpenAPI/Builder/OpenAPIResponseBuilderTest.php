@@ -4,21 +4,17 @@ declare(strict_types=1);
 
 namespace OpenAPI\Builder;
 
+use cebe\openapi\Reader;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\OpenAPIResponseBuilder;
-use Membrane\OpenAPI\Builder\ResponseBuilder;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
-use Membrane\OpenAPI\Exception\CannotProcessResponse;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
-use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Processor\AllOf;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
-use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 use Membrane\OpenAPI\Specification\APISchema;
-use Membrane\OpenAPI\Specification\APISpec;
 use Membrane\OpenAPI\Specification\Arrays;
 use Membrane\OpenAPI\Specification\Numeric;
 use Membrane\OpenAPI\Specification\Objects;
@@ -61,12 +57,10 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(ResponseBuilder::class)]
-#[CoversClass(CannotProcessResponse::class)]
+#[CoversClass(OpenAPIResponseBuilder::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
-#[UsesClass(APIBuilder::class)]
-#[UsesClass(OpenAPIResponseBuilder::class)]
+#[CoversClass(APIBuilder::class)]
 #[UsesClass(OpenAPIResponse::class)]
 #[UsesClass(\Membrane\OpenAPI\Builder\Arrays::class)]
 #[UsesClass(\Membrane\OpenAPI\Builder\TrueFalse::class)]
@@ -77,7 +71,6 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(AllOf::class)]
 #[UsesClass(AnyOf::class)]
 #[UsesClass(OneOf::class)]
-#[UsesClass(OpenAPIFileReader::class)]
 #[UsesClass(APISchema::class)]
 #[UsesClass(Arrays::class)]
 #[UsesClass(TrueFalse::class)]
@@ -107,169 +100,124 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(IsInt::class)]
 #[UsesClass(IsList::class)]
 #[UsesClass(IsString::class)]
-class ResponseBuilderTest extends TestCase
+class OpenAPIResponseBuilderTest extends TestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';
-    private ResponseBuilder $sut;
-
-    public function setUp(): void
-    {
-        $this->sut = new ResponseBuilder();
-    }
 
     #[Test, TestDox('It throws an exception if you try to use the keyword "not"')]
     public function throwsExceptionIfNotIsFound(): void
     {
-        $response = new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '360');
+        $openApi = Reader::readFromJsonFile(self::DIR . 'noReferences.json');
+        $operation = $openApi->paths->getPath('/responsepath')->get;
+        $sut = new OpenAPIResponseBuilder();
+        $response = new OpenAPIResponse($operation->operationId, '360', $operation->responses->getResponse('360'));
 
         self::expectExceptionObject(CannotProcessOpenAPI::unsupportedKeyword('not'));
 
-        $this->sut->build($response);
-    }
-
-    #[Test, TestDox('Throws an exception if the method has not been specified on the PathItem')]
-    public function throwsExceptionIfMethodNotFound(): void
-    {
-        $petstoreAPIFilePath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
-        $specification = new Response(
-            $petstoreAPIFilePath,
-            'http://petstore.swagger.io/api/pets',
-            Method::DELETE,
-            '200'
-        );
-
-        self::expectExceptionObject(CannotProcessSpecification::methodNotFound(Method::DELETE->value));
-
-        $this->sut->build($specification);
-    }
-
-    #[Test, TestDox('Throws an exception if the response code has not been specified on the Operation')]
-    public function throwsExceptionIfCodeNotFound(): void
-    {
-        $petstoreAPIFilePath = __DIR__ . '/../../fixtures/OpenAPI/hatstore.json';
-        $specification = new Response(
-            $petstoreAPIFilePath,
-            '/hats',
-            Method::GET,
-            '418'
-        );
-
-        self::expectExceptionObject(CannotProcessResponse::codeNotFound('418'));
-
-        $this->sut->build($specification);
+        $sut->build($response);
     }
 
     #[Test, TestDox('It supports the Response Specification')]
     public function supportsResponseSpecification(): void
     {
-        $specification = self::createStub(Response::class);
+        $specification = self::createStub(OpenAPIResponse::class);
+        $sut = new OpenAPIResponseBuilder();
 
-        self::assertTrue($this->sut->supports($specification));
+        self::assertTrue($sut->supports($specification));
     }
 
     #[Test, TestDox('It does not support any Specifications that are not Response')]
     public function doesNotSupportSpecificationsThatAreNotResponse(): void
     {
         $specification = self::createStub(\Membrane\Builder\Specification::class);
+        $sut = new OpenAPIResponseBuilder();
 
-        self::assertFalse($this->sut->supports($specification));
-    }
-
-    #[Test, TestDox('Throws an exception if it cannot find a matching path in the OpenAPI spec provided')]
-    public function throwsExceptionIfPathCannotBeFound(): void
-    {
-        self::expectExceptionObject(CannotProcessSpecification::pathNotFound('noReferences.json', '/nonexistentpath'));
-
-        $specification = new Response(self::DIR . 'noReferences.json', '/nonexistentpath', Method::GET, '200');
-
-        (new ResponseBuilder())->build($specification);
+        self::assertFalse($sut->supports($specification));
     }
 
     public static function dataSetsforBuilds(): array
     {
+        $noReferences = Reader::readFromJsonFile(self::DIR . 'noReferences.json');
+        $petstore = Reader::readFromYamlFile(self::DIR . 'docs/petstore.yaml');
+
         return [
             'no properties' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/path',
-                    Method::GET,
-                    '200'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/path')->get->operationId,
+                    '200',
+                    $noReferences->paths->getPath('/path')->get->responses->getResponse('200')
                 ),
                 new Field('', new Passes()),
             ],
             'int' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '200'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '200',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('200')
                 ),
                 new Field('', new IsInt()),
             ],
             'nullable int' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '201'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '201',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('201')
                 ),
                 new AnyOf('', new Field('', new IsNull()), new Field('', new IsInt())),
             ],
             'int, inclusive min' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '202'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '202',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('202')
+                ),
                 new Field('', new IsInt(), new Minimum(0)),
             ],
             'int, exclusive min' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
                     '203',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('203')
                 ),
                 new Field('', new IsInt(), new Minimum(0, true)),
             ],
             'int, inclusive max' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
                     '204',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('204')
                 ),
                 new Field('', new IsInt(), new Maximum(100)),
             ],
             'int, exclusive max' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
                     '205',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('205')
                 ),
                 new Field('', new IsInt(), new Maximum(100, true)),
             ],
             'int, multipleOf' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
                     '206',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('206')
                 ),
                 new Field('', new IsInt(), new MultipleOf(3)),
             ],
             'int, enum' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
                     '207',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('207')
                 ),
                 new Field('', new IsInt(), new Contained([1, 2, 3])),
             ],
             'nullable int, enum, exclusive min, inclusive max, multipleOf' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
                     '209',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('209')
                 ),
                 new AnyOf(
                     '',
@@ -286,60 +234,58 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'number' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
                     '210',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('210')
                 ),
                 new Field('', new IsNumber()),
             ],
             'nullable number' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
                     '211',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('211')
                 ),
                 new AnyOf('', new Field('', new IsNull()), new Field('', new IsNumber())),
             ],
             'number, enum' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
                     '212',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('212')
                 ),
                 new Field('', new IsNumber(), new Contained([1, 2.3, 4])),
             ],
             'number, float format' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '213'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '213',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('213')
                 ),
                 new Field('', new IsFloat()),
             ],
             'nullable number, float format' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '214'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '214',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('214')
+                ),
                 new AnyOf('', new Field('', new IsNull()), new Field('', new IsFloat())),
             ],
             'number, double format' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '215'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '215',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('215')
                 ),
                 new Field('', new IsFloat()),
             ],
             'nullable number, enum, inclusive min, exclusive max, multipleOf' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '219'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '219',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('219')
                 ),
                 new AnyOf(
                     '', new Field('', new IsNull()), new Field(
@@ -354,54 +300,75 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'string' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '220'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '220',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('220')
+                ),
                 new Field('', new IsString()),
             ],
             'nullable string' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '221'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '221',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('221')
+                ),
                 new AnyOf('', new Field('', new IsNull()), new Field('', new IsString())),
             ],
             'string, enum' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '222'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '222',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('222')
                 ),
                 new Field('', new IsString(), new Contained(['a', 'b', 'c'])),
             ],
             'string, date format' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '223'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '223',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('223')
                 ),
                 new Field('', new IsString(), new DateString('Y-m-d')),
             ],
             'string, date-time format' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '224'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '224',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('224')
                 ),
                 new Field('', new IsString(), new DateString(DATE_ATOM)),
             ],
             'string, minLength' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '225'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '225',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('225')
+                ),
                 new Field('', new IsString(), new Length(5)),
             ],
             'string, maxLength' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '226'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '226',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('226')
+                ),
                 new Field('', new IsString(), new Length(0, 10)),
             ],
             'string, pattern' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '227'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '227',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('227')
+                ),
                 new Field('', new IsString(), new Regex('#[A-Za-z]+#u')),
             ],
             'nullable string, enum, minLength, maxLength, pattern' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '229'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '229',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('229')
+                ),
                 new AnyOf(
                     '',
                     new Field('', new IsNull()),
@@ -415,33 +382,34 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'bool' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '230'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '230',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('230')
                 ),
                 new Field('', new IsBool()),
             ],
             'nullable bool' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '231'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '231',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('231')
                 ),
                 new AnyOf('', new Field('', new IsNull()), new Field('', new IsBool())),
             ],
             'bool, enum' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '232'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '232',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('232')
+                ),
                 new Field('', new IsBool(), new Contained([true])),
             ],
             'nullable bool, enum' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '239'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '239',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('239')
                 ),
                 new AnyOf(
                     '',
@@ -450,20 +418,18 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'array of ints' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '240'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '240',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('240')
                 ),
                 new Collection('', new BeforeSet(new IsList()), new Field('', new IsInt())),
             ],
             'array of strings, enum' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '241'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '241',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('241')
                 ),
                 new Collection(
                     '',
@@ -472,11 +438,10 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'nullable array of strings' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '242'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '242',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('242')
                 ),
                 new AnyOf(
                     '',
@@ -485,38 +450,34 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'array of booleans, minItems' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '243'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '243',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('243')
                 ),
                 new Collection('', new BeforeSet(new IsList(), new Count(5)), new Field('', new IsBool())),
             ],
             'array of floats, maxItems' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '244'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '244',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('244')
                 ),
                 new Collection('', new BeforeSet(new IsList(), new Count(0, 5)), new Field('', new IsFloat())),
             ],
             'array of numbers, uniqueItems' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '245'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '245',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('245')
                 ),
                 new Collection('', new BeforeSet(new IsList(), new Unique()), new Field('', new IsNumber())),
             ],
             'nullable array of nullable numbers, enum, minItems, maxItems, uniqueItems' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '269'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '269',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('269')
                 ),
                 new AnyOf(
                     '',
@@ -535,7 +496,11 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'object with (string) name' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '270'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '270',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('270')
+                ),
                 new FieldSet(
                     '',
                     new BeforeSet(new IsArray()),
@@ -543,7 +508,11 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'object with (int) id, enum' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '271'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '271',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('271')
+                ),
                 new FieldSet(
                     '',
                     new BeforeSet(new IsArray(), new Contained([['id' => 5], ['id' => 10]])),
@@ -551,11 +520,10 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'nullable object with (float) price' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '272'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '272',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('272')
                 ),
                 new AnyOf(
                     '',
@@ -565,11 +533,10 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'object with (string) name, (int) id, (bool) status' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '273'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '273',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('273')
                 ),
                 new FieldSet(
                     '',
@@ -580,7 +547,11 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'object with (string) name, (int) id, (bool) status, required' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '274'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '274',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('274')
+                ),
                 new FieldSet(
                     '',
                     new BeforeSet(new IsArray(), new RequiredFields('name', 'id')),
@@ -590,7 +561,11 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'nullable object with (string) name, (int) id, (bool) status, enum, required' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '299'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '299',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('299')
+                ),
                 new FieldSet(
                     '',
                     new BeforeSet(
@@ -609,15 +584,18 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'allOf, one object (should act like normal object)' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '300'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '300',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('300')
+                ),
                 new FieldSet('', new Field('name', new IsString()), new BeforeSet(new IsArray())),
             ],
             'allOf, two objects, one identical parameter' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '301'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '301',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('301')
                 ),
                 new AllOf(
                     '',
@@ -626,11 +604,10 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'allOf, two objects, one unique parameters' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '302'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '302',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('302')
                 ),
                 new AllOf(
                     '',
@@ -639,11 +616,10 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'allOf, two objects, conflicting parameter' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '303'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '303',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('303')
                 ),
                 new AllOf(
                     '',
@@ -652,7 +628,11 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'allOf, two objects, unique parameters, one requiredField' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '304'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '304',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('304')
+                ),
                 new AllOf(
                     '',
                     new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
@@ -664,7 +644,11 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'allOf, two objects, unique parameters, two requiredField' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '305'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '305',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('305')
+                ),
                 new AllOf(
                     '',
                     new FieldSet(
@@ -680,7 +664,11 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'allOf, two objects, unique parameters, two requiredFields requiring the other schemas property' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '306'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '306',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('306')
+                ),
                 new AllOf(
                     '',
                     new FieldSet(
@@ -696,16 +684,19 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'anyOf, one object (should act like normal object)' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '320'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '320',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('320')
                 ),
                 new FieldSet('', new Field('name', new IsString()), new BeforeSet(new IsArray())),
             ],
             'anyOf, two objects, one identical parameter' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '321'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '321',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('321')
+                ),
                 new AnyOf(
                     '',
                     new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
@@ -713,11 +704,10 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'anyOf, two objects, one unique parameters' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '322'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '322',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('322')
                 ),
                 new AnyOf(
                     '',
@@ -726,11 +716,10 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'anyOf, two objects, conflicting parameter' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '323'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '323',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('323')
                 ),
                 new AnyOf(
                     '',
@@ -739,7 +728,11 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'anyOf, two objects, unique parameters, one requiredField' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '324'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '324',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('324')
+                ),
                 new AnyOf(
                     '',
                     new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
@@ -751,11 +744,10 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'anyOf, two objects, unique parameters, two requiredField' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '325'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '325',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('325')
                 ),
                 new AnyOf(
                     '',
@@ -772,11 +764,10 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'anyOf, two objects, unique parameters, two requiredFields requiring the other schemas property' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '326'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '326',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('326')
                 ),
                 new AnyOf(
                     '',
@@ -793,11 +784,19 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'oneOf, one object (should act like normal object)' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '340'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '340',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('340')
+                ),
                 new FieldSet('', new Field('name', new IsString()), new BeforeSet(new IsArray())),
             ],
             'oneOf, two objects, one identical parameter' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '341'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '341',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('341')
+                ),
                 new OneOf(
                     '',
                     new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
@@ -805,7 +804,11 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'oneOf, two objects, one unique parameters' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '342'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '342',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('342')
+                ),
                 new OneOf(
                     '',
                     new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
@@ -813,11 +816,10 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'oneOf, two objects, conflicting parameter' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '343'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '343',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('343')
                 ),
                 new OneOf(
                     '',
@@ -826,7 +828,11 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'oneOf, two objects, unique parameters, one requiredField' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '344'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '344',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('344')
+                ),
                 new OneOf(
                     '',
                     new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
@@ -838,11 +844,10 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'oneOf, two objects, unique parameters, two requiredField' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '345'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '345',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('345')
                 ),
                 new OneOf(
                     '',
@@ -859,11 +864,10 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'oneOf, two objects, unique parameters, two requiredFields requiring the other schemas property' => [
-                new Response(
-                    self::DIR . 'noReferences.json',
-                    '/responsepath',
-                    Method::GET,
-                    '346'
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '346',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('346')
                 ),
                 new OneOf(
                     '',
@@ -880,23 +884,34 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'schema with no specified type' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '404'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '404',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('404')
+                ),
                 new Field('', new Passes()),
             ],
             'schema with empty content' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '405'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '405',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('405')
+                ),
                 new Field('', new Passes()),
             ],
             'schema with no content' => [
-                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '406'),
+                new OpenAPIResponse(
+                    $noReferences->paths->getPath('/responsepath')->get->operationId,
+                    '406',
+                    $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('406')
+                ),
                 new Field('', new Passes()),
             ],
             'petstore.yaml: /pets path -> get operation -> 200 response' => [
-                new Response(
-                    self::DIR . 'docs/petstore.yaml',
-                    '/pets',
-                    Method::GET,
-                    '200'
+                new OpenAPIResponse(
+                    $petstore->paths->getPath('/pets')->get->operationId,
+                    '200',
+                    $petstore->paths->getPath('/pets')->get->responses->getResponse('200')
                 ),
                 new Collection(
                     '',
@@ -917,23 +932,26 @@ class ResponseBuilderTest extends TestCase
     #[DataProvider('dataSetsforBuilds')]
     public function buildsTest(Specification $spec, Processor $expected): void
     {
-        $processor = $this->sut->build($spec);
+        $sut = new OpenAPIResponseBuilder();
+
+        $processor = $sut->build($spec);
 
         self::assertEquals($expected, $processor);
     }
 
     public static function dataSetsForDocExamples(): array
     {
-        $petStore1 = new Response(
-            self::DIR . 'docs/petstore.yaml',
-            '/pets',
-            Method::GET,
-            '200'
+        $petstore = Reader::readFromYamlFile(self::DIR . 'docs/petstore.yaml');
+
+        $petsGet200Response = new OpenAPIResponse(
+            $petstore->paths->getPath('/pets')->get->operationId,
+            '200',
+            $petstore->paths->getPath('/pets')->get->responses->getResponse('200')
         );
 
         return [
             'dataSet A' => [
-                $petStore1,
+                $petsGet200Response,
                 [
                     ['name' => 'Blink', 'id' => 1],
                     ['name' => 'Harley', 'id' => 2],
@@ -946,7 +964,7 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'dataSet B' => [
-                $petStore1,
+                $petsGet200Response,
                 [
                     ['name' => 'Blink'],
                     ['id' => 2],
@@ -961,7 +979,7 @@ class ResponseBuilderTest extends TestCase
                 ),
             ],
             'dataSet C' => [
-                $petStore1,
+                $petsGet200Response,
                 [
                     'Blink',
                     5,
@@ -988,7 +1006,9 @@ class ResponseBuilderTest extends TestCase
     #[Test]
     public function docsTest(Specification $spec, array $data, Result $expected): void
     {
-        $processor = $this->sut->build($spec);
+        $sut = new OpenAPIResponseBuilder();
+
+        $processor = $sut->build($spec);
 
         self::assertEquals($expected, $processor->process(new FieldName(''), $data));
     }

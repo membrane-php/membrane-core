@@ -66,14 +66,18 @@ class RequestTest extends TestCase
     {
         return [
             'no chain' => [new Request('a', 'operationId', Method::GET, []),],
-            '1 empty Field' => [new Request('b', 'operationId', Method::GET, [new Field('')]),],
-            '1 Field' => [new Request('c', 'operationId', Method::GET, [new Field('', new Passes())]),],
+            '1 empty Field' => [new Request('b', 'operationId', Method::GET, ['path' => new Field('')]),],
+            '1 Field' => [new Request('c', 'operationId', Method::GET, ['query' => new Field('', new Passes())]),],
             '3 Fields' => [
                 new Request(
                     'd',
                     'operationId',
                     Method::GET,
-                    [new Field('a', new Passes()), new Field('b', new Fails()), new Field('c', new Passes())]
+                    [
+                        'path' => new Field('a', new Passes()),
+                        'query' => new Field('b', new Fails()),
+                        'body' => new Field('c', new Passes()),
+                    ]
                 ),
             ],
         ];

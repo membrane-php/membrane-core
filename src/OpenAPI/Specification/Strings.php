@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 
 class Strings extends APISchema
 {
@@ -16,7 +16,7 @@ class Strings extends APISchema
     public function __construct(string $fieldName, Schema $schema)
     {
         if ($schema->type !== 'string') {
-            throw CannotProcessOpenAPI::mismatchedType(self::class, 'string', $schema->type);
+            throw CannotProcessSpecification::mismatchedType(self::class, 'string', $schema->type);
         }
 
         $this->maxLength = $schema->maxLength;

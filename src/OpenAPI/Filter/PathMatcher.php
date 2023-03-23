@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Filter;
 
 use Membrane\Filter;
-use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\ExtractsPathParameters;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
@@ -38,7 +38,7 @@ class PathMatcher implements Filter
 
         try {
             $pathParams = $this->pathMatcher->getPathParams($value);
-        } catch (CannotProcessOpenAPI) {
+        } catch (CannotProcessSpecification) {
             return Result::invalid(
                 $value,
                 new MessageSet(null, new Message('requestPath does not match expected pattern', []))

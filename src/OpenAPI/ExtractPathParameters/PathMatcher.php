@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\ExtractPathParameters;
 
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 
 class PathMatcher implements ExtractsPathParameters
 {
@@ -30,11 +31,11 @@ class PathMatcher implements ExtractsPathParameters
             switch ($part) {
                 case '{':
                     $inParameter = !$inParameter ? true :
-                    throw CannotProcessOpenAPI::invalidPath($this->apiPath);
+                    throw CannotProcessOpenAPI::invalidOpenAPI($this->apiPath);
                     continue 2;
                 case '}':
                     $inParameter = $inParameter ? false :
-                    throw CannotProcessOpenAPI::invalidPath($this->apiPath);
+                    throw CannotProcessOpenAPI::invalidOpenAPI($this->apiPath);
                     continue 2;
             }
 
@@ -65,7 +66,7 @@ class PathMatcher implements ExtractsPathParameters
     public function getPathParams(string $requestPath): array
     {
         if (!$this->matches($requestPath)) {
-            throw CannotProcessOpenAPI::mismatchedPath($this->regex, $requestPath);
+            throw CannotProcessSpecification::mismatchedPath($this->regex, $requestPath);
         }
 
         $requestPath = $this->removeServerFromPath($requestPath);

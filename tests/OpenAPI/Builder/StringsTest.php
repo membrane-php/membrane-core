@@ -46,7 +46,7 @@ class StringsTest extends TestCase
     #[Test]
     public function doesNotSupportNonNumericSpecification(): void
     {
-        $specification = self::createStub(Specification\APISpec::class);
+        $specification = self::createStub(\Membrane\Builder\Specification::class);
         $sut = new Strings();
 
         self::assertFalse($sut->supports($specification));
