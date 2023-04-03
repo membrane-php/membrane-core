@@ -6,14 +6,14 @@ namespace Membrane\OpenAPI\Filter;
 
 use Membrane\Filter;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
-use Membrane\OpenAPI\PathMatcher as PathMatcherClass;
+use Membrane\OpenAPI\ExtractPathParameters\ExtractsPathParameters;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 
 class PathMatcher implements Filter
 {
-    public function __construct(private readonly PathMatcherClass $pathMatcher)
+    public function __construct(private readonly ExtractsPathParameters $pathMatcher)
     {
     }
 
@@ -24,13 +24,7 @@ class PathMatcher implements Filter
 
     public function __toPHP(): string
     {
-        return sprintf(
-            'new %s(new %s("%s", "%s"))',
-            self::class,
-            $this->pathMatcher::class,
-            $this->pathMatcher->serverUrl,
-            $this->pathMatcher->apiPath
-        );
+        return sprintf('new %s(%s)', self::class, $this->pathMatcher->__toPHP());
     }
 
     public function filter(mixed $value): Result
