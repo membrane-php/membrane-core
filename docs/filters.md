@@ -306,12 +306,64 @@ Result was valid
 
 ## String
 
+### AlphaNumeric
+
+```php
+new Membrane\Filter\String\AlphaNumeric();
+```
+
+Removes any characters that are not alphanumeric from the string.
+
+```php
+$string = '@alpha?Numer!ic^';
+$alphaNumeric = new Membrane\Filter\String\AlphaNumeric();
+
+$result = $alphaNumeric->filter($string);
+
+echo $result->value;
+echo $result->isValid() ? 'is valid' : 'is invalid';
+```
+
+The above example will output the following
+
+```text
+alphaNumeric is valid
+```
+
+### Explode
+
+```php
+new Membrane\Filter\String\Explode($delimiter)
+```
+
+| Parameter  | Type   | Notes                     |
+|------------|--------|---------------------------|
+| $delimiter | string | Cannot be an empty string |
+
+Explodes a string into an array based on the given delimiter.
+
+```php
+$string = 'one,two,three';
+$explode = new Membrane\Filter\String\Explode(',');
+
+$result = $explode->filter($string);
+
+echo json_encode($result->value);
+echo $result->isValid() ? 'is valid' : 'is invalid';
+```
+
+The above example will output the following
+
+```text
+["one", "two", "three"] is valid
+```
+
 ### JsonDecode
 
 Filters a string into a json object, as long as it follows json format.
 
 ```php
-new JsonDecode()
+new Membrane\Filter\String\\Membrane\Filter\String\JsonDecode();
 ```
 
 **Example**
@@ -335,6 +387,30 @@ The above example will output the following
     "type": "dog"
 }
 Result was valid
+```
+
+### ToPascalCase
+
+```php
+new Membrane\Filter\String\ToPascalCase();
+```
+
+Converts string into PascalCase (i.e. no whitespaces, uppercase for first letter of each word).
+
+```php
+$string = 'hello_there friend-how are you_doing';
+$pascalCase = new Membrane\Filter\String\ToPascalCase();
+
+$result = $pascalCase->filter($string);
+
+echo $result->value;
+echo $result->isValid() ? 'is valid' : 'is invalid';
+```
+
+The above example will output the following
+
+```text
+HelloThereFriendHowAreYouDoing is valid
 ```
 
 ## Type
