@@ -171,6 +171,60 @@ new Delete(...$fieldNames)
 |----------------|--------|
 | ...$fieldNames | string |
 
+**Example**
+
+```php
+use Membrane\Filter\Shape\Delete;
+
+$array = ['a' => 1, 'b' => 2, 'c' => 3]
+$delete = new Delete('a', 'b');
+
+$result = $delete->filter($array);
+
+echo json_encode($result->value);
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+
+The above example will output the following
+
+```text
+["c":3]
+Result was valid
+```
+
+### Key Value Split
+
+Split a list into two, then combine to form a key-value array.
+
+```php
+new \Membrane\Filter\Shape\KeyValueSplit($keysFirst)
+```
+
+| Parameter  | Type |
+|------------|------|
+| $keysFirst | bool |
+
+**Example**
+
+```php
+use Membrane\Filter\Shape\KeyValueSplit;
+
+$list = ['a', 'one', 'b', 'two', 'c', 'three']
+$keyValueSplit = new KeyValueSplit();
+
+$result = $keyValueSplit->filter($list);
+
+echo json_encode($result->value);
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+
+The above example will output the following
+
+```text
+["a":"one", "b":"two", "c":"three"]
+Result was valid
+```
+
 ### Nest
 
 Opposite of Pluck.
