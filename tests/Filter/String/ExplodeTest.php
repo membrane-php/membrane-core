@@ -23,6 +23,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Message::class)]
 class ExplodeTest extends TestCase
 {
+    #[Test, TestDox('It cannot have an empty string delimiter or it will throw an Exception')]
     public function throwsExceptionIfEmptyStringUsedAsDelimiter(): void
     {
         self::expectExceptionObject(InvalidFilterArguments::emptyStringDelimiter());
