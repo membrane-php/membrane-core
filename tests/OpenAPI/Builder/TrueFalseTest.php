@@ -42,7 +42,7 @@ class TrueFalseTest extends TestCase
     #[Test]
     public function doesNotSupportNonNumericSpecification(): void
     {
-        $specification = self::createStub(Specification\APISpec::class);
+        $specification = self::createStub(\Membrane\Builder\Specification::class);
         $sut = new TrueFalse();
 
         self::assertFalse($sut->supports($specification));

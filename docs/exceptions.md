@@ -34,23 +34,31 @@ including (but not limited to) [Request](builder-request.md) and [Response](buil
 This exception occurs when the file specified cannot be read as an OpenAPI document.  
 This may be due to one of the following reasons:
 
-* The file cannot be found on the path provided
-* The file is not following the OpenAPI specification
+* The file cannot be found at the given filepath.
+* The file is not recognized as OpenAPI.
 
 ### Cannot Process OpenAPI
 
 This exception occurs when the OpenAPI has been read and parsed as OpenAPI
-but Membrane cannot process it further due to developer error.  
+but Membrane cannot process it further.  
 This may be due to one of the following reasons:
 
-* Your OpenAPI spec contains features currently unsupported by Membrane
-* Your OpenAPI spec does not contain the data you're trying to process.
+* Your OpenAPI is invalid according to the OpenAPI Specification.
+* Your OpenAPI contains features currently unsupported by Membrane.
 
-### Cannot Process Request
+### Cannot Process Specification
 
 This exception occurs when the OpenAPI has been read and parsed as OpenAPI
-but Membrane cannot process it further due to user error.  
+but Membrane cannot process your Specification.  
 This may be due to one of the following reasons:
 
-* Your request contains features currently unsupported by Membrane
-* Your request does not match anything found in your OpenAPI spec.
+* Your specification does not match anything found in your OpenAPI spec.
+* Your specification contains features currently unsupported by Membrane
+
+## Cannot Process Response
+
+This exception occurs when the OpenAPI has been read and parsed as OpenAPI
+but Membrane cannot process your response further.  
+This may be due to one of the following reasons:
+
+* Your response specification contains an HTTP status code that does not match any response on the corresponding path.

@@ -6,7 +6,6 @@ namespace Membrane\OpenAPI\Builder;
 
 use cebe\openapi\spec\Reference;
 use cebe\openapi\spec\Schema;
-use Exception;
 use Membrane\Builder\Builder;
 use Membrane\OpenAPI;
 use Membrane\OpenAPI\Processor\AnyOf;
@@ -26,7 +25,7 @@ abstract class APIBuilder implements Builder
     protected function fromSchema(Schema $schema, string $fieldName = '', bool $strict = true): Processor
     {
         if ($schema->not !== null) {
-            throw new Exception("Keyword 'not' is currently unsupported");
+            throw OpenAPI\Exception\CannotProcessOpenAPI::unsupportedKeyword('not');
         }
 
         if ($schema->allOf !== null) {

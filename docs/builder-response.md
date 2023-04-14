@@ -3,7 +3,7 @@
 ## Specification
 
 ```php
-APIResponse($filePath, $url, $method, $httpStatus)
+Membrane\OpenAPI\Specification\Response($filePath, $url, $method, $httpStatus)
 ```
 
 This Specification is an OpenAPI Response from an [OpenAPI document](https://github.com/OAI/OpenAPI-Specification).
@@ -12,7 +12,7 @@ This Specification is an OpenAPI Response from an [OpenAPI document](https://git
 |-------------|--------|--------------------------------------------------------------------------|
 | $filePath   | string | The **absolute** file path of the OpenAPI schema the response belongs to |
 | $url        | string | The url of the path the response belongs to                              |
-| $method     | Method | The method the response belongs to                                       |
+| $method     | Method | The method of the operation the response belongs to                      |
 | $httpStatus | string | The http status code of the response                                     |
 
 Both Json and Yaml schemas are supported.  

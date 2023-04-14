@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace OpenAPI\Builder;
 
 use cebe\openapi\Reader;
+use cebe\openapi\spec\Operation;
+use cebe\openapi\spec\Parameter;
+use cebe\openapi\spec\PathItem;
+use cebe\openapi\spec\Schema;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;
 use Membrane\Filter\Type\ToInt;
@@ -17,6 +21,7 @@ use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher as PathMatcherClass;
+use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\HTTPParameters;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Method;
@@ -50,10 +55,11 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
-#[CoversClass(RequestBuilder::class)]
+#[CoversClass(OpenAPIRequestBuilder::class)]
+#[CoversClass(APIBuilder::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
-#[UsesClass(APIBuilder::class)]
+#[UsesClass(RequestBuilder::class)]
 #[UsesClass(OpenAPIRequestBuilder::class)]
 #[UsesClass(OpenAPIRequest::class)]
 #[UsesClass(Request::class)]
@@ -62,6 +68,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(Strings::class)]
 #[UsesClass(HTTPParameters::class)]
 #[UsesClass(PathMatcher::class)]
+#[UsesClass(PathParameterExtractor::class)]
 #[UsesClass(PathMatcherClass::class)]
 #[UsesClass(Json::class)]
 #[UsesClass(RequestProcessor::class)]
@@ -86,18 +93,39 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(IsList::class)]
 #[UsesClass(IsString::class)]
 #[UsesClass(Passes::class)]
-class RequestBuilderTest extends TestCase
+class OpenAPIRequestBuilderTest extends TestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';
+
+    #[Test, TestDox('It will support the OpenAPIRequest Specification')]
+    public function supportsRequestSpecification(): void
+    {
+        $specification = self::createStub(OpenAPIRequest::class);
+        $sut = new OpenAPIRequestBuilder();
+
+        self::assertTrue($sut->supports($specification));
+    }
+
+    #[Test, TestDox('It will not support any Specifications other than OpenAPIRequest')]
+    public function doesNotSupportSpecificationsOtherThanRequest(): void
+    {
+        $specification = self::createStub(\Membrane\Builder\Specification::class);
+        $sut = new OpenAPIRequestBuilder();
+
+        self::assertFalse($sut->supports($specification));
+    }
 
     #[Test, TestDox('It currently only supports application/json content')]
     public function throwsExceptionIfParameterHasContentThatIsNotJson(): void
     {
-        $openAPIFilePath = self::DIR . 'noReferences.json';
-        $specification = new Request($openAPIFilePath, '/requestpathexceptions', Method::POST);
-        $sut = new RequestBuilder();
+        $openApi = Reader::readFromJsonFile(__DIR__ . '/../../fixtures/OpenAPI/noReferences.json');
+        $specification = new OpenAPIRequest(
+            new PathParameterExtractor('/requestpathexceptions'),
+            $openApi->paths->getPath('/requestpathexceptions'),
+            Method::POST
+        );
+        $sut = new OpenAPIRequestBuilder();
 
-        $openApi = Reader::readFromJsonFile($openAPIFilePath);
         $mediaTypes = array_keys($openApi->paths->getPath('/requestpathexceptions')->post->parameters[0]->content);
 
         self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes($mediaTypes));
@@ -105,43 +133,15 @@ class RequestBuilderTest extends TestCase
         $sut->build($specification);
     }
 
-    #[Test, TestDox('It will support the Request Specification')]
-    public function supportsRequestSpecification(): void
-    {
-        $specification = self::createStub(Request::class);
-        $sut = new RequestBuilder();
-
-        self::assertTrue($sut->supports($specification));
-    }
-
-    #[Test, TestDox('It will not support any Specifications other than Request')]
-    public function doesNotSupportSpecificationsOtherThanRequest(): void
-    {
-        $specification = self::createStub(\Membrane\Builder\Specification::class);
-        $sut = new RequestBuilder();
-
-        self::assertFalse($sut->supports($specification));
-    }
-
-    #[Test, TestDox('Throws an exception if it cannot find a matching path in the OpenAPI spec provided')]
-    public function throwsExceptionIfPathCannotBeFound(): void
-    {
-        self::expectExceptionObject(CannotProcessSpecification::pathNotFound('noReferences.json', '/nonexistentpath'));
-
-        $specification = new Request(
-            self::DIR . 'noReferences.json', 'http://www.test.com/nonexistentpath', Method::GET
-        );
-
-        (new RequestBuilder())->build($specification);
-    }
-
     public static function dataSetsForBuild(): array
     {
+        $openApi = Reader::readFromJsonFile(__DIR__ . '/../../fixtures/OpenAPI/noReferences.json');
+
         return [
             'Request: no path params, no operation params, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/path/path',
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/path'),
+                    $openApi->paths->getPath('/path'),
                     Method::GET
                 ),
                 new RequestProcessor(
@@ -152,7 +152,7 @@ class RequestBuilderTest extends TestCase
                         'path' => new FieldSet(
                             'path',
                             new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com/path', '/path'))
+                                new PathMatcher(new PathParameterExtractor('/path'))
                             )
                         ),
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
@@ -164,9 +164,9 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'Request: path param in path, no operation params, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestpathone/{id}',
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/requestpathone/{id}'),
+                    $openApi->paths->getPath('/requestpathone/{id}'),
                     Method::GET
                 ),
                 new RequestProcessor(
@@ -177,7 +177,7 @@ class RequestBuilderTest extends TestCase
                         'path' => new FieldSet(
                             'path',
                             new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
+                                new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
                                 new RequiredFields('id')
                             ),
                             new Field('id', new ToInt(), new IsInt())
@@ -191,9 +191,9 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'Request: path param in path, operation param in query not required, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestpathone/{id}',
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/requestpathone/{id}'),
+                    $openApi->paths->getPath('/requestpathone/{id}'),
                     Method::POST
                 ),
                 new RequestProcessor(
@@ -204,7 +204,7 @@ class RequestBuilderTest extends TestCase
                         'path' => new FieldSet(
                             'path',
                             new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
+                                new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
                                 new RequiredFields('id')
                             ),
                             new Field('id', new ToInt(), new IsInt())
@@ -221,20 +221,42 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'Request: path param in path, operation param in query required, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestpathone/{id}',
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/requestpathone/{id}'),
+                    new PathItem([
+                        'parameters' => [
+                            new Parameter([
+                                'name' => 'id',
+                                'in' => 'path',
+                                'required' => true,
+                                'schema' => new Schema(['type' => 'integer']),
+                            ]),
+                        ],
+                        'put' => new Operation([
+                            'operationId' => 'requestpathone-post',
+                            'parameters' => [
+                                new Parameter(
+                                    [
+                                        'name' => 'name',
+                                        'in' => 'query',
+                                        'required' => true,
+                                        'schema' => new Schema(['type' => 'string']),
+                                    ]
+                                ),
+                            ],
+                        ]),
+                    ]),
                     Method::PUT
                 ),
                 new RequestProcessor(
                     '',
-                    'requestpathone-put',
+                    'requestpathone-post',
                     Method::PUT,
                     [
                         'path' => new FieldSet(
                             'path',
                             new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
+                                new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
                                 new RequiredFields('id')
                             ),
                             new Field('id', new ToInt(), new IsInt())
@@ -252,9 +274,9 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'Request: path param in path, operation param in query with json content, required, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestpathone/{id}',
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/requestpathone/{id}'),
+                    $openApi->paths->getPath('/requestpathone/{id}'),
                     Method::DELETE
                 ),
                 new RequestProcessor(
@@ -265,7 +287,7 @@ class RequestBuilderTest extends TestCase
                         'path' => new FieldSet(
                             'path',
                             new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
+                                new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
                                 new RequiredFields('id')
                             ),
                             new Field('id', new ToInt(), new IsInt())
@@ -282,9 +304,9 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'Request: path param in header, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestpathtwo',
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/requestpathtwo'),
+                    $openApi->paths->getPath('/requestpathtwo'),
                     Method::GET
                 ),
                 new RequestProcessor(
@@ -295,7 +317,7 @@ class RequestBuilderTest extends TestCase
                         'path' => new FieldSet(
                             'path',
                             new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathtwo'))
+                                new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
                             )
                         ),
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
@@ -307,7 +329,11 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'Request: path param in header, operation param in cookie, no requestBody' => [
-                new Request(self::DIR . 'noReferences.json', 'http://www.test.com/requestpathtwo', Method::POST),
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/requestpathtwo'),
+                    $openApi->paths->getPath('/requestpathtwo'),
+                    Method::POST
+                ),
                 new RequestProcessor(
                     '',
                     'requestpathtwo-post',
@@ -316,7 +342,7 @@ class RequestBuilderTest extends TestCase
                         'path' => new FieldSet(
                             'path',
                             new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathtwo'))
+                                new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
                             )
                         ),
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
@@ -328,9 +354,9 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'Request: identical param in header and query, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestpathtwo',
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/requestpathtwo'),
+                    $openApi->paths->getPath('/requestpathtwo'),
                     Method::PUT
                 ),
                 new RequestProcessor(
@@ -341,7 +367,7 @@ class RequestBuilderTest extends TestCase
                         'path' => new FieldSet(
                             'path',
                             new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathtwo'))
+                                new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
                             )
                         ),
                         'query' => new FieldSet(
@@ -357,9 +383,9 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'Request: same param in path and operation with different types, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestpathtwo',
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/requestpathtwo'),
+                    $openApi->paths->getPath('/requestpathtwo'),
                     Method::DELETE
                 ),
                 new RequestProcessor(
@@ -370,7 +396,7 @@ class RequestBuilderTest extends TestCase
                         'path' => new FieldSet(
                             'path',
                             new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathtwo'))
+                                new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
                             )
                         ),
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
@@ -382,9 +408,9 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'Request: requestBody param' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestbodypath',
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/requestbodypath'),
+                    $openApi->paths->getPath('/requestbodypath'),
                     Method::GET
                 ),
                 new RequestProcessor(
@@ -395,7 +421,7 @@ class RequestBuilderTest extends TestCase
                         'path' => new FieldSet(
                             'path',
                             new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestbodypath'))
+                                new PathMatcher(new PathParameterExtractor('/requestbodypath'))
                             )
                         ),
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
@@ -407,9 +433,9 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'Request: operation param in query, requestBody param' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestbodypath',
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/requestbodypath'),
+                    $openApi->paths->getPath('/requestbodypath'),
                     Method::POST
                 ),
                 new RequestProcessor(
@@ -420,7 +446,7 @@ class RequestBuilderTest extends TestCase
                         'path' => new FieldSet(
                             'path',
                             new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestbodypath'))
+                                new PathMatcher(new PathParameterExtractor('/requestbodypath'))
                             )
                         ),
                         'query' => new FieldSet(
@@ -436,9 +462,9 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'Request: path param in path, operation param in query, header, cookie, requestBody param' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestbodypath/{id}',
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/requestbodypath/{id}'),
+                    $openApi->paths->getPath('/requestbodypath/{id}'),
                     Method::GET
                 ),
                 new RequestProcessor(
@@ -449,7 +475,7 @@ class RequestBuilderTest extends TestCase
                         'path' => new FieldSet(
                             'path',
                             new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestbodypath/{id}')),
+                                new PathMatcher(new PathParameterExtractor('/requestbodypath/{id}')),
                                 new RequiredFields('id')
                             ),
                             new Field('id', new ToInt(), new IsInt())
@@ -468,11 +494,11 @@ class RequestBuilderTest extends TestCase
         ];
     }
 
+    #[Test, TestDox('Builds a Processor for the Operation Object (specified by the PathItem and method provided')]
     #[DataProvider('dataSetsForBuild')]
-    #[Test]
     public function buildTest(Specification $spec, Processor $expected): void
     {
-        $sut = new RequestBuilder();
+        $sut = new OpenAPIRequestBuilder();
 
         $actual = $sut->build($spec);
 
@@ -482,12 +508,16 @@ class RequestBuilderTest extends TestCase
 
     public static function dataSetsForDocExamples(): array
     {
-        $api = self::DIR . '/docs/petstore.yaml';
-        $expanded = self::DIR . '/docs/petstore-expanded.json';
+        $petstoreApi = Reader::readFromYamlFile(self::DIR . '/docs/petstore.yaml');
+        $petstoreExpandedApi = Reader::readFromJsonFile(self::DIR . '/docs/petstore-expanded.json');
 
         return [
             'petstore /pets get, minimal (valid)' => [
-                new Request($api, 'http://petstore.swagger.io/v1/pets', Method::GET),
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/pets'),
+                    $petstoreApi->paths->getPath('/pets'),
+                    Method::GET
+                ),
                 new ServerRequest('get', 'http://petstore.swagger.io/v1/pets'),
                 Result::valid(
                     [
@@ -501,7 +531,11 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'petstore /pets/{petid} get, minimal (valid)' => [
-                new Request($api, 'http://petstore.swagger.io/v1/pets/Blink', Method::GET),
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/pets/{petId}'),
+                    $petstoreApi->paths->getPath('/pets/{petId}'),
+                    Method::GET
+                ),
                 new ServerRequest('get', 'http://petstore.swagger.io/v1/pets/Harley'),
                 Result::valid(
                     [
@@ -515,9 +549,9 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'petstore expanded /pets get (invalid)' => [
-                new Request(
-                    $expanded,
-                    'http://petstore.swagger.io/api/pets',
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/pets'),
+                    $petstoreExpandedApi->paths->getPath('/pets'),
                     Method::GET
                 ),
                 new ServerRequest('get', 'http://petstore.swagger.io/api/pets?limit=five'),
@@ -537,9 +571,9 @@ class RequestBuilderTest extends TestCase
                 ),
             ],
             'petstore expanded /pets get, minimal (valid)' => [
-                new Request(
-                    $expanded,
-                    'http://petstore.swagger.io/api/pets',
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/pets'),
+                    $petstoreExpandedApi->paths->getPath('/pets'),
                     Method::GET
                 ),
                 new ServerRequest('get', 'http://petstore.swagger.io/api/pets?limit=5&tags[]=cat&tags[]=tabby'),
@@ -560,11 +594,11 @@ class RequestBuilderTest extends TestCase
     #[DataProvider('dataSetsForDocExamples')]
     #[Test]
     public function docsTest(
-        Request $specification,
+        OpenAPIRequest $specification,
         array | ServerRequestInterface $serverRequest,
         Result $expected
     ): void {
-        $sut = new RequestBuilder();
+        $sut = new OpenAPIRequestBuilder();
 
         $processor = $sut->build($specification);
 

@@ -52,7 +52,7 @@ class ArraysTest extends TestCase
     #[Test]
     public function doesNotSupportNonArraysSpecification(): void
     {
-        $specification = self::createStub(Specification\APISpec::class);
+        $specification = self::createStub(\Membrane\Builder\Specification::class);
         $sut = new Arrays();
 
         self::assertFalse($sut->supports($specification));

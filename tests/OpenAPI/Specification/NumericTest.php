@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Numeric;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -15,14 +15,14 @@ use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Numeric::class)]
 #[CoversClass(APISchema::class)]
-#[CoversClass(CannotProcessOpenAPI::class)]
+#[CoversClass(CannotProcessSpecification::class)]
 class NumericTest extends TestCase
 {
     #[Test]
     public function throwsExceptionForMissingType(): void
     {
         self::expectExceptionObject(
-            CannotProcessOpenAPI::mismatchedType(Numeric::class, 'integer or number', 'no type')
+            CannotProcessSpecification::mismatchedType(Numeric::class, 'integer or number', 'no type')
         );
 
         new Numeric('', new Schema([]));
@@ -32,7 +32,7 @@ class NumericTest extends TestCase
     public function throwsExceptionForInvalidType(): void
     {
         self::expectExceptionObject(
-            CannotProcessOpenAPI::mismatchedType(Numeric::class, 'integer or number', 'string')
+            CannotProcessSpecification::mismatchedType(Numeric::class, 'integer or number', 'string')
         );
 
         new Numeric('', new Schema(['type' => 'string']));

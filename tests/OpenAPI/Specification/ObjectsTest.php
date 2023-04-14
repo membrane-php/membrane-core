@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Objects;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -15,13 +15,13 @@ use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Objects::class)]
 #[CoversClass(APISchema::class)]
-#[CoversClass(CannotProcessOpenAPI::class)]
+#[CoversClass(CannotProcessSpecification::class)]
 class ObjectsTest extends TestCase
 {
     #[Test]
     public function throwsExceptionForMissingType(): void
     {
-        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Objects::class, 'object', 'no type'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Objects::class, 'object', 'no type'));
 
         new Objects('', new Schema([]));
     }
@@ -29,7 +29,7 @@ class ObjectsTest extends TestCase
     #[Test]
     public function throwsExceptionForIncorrectType(): void
     {
-        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Objects::class, 'object', 'string'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Objects::class, 'object', 'string'));
 
         new Objects('', new Schema(['type' => 'string']));
     }

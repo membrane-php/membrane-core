@@ -35,6 +35,11 @@ class Request implements Processor
 
     public function __toPHP(): string
     {
+        $processors = [];
+        foreach ($this->processors as $key => $processor) {
+            $processors[] = '"' . $key . '" => ' . $processor->__toPHP();
+        }
+
         return sprintf(
             'new %s("%s", "%s", %s::%s, [%s])',
             self::class,
@@ -42,7 +47,7 @@ class Request implements Processor
             $this->operationId,
             Method::class,
             $this->method->name,
-            implode(', ', array_map(fn($p) => $p->__toPHP(), $this->processors))
+            implode(', ', $processors)
         );
     }
 
@@ -60,7 +65,10 @@ class Request implements Processor
                 $value,
                 new MessageSet(
                     $parentFieldName,
-                    new Message('Request processor expects array or PSR7 HTTP request, %s passed', [gettype($value)])
+                    new Message(
+                        'Request processor expects array or PSR7 HTTP request, %s passed',
+                        [gettype($value)]
+                    )
                 )
             );
         }
