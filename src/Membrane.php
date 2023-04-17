@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Membrane;
 
 use Membrane\Attribute\Builder as AttributeBuilder;
+use Membrane\Builder\Builder;
 use Membrane\Builder\Builder as BuilderInterface;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Builder\RequestBuilder;
@@ -18,8 +19,9 @@ final class Membrane
     /** @var BuilderInterface[] */
     private array $builders = [];
 
-    public function __construct()
+    public function __construct(Builder ...$builders)
     {
+        $this->builders = $builders;
         $this->builders[] = new AttributeBuilder();
         $this->builders[] = new RequestBuilder();
         $this->builders[] = new ResponseBuilder();
