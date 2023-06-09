@@ -45,7 +45,7 @@ class ToDateTime implements Filter
         if ($dateTime === false) {
             $message = new Message(
                 'String does not match the required format',
-                [$this->immutable ? DateTimeImmutable::getLastErrors() : DateTime::getLastErrors()]
+                [json_encode($this->immutable ? DateTimeImmutable::getLastErrors() : DateTime::getLastErrors())]
             );
             return Result::invalid($value, new MessageSet(null, $message));
         }

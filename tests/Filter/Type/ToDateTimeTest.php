@@ -169,7 +169,7 @@ class ToDateTimeTest extends TestCase
     public function stringsThatDoNotMatchFormatReturnInvalid(string $format, string $input, array $expectedVars): void
     {
         $toDateTime = new ToDateTime($format);
-        $expectedMessage = new Message('String does not match the required format', [$expectedVars]);
+        $expectedMessage = new Message('String does not match the required format', [json_encode($expectedVars)]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
 
         $result = $toDateTime->filter($input);

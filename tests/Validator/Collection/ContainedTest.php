@@ -86,7 +86,10 @@ class ContainedTest extends TestCase
                     'Where am I?',
                     new MessageSet(
                         null,
-                        new Message('Contained validator did not find value within array', [['Not', 'in', 'here']])
+                        new Message(
+                            'Contained validator did not find value within array',
+                            [json_encode(['Not', 'in', 'here'])]
+                        )
                     )
                 ),
             ],
@@ -97,7 +100,10 @@ class ContainedTest extends TestCase
                     1,
                     new MessageSet(
                         null,
-                        new Message('Contained validator did not find value within array', [['1', '2', '3']])
+                        new Message(
+                            'Contained validator did not find value within array',
+                            [json_encode(['1', '2', '3'])]
+                        )
                     )
                 ),
             ],
