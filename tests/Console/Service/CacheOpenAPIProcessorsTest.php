@@ -25,8 +25,6 @@ use PHPUnit\Framework\Attributes\{CoversClass, DataProvider, Test, TestDox, Uses
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-use function PHPUnit\Framework\assertDirectoryExists;
-
 #[CoversClass(CacheOpenAPIProcessors::class)]
 #[CoversClass(CannotReadOpenAPI::class)]
 #[UsesClass(Template\Processor::class)]
