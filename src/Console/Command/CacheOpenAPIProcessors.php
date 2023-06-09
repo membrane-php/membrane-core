@@ -69,7 +69,13 @@ class CacheOpenAPIProcessors extends Command
         $skipRequests = $input->getOption('skip-requests');
         assert(is_bool($skipRequests));
 
-        $cachingService = new \Membrane\Console\Service\CacheOpenAPIProcessors(new ConsoleLogger($output));
+        $consoleLogger = new ConsoleLogger($output);
+
+        if ($skipResponses && $skipRequests) {
+            $consoleLogger->warning('Skipping both requests and responses, nothing will be generated');
+        }
+
+        $cachingService = new \Membrane\Console\Service\CacheOpenAPIProcessors($consoleLogger);
 
         $success = $cachingService->cache($openAPIFilePath, $destination, $namespace, !$skipRequests, !$skipResponses);
         return $success ? Command::SUCCESS : Command::FAILURE;
