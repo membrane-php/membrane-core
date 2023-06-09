@@ -39,7 +39,7 @@ class Contained implements Validator
                 $value,
                 new MessageSet(
                     null,
-                    new Message('Contained validator did not find value within array', [$this->enum])
+                    new Message('Contained validator did not find value within array', [json_encode($this->enum)])
                 )
             );
         }

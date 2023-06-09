@@ -103,7 +103,7 @@ class RangeTest extends TestCase
     #[Test]
     public function datesEarlierThanMinReturnInvalid(DateTime $input, DateTime $min): void
     {
-        $expectedMessage = new Message('DateTime is expected to be after %s', [$min]);
+        $expectedMessage = new Message('DateTime is expected to be after %s', [$min->format(DATE_ATOM)]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $range = new Range($min);
 
@@ -124,7 +124,7 @@ class RangeTest extends TestCase
     #[Test]
     public function datesLaterThanMaxReturnInvalid(DateTime $input, DateTime $max): void
     {
-        $expectedMessage = new Message('DateTime is expected to be before %s', [$max]);
+        $expectedMessage = new Message('DateTime is expected to be before %s', [$max->format(DATE_ATOM)]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $range = new Range(null, $max);
 

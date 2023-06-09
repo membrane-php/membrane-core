@@ -50,12 +50,12 @@ class Range implements Validator
     public function validate(mixed $value): Result
     {
         if ($this->min !== null && $value < $this->min) {
-            $message = new Message('DateTime is expected to be after %s', [$this->min]);
+            $message = new Message('DateTime is expected to be after %s', [$this->min->format(DATE_ATOM)]);
             return Result::invalid($value, new MessageSet(null, $message));
         }
 
         if ($this->max !== null && $value > $this->max) {
-            $message = new Message('DateTime is expected to be before %s', [$this->max]);
+            $message = new Message('DateTime is expected to be before %s', [$this->max->format(DATE_ATOM)]);
             return Result::invalid($value, new MessageSet(null, $message));
         }
 

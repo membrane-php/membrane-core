@@ -107,7 +107,7 @@ class RangeDeltaTest extends TestCase
     public function datesEarlierThanMinReturnInvalid(DateTime $input, DateInterval $min): void
     {
         $now = new DateTime();
-        $expectedMessage = new Message('DateTime is expected to be after %s', [$now->sub($min)]);
+        $expectedMessage = new Message('DateTime is expected to be after %s', [$now->sub($min)->format(DATE_ATOM)]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $range = new RangeDelta($min);
 
@@ -131,7 +131,7 @@ class RangeDeltaTest extends TestCase
     public function datesLaterThanMaxReturnInvalid(DateTime $input, DateInterval $max): void
     {
         $now = new DateTime();
-        $expectedMessage = new Message('DateTime is expected to be before %s', [$now->add($max)]);
+        $expectedMessage = new Message('DateTime is expected to be before %s', [$now->add($max)->format(DATE_ATOM)]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $range = new RangeDelta(null, $max);
 
