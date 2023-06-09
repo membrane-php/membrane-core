@@ -68,7 +68,7 @@ class CacheOpenAPIProcessors
             $classNames[$operationId] = $this->createSuitableClassName($operationId, $classNames);
             $className = $classNames[$operationId];
 
-            if ($buildRequests) {
+            if (isset($operation['request'])) {
                 $classMap[$operationId]['request'] = sprintf('%s\Request\%s', $cacheNamespace, $className);
 
                 $this->logger->info("Caching $operationId Request at $destination/Request/$className.php");
@@ -80,7 +80,7 @@ class CacheOpenAPIProcessors
                 );
             }
 
-            if ($buildResponses) {
+            if (isset($operation['response'])) {
                 $classMap[$operationId]['response'] = [];
                 foreach ($operation['response'] as $code => $response) {
                     $prefixedCode = 'Code' . ucfirst((string)$code);
@@ -124,7 +124,7 @@ class CacheOpenAPIProcessors
             $cachedResponseBuilder = $this->responseBuilderTemplate->createFromTemplate(
                 $cacheNamespace,
                 $openAPIFilePath,
-                array_map(fn($p) => $p['response'], $classMap)
+                array_filter(array_map(fn($p) => $p['response'] ?? null, $classMap))
             );
 
             file_put_contents(
@@ -210,8 +210,8 @@ class CacheOpenAPIProcessors
 
     /**
      * @return array<string, array{
-     *              'request': Processor,
-     *              'response': array<string,Processor>
+     *              'request'?: Processor,
+     *              'response'?: array<string,Processor>
      *          }>
      */
     private function buildProcessors(Cebe\OpenApi $openAPI, bool $buildRequests, bool $buildResponses): array
