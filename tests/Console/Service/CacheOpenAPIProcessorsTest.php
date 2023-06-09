@@ -25,6 +25,8 @@ use PHPUnit\Framework\Attributes\{CoversClass, DataProvider, Test, TestDox, Uses
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
+use function PHPUnit\Framework\assertDirectoryExists;
+
 #[CoversClass(CacheOpenAPIProcessors::class)]
 #[CoversClass(CannotReadOpenAPI::class)]
 #[UsesClass(Template\Processor::class)]
@@ -325,5 +327,39 @@ class CacheOpenAPIProcessorsTest extends TestCase
         $cachedClass = eval(sprintf('return new %s();', $fullClassName));
 
         self::assertEquals($expectedProcessor, $cachedClass->processor);
+    }
+
+    #[Test, TestDox('It only caches Requests when build responses is false')]
+    public function cacheOnlyRequestProcessors(): void
+    {
+        $this->sut->cache(
+            __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json',
+            $this->root->url() . '/cache',
+            'ServiceTest\\Petstore\\RequestsOnly',
+            true,
+            false
+        );
+
+        self::assertDirectoryDoesNotExist($this->root->url() . '/cache/Response');
+        self::assertFileDoesNotExist($this->root->url() . '/cache/CachedResponseBuilder.php');
+        self::assertDirectoryExists($this->root->url() . '/cache/Request');
+        self::assertFileExists($this->root->url() . '/cache/CachedRequestBuilder.php');
+    }
+
+    #[Test, TestDox('It only caches Requests when build responses is false')]
+    public function cacheOnlyResponseProcessors(): void
+    {
+        $this->sut->cache(
+            __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json',
+            $this->root->url() . '/cache',
+            'ServiceTest\\Petstore\\ResponsesOnly',
+            false,
+            true
+        );
+
+        self::assertDirectoryDoesNotExist($this->root->url() . '/cache/Request');
+        self::assertFileDoesNotExist($this->root->url() . '/cache/CachedRequestBuilder.php');
+        self::assertFileExists($this->root->url() . '/cache/CachedResponseBuilder.php');
+        self::assertDirectoryExists($this->root->url() . '/cache/Response');
     }
 }
