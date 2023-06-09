@@ -163,6 +163,31 @@ class OpenAPIRequestBuilderTest extends TestCase
 
                 ),
             ],
+            'Patch Request: no path params, no operation params, no requestBody' => [
+                new OpenAPIRequest(
+                    new PathParameterExtractor('/path'),
+                    $openApi->paths->getPath('/path'),
+                    Method::PATCH
+                ),
+                new RequestProcessor(
+                    '',
+                    'path-patch',
+                    Method::PATCH,
+                    [
+                        'path' => new FieldSet(
+                            'path',
+                            new BeforeSet(
+                                new PathMatcher(new PathParameterExtractor('/path'))
+                            )
+                        ),
+                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                        'header' => new FieldSet('header'),
+                        'cookie' => new FieldSet('cookie'),
+                        'body' => new Json(new Field('requestBody', new Passes())),
+                    ]
+
+                ),
+            ],
             'Request: path param in path, no operation params, no requestBody' => [
                 new OpenAPIRequest(
                     new PathParameterExtractor('/requestpathone/{id}'),

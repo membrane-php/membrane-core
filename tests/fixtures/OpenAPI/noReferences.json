@@ -28,6 +28,15 @@
           }
         }
       },
+      "patch": {
+        "operationId": "path-patch",
+        "description": "Patch operation on /path, no requestBody",
+        "responses": {
+          "200": {
+            "description": "successful response, no content"
+          }
+        }
+      },
       "post": {
         "operationId": "path-post",
         "requestBody": {
