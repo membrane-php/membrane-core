@@ -38,6 +38,22 @@ class CacheOpenAPIProcessors extends Command
             'The namespace for the generated processors',
             'Membrane\Cache'
         );
+
+        self::addOption(
+            'skip-requests',
+            null,
+            InputOption::VALUE_NONE,
+            'Skip generation of Request processors',
+            null,
+        );
+
+        self::addOption(
+            'skip-responses',
+            null,
+            InputOption::VALUE_NONE,
+            'Skip generation of Response processors',
+            null,
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -48,9 +64,20 @@ class CacheOpenAPIProcessors extends Command
         assert(is_string($destination));
         $namespace = $input->getOption('namespace');
         assert(is_string($namespace));
+        $skipResponses = $input->getOption('skip-responses');
+        assert(is_bool($skipResponses));
+        $skipRequests = $input->getOption('skip-requests');
+        assert(is_bool($skipRequests));
 
-        $cachingService = new \Membrane\Console\Service\CacheOpenAPIProcessors(new ConsoleLogger($output));
+        $consoleLogger = new ConsoleLogger($output);
 
-        return $cachingService->cache($openAPIFilePath, $destination, $namespace) ? Command::SUCCESS : Command::FAILURE;
+        if ($skipResponses && $skipRequests) {
+            $consoleLogger->warning('Skipping both requests and responses, nothing will be generated');
+        }
+
+        $cachingService = new \Membrane\Console\Service\CacheOpenAPIProcessors($consoleLogger);
+
+        $success = $cachingService->cache($openAPIFilePath, $destination, $namespace, !$skipRequests, !$skipResponses);
+        return $success ? Command::SUCCESS : Command::FAILURE;
     }
 }

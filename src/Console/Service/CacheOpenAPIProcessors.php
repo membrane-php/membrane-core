@@ -30,8 +30,13 @@ class CacheOpenAPIProcessors
     ) {
     }
 
-    public function cache(string $openAPIFilePath, string $cacheDestinationFilePath, string $cacheNamespace): bool
-    {
+    public function cache(
+        string $openAPIFilePath,
+        string $cacheDestinationFilePath,
+        string $cacheNamespace,
+        bool $buildRequests = true,
+        bool $buildResponses = true
+    ): bool {
         $this->logger->info("Reading OpenAPI from $openAPIFilePath");
         try {
             $openAPI = (new OpenAPIFileReader())->readFromAbsoluteFilePath($openAPIFilePath);
@@ -45,12 +50,15 @@ class CacheOpenAPIProcessors
             return false;
         }
 
-        $processors = $this->buildProcessors($openAPI);
+        $processors = $this->buildProcessors($openAPI, $buildRequests, $buildResponses);
 
-        // Create Request Directory if it doesn't exist.
         $destination = rtrim($cacheDestinationFilePath, '/');
-        if (!file_exists("$destination/Request")) {
-            mkdir("$destination/Request", recursive: true);
+
+        if ($buildRequests) {
+            // Create Request Directory if it doesn't exist.
+            if (!file_exists("$destination/Request")) {
+                mkdir("$destination/Request", recursive: true);
+            }
         }
 
         // Initialize classMap for CachedBuilers
@@ -60,56 +68,70 @@ class CacheOpenAPIProcessors
             $classNames[$operationId] = $this->createSuitableClassName($operationId, $classNames);
             $className = $classNames[$operationId];
 
-            $classMap[$operationId]['request'] = "Request\\$className";
+            if (isset($operation['request'])) {
+                $classMap[$operationId]['request'] = sprintf('%s\Request\%s', $cacheNamespace, $className);
 
-            $this->logger->info("Caching $operationId Request at $destination/Request/$className.php");
-            $this->cacheProcessor(
-                filePath: "$destination/Request/$className.php",
-                namespace: "$cacheNamespace\\Request",
-                className: $className,
-                processor: $operation['request']
-            );
-
-            $classMap[$operationId]['response'] = [];
-            foreach ($operation['response'] as $code => $response) {
-                $prefixedCode = 'Code' . ucfirst((string)$code);
-                if (!file_exists("$destination/Response/$prefixedCode")) {
-                    mkdir("$destination/Response/$prefixedCode", recursive: true);
-                }
-
-                $classMap[$operationId]['response'][(string)$code] = "Response\\$prefixedCode\\$className";
-
-                $this->logger->info(
-                    "Caching $operationId $code Response at $destination/Response/$prefixedCode/$className.php"
-                );
+                $this->logger->info("Caching $operationId Request at $destination/Request/$className.php");
                 $this->cacheProcessor(
-                    filePath: "$destination/Response/$prefixedCode/$className.php",
-                    namespace: "$cacheNamespace\\Response\\$prefixedCode",
+                    filePath: "$destination/Request/$className.php",
+                    namespace: "$cacheNamespace\\Request",
                     className: $className,
-                    processor: $response
+                    processor: $operation['request']
                 );
+            }
+
+            if (isset($operation['response'])) {
+                $classMap[$operationId]['response'] = [];
+                foreach ($operation['response'] as $code => $response) {
+                    $prefixedCode = 'Code' . ucfirst((string)$code);
+                    if (!file_exists("$destination/Response/$prefixedCode")) {
+                        mkdir("$destination/Response/$prefixedCode", recursive: true);
+                    }
+
+                    $classMap[$operationId]['response'][(string)$code] =
+                        sprintf('%s\Response\%s\%s', $cacheNamespace, $prefixedCode, $className);
+
+                    $this->logger->info(
+                        "Caching $operationId $code Response at $destination/Response/$prefixedCode/$className.php"
+                    );
+                    $this->cacheProcessor(
+                        filePath: "$destination/Response/$prefixedCode/$className.php",
+                        namespace: "$cacheNamespace\\Response\\$prefixedCode",
+                        className: $className,
+                        processor: $response
+                    );
+                }
             }
         }
 
         $this->logger->info('Processors cached successfully');
 
-        $this->logger->info('Building CachedRequestBuilder');
+        if ($buildRequests) {
+            $this->logger->info('Building CachedRequestBuilder');
 
-        $cachedRequestBuilder = $this->requestBuilderTemplate->createFromTemplate(
-            $cacheNamespace,
-            $openAPIFilePath,
-            array_map(fn($p) => $p['request'], $classMap)
-        );
+            $cachedRequestBuilder = $this->requestBuilderTemplate->createFromTemplate(
+                $cacheNamespace,
+                $openAPIFilePath,
+                array_map(fn($p) => $p['request'], $classMap)
+            );
 
-        file_put_contents(sprintf('%s/CachedRequestBuilder.php', $cacheDestinationFilePath), $cachedRequestBuilder);
+            file_put_contents(sprintf('%s/CachedRequestBuilder.php', $cacheDestinationFilePath), $cachedRequestBuilder);
+        }
 
-        $cachedResponseBuilder = $this->responseBuilderTemplate->createFromTemplate(
-            $cacheNamespace,
-            $openAPIFilePath,
-            array_map(fn($p) => $p['response'], $classMap)
-        );
+        if ($buildResponses) {
+            $this->logger->info('Building CachedResponseBuilder');
 
-        file_put_contents(sprintf('%s/CachedResponseBuilder.php', $cacheDestinationFilePath), $cachedResponseBuilder);
+            $cachedResponseBuilder = $this->responseBuilderTemplate->createFromTemplate(
+                $cacheNamespace,
+                $openAPIFilePath,
+                array_filter(array_map(fn($p) => $p['response'] ?? null, $classMap))
+            );
+
+            file_put_contents(
+                sprintf('%s/CachedResponseBuilder.php', $cacheDestinationFilePath),
+                $cachedResponseBuilder
+            );
+        }
 
         return true;
     }
@@ -188,11 +210,11 @@ class CacheOpenAPIProcessors
 
     /**
      * @return array<string, array{
-     *              'request': Processor,
-     *              'response': array<string,Processor>
+     *              'request'?: Processor,
+     *              'response'?: array<string,Processor>
      *          }>
      */
-    private function buildProcessors(Cebe\OpenApi $openAPI): array
+    private function buildProcessors(Cebe\OpenApi $openAPI, bool $buildRequests, bool $buildResponses): array
     {
         $processors = [];
         foreach ($openAPI->paths as $pathUrl => $path) {
@@ -204,22 +226,26 @@ class CacheOpenAPIProcessors
                     continue;
                 }
 
-                $this->logger->info('Building Request processor');
-                $processors[$operation->operationId]['request'] = $this->getRequestBuilder()->build(
-                    new OpenAPIRequest(new PathParameterExtractor($pathUrl), $path, $methodObject)
-                );
-
-                assert(!is_null($operation->responses));
-                $processors[$operation->operationId]['response'] = [];
-                foreach ($operation->responses->getResponses() as $code => $response) {
-                    $this->logger->info("Building $code Response Processor");
-                    if (!$response instanceof Cebe\Response) {
-                        continue;
-                    }
-
-                    $processors[$operation->operationId]['response'][$code] = $this->getResponseBuilder()->build(
-                        new OpenAPIResponse($operation->operationId, (string)$code, $response)
+                if ($buildRequests) {
+                    $this->logger->info('Building Request processor');
+                    $processors[$operation->operationId]['request'] = $this->getRequestBuilder()->build(
+                        new OpenAPIRequest(new PathParameterExtractor($pathUrl), $path, $methodObject)
                     );
+                }
+
+                if ($buildResponses) {
+                    assert(!is_null($operation->responses));
+                    $processors[$operation->operationId]['response'] = [];
+                    foreach ($operation->responses->getResponses() as $code => $response) {
+                        $this->logger->info("Building $code Response Processor");
+                        if (!$response instanceof Cebe\Response) {
+                            continue;
+                        }
+
+                        $processors[$operation->operationId]['response'][$code] = $this->getResponseBuilder()->build(
+                            new OpenAPIResponse($operation->operationId, (string)$code, $response)
+                        );
+                    }
                 }
             }
         }
