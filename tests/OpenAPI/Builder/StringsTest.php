@@ -61,11 +61,11 @@ class StringsTest extends TestCase
             ],
             'date input' => [
                 new Specification\Strings('', new Schema(['type' => 'string', 'format' => 'date',])),
-                new Field('', new IsString(), new DateString('Y-m-d')),
+                new Field('', new IsString(), new DateString('Y-m-d', true)),
             ],
             'date-time input' => [
                 new Specification\Strings('', new Schema(['type' => 'string', 'format' => 'date-time',])),
-                new Field('', new IsString(), new DateString('Y-m-d\TH:i:sP')),
+                new Field('', new IsString(), new DateString('Y-m-d\TH:i:sP', true)),
             ],
             'detailed input' => [
                 new Specification\Strings(
@@ -89,7 +89,7 @@ class StringsTest extends TestCase
                         '',
                         new IsString(),
                         new Contained(['1970/01/01', null]),
-                        new DateString('Y-m-d'),
+                        new DateString('Y-m-d', true),
                         new Length(0, 100),
                         new Regex('#\#.+#u')
                     )

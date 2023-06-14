@@ -11,6 +11,7 @@ use Membrane\Validator\String\DateString;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
@@ -111,5 +112,28 @@ class DateStringTest extends TestCase
         $result = $dateString->validate($input);
 
         self::assertEquals($expected, $result);
+    }
+
+    #[Test, TestDox('Tests that a date which matches the format string but is otherwise invalid fails validation')]
+    public function testInvalidDateFailsValidationInStrictMode(): void
+    {
+        $format = 'Y-m-d';
+        $value = '2022-13-05';
+
+        $expectedMessage = new Message('String does not represent a valid date in format %s', [$format]);
+        $expected = Result::invalid($value, new MessageSet(null, $expectedMessage));
+
+        $sut = new DateString($format, true);
+
+        $result = $sut->validate($value);
+        self::assertEquals($expected, $result);
+    }
+
+    #[Test, TestDox('Tests a format which cannot be used in strict mode still validates properly in non-strict mode')]
+    public function testDatesPassInNonStrictMode(): void
+    {
+        $sut = new DateString('Y-m-d|', false);
+
+        self::assertTrue($sut->validate('2022-05-13')->isValid());
     }
 }

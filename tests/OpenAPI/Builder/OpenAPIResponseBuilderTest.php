@@ -329,7 +329,7 @@ class OpenAPIResponseBuilderTest extends TestCase
                     '223',
                     $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('223')
                 ),
-                new Field('', new IsString(), new DateString('Y-m-d')),
+                new Field('', new IsString(), new DateString('Y-m-d', true)),
             ],
             'string, date-time format' => [
                 new OpenAPIResponse(
@@ -337,7 +337,7 @@ class OpenAPIResponseBuilderTest extends TestCase
                     '224',
                     $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('224')
                 ),
-                new Field('', new IsString(), new DateString(DATE_ATOM)),
+                new Field('', new IsString(), new DateString(DATE_ATOM, true)),
             ],
             'string, minLength' => [
                 new OpenAPIResponse(

@@ -12,7 +12,7 @@ use Membrane\Validator;
 
 class DateString implements Validator
 {
-    public function __construct(private readonly string $format)
+    public function __construct(private readonly string $format, private readonly bool $strict = false)
     {
     }
 
@@ -23,7 +23,7 @@ class DateString implements Validator
 
     public function __toPHP(): string
     {
-        return sprintf('new %s("%s")', self::class, $this->format);
+        return sprintf('new %s("%s", %s)', self::class, $this->format, $this->strict ? 'true' : 'false');
     }
 
     public function validate(mixed $value): Result
@@ -37,6 +37,11 @@ class DateString implements Validator
 
         if ($dateTime === false) {
             $message = new Message('String does not match the required format %s', [$this->format]);
+            return Result::invalid($value, new MessageSet(null, $message));
+        }
+
+        if ($this->strict && $value !== $dateTime->format($this->format)) {
+            $message = new Message('String does not represent a valid date in format %s', [$this->format]);
             return Result::invalid($value, new MessageSet(null, $message));
         }
 
