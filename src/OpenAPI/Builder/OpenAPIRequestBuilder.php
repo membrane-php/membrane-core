@@ -32,7 +32,7 @@ class OpenAPIRequestBuilder extends APIBuilder
         assert($specification instanceof OpenAPIRequest);
 
         $processors = $this->fromParameters($specification);
-        $processors['body'] = new Json($this->fromRequestBody($specification));
+        $processors['body'] = $this->fromRequestBody($specification);
 
         return new RequestProcessor(
             '',

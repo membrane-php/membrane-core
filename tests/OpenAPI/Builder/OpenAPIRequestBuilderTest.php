@@ -18,6 +18,7 @@ use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
 use Membrane\OpenAPI\Builder\RequestBuilder;
 use Membrane\OpenAPI\Builder\Strings;
+use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher as PathMatcherClass;
@@ -70,7 +71,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathParameterExtractor::class)]
 #[UsesClass(PathMatcherClass::class)]
-#[UsesClass(Json::class)]
 #[UsesClass(RequestProcessor::class)]
 #[UsesClass(OpenAPIFileReader::class)]
 #[UsesClass(APISchema::class)]
@@ -93,6 +93,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(IsList::class)]
 #[UsesClass(IsString::class)]
 #[UsesClass(Passes::class)]
+#[UsesClass(ContentType::class)]
 class OpenAPIRequestBuilderTest extends TestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';
@@ -158,9 +159,8 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
-
                 ),
             ],
             'Patch Request: no path params, no operation params, no requestBody' => [
@@ -183,9 +183,8 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
-
                 ),
             ],
             'Request: path param in path, no operation params, no requestBody' => [
@@ -210,9 +209,8 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
-
                 ),
             ],
             'Request: path param in path, operation param in query not required, no requestBody' => [
@@ -241,7 +239,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
                 ),
             ],
@@ -293,9 +291,8 @@ class OpenAPIRequestBuilderTest extends TestCase
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
-
                 ),
             ],
             'Request: path param in path, operation param in query with json content, required, no requestBody' => [
@@ -324,7 +321,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
                 ),
             ],
@@ -348,7 +345,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                         'header' => new FieldSet('header', new Field('id', new ToInt(), new IsInt())),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
 
                 ),
@@ -373,7 +370,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                         'header' => new FieldSet('header', new Field('id', new ToInt(), new IsInt())),
                         'cookie' => new FieldSet('cookie', new Field('name', new IsString())),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
 
                 ),
@@ -402,7 +399,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
 
                 ),
@@ -427,7 +424,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                         'header' => new FieldSet('header', new Field('id', new IsString())),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
 
                 ),
@@ -452,7 +449,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new IsInt())),
+                        'body' => new Field('requestBody', new IsInt()),
                     ]
 
                 ),
@@ -481,7 +478,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new IsInt())),
+                        'body' => new Field('requestBody', new IsInt()),
                     ]
 
                 ),
@@ -512,7 +509,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         ),
                         'header' => new FieldSet('header', new Field('species', new IsString())),
                         'cookie' => new FieldSet('cookie', new Field('subspecies', new IsString())),
-                        'body' => new Json(new Field('requestBody', new IsFloat())),
+                        'body' => new Field('requestBody', new IsFloat()),
                     ]
                 ),
             ],

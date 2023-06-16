@@ -14,6 +14,7 @@ use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
 use Membrane\OpenAPI\Builder\RequestBuilder;
 use Membrane\OpenAPI\Builder\Strings;
+use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher as PathMatcherClass;
@@ -63,7 +64,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(HTTPParameters::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathMatcherClass::class)]
-#[UsesClass(Json::class)]
 #[UsesClass(RequestProcessor::class)]
 #[UsesClass(OpenAPIFileReader::class)]
 #[UsesClass(APISchema::class)]
@@ -86,6 +86,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(IsList::class)]
 #[UsesClass(IsString::class)]
 #[UsesClass(Passes::class)]
+#[UsesClass(ContentType::class)]
 class RequestBuilderTest extends TestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';
@@ -158,7 +159,7 @@ class RequestBuilderTest extends TestCase
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
 
                 ),
@@ -185,7 +186,7 @@ class RequestBuilderTest extends TestCase
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
 
                 ),
@@ -216,7 +217,7 @@ class RequestBuilderTest extends TestCase
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
                 ),
             ],
@@ -246,7 +247,7 @@ class RequestBuilderTest extends TestCase
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
 
                 ),
@@ -277,7 +278,7 @@ class RequestBuilderTest extends TestCase
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
                 ),
             ],
@@ -301,7 +302,7 @@ class RequestBuilderTest extends TestCase
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                         'header' => new FieldSet('header', new Field('id', new ToInt(), new IsInt())),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
 
                 ),
@@ -322,7 +323,7 @@ class RequestBuilderTest extends TestCase
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                         'header' => new FieldSet('header', new Field('id', new ToInt(), new IsInt())),
                         'cookie' => new FieldSet('cookie', new Field('name', new IsString())),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
 
                 ),
@@ -351,7 +352,7 @@ class RequestBuilderTest extends TestCase
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
 
                 ),
@@ -376,7 +377,7 @@ class RequestBuilderTest extends TestCase
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                         'header' => new FieldSet('header', new Field('id', new IsString())),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new Passes())),
+                        'body' => new Field('requestBody', new Passes()),
                     ]
 
                 ),
@@ -401,7 +402,7 @@ class RequestBuilderTest extends TestCase
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new IsInt())),
+                        'body' => new Field('requestBody', new IsInt()),
                     ]
 
                 ),
@@ -430,7 +431,7 @@ class RequestBuilderTest extends TestCase
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
-                        'body' => new Json(new Field('requestBody', new IsInt())),
+                        'body' => new Field('requestBody', new IsInt()),
                     ]
 
                 ),
@@ -461,7 +462,7 @@ class RequestBuilderTest extends TestCase
                         ),
                         'header' => new FieldSet('header', new Field('species', new IsString())),
                         'cookie' => new FieldSet('cookie', new Field('subspecies', new IsString())),
-                        'body' => new Json(new Field('requestBody', new IsFloat())),
+                        'body' => new Field('requestBody', new IsFloat()),
                     ]
                 ),
             ],
