@@ -134,9 +134,30 @@ class Request implements Processor
 
         $value['body'] = (array) $request->getParsedBody();
         if ($contentType === ContentType::Multipart) {
-            $value['body'] = array_merge($value['body'], $request->getUploadedFiles());
+            $value['body'] = array_merge(
+                $value['body'],
+                $this->convertUploadedFilesToStrings($request->getUploadedFiles())
+            );
         }
 
         return Result::noResult($value);
+    }
+
+    /**
+     * @param array<string, mixed> $uploadedFiles
+     * @return array<string, mixed>
+     */
+    public function convertUploadedFilesToStrings(array $uploadedFiles): array
+    {
+        $result = [];
+        foreach ($uploadedFiles as $name => $file) {
+            if (is_array($file)) {
+                $result[$name] = $this->convertUploadedFilesToStrings($file);
+            } elseif ($file instanceof UploadedFileInterface) {
+                $result[$name] = (string) $file->getStream();
+            }
+        }
+
+        return $result;
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenAPI\Processor;
 
 use GuzzleHttp\Psr7\ServerRequest;
+use GuzzleHttp\Psr7\Stream;
 use GuzzleHttp\Psr7\UploadedFile;
 use Membrane\Filter\String\JsonDecode;
 use Membrane\OpenAPI\ContentType;
@@ -240,7 +241,7 @@ class RequestTest extends TestCase
                     new MessageSet(new FieldName('', ''), new Message('I always fail', []))
                 ),
             ],
-            'guzzle server request, valid processors, invalod json' => [
+            'guzzle server request, valid processors, invalid json' => [
                 new ServerRequest(
                     'get',
                     'https://www.swaggerstore.io/pets?limit=5',
@@ -321,7 +322,11 @@ class RequestTest extends TestCase
                     ['Content-Type' => 'multipart/x-www-form-urlencoded'],
                     null
                 ))->withParsedBody(['field' => 3])
-                    ->withUploadedFiles(['file' => new UploadedFile('filedata', null, 0)]),
+                    ->withUploadedFiles(['file' => new UploadedFile(
+                        new Stream(fopen('data://text/plain,filedata', 'r')),
+                        null,
+                        0
+                    )]),
                 [
                     'path' => $validProcessor,
                     'query' => $validProcessor,
@@ -335,7 +340,7 @@ class RequestTest extends TestCase
                     'query' => 'limit=5',
                     'header' => [],
                     'cookie' => [],
-                    'body' => ['field' => 3, 'file' => new UploadedFile('filedata', null, 0)],
+                    'body' => ['field' => 3, 'file' => 'filedata'],
                 ]),
             ],
         ];
