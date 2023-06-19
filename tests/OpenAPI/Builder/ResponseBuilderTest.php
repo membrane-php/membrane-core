@@ -281,7 +281,6 @@ class ResponseBuilderTest extends TestCase
                         new Maximum(100),
                         new Minimum(0, true),
                         new MultipleOf(3)
-
                     )
                 ),
             ],
@@ -377,7 +376,7 @@ class ResponseBuilderTest extends TestCase
                     Method::GET,
                     '223'
                 ),
-                new Field('', new IsString(), new DateString('Y-m-d')),
+                new Field('', new IsString(), new DateString('Y-m-d', true)),
             ],
             'string, date-time format' => [
                 new Response(
@@ -386,7 +385,7 @@ class ResponseBuilderTest extends TestCase
                     Method::GET,
                     '224'
                 ),
-                new Field('', new IsString(), new DateString(DATE_ATOM)),
+                new Field('', new IsString(), new DateString(DATE_ATOM, true)),
             ],
             'string, minLength' => [
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '225'),

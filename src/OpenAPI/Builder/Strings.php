@@ -31,11 +31,11 @@ class Strings extends APIBuilder
         }
 
         if ($specification->format === 'date') {
-            $chain[] = new DateString('Y-m-d');
+            $chain[] = new DateString('Y-m-d', true);
         }
 
         if ($specification->format === 'date-time') {
-            $chain[] = new DateString('Y-m-d\TH:i:sP');
+            $chain[] = new DateString('Y-m-d\TH:i:sP', true);
         }
 
         if ($specification->minLength > 0 || $specification->maxLength !== null) {
