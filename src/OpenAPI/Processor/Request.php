@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Processor;
 
+use Membrane\Filter\String\JsonDecode;
+use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Method;
 use Membrane\Processor;
+use Membrane\Processor\Field;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UploadedFileInterface;
 
 class Request implements Processor
 {
@@ -59,8 +63,15 @@ class Request implements Processor
     public function process(FieldName $parentFieldName, mixed $value): Result
     {
         if ($value instanceof ServerRequestInterface) {
-            $value = $this->formatPsr7($value);
-        } elseif (!is_array($value)) {
+            $value = $this->formatPsr7($parentFieldName, $value);
+            if (!$value->isValid()) {
+                return $value;
+            }
+
+            $value = $value->value;
+        }
+
+        if (!is_array($value)) {
             return Result::invalid(
                 $value,
                 new MessageSet(
@@ -89,18 +100,64 @@ class Request implements Processor
         return $result->merge(Result::noResult($value));
     }
 
-    /** @return array<string, string|array<string, mixed>> */
-    private function formatPsr7(ServerRequestInterface $request): array
+    private function formatPsr7(FieldName $parentFieldName, ServerRequestInterface $request): Result
     {
-        $value = [];
+        $value = ['header' => [], 'cookie' => []];
         $value['path'] = $request->getUri()->getPath();
         $value['query'] = $request->getUri()->getQuery();
         // @TODO support header
         //$value['header'] = $this->getHeaderParams($request->getHeaders());
         // @TODO support cookie
         //$value['cookie'] = $request->getCookieParams();
-        $value['body'] = (string)$request->getBody();
 
-        return $value;
+        //There should only be one content type header; PHP ignores additional header values
+        $contentType = ContentType::fromContentTypeHeader(current($request->getHeader('Content-Type')));
+
+        // If content type is JSON, parse & return otherwise use the already parsed PSR7 body.
+        if ($contentType === ContentType::Json) {
+            $jsonDecode = new Field('', new JsonDecode());
+            $result = $jsonDecode->process($parentFieldName, (string)$request->getBody());
+            $value['body'] = $result->value;
+
+            return new Result(
+                $value,
+                $result->result,
+                ...$result->messageSets
+            );
+        }
+
+        // If content type is unmatched, return raw body. This is /probably/ an error, but we can't do much better
+        if ($contentType === ContentType::Unmatched) {
+            $value['body'] = (string)$request->getBody();
+            return Result::noResult($value);
+        }
+
+        $value['body'] = (array) $request->getParsedBody();
+        if ($contentType === ContentType::Multipart) {
+            $value['body'] = array_merge(
+                $value['body'],
+                $this->convertUploadedFilesToStrings($request->getUploadedFiles())
+            );
+        }
+
+        return Result::noResult($value);
+    }
+
+    /**
+     * @param array<string, mixed> $uploadedFiles
+     * @return array<string, mixed>
+     */
+    public function convertUploadedFilesToStrings(array $uploadedFiles): array
+    {
+        $result = [];
+        foreach ($uploadedFiles as $name => $file) {
+            if (is_array($file)) {
+                $result[$name] = $this->convertUploadedFilesToStrings($file);
+            } elseif ($file instanceof UploadedFileInterface) {
+                $result[$name] = (string) $file->getStream();
+            }
+        }
+
+        return $result;
     }
 }

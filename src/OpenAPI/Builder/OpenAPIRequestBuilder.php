@@ -10,7 +10,6 @@ use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Filter\HTTPParameters;
 use Membrane\OpenAPI\Filter\PathMatcher as PathMatcherFilter;
-use Membrane\OpenAPI\Processor\Json;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\Processor;
@@ -32,7 +31,7 @@ class OpenAPIRequestBuilder extends APIBuilder
         assert($specification instanceof OpenAPIRequest);
 
         $processors = $this->fromParameters($specification);
-        $processors['body'] = new Json($this->fromRequestBody($specification));
+        $processors['body'] = $this->fromRequestBody($specification);
 
         return new RequestProcessor(
             '',

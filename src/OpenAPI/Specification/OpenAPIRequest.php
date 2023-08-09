@@ -6,6 +6,7 @@ namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec as Cebe;
 use Membrane\Builder\Specification;
+use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\ExtractsPathParameters;
@@ -42,12 +43,16 @@ class OpenAPIRequest implements Specification
             return null;
         }
 
-        $schema = $content['application/json']?->schema
-            ??
-            throw CannotProcessOpenAPI::unsupportedMediaTypes(array_keys($content));
+        foreach ($content as $contentType => $mediaType) {
+            if (
+                ContentType::fromContentTypeHeader($contentType) !== ContentType::Unmatched &&
+                $mediaType->schema instanceof Cebe\Schema
+            ) {
+                return $mediaType->schema;
+            }
+        }
 
-        assert($schema instanceof Cebe\Schema);
-        return $schema;
+        throw CannotProcessOpenAPI::unsupportedMediaTypes(array_keys($content));
     }
 
     private function getOperation(Cebe\PathItem $pathItem, Method $method): Cebe\Operation

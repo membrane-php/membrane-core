@@ -41,7 +41,6 @@ use Psr\Log\LoggerInterface;
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathParameterExtractor::class)]
 #[UsesClass(Membrane\OpenAPI\Processor\AllOf::class)]
-#[UsesClass(Membrane\OpenAPI\Processor\Json::class)]
 #[UsesClass(Membrane\OpenAPI\Filter\HTTPParameters::class)]
 #[UsesClass(Request::class)]
 #[UsesClass(Specification\Objects::class)]

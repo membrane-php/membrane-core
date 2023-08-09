@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace OpenAPI\Processor;
 
 use GuzzleHttp\Psr7\ServerRequest;
+use GuzzleHttp\Psr7\Stream;
+use GuzzleHttp\Psr7\UploadedFile;
+use Membrane\Filter\String\JsonDecode;
+use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Processor\Request;
 use Membrane\Processor;
@@ -29,6 +33,8 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Result::class)]
 #[UsesClass(Fails::class)]
 #[UsesClass(Passes::class)]
+#[UsesClass(ContentType::class)]
+#[UsesClass(JsonDecode::class)]
 class RequestTest extends TestCase
 {
     public static function dataSetsToConvertToString(): array
@@ -234,6 +240,108 @@ class RequestTest extends TestCase
                     new MessageSet(new FieldName('', ''), new Message('I always fail', [])),
                     new MessageSet(new FieldName('', ''), new Message('I always fail', []))
                 ),
+            ],
+            'guzzle server request, valid processors, invalid json' => [
+                new ServerRequest(
+                    'get',
+                    'https://www.swaggerstore.io/pets?limit=5',
+                    ['Content-Type' => 'application/json'],
+                    '{"field": 2'
+                ),
+                [
+                    'path' => $validProcessor,
+                    'query' => $validProcessor,
+                    'header' => $validProcessor,
+                    'cookie' => $validProcessor,
+                    'body' => $validProcessor,
+                ],
+                Result::invalid(
+                    [
+                        'path' => '/pets',
+                        'query' => 'limit=5',
+                        'header' => [],
+                        'cookie' => [],
+                        'body' => null,
+                    ],
+                    new MessageSet(
+                        new FieldName('', ''),
+                        new Message('Syntax error occurred', [])
+                    )
+                ),
+            ],
+            'guzzle server request, valid processors, json content type' => [
+                new ServerRequest(
+                    'get',
+                    'https://www.swaggerstore.io/pets?limit=5',
+                    ['Content-Type' => 'application/json'],
+                    '{"field": 2}'
+                ),
+                [
+                    'path' => $validProcessor,
+                    'query' => $validProcessor,
+                    'header' => $validProcessor,
+                    'cookie' => $validProcessor,
+                    'body' => $validProcessor,
+                ],
+                Result::valid([
+                    'request' => ['method' => 'get', 'operationId' => ''],
+                    'path' => '/pets',
+                    'query' => 'limit=5',
+                    'header' => [],
+                    'cookie' => [],
+                    'body' => ['field' => 2],
+                ]),
+            ],
+            'guzzle server request, valid processors, form type' => [
+                (new ServerRequest(
+                    'get',
+                    'https://www.swaggerstore.io/pets?limit=5',
+                    ['Content-Type' => 'application/x-www-form-urlencoded'],
+                    null
+                ))->withParsedBody(['field' => 3]),
+                [
+                    'path' => $validProcessor,
+                    'query' => $validProcessor,
+                    'header' => $validProcessor,
+                    'cookie' => $validProcessor,
+                    'body' => $validProcessor,
+                ],
+                Result::valid([
+                    'request' => ['method' => 'get', 'operationId' => ''],
+                    'path' => '/pets',
+                    'query' => 'limit=5',
+                    'header' => [],
+                    'cookie' => [],
+                    'body' => ['field' => 3],
+                ]),
+            ],
+            'guzzle server request, valid processors, with file uploads' => [
+                (new ServerRequest(
+                    'get',
+                    'https://www.swaggerstore.io/pets?limit=5',
+                    ['Content-Type' => 'multipart/x-www-form-urlencoded'],
+                    null
+                ))->withParsedBody(['field' => 3])
+                    ->withUploadedFiles(['file' => new UploadedFile(
+                        new Stream(fopen('data://text/plain,filedata', 'r')),
+                        null,
+                        0
+                    )]),
+                [
+                    'path' => $validProcessor,
+                    'query' => $validProcessor,
+                    'header' => $validProcessor,
+                    'cookie' => $validProcessor,
+                    'body' => $validProcessor,
+                ],
+                Result::valid([
+                    'request' => ['method' => 'get', 'operationId' => ''],
+                    'path' => '/pets',
+                    'query' => 'limit=5',
+                    'header' => [],
+                    'cookie' => [],
+                    'body' => ['field' => 3, 'file' => 'filedata'],
+                ]),
             ],
         ];
     }
