@@ -115,8 +115,15 @@ class Request implements Processor
 
         // If content type is JSON, parse & return otherwise use the already parsed PSR7 body.
         if ($contentType === ContentType::Json) {
+            $body = (string)$request->getBody();
+
+            if ($body === '') {
+                $value['body'] = '';
+                return Result::noResult($value);
+            }
+
             $jsonDecode = new Field('', new JsonDecode());
-            $result = $jsonDecode->process($parentFieldName, (string)$request->getBody());
+            $result = $jsonDecode->process($parentFieldName, $body);
             $value['body'] = $result->value;
 
             return new Result(

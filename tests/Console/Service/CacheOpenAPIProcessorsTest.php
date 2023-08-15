@@ -8,6 +8,7 @@ use cebe\openapi\Reader;
 use Membrane;
 use Membrane\Console\Service\CacheOpenAPIProcessors;
 use Membrane\Console\Template;
+use Membrane\OpenAPI\ContentType;
 use Membrane\Filter\{String\AlphaNumeric, String\ToPascalCase, Type as TypeFilter};
 use Membrane\OpenAPI\Builder as Builder;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
@@ -64,6 +65,7 @@ use Psr\Log\LoggerInterface;
 #[UsesClass(TypeValidator\IsList::class)]
 #[UsesClass(TypeValidator\IsString::class)]
 #[UsesClass(UtilityValidator\Passes::class)]
+#[UsesClass(ContentType::class)]
 class CacheOpenAPIProcessorsTest extends TestCase
 {
     private vfsStreamDirectory $root;

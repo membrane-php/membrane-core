@@ -6,6 +6,7 @@ namespace OpenAPI\Specification;
 
 use cebe\openapi\Reader;
 use cebe\openapi\spec as Cebe;
+use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
@@ -21,6 +22,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(CannotProcessOpenAPI::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[UsesClass(PathParameterExtractor::class)]
+#[UsesClass(ContentType::class)]
 class OpenAPIRequestTest extends TestCase
 {
     public PathParameterExtractor $pathParameterExtractor;
