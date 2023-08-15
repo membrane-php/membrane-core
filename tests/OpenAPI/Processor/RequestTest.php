@@ -229,14 +229,15 @@ class RequestTest extends TestCase
                     'cookie' => $invalidProcessor,
                     'body' => $validProcessor,
                 ],
-                Result::invalid([
-                    'request' => ['method' => 'get', 'operationId' => ''],
-                    'path' => '/pets',
-                    'query' => 'limit=5',
-                    'header' => [],
-                    'cookie' => [],
-                    'body' => 'request body',
-                ],
+                Result::invalid(
+                    [
+                        'request' => ['method' => 'get', 'operationId' => ''],
+                        'path' => '/pets',
+                        'query' => 'limit=5',
+                        'header' => [],
+                        'cookie' => [],
+                        'body' => 'request body',
+                    ],
                     new MessageSet(new FieldName('', ''), new Message('I always fail', [])),
                     new MessageSet(new FieldName('', ''), new Message('I always fail', []))
                 ),
@@ -290,6 +291,29 @@ class RequestTest extends TestCase
                     'header' => [],
                     'cookie' => [],
                     'body' => ['field' => 2],
+                ]),
+            ],
+            'guzzle server request, valid processors, json content type, empty body' => [
+                new ServerRequest(
+                    'get',
+                    'https://www.swaggerstore.io/pets?limit=5',
+                    ['Content-Type' => 'application/json'],
+                    ''
+                ),
+                [
+                    'path' => $validProcessor,
+                    'query' => $validProcessor,
+                    'header' => $validProcessor,
+                    'cookie' => $validProcessor,
+                    'body' => $validProcessor,
+                ],
+                Result::valid([
+                    'request' => ['method' => 'get', 'operationId' => ''],
+                    'path' => '/pets',
+                    'query' => 'limit=5',
+                    'header' => [],
+                    'cookie' => [],
+                    'body' => '',
                 ]),
             ],
             'guzzle server request, valid processors, form type' => [

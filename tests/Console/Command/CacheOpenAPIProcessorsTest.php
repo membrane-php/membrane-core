@@ -13,6 +13,7 @@ use Membrane\Filter\String\ToPascalCase;
 use Membrane\Filter\Type as TypeFilter;
 use Membrane\OpenAPI\Builder as Builder;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
+use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\PathMatcher;
@@ -68,6 +69,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[UsesClass(TypeValidator\IsList::class)]
 #[UsesClass(TypeValidator\IsString::class)]
 #[UsesClass(UtilityValidator\Passes::class)]
+#[UsesClass(ContentType::class)]
 class CacheOpenAPIProcessorsTest extends TestCase
 {
     private vfsStreamDirectory $root;
