@@ -22,6 +22,7 @@ class CachedRequestBuilder implements Builder
     private const OPEN_API_FILENAME = \'%s\';
     private const MAP = [%s];
 
+    /** @var array<string,string> */
     private array $operationIDs = [];
 
     public function __construct(
