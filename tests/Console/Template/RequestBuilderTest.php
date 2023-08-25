@@ -46,7 +46,7 @@ class RequestBuilderTest extends TestCase
 
         $phpString = $this->sut->createFromTemplate($namespace, $petstoreExpandedFilePath, $map);
 
-        eval('?>' . $phpString);
+        eval('//' . $phpString);
 
         $routeCollection = (new RouteCollector())->collect(Reader::readFromJsonFile($petstoreExpandedFilePath));
         $createdBuilder = eval(
