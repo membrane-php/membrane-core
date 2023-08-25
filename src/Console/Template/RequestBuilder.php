@@ -9,6 +9,8 @@ class RequestBuilder
     private const TEMPLATE_CODE =
         '<?php
 
+declare(strict_types=1);
+
 namespace %s;
 
 use Membrane\Builder\Builder;

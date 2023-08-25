@@ -40,7 +40,7 @@ class ProcessorTest extends TestCase
     public function createFromTemplateReturnsPHPString(string $nameSpace, string $className, Processor $processor): void
     {
         $phpString = $this->sut->createFromTemplate($nameSpace, $className, $processor);
-        eval('?>' . $phpString);
+        eval('//' . $phpString);
 
         $createdProcessor = eval(sprintf('return new %s\\%s();', $nameSpace, $className));
 

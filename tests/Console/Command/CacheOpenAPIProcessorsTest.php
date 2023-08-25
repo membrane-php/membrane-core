@@ -290,7 +290,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
             ]
         );
 
-        eval('?>' . file_get_contents($this->root->getChild($relativeDestination)->url()));
+        eval('//' . file_get_contents($this->root->getChild($relativeDestination)->url()));
         $cachedClass = eval(sprintf('return new \\%s\\%s();', $namespace, $className));
 
         self::assertEquals($expectedProcessor, $cachedClass->processor);
@@ -326,11 +326,11 @@ class CacheOpenAPIProcessorsTest extends TestCase
             ]
         );
 
-        eval('?>' . file_get_contents($this->root->getChild('root/cache/Request/FindHats.php')->url()));
+        eval('//' . file_get_contents($this->root->getChild('root/cache/Request/FindHats.php')->url()));
         $actualFindHats = new \CommandTest\Hatstore\Request\FindHats();
         self::assertEquals($expectedFindHats, $actualFindHats->processor);
 
-        eval('?>' . file_get_contents($this->root->getChild('root/cache/Request/FindHats1.php')->url()));
+        eval('//' . file_get_contents($this->root->getChild('root/cache/Request/FindHats1.php')->url()));
         $actualFindHats1 = new \CommandTest\Hatstore\Request\FindHats1();
         self::assertEquals($expectedFindHats1, $actualFindHats1->processor);
     }
