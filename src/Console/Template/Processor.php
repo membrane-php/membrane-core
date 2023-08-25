@@ -8,6 +8,8 @@ class Processor
 {
     private const TEMPLATE_CODE =
         '<?php 
+
+declare(strict_types=1);
     
 namespace %s;
 
