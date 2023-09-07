@@ -22,7 +22,7 @@ class Regex implements Validator
 
     public function __toPHP(): string
     {
-        return sprintf('new %s(\'%s\')', self::class, addslashes($this->pattern));
+        return sprintf('new %s(\'%s\')', self::class, addcslashes($this->pattern, "\\\'"));
     }
 
     public function validate(mixed $value): Result
