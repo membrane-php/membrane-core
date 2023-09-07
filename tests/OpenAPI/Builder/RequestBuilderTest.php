@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace OpenAPI\Builder;
 
-use cebe\openapi\Reader;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;
 use Membrane\Filter\Type\ToInt;
@@ -21,12 +20,12 @@ use Membrane\OpenAPI\ExtractPathParameters\PathMatcher as PathMatcherClass;
 use Membrane\OpenAPI\Filter\HTTPParameters;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Method;
-use Membrane\OpenAPI\Processor\Json;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
-use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -65,7 +64,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathMatcherClass::class)]
 #[UsesClass(RequestProcessor::class)]
-#[UsesClass(OpenAPIFileReader::class)]
 #[UsesClass(APISchema::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Numeric::class)]
@@ -98,7 +96,9 @@ class RequestBuilderTest extends TestCase
         $specification = new Request($openAPIFilePath, '/requestpathexceptions', Method::POST);
         $sut = new RequestBuilder();
 
-        $openApi = Reader::readFromJsonFile($openAPIFilePath);
+        $openApi = (new Reader([OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath($openAPIFilePath);
+        
         $mediaTypes = array_keys($openApi->paths->getPath('/requestpathexceptions')->post->parameters[0]->content);
 
         self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes($mediaTypes));

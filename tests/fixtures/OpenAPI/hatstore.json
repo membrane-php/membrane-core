@@ -48,14 +48,6 @@
             }
           }
         }
-      },
-      "trace": {
-        "operationId": "TraceHats",
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
       }
     },
     "/hats/{id}": {

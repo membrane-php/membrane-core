@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace Console\Service;
 
-use cebe\openapi\Reader;
 use Membrane;
 use Membrane\Console\Service\CacheOpenAPIProcessors;
 use Membrane\Console\Template;
-use Membrane\OpenAPI\ContentType;
 use Membrane\Filter\{String\AlphaNumeric, String\ToPascalCase, Type as TypeFilter};
 use Membrane\OpenAPI\Builder as Builder;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
+use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Processor\Request;
-use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 use Membrane\OpenAPI\Specification;
+use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
 use Membrane\Validator\{FieldSet as FieldSetValidator, Type as TypeValidator, Utility as UtilityValidator};
 use org\bovigo\vfs\{vfsStream, vfsStreamDirectory};
@@ -31,7 +31,6 @@ use Psr\Log\LoggerInterface;
 #[UsesClass(Template\Processor::class)]
 #[UsesClass(Template\ResponseBuilder::class)]
 #[UsesClass(Template\RequestBuilder::class)]
-#[UsesClass(OpenAPIFileReader::class)]
 #[UsesClass(Builder\APIBuilder::class)]
 #[UsesClass(Builder\Arrays::class)]
 #[UsesClass(Builder\Numeric::class)]
@@ -116,7 +115,8 @@ class CacheOpenAPIProcessorsTest extends TestCase
     public function cachesProcessorsWithSuitableNamesToAvoidDuplicates(): void
     {
         $hatstoreFilePath = __DIR__ . '/../../fixtures/OpenAPI/hatstore.json';
-        $hatstoreApi = Reader::readFromJsonFile($hatstoreFilePath);
+        $hatstoreApi = (new Reader([OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath($hatstoreFilePath);
 
         $requestBuilder = new Builder\OpenAPIRequestBuilder();
         $expectedFindHats = $requestBuilder->build(
@@ -149,7 +149,8 @@ class CacheOpenAPIProcessorsTest extends TestCase
     {
         $requestBuilder = new OpenAPIRequestBuilder();
         $petstoreExpandedFilePath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
-        $petstoreExpandedOpenApi = Reader::readFromJsonFile($petstoreExpandedFilePath);
+        $petstoreExpandedOpenApi = (new Reader([OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath($petstoreExpandedFilePath);
 
         return [
             'findPets : Request' => [
@@ -211,7 +212,8 @@ class CacheOpenAPIProcessorsTest extends TestCase
     {
         $responseBuilder = new Builder\OpenAPIResponseBuilder();
         $petstoreExpandedFilePath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
-        $petstoreExpandedOpenApi = Reader::readFromJsonFile($petstoreExpandedFilePath);
+        $petstoreExpandedOpenApi = (new Reader([OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath($petstoreExpandedFilePath);
 
         return [
             'findPets : 200 Response' => [

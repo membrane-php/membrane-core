@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Console\Command;
 
-use cebe\openapi\Reader;
 use Membrane;
 use Membrane\Console\Command\CacheOpenAPIProcessors;
 use Membrane\Console\Template;
@@ -19,8 +18,8 @@ use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Processor\Request;
-use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 use Membrane\OpenAPI\Specification as Specification;
+use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
 use Membrane\Validator\{FieldSet as FieldSetValidator, Type as TypeValidator, Utility as UtilityValidator};
 use org\bovigo\vfs\{vfsStream, vfsStreamDirectory};
@@ -35,7 +34,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[UsesClass(Template\Processor::class)]
 #[UsesClass(Template\ResponseBuilder::class)]
 #[UsesClass(Template\RequestBuilder::class)]
-#[UsesClass(OpenAPIFileReader::class)]
 #[UsesClass(Builder\APIBuilder::class)]
 #[UsesClass(Builder\Arrays::class)]
 #[UsesClass(Builder\Numeric::class)]
@@ -124,7 +122,8 @@ class CacheOpenAPIProcessorsTest extends TestCase
         $requestBuilder = new OpenAPIRequestBuilder();
         $responseBuilder = new Builder\OpenAPIResponseBuilder();
         $petstoreExpandedFilePath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
-        $petstoreExpandedOpenApi = Reader::readFromJsonFile($petstoreExpandedFilePath);
+        $petstoreExpandedOpenApi = (new Reader([Membrane\OpenAPIReader\OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath($petstoreExpandedFilePath);
 
         return [
             'findPets : Request' => [
@@ -300,7 +299,8 @@ class CacheOpenAPIProcessorsTest extends TestCase
     public function cachesProcessorsWithSuitableNamesToAvoidDuplicates(): void
     {
         $hatstoreFilePath = __DIR__ . '/../../fixtures/OpenAPI/hatstore.json';
-        $hatstoreApi = Reader::readFromJsonFile($hatstoreFilePath);
+        $hatstoreApi = (new Reader([Membrane\OpenAPIReader\OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath($hatstoreFilePath);
 
         $requestBuilder = new Builder\OpenAPIRequestBuilder();
         $expectedFindHats = $requestBuilder->build(

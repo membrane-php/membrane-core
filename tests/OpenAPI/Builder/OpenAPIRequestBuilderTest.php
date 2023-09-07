@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace OpenAPI\Builder;
 
-use cebe\openapi\Reader;
 use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\Parameter;
 use cebe\openapi\spec\PathItem;
@@ -26,12 +25,12 @@ use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\HTTPParameters;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Method;
-use Membrane\OpenAPI\Processor\Json;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
-use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -72,7 +71,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(PathParameterExtractor::class)]
 #[UsesClass(PathMatcherClass::class)]
 #[UsesClass(RequestProcessor::class)]
-#[UsesClass(OpenAPIFileReader::class)]
 #[UsesClass(APISchema::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Numeric::class)]
@@ -119,7 +117,9 @@ class OpenAPIRequestBuilderTest extends TestCase
     #[Test, TestDox('It currently only supports application/json content')]
     public function throwsExceptionIfParameterHasContentThatIsNotJson(): void
     {
-        $openApi = Reader::readFromJsonFile(__DIR__ . '/../../fixtures/OpenAPI/noReferences.json');
+        $openApi = (new Reader([OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath(__DIR__ . '/../../fixtures/OpenAPI/noReferences.json');
+
         $specification = new OpenAPIRequest(
             new PathParameterExtractor('/requestpathexceptions'),
             $openApi->paths->getPath('/requestpathexceptions'),
@@ -136,7 +136,8 @@ class OpenAPIRequestBuilderTest extends TestCase
 
     public static function dataSetsForBuild(): array
     {
-        $openApi = Reader::readFromJsonFile(__DIR__ . '/../../fixtures/OpenAPI/noReferences.json');
+        $openApi = (new Reader([OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath(__DIR__ . '/../../fixtures/OpenAPI/noReferences.json');
 
         return [
             'Request: no path params, no operation params, no requestBody' => [
@@ -530,8 +531,12 @@ class OpenAPIRequestBuilderTest extends TestCase
 
     public static function dataSetsForDocExamples(): array
     {
-        $petstoreApi = Reader::readFromYamlFile(self::DIR . '/docs/petstore.yaml');
-        $petstoreExpandedApi = Reader::readFromJsonFile(self::DIR . '/docs/petstore-expanded.json');
+        $petstoreApi = (new Reader([OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath(self::DIR . '/docs/petstore.yaml');
+        
+        $petstoreExpandedApi = (new Reader([OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath(self::DIR . '/docs/petstore-expanded.json');
+
 
         return [
             'petstore /pets get, minimal (valid)' => [

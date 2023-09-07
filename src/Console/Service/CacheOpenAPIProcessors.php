@@ -9,11 +9,14 @@ use Membrane\Console\Template;
 use Membrane\Filter\String\AlphaNumeric;
 use Membrane\Filter\String\ToPascalCase;
 use Membrane\OpenAPI\Builder\{OpenAPIRequestBuilder, OpenAPIResponseBuilder};
-use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Method;
-use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 use Membrane\OpenAPI\Specification\{OpenAPIRequest, OpenAPIResponse};
+use Membrane\OpenAPIReader\Exception\CannotRead;
+use Membrane\OpenAPIReader\Exception\CannotSupport;
+use Membrane\OpenAPIReader\Exception\InvalidOpenAPI;
+use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
 use Psr\Log\LoggerInterface;
 
@@ -39,8 +42,9 @@ class CacheOpenAPIProcessors
     ): bool {
         $this->logger->info("Reading OpenAPI from $openAPIFilePath");
         try {
-            $openAPI = (new OpenAPIFileReader())->readFromAbsoluteFilePath($openAPIFilePath);
-        } catch (CannotReadOpenAPI $e) {
+            $openAPI = (new Reader([OpenAPIVersion::Version_3_0]))
+                ->readFromAbsoluteFilePath($openAPIFilePath);
+        } catch (CannotRead | CannotSupport | InvalidOpenAPI $e) {
             $this->logger->error($e->getMessage());
             return false;
         }

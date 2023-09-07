@@ -8,9 +8,10 @@ use cebe\openapi\spec as Cebe;
 use Membrane\Builder\{Builder, Specification};
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
-use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
 
 class RequestBuilder implements Builder
@@ -26,7 +27,8 @@ class RequestBuilder implements Builder
     {
         assert($specification instanceof Request);
 
-        $openAPI = (new OpenAPIFileReader())->readFromAbsoluteFilePath($specification->absoluteFilePath);
+        $openAPI = (new Reader([OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath($specification->absoluteFilePath);
 
         $serverUrl = $this->matchServer($openAPI, $specification->url);
         foreach ($openAPI->paths->getPaths() as $path => $pathItem) {
