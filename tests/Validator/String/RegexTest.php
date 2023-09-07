@@ -35,7 +35,7 @@ class RegexTest extends TestCase
     #[DataProvider('provideRegularExpresions')]
     public function toPHPTest(string $regex): void
     {
-        $sut = new Regex('/[abc]/i');
+        $sut = new Regex($regex);
 
         $actual = $sut->__toPHP();
 
