@@ -32,13 +32,22 @@ class RegexTest extends TestCase
     }
 
     #[Test]
-    public function toPHPTest(): void
+    #[DataProvider('provideRegularExpresions')]
+    public function toPHPTest(string $regex): void
     {
         $sut = new Regex('/[abc]/i');
 
         $actual = $sut->__toPHP();
 
         self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function provideRegularExpresions(): array
+    {
+        return [
+            'simple regex' => ['/[abc]/i'],
+            'regex with special chars' => ['#^[^$\'"]$#']
+        ];
     }
 
     public static function dataSetsWithIncorrectTypes(): array
