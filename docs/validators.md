@@ -496,6 +496,56 @@ this string is 28 characters
 Result was valid
 ```
 
+### NumericString
+
+Validates that input is a numeric string. For an input to be considered valid it MUST be a string, and that string
+MUST be a number.
+
+For non-numeric strings refer to [IsString](#isstring).
+
+For non-string numbers, refer to [IsFloat](#isfloat), [IsInt](#isint) and [IsNumber](#isnumber).
+
+**Example**
+
+```php
+<?php
+use Membrane\Validator\String\NumericString;
+
+$examples = [
+    '1',
+    '1.0',
+    '2.3',
+    'five',
+    5,
+    5.5
+];
+
+$numericString = new NumericString()
+
+foreach ($examples as $example) {
+    $result = $numericString->validate($example);
+
+    echo "json_encode($result->value) is" . ($result->isValid() ? 'valid' : 'invalid') . "\n";
+    foreach($result->messageSets[0]->messages as $message) {
+        echo "\t $message->rendered() \n";
+    } 
+}
+```
+
+The above example will output:
+
+```text
+"1" is valid
+"1.0" is valid
+"2.3" is valid
+"five" is invalid
+  - String value must be numeric
+5 is invalid
+  - string value expected, integer provided
+5.5 is invalid
+  - string value expected, double provided
+```
+
 ### Regex
 
 Checks if string follows specified regex pattern.
