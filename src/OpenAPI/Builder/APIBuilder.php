@@ -40,26 +40,24 @@ abstract class APIBuilder implements Builder
             return $this->handleOneOf($schema->oneOf, $fieldName);
         }
 
-        switch ($schema->type) {
-            case 'string':
-                $specification = new OpenAPI\Specification\Strings($fieldName, $schema);
-                return ($this->getStringBuilder())->build($specification);
-            case 'number':
-            case 'integer':
-                $specification = new OpenAPI\Specification\Numeric($fieldName, $schema, $strict);
-                return $this->getNumericBuilder()->build($specification);
-            case 'boolean':
-                $specification = new OpenAPI\Specification\TrueFalse($fieldName, $schema, $strict);
-                return $this->getTrueFalseBuilder()->build($specification);
-            case 'array':
-                $specification = new OpenAPI\Specification\Arrays($fieldName, $schema);
-                return $this->getArrayBuilder()->build($specification);
-            case 'object':
-                $specification = new OpenAPI\Specification\Objects($fieldName, $schema);
-                return $this->getObjectBuilder()->build($specification);
-            default:
-                return new Field('', new Utility\Passes());
-        }
+        return match ($schema->type) {
+            'string' => ($this->getStringBuilder())
+                ->build(new OpenAPI\Specification\Strings($fieldName, $schema)),
+
+            'number', 'integer' => $this->getNumericBuilder()
+                ->build(new OpenAPI\Specification\Numeric($fieldName, $schema, $strict)),
+
+            'boolean' => $this->getTrueFalseBuilder()
+                ->build(new OpenAPI\Specification\TrueFalse($fieldName, $schema, $strict)),
+
+            'array' => $this->getArrayBuilder()
+                ->build(new OpenAPI\Specification\Arrays($fieldName, $schema)),
+
+            'object' => $this->getObjectBuilder()
+                ->build(new OpenAPI\Specification\Objects($fieldName, $schema)),
+
+            default => new Field('', new Utility\Passes()),
+        };
     }
 
     protected function handleNullable(string $fieldName, Processor $processor): AnyOf
