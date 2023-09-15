@@ -496,6 +496,52 @@ this string is 28 characters
 Result was valid
 ```
 
+### IntString
+
+Validates that input is a integer string. For an input to be considered valid it MUST be a string, and that string
+MUST be an integer.
+
+For non-numeric strings refer to [IsString](#isstring).
+
+For non-string numbers, refer to [IsFloat](#isfloat), [IsInt](#isint) and [IsNumber](#isnumber).
+
+**Example**
+
+```php
+<?php
+use Membrane\Validator\String\IntString;
+
+$examples = [
+    '1',
+    '1.0',
+    'five',
+    5,
+];
+
+$intString = new IntString()
+
+foreach ($examples as $example) {
+    $result = $intString->validate($example);
+
+    echo "json_encode($result->value) is" . ($result->isValid() ? 'valid' : 'invalid') . "\n";
+    foreach($result->messageSets[0]->messages as $message) {
+        echo "\t $message->rendered() \n";
+    } 
+}
+```
+
+The above example will output:
+
+```text
+"1" is valid
+"1.0" is invalid
+  - String value must be an integer.
+"five" is invalid
+  - String value must be an integer.
+5 is invalid
+  - string value expected, integer provided
+```
+
 ### NumericString
 
 Validates that input is a numeric string. For an input to be considered valid it MUST be a string, and that string
