@@ -16,7 +16,7 @@ class Numeric extends APISchema
     public readonly float | int | null $multipleOf;
     public readonly string $type;
 
-    public function __construct(string $fieldName, Schema $schema, public readonly bool $strict = true)
+    public function __construct(string $fieldName, Schema $schema, public readonly bool $convertFromString = true)
     {
         if (!in_array($schema->type, ['number', 'integer'], true)) {
             throw CannotProcessSpecification::mismatchedType(self::class, 'integer or number', $schema->type);

@@ -15,6 +15,7 @@ use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
 use Membrane\Validator\Type\IsBool;
+use Membrane\Validator\Type\IsBoolString;
 use Membrane\Validator\Type\IsNull;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -53,7 +54,7 @@ class TrueFalseTest extends TestCase
         return [
             'non-strict input' => [
                 new Specification\TrueFalse('', new Schema(['type' => 'boolean']), false),
-                new Field('', new ToBool(), new IsBool()),
+                new Field('', new IsBoolString(), new ToBool()),
             ],
             'strict input' => [
                 new Specification\TrueFalse('', new Schema(['type' => 'boolean']), true),
@@ -75,7 +76,7 @@ class TrueFalseTest extends TestCase
                 new AnyOf(
                     '',
                     new Field('', new IsNull()),
-                    new Field('', new ToBool(), new IsBool(), new Contained([true, null]))
+                    new Field('', new IsBoolString(), new ToBool(), new Contained([true, null]))
                 ),
             ],
         ];

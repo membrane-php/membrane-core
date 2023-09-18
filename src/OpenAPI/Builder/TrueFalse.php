@@ -10,6 +10,7 @@ use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
 use Membrane\Validator\Type\IsBool;
+use Membrane\Validator\Type\IsBoolString;
 
 class TrueFalse extends APIBuilder
 {
@@ -22,7 +23,7 @@ class TrueFalse extends APIBuilder
     {
         assert($specification instanceof \Membrane\OpenAPI\Specification\TrueFalse);
 
-        $chain = $specification->strict ? [new IsBool()] : [new ToBool(), new IsBool()];
+        $chain = $specification->strict ? [new IsBool()] : [new IsBoolString(), new ToBool()];
 
         if ($specification->enum !== null) {
             $chain[] = new Contained($specification->enum);

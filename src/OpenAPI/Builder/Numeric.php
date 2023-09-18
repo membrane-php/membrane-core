@@ -20,6 +20,7 @@ use Membrane\Validator\Numeric\MultipleOf;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsNumber;
+use Membrane\Validator\Type\IsNumericString;
 
 class Numeric extends APIBuilder
 {
@@ -55,16 +56,16 @@ class Numeric extends APIBuilder
     private function handleNumber(OpenAPI\Specification\Numeric $specification): array
     {
         if (in_array($specification->format, ['float', 'double'], true)) {
-            return $specification->strict ? [new IsFloat()] : [new ToFloat(), new IsFloat()];
+            return $specification->convertFromString ? [new IsFloat()] : [new IsNumericString(), new ToFloat()];
         } else {
-            return $specification->strict ? [new IsNumber()] : [new ToNumber(), new IsNumber()];
+            return $specification->convertFromString ? [new IsNumber()] : [new IsNumericString(), new ToNumber()];
         }
     }
 
     /** @return Filter[]|Validator[] */
     private function handleInteger(OpenAPI\Specification\Numeric $specification): array
     {
-        return $specification->strict ? [new IsInt()] : [new ToInt(), new IsInt()];
+        return $specification->convertFromString ? [new IsInt()] : [new ToInt(), new IsInt()];
     }
 
     /** @return Validator[] */

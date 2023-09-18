@@ -9,7 +9,7 @@ use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 
 class TrueFalse extends APISchema
 {
-    public function __construct(string $fieldName, Schema $schema, public readonly bool $strict = true)
+    public function __construct(string $fieldName, Schema $schema, public readonly bool $convertFromString = true)
     {
         if ($schema->type !== 'boolean') {
             throw CannotProcessSpecification::mismatchedType(self::class, 'boolean', $schema->type);
