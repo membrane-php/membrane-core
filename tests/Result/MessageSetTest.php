@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Result;
 
+use Generator;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
@@ -84,5 +85,73 @@ class MessageSetTest extends TestCase
         $result = $messageSet->isEmpty();
 
         self::assertEquals($expected, $result);
+    }
+
+
+    public static function provideMessageSetsToRender(): Generator
+    {
+        yield 'Empty MessageSet' => [
+            new MessageSet(null),
+            '',
+        ];
+        yield 'MessageSet with no Fieldname and one Message' => [
+            new MessageSet(null, new Message('first message', [])),
+            'first message',
+        ];
+        yield 'MessageSet with a Fieldname and one Message' => [
+            new MessageSet(new FieldName('first field'), new Message('first message', [])),
+            <<<TEXT
+            first field
+            \tfirst message
+            TEXT,
+        ];
+        yield 'MessageSet with a Fieldname and multiple Messages' => [
+            new MessageSet(
+                new FieldName('first field'),
+                new Message('first message', []),
+                new Message('%s message', ['second']),
+                new Message('third message', []),
+            ),
+            <<<TEXT
+            first field
+            \t- first message
+            \t- second message
+            \t- third message
+            TEXT,
+        ];
+        yield 'MessageSet with no Fieldname and multiple Messages' => [
+            new MessageSet(
+                null,
+                new Message('first message', []),
+                new Message('%s message', ['second']),
+                new Message('third message', []),
+            ),
+            <<<TEXT
+            - first message
+            - second message
+            - third message
+            TEXT,
+        ];
+        yield 'MessageSet with a stacked Fieldname and multiple Messages' => [
+            new MessageSet(
+                new FieldName('third field', 'first field', 'second field'),
+                new Message('first message', []),
+                new Message('%s message', ['second']),
+                new Message('third message', []),
+            ),
+            <<<TEXT
+            first field->second field->third field
+            \t- first message
+            \t- second message
+            \t- third message
+            TEXT,
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('provideMessageSetsToRender')]
+    public function renderMessagesTest(MessageSet $messageSet, string $expected): void
+    {
+        self::assertSame($expected, $messageSet->rendered());
     }
 }

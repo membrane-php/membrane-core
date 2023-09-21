@@ -39,4 +39,38 @@ class MessageSet
     {
         return !(isset($this->messages) && count($this->messages) > 0);
     }
+
+    public function rendered(): string
+    {
+        if ($this->isEmpty()) {
+            return '';
+        }
+
+        $renderedMessages = (function () {
+            $renders = [];
+            foreach ($this->messages as $message) {
+                $renders[] = $message->rendered();
+            }
+            return $renders;
+        })();
+
+        if (!isset($this->fieldName)) {
+            if (count($renderedMessages) === 1) {
+                return $renderedMessages[0];
+            } else {
+                return sprintf('- %s', implode("\n- ", $renderedMessages));
+            }
+        }
+
+
+        if (count($renderedMessages) === 1) {
+            return sprintf("%s\n\t%s", $this->fieldName->getStringRepresentation(), $renderedMessages[0]);
+        } else {
+            return sprintf(
+                "%s\n\t- %s",
+                $this->fieldName->getStringRepresentation(),
+                implode("\n\t- ", $renderedMessages)
+            );
+        }
+    }
 }
