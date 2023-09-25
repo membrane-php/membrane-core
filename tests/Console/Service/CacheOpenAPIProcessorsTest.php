@@ -14,7 +14,7 @@ use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\PathMatcher;
-use Membrane\OpenAPI\Method;
+use Membrane\OpenAPIReader\Method;
 use Membrane\OpenAPI\Processor\Request;
 use Membrane\OpenAPI\Specification;
 use Membrane\OpenAPIReader\OpenAPIVersion;

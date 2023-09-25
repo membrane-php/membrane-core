@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Specification;
 
 use Membrane\Builder\Specification;
-use Membrane\OpenAPI\Method;
+use Membrane\OpenAPIReader\Method;
 
 class Response implements Specification
 {

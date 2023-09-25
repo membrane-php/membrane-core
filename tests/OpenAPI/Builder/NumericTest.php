@@ -18,11 +18,11 @@ use Membrane\Validator\Collection\Contained;
 use Membrane\Validator\Numeric\Maximum;
 use Membrane\Validator\Numeric\Minimum;
 use Membrane\Validator\Numeric\MultipleOf;
+use Membrane\Validator\String\NumericString;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Type\IsNumber;
-use Membrane\Validator\Type\IsNumericString;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -70,7 +70,7 @@ class NumericTest extends TestCase
             ],
             'non-strict number input' => [
                 new Specification\Numeric('', new Schema(['type' => 'number']), false),
-                new Field('', new IsNumericString(), new ToNumber()),
+                new Field('', new NumericString(), new ToNumber()),
             ],
             'strict number input' => [
                 new Specification\Numeric('', new Schema(['type' => 'number']), true),
@@ -78,7 +78,7 @@ class NumericTest extends TestCase
             ],
             'non-strict float input' => [
                 new Specification\Numeric('', new Schema(['type' => 'number', 'format' => 'float']), false),
-                new Field('', new IsNumericString(), new ToFloat()),
+                new Field('', new NumericString(), new ToFloat()),
             ],
             'strict float input' => [
                 new Specification\Numeric('', new Schema(['type' => 'number', 'format' => 'float']), true),

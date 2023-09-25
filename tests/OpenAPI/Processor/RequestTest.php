@@ -9,7 +9,7 @@ use GuzzleHttp\Psr7\Stream;
 use GuzzleHttp\Psr7\UploadedFile;
 use Membrane\Filter\String\JsonDecode;
 use Membrane\OpenAPI\ContentType;
-use Membrane\OpenAPI\Method;
+use Membrane\OpenAPIReader\Method;
 use Membrane\OpenAPI\Processor\Request;
 use Membrane\Processor;
 use Membrane\Processor\Field;
@@ -346,11 +346,13 @@ class RequestTest extends TestCase
                     ['Content-Type' => 'multipart/x-www-form-urlencoded'],
                     null
                 ))->withParsedBody(['field' => 3])
-                    ->withUploadedFiles(['file' => new UploadedFile(
-                        new Stream(fopen('data://text/plain,filedata', 'r')),
-                        null,
-                        0
-                    )]),
+                    ->withUploadedFiles([
+                        'file' => new UploadedFile(
+                            new Stream(fopen('data://text/plain,filedata', 'r')),
+                            null,
+                            0
+                        ),
+                    ]),
                 [
                     'path' => $validProcessor,
                     'query' => $validProcessor,

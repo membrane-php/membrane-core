@@ -6,7 +6,7 @@ namespace Membrane\OpenAPI\Processor;
 
 use Membrane\Filter\String\JsonDecode;
 use Membrane\OpenAPI\ContentType;
-use Membrane\OpenAPI\Method;
+use Membrane\OpenAPIReader\Method;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Result\FieldName;
@@ -139,7 +139,7 @@ class Request implements Processor
             return Result::noResult($value);
         }
 
-        $value['body'] = (array) $request->getParsedBody();
+        $value['body'] = (array)$request->getParsedBody();
         if ($contentType === ContentType::Multipart) {
             $value['body'] = array_merge(
                 $value['body'],
@@ -161,7 +161,7 @@ class Request implements Processor
             if (is_array($file)) {
                 $result[$name] = $this->convertUploadedFilesToStrings($file);
             } elseif ($file instanceof UploadedFileInterface) {
-                $result[$name] = (string) $file->getStream();
+                $result[$name] = (string)$file->getStream();
             }
         }
 

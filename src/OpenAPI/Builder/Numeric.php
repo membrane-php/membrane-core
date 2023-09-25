@@ -17,10 +17,10 @@ use Membrane\Validator\Collection\Contained;
 use Membrane\Validator\Numeric\Maximum;
 use Membrane\Validator\Numeric\Minimum;
 use Membrane\Validator\Numeric\MultipleOf;
+use Membrane\Validator\String\NumericString;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsNumber;
-use Membrane\Validator\Type\IsNumericString;
 
 class Numeric extends APIBuilder
 {
@@ -56,9 +56,9 @@ class Numeric extends APIBuilder
     private function handleNumber(OpenAPI\Specification\Numeric $specification): array
     {
         if (in_array($specification->format, ['float', 'double'], true)) {
-            return $specification->convertFromString ? [new IsFloat()] : [new IsNumericString(), new ToFloat()];
+            return !$specification->convertFromString ? [new NumericString(), new ToFloat()] : [new IsFloat()];
         } else {
-            return $specification->convertFromString ? [new IsNumber()] : [new IsNumericString(), new ToNumber()];
+            return !$specification->convertFromString ? [new NumericString(), new ToNumber()] : [new IsNumber()];
         }
     }
 
