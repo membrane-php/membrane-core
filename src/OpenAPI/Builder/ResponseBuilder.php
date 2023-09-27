@@ -11,9 +11,10 @@ use Membrane\OpenAPI\Exception\CannotProcessResponse;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
 use Membrane\OpenAPI\Method;
-use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
+use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
 
 class ResponseBuilder implements Builder
@@ -29,7 +30,8 @@ class ResponseBuilder implements Builder
     {
         assert($specification instanceof Response);
 
-        $openAPI = (new OpenAPIFileReader())->readFromAbsoluteFilePath($specification->absoluteFilePath);
+        $openAPI = (new Reader([OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath($specification->absoluteFilePath);
 
         $serverUrl = $this->matchServer($openAPI, $specification->url);
         foreach ($openAPI->paths->getPaths() as $path => $pathItem) {

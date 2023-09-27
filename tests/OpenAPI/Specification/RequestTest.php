@@ -9,7 +9,6 @@ use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
 use Membrane\OpenAPI\Method;
-use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 use Membrane\OpenAPI\Specification\Request;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -20,7 +19,6 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(CannotProcessOpenAPI::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[UsesClass(PathMatcher::class)]
-#[UsesClass(OpenAPIFileReader::class)]
 class RequestTest extends TestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';

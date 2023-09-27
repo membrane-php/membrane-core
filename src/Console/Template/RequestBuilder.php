@@ -16,7 +16,7 @@ namespace %s;
 use Membrane\Builder\Builder;
 use Membrane\Processor;
 use Membrane\Builder\Specification;
-use Membrane\OpenAPIRouter\Router\Router;
+use Membrane\OpenAPIRouter\Router;
 use Membrane\OpenAPI\Specification\Request as RequestSpecification;
 
 class CachedRequestBuilder implements Builder

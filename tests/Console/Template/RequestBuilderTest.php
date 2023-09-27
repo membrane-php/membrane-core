@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Console\Template;
 
-use cebe\openapi\Reader;
 use Membrane\Console\Template;
 use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Specification\Request;
-use Membrane\OpenAPIRouter\Router\Collector\RouteCollector;
-use Membrane\OpenAPIRouter\Router\Router;
-use Membrane\OpenAPIRouter\Router\ValueObject\RouteCollection;
+use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\Reader;
+use Membrane\OpenAPIRouter\RouteCollection;
+use Membrane\OpenAPIRouter\RouteCollector;
+use Membrane\OpenAPIRouter\Router;
 use Membrane\Processor\Field;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Depends;
@@ -48,7 +49,10 @@ class RequestBuilderTest extends TestCase
 
         eval('//' . $phpString);
 
-        $routeCollection = (new RouteCollector())->collect(Reader::readFromJsonFile($petstoreExpandedFilePath));
+        $openAPI = (new Reader([OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath($petstoreExpandedFilePath);
+        $routeCollection = (new RouteCollector())
+            ->collect($openAPI);
         $createdBuilder = eval(
         sprintf(
             'return new \\%s\\CachedRequestBuilder(new %s(new %s(%s)));',

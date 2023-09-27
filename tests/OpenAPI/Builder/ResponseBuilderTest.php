@@ -16,9 +16,7 @@ use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Processor\AllOf;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
-use Membrane\OpenAPI\Reader\OpenAPIFileReader;
 use Membrane\OpenAPI\Specification\APISchema;
-use Membrane\OpenAPI\Specification\APISpec;
 use Membrane\OpenAPI\Specification\Arrays;
 use Membrane\OpenAPI\Specification\Numeric;
 use Membrane\OpenAPI\Specification\Objects;
@@ -77,7 +75,6 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(AllOf::class)]
 #[UsesClass(AnyOf::class)]
 #[UsesClass(OneOf::class)]
-#[UsesClass(OpenAPIFileReader::class)]
 #[UsesClass(APISchema::class)]
 #[UsesClass(Arrays::class)]
 #[UsesClass(TrueFalse::class)]
