@@ -91,21 +91,12 @@ class OpenAPIRequestBuilder extends APIBuilder
 
     private function findSchema(Parameter $parameter): Schema
     {
-        $schemaLocations = null;
+        // Membrane\OpenAPIReader\Reader ensures parameters have a schema xor non-empty content
+        $schema = $parameter->schema ??
+            $parameter->content['application/json']?->schema ??
+            throw CannotProcessOpenAPI::unsupportedMediaTypes(array_keys($parameter->content));
 
-        if ($parameter->schema !== null) {
-            $schemaLocations = $parameter->schema;
-        }
-
-        if ($parameter->content !== []) {
-            $schemaLocations = $parameter->content['application/json']?->schema
-                ??
-                throw CannotProcessOpenAPI::unsupportedMediaTypes(array_keys($parameter->content));
-        }
-
-        // Cebe library already validates that parameters MUST have either a schema or content but not both.
-        assert($schemaLocations instanceof Schema);
-
-        return $schemaLocations;
+        assert($schema instanceof Schema);
+        return $schema;
     }
 }

@@ -148,20 +148,6 @@
       }
     },
     "/requestpathexceptions": {
-      "get": {
-        "operationId": "no-schema-nor-content",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
       "post": {
         "operationId": "unsupported-content-type",
         "parameters": [
