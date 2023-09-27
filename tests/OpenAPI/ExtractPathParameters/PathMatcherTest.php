@@ -165,7 +165,7 @@ class PathMatcherTest extends TestCase
             [
                 '/pets/{id}/photos/{photo_id}',
                 '/pets/1/photos/5',
-                ['id' => 1, 'photo_id' => 5],
+                ['id' => '1', 'photo_id' => '5'],
             ],
         ];
     }
@@ -178,7 +178,7 @@ class PathMatcherTest extends TestCase
 
         $actual = $sut->getPathParams($requestUrl);
 
-        self::assertEquals($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
 }
