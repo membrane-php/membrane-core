@@ -431,6 +431,57 @@ Result was valid
 
 ## String
 
+### BoolString
+
+Validates that input is a boolean string. For an input to be considered valid it MUST be the string "true" or
+"false" (case-insensitive).
+
+For boolean values, refer to [IsBool](#isbool)
+
+To convert values to bolean refer to [ToBool](filters.md#tobool).
+
+**Example**
+
+```php
+<?php
+use Membrane\Validator\String\BoolString;
+
+$examples = [
+    '1',
+    'true',
+    'FALSE',
+    'yes',
+    true,
+    false,
+];
+
+$boolString = new BoolString()
+
+foreach ($examples as $example) {
+    $result = $boolString->validate($example);
+
+    echo "json_encode($result->value) is" . ($result->isValid() ? 'valid' : 'invalid') . "\n";
+    foreach($result->messageSets[0]->messages as $message) {
+        echo "\t $message->rendered() \n";
+    } 
+}
+```
+
+The above example will output:
+
+```text
+"1" is invalid
+  - String value must be a boolean.
+"true" is valid
+"FALSE" is valid
+"yes is invalid"
+  - String value must be a boolean.
+true is invalid
+  - String value expected, boolean provided.
+false is invalid
+  - String value expected, boolean provided.
+```
+
 ### DateString
 
 Checks if string input follows specified DateTime format.
