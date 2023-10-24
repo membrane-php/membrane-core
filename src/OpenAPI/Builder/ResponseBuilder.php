@@ -10,7 +10,7 @@ use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessResponse;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
-use Membrane\OpenAPI\Method;
+use Membrane\OpenAPIReader\Method;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPIReader\OpenAPIVersion;

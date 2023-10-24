@@ -80,7 +80,7 @@ against the following schema:
 Our Specification might look like this:
 
 ```php
-use Membrane\OpenAPI\Method;
+use Membrane\OpenAPIReader\Method;
 use Membrane\OpenAPI\Specification\Request;
 
 $specification = new Request(__DIR__ . './api/OpenAPI.json', 'http://petstore.swagger.io/api/pets', Method::GET);

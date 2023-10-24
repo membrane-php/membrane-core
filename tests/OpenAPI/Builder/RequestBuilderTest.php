@@ -19,11 +19,11 @@ use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher as PathMatcherClass;
 use Membrane\OpenAPI\Filter\HTTPParameters;
 use Membrane\OpenAPI\Filter\PathMatcher;
-use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPIReader\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
@@ -98,7 +98,7 @@ class RequestBuilderTest extends TestCase
 
         $openApi = (new Reader([OpenAPIVersion::Version_3_0]))
             ->readFromAbsoluteFilePath($openAPIFilePath);
-        
+
         $mediaTypes = array_keys($openApi->paths->getPath('/requestpathexceptions')->post->parameters[0]->content);
 
         self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes($mediaTypes));

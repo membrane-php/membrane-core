@@ -24,11 +24,11 @@ use Membrane\OpenAPI\ExtractPathParameters\PathMatcher as PathMatcherClass;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\HTTPParameters;
 use Membrane\OpenAPI\Filter\PathMatcher;
-use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPIReader\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
@@ -533,7 +533,7 @@ class OpenAPIRequestBuilderTest extends TestCase
     {
         $petstoreApi = (new Reader([OpenAPIVersion::Version_3_0]))
             ->readFromAbsoluteFilePath(self::DIR . '/docs/petstore.yaml');
-        
+
         $petstoreExpandedApi = (new Reader([OpenAPIVersion::Version_3_0]))
             ->readFromAbsoluteFilePath(self::DIR . '/docs/petstore-expanded.json');
 

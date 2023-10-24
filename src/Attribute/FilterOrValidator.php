@@ -11,7 +11,7 @@ use Membrane\Validator;
 class FilterOrValidator
 {
     public function __construct(
-        public readonly Validator|Filter $class
+        public readonly Validator | Filter $class
     ) {
     }
 }

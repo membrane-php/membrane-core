@@ -9,6 +9,7 @@ use Membrane\Filter\Type\ToBool;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
+use Membrane\Validator\String\BoolString;
 use Membrane\Validator\Type\IsBool;
 
 class TrueFalse extends APIBuilder
@@ -22,7 +23,7 @@ class TrueFalse extends APIBuilder
     {
         assert($specification instanceof \Membrane\OpenAPI\Specification\TrueFalse);
 
-        $chain = $specification->strict ? [new IsBool()] : [new ToBool(), new IsBool()];
+        $chain = !$specification->convertFromString ? [new BoolString(), new ToBool()] : [new IsBool()];
 
         if ($specification->enum !== null) {
             $chain[] = new Contained($specification->enum);

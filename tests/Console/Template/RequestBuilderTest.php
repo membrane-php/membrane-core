@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Console\Template;
 
 use Membrane\Console\Template;
-use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPIReader\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
 use Membrane\OpenAPIRouter\RouteCollection;

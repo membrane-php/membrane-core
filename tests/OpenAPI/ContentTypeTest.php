@@ -25,7 +25,7 @@ final class ContentTypeTest extends TestCase
 
     #[Test]
     #[DataProvider('provideContentTypeHeaders')]
-    public function testFromContentTypeHeader(string|false $contentTypeHeader, ContentType $expected): void
+    public function testFromContentTypeHeader(string | false $contentTypeHeader, ContentType $expected): void
     {
         $sut = ContentType::fromContentTypeHeader($contentTypeHeader);
 

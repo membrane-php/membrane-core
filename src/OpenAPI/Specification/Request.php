@@ -6,7 +6,7 @@ namespace Membrane\OpenAPI\Specification;
 
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
-use Membrane\OpenAPI\Method;
+use Membrane\OpenAPIReader\Method;
 use Psr\Http\Message\ServerRequestInterface;
 
 class Request implements Specification

@@ -6,8 +6,8 @@ namespace Console\Template;
 
 use cebe\openapi\Reader;
 use Membrane\Console\Template;
-use Membrane\OpenAPI\Method;
 use Membrane\OpenAPI\Specification\Response;
+use Membrane\OpenAPIReader\Method;
 use Membrane\OpenAPIRouter\RouteCollection;
 use Membrane\OpenAPIRouter\RouteCollector;
 use Membrane\OpenAPIRouter\Router;
