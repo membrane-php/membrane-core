@@ -303,6 +303,11 @@ class FieldsetTest extends TestCase
                 new Field('a', new ToFloat()),
                 DefaultProcessor::fromFiltersAndValidators(new ToString()),
             ],
+            'DefaultProcessor without other processors' => [
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                Result::noResult(['a' => '1', 'b' => '2', 'c' => '3']),
+                DefaultProcessor::fromFiltersAndValidators(new ToString()),
+            ],
             'Field processed values persist' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 Result::valid(['a' => 1, 'b' => 2.0, 'c' => 3]),
