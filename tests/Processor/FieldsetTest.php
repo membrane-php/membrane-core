@@ -173,7 +173,7 @@ class FieldsetTest extends TestCase
 
     #[DataProvider('dataSetsWithIncorrectValues')]
     #[Test]
-    public function onlyAcceptsArrayValues(mixed $input, Message $expectedMessage): void
+    public function onlyAcceptsArrayValuesIfItHasAChain(mixed $input, Message $expectedMessage): void
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
         $fieldName = 'field to process';
@@ -183,6 +183,33 @@ class FieldsetTest extends TestCase
 
         self::assertEquals($expected, $result);
     }
+
+    #[DataProvider('dataSetsWithIncorrectValues')]
+    #[Test]
+    public function onlyAcceptsArrayValuesIfItHasADefault(mixed $input, Message $expectedMessage): void
+    {
+        $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
+        $fieldName = 'field to process';
+        $fieldset = new FieldSet($fieldName, DefaultProcessor::fromFiltersAndValidators());
+
+        $result = $fieldset->process(new FieldName('parent field'), $input);
+
+        self::assertEquals($expected, $result);
+    }
+
+    #[DataProvider('dataSetsWithIncorrectValues')]
+    #[Test]
+    public function acceptsAnyValueWithoutAChainOrDefault(mixed $input): void
+    {
+        $expected = Result::noResult($input);
+        $fieldName = 'field to process';
+        $fieldset = new FieldSet($fieldName);
+
+        $result = $fieldset->process(new FieldName('parent field'), $input);
+
+        self::assertEquals($expected, $result);
+    }
+
 
     #[Test]
     public function onlyAcceptsOneBeforeSet(): void

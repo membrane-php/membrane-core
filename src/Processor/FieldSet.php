@@ -121,7 +121,7 @@ class FieldSet implements Processor
 
     public function process(FieldName $parentFieldName, mixed $value): Result
     {
-        $fieldName = $parentFieldName->push(new Fieldname($this->processes));
+        $fieldName = $parentFieldName->push(new FieldName($this->processes));
         $fieldSetResult = Result::noResult($value);
 
         if (isset($this->before)) {
@@ -132,7 +132,7 @@ class FieldSet implements Processor
             }
         }
 
-        if (!empty($this->chain)) {
+        if (!empty($this->chain) || isset($this->default)) {
             if (!is_array($value)) {
                 return Result::invalid(
                     $value,
@@ -161,10 +161,9 @@ class FieldSet implements Processor
                     $this->handleProcessor($this->default, $fieldName, $value[$fieldKey], $fieldSetResult);
                 }
             }
+
+            $fieldSetResult = $fieldSetResult->merge(Result::noResult($value));
         }
-
-        $fieldSetResult = $fieldSetResult->merge(Result::noResult($value));
-
         if (isset($this->after) && $fieldSetResult->isValid()) {
             $this->handleProcessor($this->after, $fieldName, $value, $fieldSetResult);
 
