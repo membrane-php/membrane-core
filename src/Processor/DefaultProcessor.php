@@ -17,7 +17,7 @@ class DefaultProcessor implements Processor
     ) {
     }
 
-    public static function fromFiltersAndValidators(Filter|Validator ...$chain): self
+    public static function fromFiltersAndValidators(Filter | Validator ...$chain): self
     {
         return new self(new Field('', ...$chain));
     }
@@ -34,7 +34,7 @@ class DefaultProcessor implements Processor
 
     public function processes(): string
     {
-        return $this->processor->processes();
+        return '';
     }
 
     public function process(FieldName $parentFieldName, mixed $value): Result

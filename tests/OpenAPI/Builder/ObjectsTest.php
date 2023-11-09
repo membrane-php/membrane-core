@@ -9,6 +9,7 @@ use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\Objects;
 use Membrane\OpenAPI\Builder\Strings;
+use Membrane\OpenAPI\Builder\TrueFalse;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
 use Membrane\OpenAPI\Specification;
@@ -34,15 +35,18 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Objects::class)]
 #[CoversClass(APIBuilder::class)]
 #[UsesClass(Numeric::class)]
+#[UsesClass(TrueFalse::class)]
 #[UsesClass(Strings::class)]
 #[UsesClass(AnyOf::class)]
 #[UsesClass(Specification\APISchema::class)]
 #[UsesClass(Specification\Numeric::class)]
 #[UsesClass(Specification\Strings::class)]
+#[UsesClass(Specification\TrueFalse::class)]
 #[UsesClass(BeforeSet::class)]
 #[UsesClass(DefaultProcessor::class)]
 #[UsesClass(Field::class)]
 #[UsesClass(FieldSet::class)]
+#[UsesClass(OneOf::class)]
 #[UsesClass(Contained::class)]
 #[UsesClass(FixedFields::class)]
 #[UsesClass(RequiredFields::class)]
