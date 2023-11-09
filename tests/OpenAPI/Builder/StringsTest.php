@@ -35,7 +35,7 @@ use PHPUnit\Framework\TestCase;
 class StringsTest extends TestCase
 {
     #[Test]
-    public function supportsNumericSpecification(): void
+    public function supportsStringsSpecification(): void
     {
         $specification = self::createStub(Specification\Strings::class);
         $sut = new Strings();
@@ -44,7 +44,7 @@ class StringsTest extends TestCase
     }
 
     #[Test]
-    public function doesNotSupportNonNumericSpecification(): void
+    public function doesNotSupportNonStringsSpecification(): void
     {
         $specification = self::createStub(\Membrane\Builder\Specification::class);
         $sut = new Strings();
