@@ -17,6 +17,7 @@ use Membrane\Validator\Collection\Contained;
 use Membrane\Validator\Numeric\Maximum;
 use Membrane\Validator\Numeric\Minimum;
 use Membrane\Validator\Numeric\MultipleOf;
+use Membrane\Validator\String\IntString;
 use Membrane\Validator\String\NumericString;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
@@ -65,7 +66,7 @@ class Numeric extends APIBuilder
     /** @return Filter[]|Validator[] */
     private function handleInteger(OpenAPI\Specification\Numeric $specification): array
     {
-        return $specification->convertFromString ? [new IsInt()] : [new ToInt(), new IsInt()];
+        return !$specification->convertFromString ? [new IntString(), new ToInt()] : [new IsInt()];
     }
 
     /** @return Validator[] */

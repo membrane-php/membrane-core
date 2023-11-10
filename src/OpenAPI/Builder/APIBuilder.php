@@ -29,15 +29,15 @@ abstract class APIBuilder implements Builder
         }
 
         if ($schema->allOf !== null) {
-            return $this->handleAllOf($schema->allOf, $fieldName);
+            return $this->handleAllOf($schema->allOf, $fieldName, $convertFromString);
         }
 
         if ($schema->anyOf !== null) {
-            return $this->handleAnyOf($schema->anyOf, $fieldName);
+            return $this->handleAnyOf($schema->anyOf, $fieldName, $convertFromString);
         }
 
         if ($schema->oneOf !== null) {
-            return $this->handleOneOf($schema->oneOf, $fieldName);
+            return $this->handleOneOf($schema->oneOf, $fieldName, $convertFromString);
         }
 
         return match ($schema->type) {
@@ -106,11 +106,11 @@ abstract class APIBuilder implements Builder
     }
 
     /** @param Reference[]|Schema[] $allOf */
-    private function handleAllOf(array $allOf, string $fieldName): Processor
+    private function handleAllOf(array $allOf, string $fieldName, bool $convertFromString): Processor
     {
         if (count($allOf) < 2) {
             assert($allOf[0] instanceof Schema);
-            return $this->fromSchema($allOf[0], $fieldName);
+            return $this->fromSchema($allOf[0], $fieldName, $convertFromString);
         }
 
         $fieldSets = [];
@@ -118,18 +118,18 @@ abstract class APIBuilder implements Builder
         // @TODO add key to messages in a useful format
         foreach ($allOf as $key => $objectSchema) {
             assert($objectSchema instanceof Schema);
-            $fieldSets[] = $this->fromSchema($objectSchema, $fieldName);
+            $fieldSets[] = $this->fromSchema($objectSchema, $fieldName, $convertFromString);
         }
 
         return new OpenAPI\Processor\AllOf($fieldName, ...$fieldSets);
     }
 
     /** @param Reference[]|Schema[] $anyOf */
-    private function handleAnyOf(array $anyOf, string $fieldName): Processor
+    private function handleAnyOf(array $anyOf, string $fieldName, bool $convertFromString): Processor
     {
         if (count($anyOf) < 2) {
             assert($anyOf[0] instanceof Schema);
-            return $this->fromSchema($anyOf[0], $fieldName);
+            return $this->fromSchema($anyOf[0], $fieldName, $convertFromString);
         }
 
         $fieldSets = [];
@@ -137,18 +137,18 @@ abstract class APIBuilder implements Builder
         // @TODO add key to messages in a useful format
         foreach ($anyOf as $objectSchema) {
             assert($objectSchema instanceof Schema);
-            $fieldSets[] = $this->fromSchema($objectSchema, $fieldName);
+            $fieldSets[] = $this->fromSchema($objectSchema, $fieldName, $convertFromString);
         }
 
         return new OpenAPI\Processor\AnyOf($fieldName, ...$fieldSets);
     }
 
     /** @param Reference[]|Schema[] $oneOf */
-    private function handleOneOf(array $oneOf, string $fieldName): Processor
+    private function handleOneOf(array $oneOf, string $fieldName, bool $convertFromString): Processor
     {
         if (count($oneOf) < 2) {
             assert($oneOf[0] instanceof Schema);
-            return $this->fromSchema($oneOf[0], $fieldName);
+            return $this->fromSchema($oneOf[0], $fieldName, $convertFromString);
         }
 
         $fieldSets = [];
@@ -156,7 +156,7 @@ abstract class APIBuilder implements Builder
         // @TODO add key to messages in a useful format
         foreach ($oneOf as $objectSchema) {
             assert($objectSchema instanceof Schema);
-            $fieldSets[] = $this->fromSchema($objectSchema, $fieldName);
+            $fieldSets[] = $this->fromSchema($objectSchema, $fieldName, $convertFromString);
         }
 
         return new OpenAPI\Processor\OneOf($fieldName, ...$fieldSets);
