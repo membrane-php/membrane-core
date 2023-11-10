@@ -9,7 +9,9 @@ use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\Objects;
 use Membrane\OpenAPI\Builder\Strings;
+use Membrane\OpenAPI\Builder\TrueFalse;
 use Membrane\OpenAPI\Processor\AnyOf;
+use Membrane\OpenAPI\Processor\OneOf;
 use Membrane\OpenAPI\Specification;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
@@ -20,6 +22,7 @@ use Membrane\Validator\Collection\Contained;
 use Membrane\Validator\FieldSet\FixedFields;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Type\IsArray;
+use Membrane\Validator\Type\IsBool;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Type\IsString;
@@ -32,15 +35,18 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Objects::class)]
 #[CoversClass(APIBuilder::class)]
 #[UsesClass(Numeric::class)]
+#[UsesClass(TrueFalse::class)]
 #[UsesClass(Strings::class)]
 #[UsesClass(AnyOf::class)]
 #[UsesClass(Specification\APISchema::class)]
 #[UsesClass(Specification\Numeric::class)]
 #[UsesClass(Specification\Strings::class)]
+#[UsesClass(Specification\TrueFalse::class)]
 #[UsesClass(BeforeSet::class)]
 #[UsesClass(DefaultProcessor::class)]
 #[UsesClass(Field::class)]
 #[UsesClass(FieldSet::class)]
+#[UsesClass(OneOf::class)]
 #[UsesClass(Contained::class)]
 #[UsesClass(FixedFields::class)]
 #[UsesClass(RequiredFields::class)]
@@ -82,6 +88,31 @@ class ObjectsTest extends TestCase
                     ])
                 ),
                 new FieldSet('', new BeforeSet(new IsArray(), new FixedFields('a')), new Field('a', new IsInt())),
+            ],
+            'complex additional properties' => [
+                new Specification\Objects(
+                    '',
+                    new Schema([
+                        'type' => 'object',
+                        'additionalProperties' => [
+                            'oneOf' => [
+                                new Schema(['type' => 'boolean']),
+                                new Schema(['type' => 'integer']),
+                            ],
+                        ],
+                    ])
+                ),
+                new FieldSet(
+                    '',
+                    new BeforeSet(new IsArray()),
+                    new DefaultProcessor(
+                        new OneOf(
+                            '',
+                            new Field('', new IsBool()),
+                            new Field('', new IsInt()),
+                        )
+                    )
+                ),
             ],
             'detailed input' => [
                 new Specification\Objects(
