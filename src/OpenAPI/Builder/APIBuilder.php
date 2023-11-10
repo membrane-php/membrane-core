@@ -22,7 +22,7 @@ abstract class APIBuilder implements Builder
     private Objects $objectBuilder;
     private Strings $stringBuilder;
 
-    protected function fromSchema(Schema $schema, string $fieldName = '', bool $convertFromString = true): Processor
+    protected function fromSchema(Schema $schema, string $fieldName = '', bool $convertFromString = false): Processor
     {
         if ($schema->not !== null) {
             throw OpenAPI\Exception\CannotProcessOpenAPI::unsupportedKeyword('not');

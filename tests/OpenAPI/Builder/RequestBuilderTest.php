@@ -37,6 +37,7 @@ use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Numeric\Maximum;
+use Membrane\Validator\String\IntString;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
@@ -181,7 +182,7 @@ class RequestBuilderTest extends TestCase
                                 new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
                                 new RequiredFields('id')
                             ),
-                            new Field('id', new ToInt(), new IsInt())
+                            new Field('id', new IntString(), new ToInt())
                         ),
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                         'header' => new FieldSet('header'),
@@ -208,12 +209,12 @@ class RequestBuilderTest extends TestCase
                                 new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
                                 new RequiredFields('id')
                             ),
-                            new Field('id', new ToInt(), new IsInt())
+                            new Field('id', new IntString(), new ToInt())
                         ),
                         'query' => new FieldSet(
                             'query',
                             new BeforeSet(new HTTPParameters()),
-                            new Field('age', new ToInt(), new IsInt())
+                            new Field('age', new IntString(), new ToInt())
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
@@ -238,7 +239,7 @@ class RequestBuilderTest extends TestCase
                                 new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
                                 new RequiredFields('id')
                             ),
-                            new Field('id', new ToInt(), new IsInt())
+                            new Field('id', new IntString(), new ToInt())
                         ),
                         'query' => new FieldSet(
                             'query',
@@ -269,7 +270,7 @@ class RequestBuilderTest extends TestCase
                                 new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
                                 new RequiredFields('id')
                             ),
-                            new Field('id', new ToInt(), new IsInt())
+                            new Field('id', new IntString(), new ToInt())
                         ),
                         'query' => new FieldSet(
                             'query',
@@ -300,7 +301,7 @@ class RequestBuilderTest extends TestCase
                             )
                         ),
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header', new Field('id', new ToInt(), new IsInt())),
+                        'header' => new FieldSet('header', new Field('id', new IntString(), new ToInt())),
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new Passes()),
                     ]
@@ -321,7 +322,7 @@ class RequestBuilderTest extends TestCase
                             )
                         ),
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header', new Field('id', new ToInt(), new IsInt())),
+                        'header' => new FieldSet('header', new Field('id', new IntString(), new ToInt())),
                         'cookie' => new FieldSet('cookie', new Field('name', new IsString())),
                         'body' => new Field('requestBody', new Passes()),
                     ]
@@ -348,7 +349,7 @@ class RequestBuilderTest extends TestCase
                         'query' => new FieldSet(
                             'query',
                             new BeforeSet(new HTTPParameters()),
-                            new Field('id', new ToInt(), new IsInt())
+                            new Field('id', new IntString(), new ToInt())
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
@@ -453,7 +454,7 @@ class RequestBuilderTest extends TestCase
                                 new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestbodypath/{id}')),
                                 new RequiredFields('id')
                             ),
-                            new Field('id', new ToInt(), new IsInt())
+                            new Field('id', new IntString(), new ToInt())
                         ),
                         'query' => new FieldSet(
                             'query',
@@ -533,7 +534,7 @@ class RequestBuilderTest extends TestCase
                     ],
                     new MessageSet(
                         new FieldName('limit', '', 'query'),
-                        new Message('ToInt filter only accepts numeric strings', [])
+                        new Message('String value must be an integer.', [])
                     )
                 ),
             ],

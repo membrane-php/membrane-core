@@ -52,15 +52,34 @@ class TrueFalseTest extends TestCase
     public static function specificationsToBuild(): array
     {
         return [
-            'non-strict input' => [
-                new Specification\TrueFalse('', new Schema(['type' => 'boolean']), false),
+            'input to convert from string' => [
+                new Specification\TrueFalse('', new Schema(['type' => 'boolean']), true),
                 new Field('', new BoolString(), new ToBool()),
             ],
             'strict input' => [
-                new Specification\TrueFalse('', new Schema(['type' => 'boolean']), true),
+                new Specification\TrueFalse('', new Schema(['type' => 'boolean']), false),
                 new Field('', new IsBool()),
             ],
-            'detailed input' => [
+            'detailed input to convert from string' => [
+                new Specification\TrueFalse(
+                    '',
+                    new Schema(
+                        [
+                            'type' => 'boolean',
+                            'enum' => [true, null],
+                            'format' => 'rather pointless boolean',
+                            'nullable' => true,
+                        ]
+                    ),
+                    true
+                ),
+                new AnyOf(
+                    '',
+                    new Field('', new IsNull()),
+                    new Field('', new BoolString(), new ToBool(), new Contained([true, null]))
+                ),
+            ],
+            'strict detailed input' => [
                 new Specification\TrueFalse(
                     '',
                     new Schema(
@@ -76,7 +95,7 @@ class TrueFalseTest extends TestCase
                 new AnyOf(
                     '',
                     new Field('', new IsNull()),
-                    new Field('', new BoolString(), new ToBool(), new Contained([true, null]))
+                    new Field('', new IsBool(), new Contained([true, null]))
                 ),
             ],
         ];

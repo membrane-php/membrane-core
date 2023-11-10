@@ -57,16 +57,16 @@ class Numeric extends APIBuilder
     private function handleNumber(OpenAPI\Specification\Numeric $specification): array
     {
         if (in_array($specification->format, ['float', 'double'], true)) {
-            return !$specification->convertFromString ? [new NumericString(), new ToFloat()] : [new IsFloat()];
+            return $specification->convertFromString ? [new NumericString(), new ToFloat()] : [new IsFloat()];
         } else {
-            return !$specification->convertFromString ? [new NumericString(), new ToNumber()] : [new IsNumber()];
+            return $specification->convertFromString ? [new NumericString(), new ToNumber()] : [new IsNumber()];
         }
     }
 
     /** @return Filter[]|Validator[] */
     private function handleInteger(OpenAPI\Specification\Numeric $specification): array
     {
-        return !$specification->convertFromString ? [new IntString(), new ToInt()] : [new IsInt()];
+        return $specification->convertFromString ? [new IntString(), new ToInt()] : [new IsInt()];
     }
 
     /** @return Validator[] */
