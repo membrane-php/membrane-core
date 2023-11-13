@@ -23,7 +23,7 @@ class TrueFalse extends APIBuilder
     {
         assert($specification instanceof \Membrane\OpenAPI\Specification\TrueFalse);
 
-        $chain = !$specification->convertFromString ? [new BoolString(), new ToBool()] : [new IsBool()];
+        $chain = $specification->convertFromString ? [new BoolString(), new ToBool()] : [new IsBool()];
 
         if ($specification->enum !== null) {
             $chain[] = new Contained($specification->enum);

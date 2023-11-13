@@ -67,7 +67,7 @@ class OpenAPIRequestBuilder extends APIBuilder
         ];
 
         foreach ($specification->parameters as $p) {
-            $locationFields[$p->in]['fields'][] = $this->fromSchema($this->findSchema($p), $p->name, false);
+            $locationFields[$p->in]['fields'][] = $this->fromSchema($this->findSchema($p), $p->name, true);
             if ($p->required) {
                 $locationFields[$p->in]['required'][] = $p->name;
             }

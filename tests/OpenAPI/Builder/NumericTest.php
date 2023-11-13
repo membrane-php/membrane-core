@@ -18,6 +18,7 @@ use Membrane\Validator\Collection\Contained;
 use Membrane\Validator\Numeric\Maximum;
 use Membrane\Validator\Numeric\Minimum;
 use Membrane\Validator\Numeric\MultipleOf;
+use Membrane\Validator\String\IntString;
 use Membrane\Validator\String\NumericString;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
@@ -60,31 +61,63 @@ class NumericTest extends TestCase
     public static function specificationsToBuild(): array
     {
         return [
-            'non-strict integer input' => [
-                new Specification\Numeric('', new Schema(['type' => 'integer']), false),
-                new Field('', new ToInt(), new IsInt()),
+            'integer input to convert from string' => [
+                new Specification\Numeric('', new Schema(['type' => 'integer']), true),
+                new Field('', new IntString(), new ToInt()),
             ],
             'strict integer input' => [
-                new Specification\Numeric('', new Schema(['type' => 'integer']), true),
+                new Specification\Numeric('', new Schema(['type' => 'integer']), false),
                 new Field('', new IsInt()),
             ],
-            'non-strict number input' => [
-                new Specification\Numeric('', new Schema(['type' => 'number']), false),
+            'number input to convert from string' => [
+                new Specification\Numeric('', new Schema(['type' => 'number']), true),
                 new Field('', new NumericString(), new ToNumber()),
             ],
             'strict number input' => [
-                new Specification\Numeric('', new Schema(['type' => 'number']), true),
+                new Specification\Numeric('', new Schema(['type' => 'number']), false),
                 new Field('', new IsNumber()),
             ],
-            'non-strict float input' => [
-                new Specification\Numeric('', new Schema(['type' => 'number', 'format' => 'float']), false),
+            'float input to convert from string' => [
+                new Specification\Numeric('', new Schema(['type' => 'number', 'format' => 'float']), true),
                 new Field('', new NumericString(), new ToFloat()),
             ],
             'strict float input' => [
-                new Specification\Numeric('', new Schema(['type' => 'number', 'format' => 'float']), true),
+                new Specification\Numeric('', new Schema(['type' => 'number', 'format' => 'float']), false),
                 new Field('', new IsFloat()),
             ],
-            'detailed input' => [
+            'detailed input to convert from string' => [
+                new Specification\Numeric(
+                    '',
+                    new Schema(
+                        [
+                            'type' => 'integer',
+                            'exclusiveMinimum' => true,
+                            'exclusiveMaximum' => true,
+                            'maximum' => 4,
+                            'minimum' => 0,
+                            'multipleOf' => 3,
+                            'enum' => [1, 2, 3, null],
+                            'format' => 'nullable int',
+                            'nullable' => true,
+                        ]
+                    ),
+                    true
+                ),
+                new AnyOf(
+                    '',
+                    new Field('', new IsNull()),
+                    new Field(
+                        '',
+                        new IntString(),
+                        new ToInt(),
+                        new Contained([1, 2, 3, null]),
+                        new Maximum(4, true),
+                        new Minimum(0, true),
+                        new MultipleOf(3)
+                    )
+                ),
+            ],
+            'strict detailed input' => [
                 new Specification\Numeric(
                     '',
                     new Schema(
@@ -107,7 +140,6 @@ class NumericTest extends TestCase
                     new Field('', new IsNull()),
                     new Field(
                         '',
-                        new ToInt(),
                         new IsInt(),
                         new Contained([1, 2, 3, null]),
                         new Maximum(4, true),

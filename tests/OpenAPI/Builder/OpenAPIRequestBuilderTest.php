@@ -8,8 +8,10 @@ use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\Parameter;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Schema;
+use Generator;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;
+use Membrane\Filter\Type\ToBool;
 use Membrane\Filter\Type\ToInt;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Arrays;
@@ -24,10 +26,14 @@ use Membrane\OpenAPI\ExtractPathParameters\PathMatcher as PathMatcherClass;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\HTTPParameters;
 use Membrane\OpenAPI\Filter\PathMatcher;
+use Membrane\OpenAPI\Processor\AllOf;
+use Membrane\OpenAPI\Processor\AnyOf;
+use Membrane\OpenAPI\Processor\OneOf;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPIReader\FileFormat;
 use Membrane\OpenAPIReader\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
@@ -42,6 +48,8 @@ use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Numeric\Maximum;
+use Membrane\Validator\String\BoolString;
+use Membrane\Validator\String\IntString;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
@@ -134,386 +142,477 @@ class OpenAPIRequestBuilderTest extends TestCase
         $sut->build($specification);
     }
 
-    public static function dataSetsForBuild(): array
+    public static function dataSetsForBuild(): Generator
     {
-        $openApi = (new Reader([OpenAPIVersion::Version_3_0]))
+        $noRefAPI = (new Reader([OpenAPIVersion::Version_3_0]))
             ->readFromAbsoluteFilePath(__DIR__ . '/../../fixtures/OpenAPI/noReferences.json');
 
-        return [
-            'Request: no path params, no operation params, no requestBody' => [
-                new OpenAPIRequest(
-                    new PathParameterExtractor('/path'),
-                    $openApi->paths->getPath('/path'),
-                    Method::GET
-                ),
-                new RequestProcessor(
-                    '',
-                    'path-get',
-                    Method::GET,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathParameterExtractor('/path'))
-                            )
+        yield 'Request: no path params, no operation params, no requestBody' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/path'),
+                $noRefAPI->paths->getPath('/path'),
+                Method::GET
+            ),
+            new RequestProcessor(
+                '',
+                'path-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/path'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+        yield 'Patch Request: no path params, no operation params, no requestBody' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/path'),
+                $noRefAPI->paths->getPath('/path'),
+                Method::PATCH
+            ),
+            new RequestProcessor(
+                '',
+                'path-patch',
+                Method::PATCH,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/path'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+        yield 'Request: path param in path, no operation params, no requestBody' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/requestpathone/{id}'),
+                $noRefAPI->paths->getPath('/requestpathone/{id}'),
+                Method::GET
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathone-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
+                            new RequiredFields('id')
                         ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-                ),
-            ],
-            'Patch Request: no path params, no operation params, no requestBody' => [
-                new OpenAPIRequest(
-                    new PathParameterExtractor('/path'),
-                    $openApi->paths->getPath('/path'),
-                    Method::PATCH
-                ),
-                new RequestProcessor(
-                    '',
-                    'path-patch',
-                    Method::PATCH,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathParameterExtractor('/path'))
-                            )
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+        yield 'Request: path param in path, operation param in query not required, no requestBody' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/requestpathone/{id}'),
+                $noRefAPI->paths->getPath('/requestpathone/{id}'),
+                Method::POST
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathone-post',
+                Method::POST,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
+                            new RequiredFields('id')
                         ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-                ),
-            ],
-            'Request: path param in path, no operation params, no requestBody' => [
-                new OpenAPIRequest(
-                    new PathParameterExtractor('/requestpathone/{id}'),
-                    $openApi->paths->getPath('/requestpathone/{id}'),
-                    Method::GET
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathone-get',
-                    Method::GET,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
-                                new RequiredFields('id')
-                            ),
-                            new Field('id', new ToInt(), new IsInt())
-                        ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-                ),
-            ],
-            'Request: path param in path, operation param in query not required, no requestBody' => [
-                new OpenAPIRequest(
-                    new PathParameterExtractor('/requestpathone/{id}'),
-                    $openApi->paths->getPath('/requestpathone/{id}'),
-                    Method::POST
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathone-post',
-                    Method::POST,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
-                                new RequiredFields('id')
-                            ),
-                            new Field('id', new ToInt(), new IsInt())
-                        ),
-                        'query' => new FieldSet(
-                            'query',
-                            new BeforeSet(new HTTPParameters()),
-                            new Field('age', new ToInt(), new IsInt())
-                        ),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-                ),
-            ],
-            'Request: path param in path, operation param in query required, no requestBody' => [
-                new OpenAPIRequest(
-                    new PathParameterExtractor('/requestpathone/{id}'),
-                    new PathItem([
-                        'parameters' => [
-                            new Parameter([
-                                'name' => 'id',
-                                'in' => 'path',
-                                'required' => true,
-                                'schema' => new Schema(['type' => 'integer']),
-                            ]),
-                        ],
-                        'put' => new Operation([
-                            'operationId' => 'requestpathone-post',
-                            'parameters' => [
-                                new Parameter(
-                                    [
-                                        'name' => 'name',
-                                        'in' => 'query',
-                                        'required' => true,
-                                        'schema' => new Schema(['type' => 'string']),
-                                    ]
-                                ),
-                            ],
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new HTTPParameters()),
+                        new Field('age', new IntString(), new ToInt())
+                    ),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+        yield 'Request: path param in path, operation param in query required, no requestBody' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/requestpathone/{id}'),
+                new PathItem([
+                    'parameters' => [
+                        new Parameter([
+                            'name' => 'id',
+                            'in' => 'path',
+                            'required' => true,
+                            'schema' => new Schema(['type' => 'integer']),
                         ]),
+                    ],
+                    'put' => new Operation([
+                        'operationId' => 'requestpathone-post',
+                        'parameters' => [
+                            new Parameter(
+                                [
+                                    'name' => 'name',
+                                    'in' => 'query',
+                                    'required' => true,
+                                    'schema' => new Schema(['type' => 'string']),
+                                ]
+                            ),
+                        ],
                     ]),
-                    Method::PUT
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathone-post',
-                    Method::PUT,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
-                                new RequiredFields('id')
-                            ),
-                            new Field('id', new ToInt(), new IsInt())
+                ]),
+                Method::PUT
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathone-post',
+                Method::PUT,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
+                            new RequiredFields('id')
                         ),
-                        'query' => new FieldSet(
-                            'query',
-                            new BeforeSet(new HTTPParameters(), new RequiredFields('name')),
-                            new Field('name', new IsString())
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new HTTPParameters(), new RequiredFields('name')),
+                        new Field('name', new IsString())
+                    ),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+        yield 'Request: path param in path, operation param in query with json content, required, no requestBody' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/requestpathone/{id}'),
+                $noRefAPI->paths->getPath('/requestpathone/{id}'),
+                Method::DELETE
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathone-delete',
+                Method::DELETE,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
+                            new RequiredFields('id')
                         ),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-                ),
-            ],
-            'Request: path param in path, operation param in query with json content, required, no requestBody' => [
-                new OpenAPIRequest(
-                    new PathParameterExtractor('/requestpathone/{id}'),
-                    $openApi->paths->getPath('/requestpathone/{id}'),
-                    Method::DELETE
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathone-delete',
-                    Method::DELETE,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
-                                new RequiredFields('id')
-                            ),
-                            new Field('id', new ToInt(), new IsInt())
-                        ),
-                        'query' => new FieldSet(
-                            'query',
-                            new BeforeSet(new HTTPParameters(), new RequiredFields('name')),
-                            new Field('name', new IsString())
-                        ),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-                ),
-            ],
-            'Request: path param in header, no requestBody' => [
-                new OpenAPIRequest(
-                    new PathParameterExtractor('/requestpathtwo'),
-                    $openApi->paths->getPath('/requestpathtwo'),
-                    Method::GET
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathtwo-get',
-                    Method::GET,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
-                            )
-                        ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header', new Field('id', new ToInt(), new IsInt())),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new HTTPParameters(), new RequiredFields('name')),
+                        new Field('name', new IsString())
+                    ),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+        yield 'Request: path param in header, no requestBody' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/requestpathtwo'),
+                $noRefAPI->paths->getPath('/requestpathtwo'),
+                Method::GET
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathtwo-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'header' => new FieldSet('header', new Field('id', new IntString(), new ToInt())),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
 
-                ),
-            ],
-            'Request: path param in header, operation param in cookie, no requestBody' => [
-                new OpenAPIRequest(
-                    new PathParameterExtractor('/requestpathtwo'),
-                    $openApi->paths->getPath('/requestpathtwo'),
-                    Method::POST
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathtwo-post',
-                    Method::POST,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
-                            )
-                        ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header', new Field('id', new ToInt(), new IsInt())),
-                        'cookie' => new FieldSet('cookie', new Field('name', new IsString())),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
+            ),
+        ];
+        yield 'Request: path param in header, operation param in cookie, no requestBody' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/requestpathtwo'),
+                $noRefAPI->paths->getPath('/requestpathtwo'),
+                Method::POST
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathtwo-post',
+                Method::POST,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'header' => new FieldSet('header', new Field('id', new IntString(), new ToInt())),
+                    'cookie' => new FieldSet('cookie', new Field('name', new IsString())),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
 
-                ),
-            ],
-            'Request: identical param in header and query, no requestBody' => [
-                new OpenAPIRequest(
-                    new PathParameterExtractor('/requestpathtwo'),
-                    $openApi->paths->getPath('/requestpathtwo'),
-                    Method::PUT
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathtwo-put',
-                    Method::PUT,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
-                            )
-                        ),
-                        'query' => new FieldSet(
-                            'query',
-                            new BeforeSet(new HTTPParameters()),
-                            new Field('id', new ToInt(), new IsInt())
-                        ),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
+            ),
+        ];
+        yield 'Request: identical param in header and query, no requestBody' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/requestpathtwo'),
+                $noRefAPI->paths->getPath('/requestpathtwo'),
+                Method::PUT
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathtwo-put',
+                Method::PUT,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
+                        )
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new HTTPParameters()),
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
 
-                ),
-            ],
-            'Request: same param in path and operation with different types, no requestBody' => [
-                new OpenAPIRequest(
-                    new PathParameterExtractor('/requestpathtwo'),
-                    $openApi->paths->getPath('/requestpathtwo'),
-                    Method::DELETE
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathtwo-delete',
-                    Method::DELETE,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
-                            )
-                        ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header', new Field('id', new IsString())),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
+            ),
+        ];
+        yield 'Request: same param in path and operation with different types, no requestBody' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/requestpathtwo'),
+                $noRefAPI->paths->getPath('/requestpathtwo'),
+                Method::DELETE
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathtwo-delete',
+                Method::DELETE,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'header' => new FieldSet('header', new Field('id', new IsString())),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
 
-                ),
-            ],
-            'Request: requestBody param' => [
-                new OpenAPIRequest(
-                    new PathParameterExtractor('/requestbodypath'),
-                    $openApi->paths->getPath('/requestbodypath'),
-                    Method::GET
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestbodypath-get',
-                    Method::GET,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathParameterExtractor('/requestbodypath'))
-                            )
-                        ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new IsInt()),
-                    ]
+            ),
+        ];
+        yield 'Request: requestBody param' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/requestbodypath'),
+                $noRefAPI->paths->getPath('/requestbodypath'),
+                Method::GET
+            ),
+            new RequestProcessor(
+                '',
+                'requestbodypath-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestbodypath'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new IsInt()),
+                ]
 
-                ),
-            ],
-            'Request: operation param in query, requestBody param' => [
-                new OpenAPIRequest(
-                    new PathParameterExtractor('/requestbodypath'),
-                    $openApi->paths->getPath('/requestbodypath'),
-                    Method::POST
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestbodypath-post',
-                    Method::POST,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathParameterExtractor('/requestbodypath'))
-                            )
-                        ),
-                        'query' => new FieldSet(
-                            'query',
-                            new BeforeSet(new HTTPParameters()),
-                            new Field('id', new IsString())
-                        ),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new IsInt()),
-                    ]
+            ),
+        ];
+        yield 'Request: operation param in query, requestBody param' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/requestbodypath'),
+                $noRefAPI->paths->getPath('/requestbodypath'),
+                Method::POST
+            ),
+            new RequestProcessor(
+                '',
+                'requestbodypath-post',
+                Method::POST,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestbodypath'))
+                        )
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new HTTPParameters()),
+                        new Field('id', new IsString())
+                    ),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new IsInt()),
+                ]
 
-                ),
-            ],
-            'Request: path param in path, operation param in query, header, cookie, requestBody param' => [
-                new OpenAPIRequest(
-                    new PathParameterExtractor('/requestbodypath/{id}'),
-                    $openApi->paths->getPath('/requestbodypath/{id}'),
-                    Method::GET
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestbodypath-id-get',
-                    Method::GET,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathParameterExtractor('/requestbodypath/{id}')),
-                                new RequiredFields('id')
-                            ),
-                            new Field('id', new ToInt(), new IsInt())
+            ),
+        ];
+        yield 'Request: path param in path, operation param in query, header, cookie, requestBody param' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/requestbodypath/{id}'),
+                $noRefAPI->paths->getPath('/requestbodypath/{id}'),
+                Method::GET
+            ),
+            new RequestProcessor(
+                '',
+                'requestbodypath-id-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestbodypath/{id}')),
+                            new RequiredFields('id')
                         ),
-                        'query' => new FieldSet(
-                            'query',
-                            new BeforeSet(new HTTPParameters()),
-                            new Field('name', new IsString())
-                        ),
-                        'header' => new FieldSet('header', new Field('species', new IsString())),
-                        'cookie' => new FieldSet('cookie', new Field('subspecies', new IsString())),
-                        'body' => new Field('requestBody', new IsFloat()),
-                    ]
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new HTTPParameters()),
+                        new Field('name', new IsString())
+                    ),
+                    'header' => new FieldSet('header', new Field('species', new IsString())),
+                    'cookie' => new FieldSet('cookie', new Field('subspecies', new IsString())),
+                    'body' => new Field('requestBody', new IsFloat()),
+                ]
+            ),
+        ];
+
+        $complexQueryAPI = fn(string $xOf) => (new Reader([OpenAPIVersion::Version_3_0]))->readFromString(
+            json_encode([
+                'openapi' => '3.0.3',
+                'info' => ['title' => 'Complex Query Parameter', 'version' => '1.0'],
+                'paths' => [
+                    '/path' => [
+                        'get' => [
+                            'operationId' => 'getPath',
+                            'parameters' => [
+                                [
+                                    'name' => 'complexity',
+                                    'in' => 'query',
+                                    'schema' => [
+                                        $xOf => [
+                                            ['type' => 'boolean'],
+                                            ['type' => 'integer'],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'responses' => ['200' => ['description' => 'Successful Response']],
+                        ],
+                    ],
+                ],
+            ]),
+            FileFormat::Json
+        );
+
+        $complexProcessor = fn($processor) => new RequestProcessor(
+            '',
+            'getPath',
+            Method::GET,
+            [
+                'path' => new FieldSet(
+                    'path',
+                    new BeforeSet(new PathMatcher(new PathParameterExtractor('/path')))
                 ),
-            ],
+                'query' => new FieldSet(
+                    'query',
+                    new BeforeSet(new HTTPParameters()),
+                    $processor
+                ),
+                'header' => new FieldSet('header'),
+                'cookie' => new FieldSet('cookie'),
+                'body' => new Field('requestBody', new Passes()),
+            ]
+        );
+
+        yield 'query parameter with oneOf' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/path'),
+                $complexQueryAPI('oneOf')->paths->getPath('/path'),
+                Method::GET
+            ),
+            $complexProcessor(
+                new OneOf(
+                    'complexity',
+                    new Field('complexity', new BoolString(), new ToBool()),
+                    new Field('complexity', new IntString(), new ToInt())
+                )
+            ),
+        ];
+
+        yield 'query parameter with anyOf' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/path'),
+                $complexQueryAPI('anyOf')->paths->getPath('/path'),
+                Method::GET
+            ),
+            $complexProcessor(
+                new AnyOf(
+                    'complexity',
+                    new Field('complexity', new BoolString(), new ToBool()),
+                    new Field('complexity', new IntString(), new ToInt())
+                )
+            ),
+        ];
+
+        yield 'query parameter with allOf' => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/path'),
+                $complexQueryAPI('allOf')->paths->getPath('/path'),
+                Method::GET
+            ),
+            $complexProcessor(
+                new AllOf(
+                    'complexity',
+                    new Field('complexity', new BoolString(), new ToBool()),
+                    new Field('complexity', new IntString(), new ToInt())
+                )
+            ),
         ];
     }
 
@@ -593,7 +692,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                     ],
                     new MessageSet(
                         new FieldName('limit', '', 'query'),
-                        new Message('ToInt filter only accepts numeric strings', [])
+                        new Message('String value must be an integer.', [])
                     )
                 ),
             ],
