@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Processor;
+namespace Membrane\Tests\OpenAPI\Processor;
 
 use Membrane\Exception\InvalidProcessorArguments;
 use Membrane\OpenAPI\Processor\AllOf;

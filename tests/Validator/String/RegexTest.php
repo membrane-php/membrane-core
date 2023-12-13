@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Validator\String;
+namespace Membrane\Tests\Validator\String;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
@@ -46,7 +46,7 @@ class RegexTest extends TestCase
     {
         return [
             'simple regex' => ['/[abc]/i'],
-            'regex with special chars' => ['#^[^$\'"]$#']
+            'regex with special chars' => ['#^[^$\'"]$#'],
         ];
     }
 

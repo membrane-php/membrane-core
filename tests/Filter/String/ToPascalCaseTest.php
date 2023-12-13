@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Filter\String;
+namespace Membrane\Tests\Filter\String;
 
 use Membrane\Filter\String\ToPascalCase;
 use Membrane\Result\{Message, MessageSet, Result};

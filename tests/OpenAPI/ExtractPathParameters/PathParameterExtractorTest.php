@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\ExtractPathParameters;
+namespace Membrane\Tests\OpenAPI\ExtractPathParameters;
 
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;

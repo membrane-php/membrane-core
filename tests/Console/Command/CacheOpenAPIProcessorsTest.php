@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Console\Command;
+namespace Membrane\Tests\Console\Command;
 
 use Membrane;
 use Membrane\Console\Command\CacheOpenAPIProcessors;

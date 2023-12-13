@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Fixtures\Attribute;
+namespace Membrane\Tests\Fixtures\Attribute;
 
 class ClassWithCompoundPropertyType
 {
-    public int|float $compoundProperty;
+    public int | float $compoundProperty;
 }

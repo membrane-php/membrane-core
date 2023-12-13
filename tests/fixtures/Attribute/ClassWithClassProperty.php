@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Fixtures\Attribute;
+namespace Membrane\Tests\Fixtures\Attribute;
 
 class ClassWithClassProperty
 {

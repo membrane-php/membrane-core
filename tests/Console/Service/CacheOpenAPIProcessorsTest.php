@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Console\Service;
+namespace Membrane\Tests\Console\Service;
 
 use Membrane;
 use Membrane\Console\Service\CacheOpenAPIProcessors;
@@ -14,9 +14,9 @@ use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\PathMatcher;
-use Membrane\OpenAPIReader\Method;
 use Membrane\OpenAPI\Processor\Request;
 use Membrane\OpenAPI\Specification;
+use Membrane\OpenAPIReader\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;

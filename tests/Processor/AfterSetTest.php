@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Processor;
+namespace Membrane\Tests\Processor;
 
 use Membrane\Filter\Type\ToFloat;
 use Membrane\Processor\AfterSet;

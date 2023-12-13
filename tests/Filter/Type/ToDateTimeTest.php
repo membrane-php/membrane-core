@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Filter\Type;
+namespace Membrane\Tests\Filter\Type;
 
 use DateTime;
 use DateTimeImmutable;

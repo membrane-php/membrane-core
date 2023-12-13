@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Filter;
+namespace Membrane\Tests\OpenAPI\Filter;
 
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Validator\Type;
+namespace Membrane\Tests\Validator\Type;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;

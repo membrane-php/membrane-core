@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Fixtures\Attribute;
+namespace Membrane\Tests\Fixtures\Attribute;
 
 use Membrane\Filter;
 use Membrane\Result\Result;

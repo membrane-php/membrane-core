@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Filter\Shape;
+namespace Membrane\Tests\Filter\Shape;
 
 use Membrane\Filter\Shape\KeyValueSplit;
 use Membrane\Result\Message;

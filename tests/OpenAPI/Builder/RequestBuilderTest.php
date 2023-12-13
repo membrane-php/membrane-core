@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Builder;
+namespace Membrane\Tests\OpenAPI\Builder;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;

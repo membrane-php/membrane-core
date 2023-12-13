@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Filter\CreateObject;
+namespace Membrane\Tests\Filter\CreateObject;
 
 use Membrane\Filter\CreateObject\FromArray;
 use Membrane\Result\Message;
