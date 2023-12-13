@@ -7,6 +7,8 @@ namespace Membrane\OpenAPI\Processor;
 use Membrane\Exception\InvalidProcessorArguments;
 use Membrane\Processor;
 use Membrane\Result\FieldName;
+use Membrane\Result\Message;
+use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 
 use function count;
@@ -47,44 +49,38 @@ class OneOf implements Processor
 
     public function process(FieldName $parentFieldName, mixed $value): Result
     {
-        $results = [];
-        $messageSets = [];
+        $results = array_map(
+            fn($p) => $p->process($parentFieldName, $value),
+            $this->processors
+        );
 
-        foreach ($this->processors as $fieldSet) {
-            $itemResult = $fieldSet->process($parentFieldName, $value);
+        if ($this->hasExactlyOneValidResult($results)) {
+            return Result::valid($value);
+        }
 
-            $results [] = $itemResult->result;
+        $messageSets = [
+            new MessageSet(
+                $parentFieldName,
+                new Message('one and only one schema must pass', [])
+            ),
+        ];
 
-            if (!$itemResult->isValid()) {
-                $messageSets [] = $itemResult->messageSets[0];
+        foreach ($results as $result) {
+            if (!$result->isValid()) {
+                foreach ($result->messageSets as $messageSet) {
+                    if (!$messageSet->isEmpty()) {
+                        $messageSets[] = $messageSet;
+                    }
+                }
             }
         }
 
-        $result = $this->mergeResults($results);
-
-        return new Result(
-            $value,
-            $result,
-            ...($result === Result::INVALID ? $messageSets : [])
-        );
+        return Result::invalid($value, ...$messageSets);
     }
 
-    /** @param int[] $results */
-    private function mergeResults(array $results): int
+    /** @param Result[] $results */
+    private function hasExactlyOneValidResult(array $results): bool
     {
-        $results = array_count_values($results);
-
-        if (isset($results[Result::VALID])) {
-            if ($results[Result::VALID] === 1) {
-                return Result::VALID;
-            }
-            return Result::INVALID;
-        }
-
-        if (isset($results[Result::INVALID])) {
-            return Result::INVALID;
-        }
-
-        return Result::NO_RESULT;
+        return count(array_filter($results, fn($r) => $r->isValid())) === 1;
     }
 }
