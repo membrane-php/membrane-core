@@ -109,7 +109,13 @@ class OneOfTest extends TestCase
                 [new Field('', new Passes()), new Field('', new Passes())],
                 new FieldName(''),
                 5,
-                Result::invalid(5),
+                Result::invalid(
+                    5,
+                    new MessageSet(
+                        new FieldName(''),
+                        new Message('one and only one schema must pass', [])
+                    )
+                ),
             ],
             'two Fields with invalid results' => [
                 '',
@@ -118,6 +124,10 @@ class OneOfTest extends TestCase
                 5,
                 Result::invalid(
                     5,
+                    new MessageSet(
+                        new FieldName(''),
+                        new Message('one and only one schema must pass', [])
+                    ),
                     new MessageSet(
                         new FieldName('', ''),
                         new Message('I always fail', [])
@@ -133,7 +143,13 @@ class OneOfTest extends TestCase
                 [new Field('', new Indifferent()), new Field('', new Indifferent())],
                 new FieldName(''),
                 5,
-                Result::noResult(5),
+                Result::invalid(
+                    5,
+                    new MessageSet(
+                        new FieldName(''),
+                        new Message('one and only one schema must pass', [])
+                    )
+                ),
             ],
             'one valid result, one invalid result' => [
                 '',
@@ -147,7 +163,13 @@ class OneOfTest extends TestCase
                 [new Field('', new Indifferent()), new Field('', new Passes())],
                 new FieldName(''),
                 5,
-                Result::valid(5),
+                Result::invalid(
+                    5,
+                    new MessageSet(
+                        new FieldName(''),
+                        new Message('one and only one schema must pass', [])
+                    )
+                ),
             ],
             'expects an object which may have integer id and string name (valid input)' => [
                 '',
@@ -183,7 +205,13 @@ class OneOfTest extends TestCase
                 ],
                 new FieldName(''),
                 [],
-                Result::invalid([]),
+                Result::invalid(
+                    [],
+                    new MessageSet(
+                        new FieldName(''),
+                        new Message('one and only one schema must pass', [])
+                    )
+                ),
 
             ],
             'expects an object which must have integer id and string name (valid input)' => [
@@ -220,7 +248,13 @@ class OneOfTest extends TestCase
                 ],
                 new FieldName(''),
                 ['id' => 5, 'name' => 'Harley'],
-                Result::invalid(['id' => 5, 'name' => 'Harley']),
+                Result::invalid(
+                    ['id' => 5, 'name' => 'Harley'],
+                    new MessageSet(
+                        new FieldName(''),
+                        new Message('one and only one schema must pass', [])
+                    )
+                ),
             ],
         ];
     }
