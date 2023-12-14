@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Specification;
+namespace Membrane\Tests\OpenAPI\Specification;
 
 use cebe\openapi\spec\MediaType;
 use cebe\openapi\spec\Response;

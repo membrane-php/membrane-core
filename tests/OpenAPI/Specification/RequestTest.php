@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Specification;
+namespace Membrane\Tests\OpenAPI\Specification;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
-use Membrane\OpenAPIReader\Method;
 use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPIReader\Method;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;

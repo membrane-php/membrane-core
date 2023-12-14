@@ -4,8 +4,13 @@
   "license": "MPL-2.0",
   "autoload": {
     "psr-4": {
-      "Membrane\\": "src/",
-      "Membrane\\Fixtures\\": "tests/fixtures/"
+      "Membrane\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Membrane\\Tests\\": "tests/",
+      "Membrane\\Tests\\Fixtures\\": "tests/fixtures/"
     }
   },
   "require": {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Builder;
+namespace Membrane\Tests\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Builder\APIBuilder;

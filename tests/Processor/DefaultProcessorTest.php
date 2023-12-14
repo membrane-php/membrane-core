@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Processor;
+namespace Membrane\Tests\Processor;
 
 use Generator;
 use Membrane\Filter;

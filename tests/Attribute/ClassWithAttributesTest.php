@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Attribute;
+namespace Membrane\Tests\Attribute;
 
 use Membrane\Attribute\ClassWithAttributes;
 use PHPUnit\Framework\Attributes\Test;

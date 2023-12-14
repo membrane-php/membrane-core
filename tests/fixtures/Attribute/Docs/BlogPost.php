@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Fixtures\Attribute\Docs;
+namespace Membrane\Tests\Fixtures\Attribute\Docs;
 
 use Membrane\Attribute\Subtype;
 

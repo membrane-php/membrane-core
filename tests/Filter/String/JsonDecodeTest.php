@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Filter\String;
+namespace Membrane\Tests\Filter\String;
 
 use Membrane\Filter\String\JsonDecode;
 use Membrane\Result\Message;

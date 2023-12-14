@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Filter\Type;
+namespace Membrane\Tests\Filter\Type;
 
 use Membrane\Filter\Type\ToNumber;
 use Membrane\Result\Message;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI;
+namespace Membrane\Tests\OpenAPI;
 
 use Membrane\OpenAPI\ContentType;
 use PHPUnit\Framework\Attributes\CoversClass;

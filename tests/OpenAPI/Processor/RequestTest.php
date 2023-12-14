@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Processor;
+namespace Membrane\Tests\OpenAPI\Processor;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use GuzzleHttp\Psr7\Stream;
 use GuzzleHttp\Psr7\UploadedFile;
 use Membrane\Filter\String\JsonDecode;
 use Membrane\OpenAPI\ContentType;
-use Membrane\OpenAPIReader\Method;
 use Membrane\OpenAPI\Processor\Request;
+use Membrane\OpenAPIReader\Method;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Result\FieldName;

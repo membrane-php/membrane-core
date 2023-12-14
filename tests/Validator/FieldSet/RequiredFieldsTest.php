@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Validator\FieldSet;
+namespace Membrane\Tests\Validator\FieldSet;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;

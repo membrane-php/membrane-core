@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Validator\DateTime;
+namespace Membrane\Tests\Validator\DateTime;
 
 use DateInterval;
 use DateTime;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Validator\Numeric;
+namespace Membrane\Tests\Validator\Numeric;
 
 use Exception;
 use Membrane\Result\Message;
@@ -54,7 +54,7 @@ class MultipleOfTest extends TestCase
 
     #[DataProvider('dataSetsThatThrowExceptions')]
     #[Test]
-    public function throwsExceptionForZeroOrNegatives(int|float $multiple): void
+    public function throwsExceptionForZeroOrNegatives(int | float $multiple): void
     {
         self::expectException(Exception::class);
         self::expectExceptionMessage('MultipleOf validator does not support numbers of zero or less');
@@ -144,7 +144,7 @@ class MultipleOfTest extends TestCase
 
     #[DataProvider('dataSetsToValidate')]
     #[Test]
-    public function validateTest(mixed $value, float|int $multiple, $expected): void
+    public function validateTest(mixed $value, float | int $multiple, $expected): void
     {
         $multipleOf = new MultipleOf($multiple);
 

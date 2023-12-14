@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Result;
+namespace Membrane\Tests\Result;
 
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;

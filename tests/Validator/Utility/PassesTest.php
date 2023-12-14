@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Validator\Utility;
+namespace Membrane\Tests\Validator\Utility;
 
 use Membrane\Result\Result;
 use Membrane\Validator\Utility\Passes;

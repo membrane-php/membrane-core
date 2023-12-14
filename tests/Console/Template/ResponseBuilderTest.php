@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Console\Template;
+namespace Membrane\Tests\Console\Template;
 
 use cebe\openapi\Reader;
 use Membrane\Console\Template;

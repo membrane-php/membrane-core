@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Renderer;
+namespace Membrane\Tests\Renderer;
 
 use Membrane\Renderer\JsonNested;
 use Membrane\Result\FieldName;

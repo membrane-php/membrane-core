@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Console\Template;
+namespace Membrane\Tests\Console\Template;
 
 use Membrane\Console\Template;
 use Membrane\Processor;

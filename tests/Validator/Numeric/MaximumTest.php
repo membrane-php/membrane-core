@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Validator\Numeric;
+namespace Membrane\Tests\Validator\Numeric;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
@@ -187,7 +187,7 @@ class MaximumTest extends TestCase
 
     #[DataProvider('dataSetsToValidate')]
     #[Test]
-    public function validateTest(int|float $max, bool $exclusive, int|float $value, Result $expected): void
+    public function validateTest(int | float $max, bool $exclusive, int | float $value, Result $expected): void
     {
         $sut = new Maximum($max, $exclusive);
 
