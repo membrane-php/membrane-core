@@ -599,8 +599,8 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AllOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
                 ),
             ],
             'allOf, two objects, one unique parameters' => [
@@ -611,8 +611,8 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AllOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('name', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('name', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'allOf, two objects, conflicting parameter' => [
@@ -623,8 +623,8 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AllOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'allOf, two objects, unique parameters, one requiredField' => [
@@ -635,9 +635,9 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AllOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new BeforeSet(new IsArray(), new RequiredFields('name')),
                         new Field('name', new IsString())
                     )
@@ -652,12 +652,12 @@ class OpenAPIResponseBuilderTest extends TestCase
                 new AllOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -672,12 +672,12 @@ class OpenAPIResponseBuilderTest extends TestCase
                 new AllOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     )
@@ -699,8 +699,8 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
                 ),
             ],
             'anyOf, two objects, one unique parameters' => [
@@ -711,8 +711,8 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('name', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('name', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'anyOf, two objects, conflicting parameter' => [
@@ -723,8 +723,8 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'anyOf, two objects, unique parameters, one requiredField' => [
@@ -735,9 +735,9 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -752,12 +752,12 @@ class OpenAPIResponseBuilderTest extends TestCase
                 new AnyOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -772,12 +772,12 @@ class OpenAPIResponseBuilderTest extends TestCase
                 new AnyOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     )
@@ -799,8 +799,8 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new OneOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
                 ),
             ],
             'oneOf, two objects, one unique parameters' => [
@@ -811,8 +811,8 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new OneOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('name', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('name', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'oneOf, two objects, conflicting parameter' => [
@@ -823,8 +823,8 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new OneOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'oneOf, two objects, unique parameters, one requiredField' => [
@@ -835,9 +835,9 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new OneOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -852,12 +852,12 @@ class OpenAPIResponseBuilderTest extends TestCase
                 new OneOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -872,12 +872,12 @@ class OpenAPIResponseBuilderTest extends TestCase
                 new OneOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     )

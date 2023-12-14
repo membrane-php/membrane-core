@@ -108,8 +108,8 @@ class ObjectsTest extends TestCase
                     new DefaultProcessor(
                         new OneOf(
                             '',
-                            new Field('', new IsBool()),
-                            new Field('', new IsInt()),
+                            new Field('Branch-1', new IsBool()),
+                            new Field('Branch-2', new IsInt()),
                         )
                     )
                 ),
