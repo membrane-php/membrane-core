@@ -20,8 +20,9 @@ class CannotProcessOpenAPI extends RuntimeException
     public const INVALID_OPEN_API = 0;
     public const UNSUPPORTED_MEDIA_TYPES = 1;
     public const UNSUPPORTED_KEYWORD = 2;
-    public const REFERENCES_NOT_RESOLVED = 3;
-    public const MISSING_OPERATION_ID = 4;
+    public const UNSUPPORTED_STYLE = 3;
+    public const REFERENCES_NOT_RESOLVED = 4;
+    public const MISSING_OPERATION_ID = 5;
 
     public static function invalidOpenAPI(string $fileName, string ...$errors): self
     {
@@ -33,8 +34,14 @@ class CannotProcessOpenAPI extends RuntimeException
         return new self($message, self::INVALID_OPEN_API);
     }
 
-    /** @param string[] $mediaTypes */
-    public static function unsupportedMediaTypes(array $mediaTypes): self
+    public static function invalidStyleLocation(string $name, string $style, string $in): self
+    {
+        $message = sprintf('Parameter "%s" cannot have "style":"%s" with "in":"%s"', $style, $in, $name);
+        return new self($message, self::INVALID_OPEN_API);
+    }
+
+    /** @param $mediaTypes */
+    public static function unsupportedMediaTypes(string ...$mediaTypes): self
     {
         $supportedContentTypes = [
             'application/json',
@@ -53,6 +60,16 @@ class CannotProcessOpenAPI extends RuntimeException
     {
         $message = sprintf('Membrane does not currently support the keyword "%s"', $keyword);
         return new self($message, self::UNSUPPORTED_KEYWORD);
+    }
+
+    public static function unsupportedStyle(string $name, string $style): self
+    {
+        $message = sprintf(
+            'Membrane does not currently support "style":"%s" with "explode":true in parameter "%s"',
+            $style,
+            $name
+        );
+        return new self($message, self::UNSUPPORTED_STYLE);
     }
 
     public static function unresolvedReference(string $fileName, UnresolvableReferenceException $e): self

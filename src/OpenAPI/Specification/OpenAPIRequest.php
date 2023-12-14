@@ -52,7 +52,7 @@ class OpenAPIRequest implements Specification
             }
         }
 
-        throw CannotProcessOpenAPI::unsupportedMediaTypes(array_keys($content));
+        throw CannotProcessOpenAPI::unsupportedMediaTypes(...array_keys($content));
     }
 
     private function getOperation(Cebe\PathItem $pathItem, Method $method): Cebe\Operation

@@ -22,8 +22,12 @@ abstract class APIBuilder implements Builder
     private Objects $objectBuilder;
     private Strings $stringBuilder;
 
-    protected function fromSchema(Schema $schema, string $fieldName = '', bool $convertFromString = false): Processor
-    {
+    public function fromSchema(
+        Schema $schema,
+        string $fieldName = '',
+        bool $convertFromString = false,
+        ?string $style = null,
+    ): Processor {
         if ($schema->not !== null) {
             throw OpenAPI\Exception\CannotProcessOpenAPI::unsupportedKeyword('not');
         }
@@ -51,10 +55,10 @@ abstract class APIBuilder implements Builder
                 ->build(new OpenAPI\Specification\TrueFalse($fieldName, $schema, $convertFromString)),
 
             'array' => $this->getArrayBuilder()
-                ->build(new OpenAPI\Specification\Arrays($fieldName, $schema)),
+                ->build(new OpenAPI\Specification\Arrays($fieldName, $schema, $style)),
 
             'object' => $this->getObjectBuilder()
-                ->build(new OpenAPI\Specification\Objects($fieldName, $schema)),
+                ->build(new OpenAPI\Specification\Objects($fieldName, $schema, $style)),
 
             default => new Field('', new Utility\Passes()),
         };

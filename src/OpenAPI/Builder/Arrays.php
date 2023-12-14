@@ -6,6 +6,7 @@ namespace Membrane\OpenAPI\Builder;
 
 use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
+use Membrane\Filter\String\Explode;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -16,6 +17,16 @@ use Membrane\Validator\Type\IsList;
 
 class Arrays extends APIBuilder
 {
+    private const STYLE_FORM = 'form';
+    private const STYLE_SPACE_DELIMITED = 'spaceDelimited';
+    private const STYLE_PIPE_DELIMITED = 'pipeDelimited';
+    private const STYLE_DEEP_OBJECT = 'deepObject';
+    private const STYLE_DELIMITER_MAP = [
+        self::STYLE_FORM => ',',
+        self::STYLE_SPACE_DELIMITED => ' ',
+        self::STYLE_PIPE_DELIMITED => '|',
+    ];
+
     public function supports(Specification $specification): bool
     {
         return $specification instanceof \Membrane\OpenAPI\Specification\Arrays;
@@ -25,7 +36,22 @@ class Arrays extends APIBuilder
     {
         assert($specification instanceof \Membrane\OpenAPI\Specification\Arrays);
 
-        $beforeChain = [new IsList()];
+        $beforeChain = [];
+
+        if (isset($specification->style)) {
+            switch ($specification->style) {
+                case self::STYLE_FORM:
+                case self::STYLE_SPACE_DELIMITED:
+                case self::STYLE_PIPE_DELIMITED:
+                    $beforeChain[] = new Explode(self::STYLE_DELIMITER_MAP[$specification->style]);
+                    break;
+                case self::STYLE_DEEP_OBJECT:
+                    // parse_str from HTTPParameters already deals with this
+                    break;
+            }
+        }
+
+        $beforeChain[] = new IsList();
 
         if ($specification->enum !== null) {
             $beforeChain[] = new Contained($specification->enum);

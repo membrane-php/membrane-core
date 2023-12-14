@@ -7,7 +7,7 @@ namespace Membrane\Tests\Console\Service;
 use Membrane;
 use Membrane\Console\Service\CacheOpenAPIProcessors;
 use Membrane\Console\Template;
-use Membrane\Filter\{String\AlphaNumeric, String\ToPascalCase, Type as TypeFilter};
+use Membrane\Filter\{String\AlphaNumeric, String\Explode, String\ToPascalCase, Type as TypeFilter};
 use Membrane\OpenAPI\Builder as Builder;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
 use Membrane\OpenAPI\ContentType;
@@ -49,6 +49,7 @@ use Psr\Log\LoggerInterface;
 #[UsesClass(Membrane\Result\Result::class)]
 #[UsesClass(AlphaNumeric::class)]
 #[UsesClass(ToPascalCase::class)]
+#[UsesClass(Explode::class)]
 #[UsesClass(TypeFilter\ToInt::class)]
 #[UsesClass(Specification\APISchema::class)]
 #[UsesClass(Specification\Arrays::class)]
