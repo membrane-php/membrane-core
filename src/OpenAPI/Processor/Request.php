@@ -63,12 +63,12 @@ class Request implements Processor
     public function process(FieldName $parentFieldName, mixed $value): Result
     {
         if ($value instanceof ServerRequestInterface) {
-            $value = $this->formatPsr7($parentFieldName, $value);
-            if (!$value->isValid()) {
-                return $value;
+            $result = $this->formatPsr7($parentFieldName, $value);
+            if (!$result->isValid()) {
+                return $result;
             }
 
-            $value = $value->value;
+            $value = $result->value;
         }
 
         if (!is_array($value)) {
@@ -102,13 +102,12 @@ class Request implements Processor
 
     private function formatPsr7(FieldName $parentFieldName, ServerRequestInterface $request): Result
     {
-        $value = ['header' => [], 'cookie' => []];
-        $value['path'] = $request->getUri()->getPath();
-        $value['query'] = $request->getUri()->getQuery();
-        // @TODO support header
-        //$value['header'] = $this->getHeaderParams($request->getHeaders());
-        // @TODO support cookie
-        //$value['cookie'] = $request->getCookieParams();
+        $value = [
+            'path' => $request->getUri()->getPath(),
+            'query' => $request->getUri()->getQuery(),
+            'header' => $request->getHeaders(),
+            'cookie' => [], //todo support cookie parameters => $request->getCookieParams()
+        ];
 
         //There should only be one content type header; PHP ignores additional header values
         $contentType = ContentType::fromContentTypeHeader(current($request->getHeader('Content-Type')));
@@ -154,7 +153,7 @@ class Request implements Processor
      * @param array<string, mixed> $uploadedFiles
      * @return array<string, mixed>
      */
-    public function convertUploadedFilesToStrings(array $uploadedFiles): array
+    private function convertUploadedFilesToStrings(array $uploadedFiles): array
     {
         $result = [];
         foreach ($uploadedFiles as $name => $file) {
