@@ -100,6 +100,10 @@ abstract class APIBuilder implements Builder
         array $subSchemas,
         bool $convertFromString
     ): Processor {
+        if (empty($subSchemas)) {
+            throw OpenAPI\Exception\CannotProcessOpenAPI::pointlessComplexSchema($fieldName);
+        }
+
         if (count($subSchemas) < 2) {
             assert($subSchemas[0] instanceof Schema);
             return $this->fromSchema($subSchemas[0], $fieldName, $convertFromString);
@@ -109,9 +113,15 @@ abstract class APIBuilder implements Builder
 
         foreach ($subSchemas as $index => $subSchema) {
             assert($subSchema instanceof Schema);
+
+            $title = null;
+            if (isset($subSchema->title) && $subSchema->title !== '') {
+                $title = $subSchema->title;
+            }
+
             $subProcessors[] = $this->fromSchema(
                 $subSchema,
-                sprintf('Branch-%s', $index + 1),
+                $title ?? sprintf('Branch-%s', $index + 1),
                 $convertFromString
             );
         }
