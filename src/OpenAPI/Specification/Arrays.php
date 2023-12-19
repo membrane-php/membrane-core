@@ -17,7 +17,8 @@ class Arrays extends APISchema
     public function __construct(
         string $fieldName,
         Cebe\Schema $schema,
-        public readonly ?string $style = null
+        public readonly bool $fromString = false,
+        public readonly ?string $style = null,
     ) {
         if ($schema->type !== 'array') {
             throw CannotProcessSpecification::mismatchedType(self::class, 'array', $schema->type);

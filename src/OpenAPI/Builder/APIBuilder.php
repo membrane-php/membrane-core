@@ -27,7 +27,8 @@ abstract class APIBuilder implements Builder
     public function fromSchema(
         Schema $schema,
         string $fieldName = '',
-        bool $convertFromString = false,
+        bool $fromString = false,
+        bool $fromArray = false,
         ?string $style = null,
     ): Processor {
         if ($schema->not !== null) {
@@ -39,7 +40,7 @@ abstract class APIBuilder implements Builder
                 AllOf::class,
                 $fieldName,
                 $schema->allOf,
-                $convertFromString
+                $fromString
             );
         }
 
@@ -48,7 +49,7 @@ abstract class APIBuilder implements Builder
                 AnyOf::class,
                 $fieldName,
                 $schema->anyOf,
-                $convertFromString
+                $fromString
             );
         }
 
@@ -57,23 +58,26 @@ abstract class APIBuilder implements Builder
                 OneOf::class,
                 $fieldName,
                 $schema->oneOf,
-                $convertFromString
+                $fromString
             );
         }
 
         return match ($schema->type) {
             'string' => ($this->getStringBuilder())
-                ->build(new OpenAPI\Specification\Strings($fieldName, $schema)),
+                ->build(new OpenAPI\Specification\Strings($fieldName, $schema, $fromArray)),
 
             'number', 'integer' => $this->getNumericBuilder()
-                ->build(new OpenAPI\Specification\Numeric($fieldName, $schema, $convertFromString)),
+                ->build(new OpenAPI\Specification\Numeric($fieldName, $schema, $fromString, $fromArray)),
 
             'boolean' => $this->getTrueFalseBuilder()
-                ->build(new OpenAPI\Specification\TrueFalse($fieldName, $schema, $convertFromString)),
+                ->build(
+                    new OpenAPI\Specification\TrueFalse($fieldName, $schema, $fromString, $fromArray)
+                ),
 
             'array' => $this->getArrayBuilder()
-                ->build(new OpenAPI\Specification\Arrays($fieldName, $schema, $style)),
+                ->build(new OpenAPI\Specification\Arrays($fieldName, $schema, $fromString, $style)),
 
+            //todo objects do not work in headers
             'object' => $this->getObjectBuilder()
                 ->build(new OpenAPI\Specification\Objects($fieldName, $schema, $style)),
 
@@ -159,7 +163,7 @@ abstract class APIBuilder implements Builder
     private function getNumericBuilder(): Numeric
     {
         if (!isset($this->numericBuilder)) {
-            $this->numericBuilder = new OpenAPI\Builder\Numeric();
+            $this->numericBuilder = new Numeric();
         }
 
         return $this->numericBuilder;
@@ -168,7 +172,7 @@ abstract class APIBuilder implements Builder
     private function getStringBuilder(): Strings
     {
         if (!isset($this->stringBuilder)) {
-            $this->stringBuilder = new OpenAPI\Builder\Strings();
+            $this->stringBuilder = new Strings();
         }
         return $this->stringBuilder;
     }

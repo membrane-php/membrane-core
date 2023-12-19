@@ -33,6 +33,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(DateString::class)]
 #[UsesClass(Length::class)]
 #[UsesClass(Regex::class)]
+#[UsesClass(Implode::class)]
 class StringsTest extends TestCase
 {
     #[Test]
@@ -59,6 +60,10 @@ class StringsTest extends TestCase
             'minimum input' => [
                 new Specification\Strings('', new Schema(['type' => 'string'])),
                 new Field('', new IsString()),
+            ],
+            'minimum input from array' => [
+                new Specification\Strings('', new Schema(['type' => 'string']), true),
+                new Field('', new Implode(','), new IsString()),
             ],
             'date input' => [
                 new Specification\Strings('', new Schema(['type' => 'string', 'format' => 'date',])),

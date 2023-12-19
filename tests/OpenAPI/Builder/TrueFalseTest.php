@@ -6,6 +6,7 @@ namespace Membrane\Tests\OpenAPI\Builder;
 
 
 use cebe\openapi\spec\Schema;
+use Membrane\Filter\String\Implode;
 use Membrane\Filter\Type\ToBool;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\TrueFalse;
@@ -29,6 +30,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Specification\TrueFalse::class)]
 #[UsesClass(Field::class)]
 #[UsesClass(Contained::class)]
+#[UsesClass(Implode::class)]
 class TrueFalseTest extends TestCase
 {
     #[Test]
@@ -55,6 +57,14 @@ class TrueFalseTest extends TestCase
             'input to convert from string' => [
                 new Specification\TrueFalse('', new Schema(['type' => 'boolean']), true),
                 new Field('', new BoolString(), new ToBool()),
+            ],
+            'input to convert from array' => [
+                new Specification\TrueFalse('', new Schema(['type' => 'boolean']), false, true),
+                new Field('', new Implode(','), new IsBool()),
+            ],
+            'input to convert from array then from string' => [
+                new Specification\TrueFalse('', new Schema(['type' => 'boolean']), true, true),
+                new Field('', new Implode(','), new BoolString(), new ToBool()),
             ],
             'strict input' => [
                 new Specification\TrueFalse('', new Schema(['type' => 'boolean']), false),

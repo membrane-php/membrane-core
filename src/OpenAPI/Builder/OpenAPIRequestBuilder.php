@@ -53,12 +53,12 @@ class OpenAPIRequestBuilder implements Builder
     /** @return Processor[] */
     private function fromParameters(OpenAPIRequest $specification): array
     {
-        $location = fn(array $chain) => ['required' => [], 'fields' => [], 'beforeSet' => $chain];
-        $locations = [
-            'path' => $location([new Filter\PathMatcher($specification->pathParameterExtractor)]),
-            'query' => $location([new Filter\HTTPParameters()]),
-            'header' => $location([]),
-            'cookie' => $location([]),
+        $parameter = fn(array $beforeSet) => ['required' => [], 'fields' => [], 'beforeSet' => $beforeSet];
+        $parameters = [
+            'path' => $parameter([new Filter\PathMatcher($specification->pathParameterExtractor)]),
+            'query' => $parameter([new Filter\HTTPParameters()]),
+            'header' => $parameter([]),
+            'cookie' => $parameter([]),
         ];
 
         foreach (array_map(fn($p) => new Parameter($p), $specification->parameters) as $parameter) {
@@ -67,7 +67,7 @@ class OpenAPIRequestBuilder implements Builder
                 ->fromParameter($parameter, true);
 
             if ($parameter->required) {
-                $locations[$parameter->in]['required'][] = $parameter->name;
+                $parameters[$parameter->in]['required'][] = $parameter->name;
             }
         }
 

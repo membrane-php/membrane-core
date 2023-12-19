@@ -369,7 +369,8 @@
           "in": "path",
           "required": true,
           "schema": {
-            "type": "integer"
+            "type": "number",
+            "format": "float"
           }
         }
       ],
@@ -377,24 +378,27 @@
         "operationId": "requestbodypath-id-get",
         "parameters": [
           {
-            "name": "name",
+            "name": "age",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": "integer"
             }
           },
           {
             "name": "species",
             "in": "header",
             "schema": {
-              "type": "string"
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
             }
           },
           {
             "name": "subspecies",
             "in": "cookie",
             "schema": {
-              "type": "string"
+              "type": "number"
             }
           }
         ],

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
+use Membrane\Filter\String\Implode;
 use Membrane\Filter\Type\ToBool;
 use Membrane\Processor;
 use Membrane\Processor\Field;
@@ -23,7 +24,11 @@ class TrueFalse extends APIBuilder
     {
         assert($specification instanceof \Membrane\OpenAPI\Specification\TrueFalse);
 
-        $chain = $specification->convertFromString ? [new BoolString(), new ToBool()] : [new IsBool()];
+        $chain = $specification->fromString ? [new BoolString(), new ToBool()] : [new IsBool()];
+
+        if ($specification->fromArray) {
+            array_unshift($chain, new Implode(','));
+        }
 
         if ($specification->enum !== null) {
             $chain[] = new Contained($specification->enum);

@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Builder;
 
+use Generator;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;
+use Membrane\Filter\String\Implode;
+use Membrane\Filter\Type\ToBool;
+use Membrane\Filter\Type\ToFloat;
 use Membrane\Filter\Type\ToInt;
+use Membrane\Filter\Type\ToNumber;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Arrays;
 use Membrane\OpenAPI\Builder\Numeric;
@@ -37,7 +42,10 @@ use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Numeric\Maximum;
+use Membrane\Validator\String\BoolString;
 use Membrane\Validator\String\IntString;
+use Membrane\Validator\String\NumericString;
+use Membrane\Validator\Type\IsBool;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
@@ -137,348 +145,761 @@ class RequestBuilderTest extends TestCase
         (new RequestBuilder())->build($specification);
     }
 
-    public static function dataSetsForBuild(): array
+    public static function provideRequestsToBuildForAndProcess(): Generator
     {
-        return [
-            'Request: no path params, no operation params, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/path/path',
-                    Method::GET
-                ),
-                new RequestProcessor(
-                    '',
-                    'path-get',
-                    Method::GET,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com/path', '/path'))
-                            )
-                        ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-
-                ),
-            ],
-            'Request: path param in path, no operation params, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestpathone/{id}',
-                    Method::GET
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathone-get',
-                    Method::GET,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
-                                new RequiredFields('id')
-                            ),
-                            new Field('id', new IntString(), new ToInt())
-                        ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-
-                ),
-            ],
-            'Request: path param in path, operation param in query not required, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestpathone/{id}',
-                    Method::POST
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathone-post',
-                    Method::POST,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
-                                new RequiredFields('id')
-                            ),
-                            new Field('id', new IntString(), new ToInt())
-                        ),
-                        'query' => new FieldSet(
-                            'query',
-                            new BeforeSet(new HTTPParameters()),
-                            new Field('age', new IntString(), new ToInt())
-                        ),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-                ),
-            ],
-            'Request: path param in path, operation param in query required, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestpathone/{id}',
-                    Method::PUT
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathone-put',
-                    Method::PUT,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
-                                new RequiredFields('id')
-                            ),
-                            new Field('id', new IntString(), new ToInt())
-                        ),
-                        'query' => new FieldSet(
-                            'query',
-                            new BeforeSet(new HTTPParameters(), new RequiredFields('name')),
-                            new Field('name', new IsString())
-                        ),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-
-                ),
-            ],
-            'Request: path param in path, operation param in query with json content, required, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestpathone/{id}',
-                    Method::DELETE
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathone-delete',
-                    Method::DELETE,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
-                                new RequiredFields('id')
-                            ),
-                            new Field('id', new IntString(), new ToInt())
-                        ),
-                        'query' => new FieldSet(
-                            'query',
-                            new BeforeSet(new HTTPParameters(), new RequiredFields('name')),
-                            new Field('name', new IsString())
-                        ),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-                ),
-            ],
-            'Request: path param in header, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestpathtwo',
-                    Method::GET
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathtwo-get',
-                    Method::GET,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathtwo'))
-                            )
-                        ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header', new Field('id', new IntString(), new ToInt())),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-
-                ),
-            ],
-            'Request: path param in header, operation param in cookie, no requestBody' => [
-                new Request(self::DIR . 'noReferences.json', 'http://www.test.com/requestpathtwo', Method::POST),
-                new RequestProcessor(
-                    '',
-                    'requestpathtwo-post',
-                    Method::POST,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathtwo'))
-                            )
-                        ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header', new Field('id', new IntString(), new ToInt())),
-                        'cookie' => new FieldSet('cookie', new Field('name', new IsString())),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-
-                ),
-            ],
-            'Request: identical param in header and query, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestpathtwo',
-                    Method::PUT
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathtwo-put',
-                    Method::PUT,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathtwo'))
-                            )
-                        ),
-                        'query' => new FieldSet(
-                            'query',
-                            new BeforeSet(new HTTPParameters()),
-                            new Field('id', new IntString(), new ToInt())
-                        ),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-
-                ),
-            ],
-            'Request: same param in path and operation with different types, no requestBody' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestpathtwo',
-                    Method::DELETE
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestpathtwo-delete',
-                    Method::DELETE,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathtwo'))
-                            )
-                        ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header', new Field('id', new IsString())),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new Passes()),
-                    ]
-
-                ),
-            ],
-            'Request: requestBody param' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestbodypath',
-                    Method::GET
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestbodypath-get',
-                    Method::GET,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestbodypath'))
-                            )
-                        ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new IsInt()),
-                    ]
-
-                ),
-            ],
-            'Request: operation param in query, requestBody param' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestbodypath',
-                    Method::POST
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestbodypath-post',
-                    Method::POST,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestbodypath'))
-                            )
-                        ),
-                        'query' => new FieldSet(
-                            'query',
-                            new BeforeSet(new HTTPParameters()),
-                            new Field('id', new IsString())
-                        ),
-                        'header' => new FieldSet('header'),
-                        'cookie' => new FieldSet('cookie'),
-                        'body' => new Field('requestBody', new IsInt()),
-                    ]
-
-                ),
-            ],
-            'Request: path param in path, operation param in query, header, cookie, requestBody param' => [
-                new Request(
-                    self::DIR . 'noReferences.json',
-                    'http://www.test.com/requestbodypath/{id}',
-                    Method::GET
-                ),
-                new RequestProcessor(
-                    '',
-                    'requestbodypath-id-get',
-                    Method::GET,
-                    [
-                        'path' => new FieldSet(
-                            'path',
-                            new BeforeSet(
-                                new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestbodypath/{id}')),
-                                new RequiredFields('id')
-                            ),
-                            new Field('id', new IntString(), new ToInt())
-                        ),
-                        'query' => new FieldSet(
-                            'query',
-                            new BeforeSet(new HTTPParameters()),
-                            new Field('name', new IsString())
-                        ),
-                        'header' => new FieldSet('header', new Field('species', new IsString())),
-                        'cookie' => new FieldSet('cookie', new Field('subspecies', new IsString())),
-                        'body' => new Field('requestBody', new IsFloat()),
-                    ]
-                ),
-            ],
+        $noParams = fn($result, $serverRequest) => [
+            new RequestProcessor(
+                '',
+                'path-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathMatcherClass('http://www.test.com/path', '/path'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+            $result,
+            new Request(
+                self::DIR . 'noReferences.json',
+                'http://www.test.com/path/path',
+                Method::GET
+            ),
+            $serverRequest,
         ];
+
+        yield 'Valid:No params' => $noParams(
+            Result::valid([
+                'request' => ['method' => 'get', 'operationId' => 'path-get'],
+                'path' => [],
+                'query' => [],
+                'header' => ['Host' => ['www.test.com']],
+                'cookie' => [],
+                'body' => '',
+            ]),
+            new ServerRequest('get', 'http://www.test.com/path/path'),
+        );
+
+        $intPathParam = fn($result, $serverRequest) => [
+            new RequestProcessor(
+                '',
+                'requestpathone-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
+                            new RequiredFields('id')
+                        ),
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+            $result,
+            new Request(
+                self::DIR . 'noReferences.json',
+                'http://www.test.com/requestpathone/{id}',
+                Method::GET
+            ),
+            $serverRequest
+        ];
+
+        yield 'Valid:Int path param' => $intPathParam(
+            Result::valid([
+                'request' => [
+                    'method' => 'get',
+                    'operationId' => 'requestpathone-get'
+                ],
+                'path' => ['id' => 5],
+                'query' => [],
+                'header' => ['Host' => ['www.test.com']],
+                'cookie' => [],
+                'body' => '',
+            ]),
+            new ServerRequest(
+                'get',
+                'http://www.test.com/requestpathone/5'
+            )
+        );
+
+        yield 'Invalid:Int path param, string given' => $intPathParam(
+            Result::invalid(
+                [
+                    'request' => [
+                        'method' => 'get',
+                        'operationId' => 'requestpathone-get'
+                    ],
+                    'path' => ['id' => 'five'],
+                    'query' => [],
+                    'header' => ['Host' => ['www.test.com']],
+                    'cookie' => [],
+                    'body' => '',
+                ],
+                new MessageSet(
+                    new FieldName('id', '', 'path'),
+                    new Message('String value must be an integer.', [])
+                )
+            ),
+            new ServerRequest(
+                'get',
+                'http://www.test.com/requestpathone/five'
+            )
+        );
+
+        $optionalIntQueryParam = fn($result, $serverRequest) => [
+            new RequestProcessor(
+                '',
+                'requestpathone-post',
+                Method::POST,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
+                            new RequiredFields('id')
+                        ),
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new HTTPParameters()),
+                        new Field('age', new IntString(), new ToInt())
+                    ),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+            $result,
+            new Request(
+                self::DIR . 'noReferences.json',
+                'http://www.test.com/requestpathone/{id}',
+                Method::POST
+            ),
+            $serverRequest,
+        ];
+
+        yield 'Valid:Optional int query param not specified' => $optionalIntQueryParam(
+            Result::valid([
+                'request' => [
+                    'method' => 'post',
+                    'operationId' => 'requestpathone-post'
+                ],
+                'path' => ['id' => 5],
+                'query' => [],
+                'header' => ['Host' => ['www.test.com']],
+                'cookie' => [],
+                'body' => '',
+            ]),
+            new ServerRequest(
+                'post',
+                'http://www.test.com/requestpathone/5'
+            )
+        );
+
+        yield 'Valid:Optional int query param specified' => $optionalIntQueryParam(
+            Result::valid([
+                'request' => [
+                    'method' => 'post',
+                    'operationId' => 'requestpathone-post'
+                ],
+                'path' => ['id' => 5],
+                'query' => ['age' => 32],
+                'header' => ['Host' => ['www.test.com']],
+                'cookie' => [],
+                'body' => '',
+            ]),
+            new ServerRequest(
+                'post',
+                'http://www.test.com/requestpathone/5?age=32'
+            )
+        );
+
+        yield 'Invalid:Optional int query param specified as string' => $optionalIntQueryParam(
+            Result::invalid(
+                [
+                    'request' => [
+                        'method' => 'post',
+                        'operationId' => 'requestpathone-post'
+                    ],
+                    'path' => ['id' => 5],
+                    'query' => ['age' => 'thirty-two'],
+                    'header' => ['Host' => ['www.test.com']],
+                    'cookie' => [],
+                    'body' => '',
+                ],
+                new MessageSet(
+                    new FieldName('age', '', 'query'),
+                    new Message('String value must be an integer.', [])
+                )
+            ),
+            new ServerRequest(
+                'post',
+                'http://www.test.com/requestpathone/5?age=thirty-two'
+            )
+        );
+
+        $requiredStringQueryParamWithSchema = fn($result, $serverRequest) => [
+            new RequestProcessor(
+                '',
+                'requestpathone-put',
+                Method::PUT,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
+                            new RequiredFields('id')
+                        ),
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new HTTPParameters(), new RequiredFields('name')),
+                        new Field('name', new IsString())
+                    ),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+            $result,
+            new Request(
+                self::DIR . 'noReferences.json',
+                'http://www.test.com/requestpathone/{id}',
+                Method::PUT
+            ),
+            $serverRequest,
+        ];
+
+        yield 'Valid:Required string query param specified' => $requiredStringQueryParamWithSchema(
+            Result::valid([
+                'request' => [
+                    'method' => 'put',
+                    'operationId' => 'requestpathone-put'
+                ],
+                'path' => ['id' => 5],
+                'query' => ['name' => 'dave'],
+                'header' => ['Host' => ['www.test.com']],
+                'cookie' => [],
+                'body' => '',
+            ]),
+            new ServerRequest(
+                'put',
+                'http://www.test.com/requestpathone/5?name=dave'
+            )
+        );
+
+        yield 'Invalid:Required string query param not specified' => $requiredStringQueryParamWithSchema(
+            Result::invalid(
+                [
+                    'request' => [
+                        'method' => 'put',
+                        'operationId' => 'requestpathone-put'
+                    ],
+                    'path' => ['id' => 5],
+                    'query' => [],
+                    'header' => ['Host' => ['www.test.com']],
+                    'cookie' => [],
+                    'body' => '',
+                ],
+                new MessageSet(
+                    new FieldName('', '', 'query'),
+                    new Message('%s is a required field', ['name'])
+                )
+            ),
+            new ServerRequest(
+                'put',
+                'http://www.test.com/requestpathone/5',
+            )
+        );
+
+        $requiredStringQueryParamWithContent = fn($result, $serverRequest) => [
+            new RequestProcessor(
+                '',
+                'requestpathone-delete',
+                Method::DELETE,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathone/{id}')),
+                            new RequiredFields('id')
+                        ),
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new HTTPParameters(), new RequiredFields('name')),
+                        new Field('name', new IsString())
+                    ),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+            $result,
+            new Request(
+                self::DIR . 'noReferences.json',
+                'http://www.test.com/requestpathone/{id}',
+                Method::DELETE
+            ),
+            $serverRequest,
+        ];
+
+        yield 'Valid:Required Query param with content specified' => $requiredStringQueryParamWithContent(
+            Result::valid([
+                'request' => [
+                    'method' => 'delete',
+                    'operationId' => 'requestpathone-delete'
+                ],
+                'path' => ['id' => 5],
+                'query' => ['name' => 'dave'],
+                'header' => ['Host' => ['www.test.com']],
+                'cookie' => [],
+                'body' => '',
+            ]),
+            new ServerRequest(
+                'delete',
+                'http://www.test.com/requestpathone/5?name=dave'
+            )
+        );
+
+        yield 'Invalid:Required query param with content unspecified' => $requiredStringQueryParamWithContent(
+            Result::invalid(
+                [
+                    'request' => [
+                        'method' => 'delete',
+                        'operationId' => 'requestpathone-delete'
+                    ],
+                    'path' => ['id' => 5],
+                    'query' => [],
+                    'header' => ['Host' => ['www.test.com']],
+                    'cookie' => [],
+                    'body' => '',
+                ],
+                new MessageSet(
+                    new FieldName('', '', 'query'),
+                    new Message('%s is a required field', ['name'])
+                )
+            ),
+            new ServerRequest(
+                'delete',
+                'http://www.test.com/requestpathone/5',
+            )
+        );
+
+        $optionalIntHeaderParam = fn($result, $serverRequest) => [
+            new RequestProcessor(
+                '',
+                'requestpathtwo-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathtwo'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+            $result,
+            new Request(
+                self::DIR . 'noReferences.json',
+                'http://www.test.com/requestpathtwo',
+                Method::GET
+            ),
+            $serverRequest,
+        ];
+
+        yield 'Valid:Optional int header param unspecified' => $optionalIntHeaderParam(
+            Result::valid([
+                'request' => [
+                    'method' => 'get',
+                    'operationId' => 'requestpathtwo-get'
+                ],
+                'path' => [],
+                'query' => [],
+                'header' => ['Host' => ['www.test.com']],
+                'cookie' => [],
+                'body' => '',
+            ]),
+            new ServerRequest(
+                'get',
+                'http://www.test.com/requestpathtwo'
+            )
+        );
+
+        yield 'Valid:Optional int header param specified' => $optionalIntHeaderParam(
+            Result::valid([
+                'request' => [
+                    'method' => 'get',
+                    'operationId' => 'requestpathtwo-get'
+                ],
+                'path' => [],
+                'query' => [],
+                'header' => [
+                    'Host' => ['www.test.com'],
+                    'id' => '5',
+                ],
+                'cookie' => [],
+                'body' => '',
+            ]),
+            new ServerRequest(
+                'get',
+                'http://www.test.com/requestpathtwo',
+                ['id' => '5']
+            )
+        );
+
+        yield 'Invalid:Optional int header param specified as string' => $optionalIntHeaderParam(
+            Result::invalid(
+                [
+                    'request' => [
+                        'method' => 'get',
+                        'operationId' => 'requestpathtwo-get'
+                    ],
+                    'path' => [],
+                    'query' => [],
+                    'header' => [
+                        'Host' => ['www.test.com'],
+                        'id' => 'dave',
+                    ],
+                    'cookie' => [],
+                    'body' => '',
+                ],
+                new MessageSet(
+                    new FieldName('id', '', 'header'),
+                    new Message('String value must be an integer.', [])
+                )
+            ),
+            new ServerRequest(
+                'get',
+                'http://www.test.com/requestpathtwo',
+                ['id' => 'dave']
+            )
+        );
+
+        $operationParamOverridesPathParam = fn($result, $serverRequest) => [
+            new RequestProcessor(
+                '',
+                'requestpathtwo-put',
+                Method::PUT,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathtwo'))
+                        )
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new HTTPParameters()),
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+            $result,
+            new Request(
+                self::DIR . 'noReferences.json',
+                'http://www.test.com/requestpathtwo',
+                Method::PUT
+            ),
+            $serverRequest
+        ];
+
+        yield 'Valid:operation param overrides path param' => $operationParamOverridesPathParam(
+            Result::valid([
+                'request' => [
+                    'method' => 'put',
+                    'operationId' => 'requestpathtwo-put'
+                ],
+                'path' => [],
+                'query' => [],
+                'header' => [
+                    'Host' => ['www.test.com'],
+                ],
+                'cookie' => [],
+                'body' => '',
+            ]),
+            new ServerRequest(
+                'put',
+                'http://www.test.com/requestpathtwo'
+            )
+        );
+
+        yield 'Invalid:operation param overrides path param' => $operationParamOverridesPathParam(
+            Result::invalid([
+                'request' => [
+                    'method' => 'put',
+                    'operationId' => 'requestpathtwo-put'
+                ],
+                'path' => [],
+                'query' => ['id' => 'five'],
+                'header' => [
+                    'Host' => ['www.test.com'],
+                ],
+                'cookie' => [],
+                'body' => '',
+            ],
+                new MessageSet(
+                    new FieldName('id', '', 'query'),
+                    new Message('String value must be an integer.', [])
+                )
+            ),
+            new ServerRequest(
+                'put',
+                'http://www.test.com/requestpathtwo?id=five'
+            )
+        );
+
+        $intHeaderStringCookieParam = fn($result, $serverRequest) => [
+            new RequestProcessor(
+                '',
+                'requestpathtwo-post',
+                Method::POST,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathtwo'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
+                    'cookie' => new FieldSet('cookie', new Field('name', new Implode(','), new IsString())),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+            $result,
+            new Request(self::DIR . 'noReferences.json', 'http://www.test.com/requestpathtwo', Method::POST),
+            $serverRequest,
+        ];
+
+        yield 'Valid:Int header and string cookie param, unspecified' => $intHeaderStringCookieParam(
+            Result::valid([
+                'request' => [
+                    'method' => 'post',
+                    'operationId' => 'requestpathtwo-post'
+                ],
+                'path' => [],
+                'query' => [],
+                'header' => [
+                    'Host' => ['www.test.com'],
+                ],
+                'cookie' => [],
+                'body' => '',
+            ]),
+            new ServerRequest(
+                'post',
+                'http://www.test.com/requestpathtwo'
+            )
+        );
+
+        yield 'Valid:Int header and string cookie param, specified' => $intHeaderStringCookieParam(
+            Result::valid([
+                'request' => [
+                    'method' => 'post',
+                    'operationId' => 'requestpathtwo-post'
+                ],
+                'path' => [],
+                'query' => ['name' => 'dave'],
+                'header' => [
+                    'Host' => ['www.test.com'],
+                    'id' => '5'
+                ],
+                'cookie' => [],
+                'body' => '',
+            ]),
+            new ServerRequest(
+                'post',
+                'http://www.test.com/requestpathtwo?name=dave',
+                ['id' => '5']
+            )
+        );
+
+        $intBodyParam = fn($result, $serverRequest) => [
+            new RequestProcessor(
+                '',
+                'requestbodypath-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestbodypath'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new IsInt()),
+                ]
+            ),
+            $result,
+            new Request(
+                self::DIR . 'noReferences.json',
+                'http://www.test.com/requestbodypath',
+                Method::GET
+            ),
+            $serverRequest,
+        ];
+
+        yield 'Valid:Optional int body' => $intBodyParam(
+            Result::valid([
+                'request' => [
+                    'method' => 'get',
+                    'operationId' => 'requestbodypath-get'
+                ],
+                'path' => [],
+                'query' => [],
+                'header' => [
+                    'Host' => ['www.test.com'],
+                    'Content-Type' => ['application/json'],
+                ],
+                'cookie' => [],
+                'body' => 5,
+            ]),
+            new ServerRequest(
+                'get',
+                'http://www.test.com/requestbodypath',
+                [
+                    'Content-Type' => 'application/json',
+                ],
+                '5'
+            )
+        );
+
+        yield 'Invalid:No Content-Type specified' => $intBodyParam(
+            Result::invalid([
+                'request' => [
+                    'method' => 'get',
+                    'operationId' => 'requestbodypath-get'
+                ],
+                'path' => [],
+                'query' => [],
+                'header' => ['Host' => ['www.test.com']],
+                'cookie' => [],
+                'body' => '5',
+            ],
+                new MessageSet(
+                    new FieldName('requestBody', ''),
+                    new Message('IsInt validator expects integer value, %s passed instead', ['string']),
+                )
+            ),
+            new ServerRequest(
+                'get',
+                'http://www.test.com/requestbodypath',
+                [],
+                '5'
+            )
+        );
+
+        $scalarsInEverything = fn($result, $serverRequest) => [
+            new RequestProcessor(
+                '',
+                'requestbodypath-id-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestbodypath/{id}')),
+                            new RequiredFields('id')
+                        ),
+                        new Field('id', new NumericString(), new ToFloat())
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new HTTPParameters()),
+                        new Field('age', new IntString(), new ToInt())
+                    ),
+                    'header' => new FieldSet(
+                        'header',
+                        new Collection(
+                            'species',
+                            new BeforeSet(new IsList()),
+                            new Field('', new BoolString(), new ToBool())
+                        )
+                    ),
+                    'cookie' => new FieldSet(
+                        'cookie',
+                        new Field('subspecies', new Implode(','), new NumericString(), new ToNumber())
+                    ),
+                    'body' => new Field('requestBody', new IsFloat()),
+                ]
+            ),
+            $result,
+            new Request(
+                self::DIR . 'noReferences.json',
+                'http://www.test.com/requestbodypath/{id}',
+                Method::GET
+            ),
+            $serverRequest,
+        ];
+
+        yield 'Valid:Scalar parameters everything (except cookie) specified' => $scalarsInEverything(
+            Result::valid([
+                'request' => [
+                    'method' => 'get',
+                    'operationId' => 'requestbodypath-id-get'
+                ],
+                'path' => ['id' => 5.5],
+                'query' => ['age' => 3],
+                'header' => [
+                    'Host' => ['www.test.com'],
+                    'Content-Type' => ['application/json'],
+                    'species' => [true, false, true],
+                ],
+                'cookie' => [],
+                'body' => 3.14,
+            ]),
+            new ServerRequest(
+                'get',
+                'http://www.test.com/requestbodypath/5.5?age=3',
+                [
+                    'Content-Type' => 'application/json',
+                    'species' => ['true', 'false', 'true'],
+                ],
+                '3.14'
+            )
+        );
     }
 
-    #[DataProvider('dataSetsForBuild')]
-    #[Test]
-    public function buildTest(Specification $spec, Processor $expected): void
-    {
+    #[Test, DataProvider('provideRequestsToBuildForAndProcess')]
+    public function itBuildsAppropriateProcessors(
+        Processor $expectedProcessor,
+        Result $expectedResult,
+        Request $specification,
+        ServerRequest $request,
+    ): void {
         $sut = new RequestBuilder();
 
-        $actual = $sut->build($spec);
+        $actualProcessor = $sut->build($specification);
 
-        self::assertEquals($expected, $actual);
+        self::assertEquals($expectedProcessor, $actualProcessor);
+
+        $actualResult = $actualProcessor->process(new FieldName(''), $request);
+
+        self::assertEquals($expectedResult, $actualResult);
     }
 
 
@@ -496,7 +917,7 @@ class RequestBuilderTest extends TestCase
                         'request' => ['method' => 'get', 'operationId' => 'listPets'],
                         'path' => [],
                         'query' => [],
-                        'header' => [],
+                        'header' => ['Host' => ['petstore.swagger.io'],],
                         'cookie' => [],
                         'body' => '',
                     ],
@@ -510,7 +931,7 @@ class RequestBuilderTest extends TestCase
                         'request' => ['method' => 'get', 'operationId' => 'showPetById'],
                         'path' => ['petId' => 'Harley'],
                         'query' => [],
-                        'header' => [],
+                        'header' => ['Host' => ['petstore.swagger.io'],],
                         'cookie' => [],
                         'body' => '',
                     ],
@@ -528,7 +949,7 @@ class RequestBuilderTest extends TestCase
                         'request' => ['method' => 'get', 'operationId' => 'findPets'],
                         'path' => [],
                         'query' => ['limit' => 'five'],
-                        'header' => [],
+                        'header' => ['Host' => ['petstore.swagger.io']],
                         'cookie' => [],
                         'body' => '',
                     ],
@@ -550,7 +971,7 @@ class RequestBuilderTest extends TestCase
                         'request' => ['method' => 'get', 'operationId' => 'findPets'],
                         'path' => [],
                         'query' => ['limit' => 5, 'tags' => ['cat', 'tabby']],
-                        'header' => [],
+                        'header' => ['Host' => ['petstore.swagger.io']],
                         'cookie' => [],
                         'body' => '',
                     ]

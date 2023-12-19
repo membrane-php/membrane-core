@@ -9,8 +9,11 @@ use Generator;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\Explode;
+use Membrane\Filter\String\Implode;
 use Membrane\Filter\Type\ToBool;
+use Membrane\Filter\Type\ToFloat;
 use Membrane\Filter\Type\ToInt;
+use Membrane\Filter\Type\ToNumber;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Arrays;
 use Membrane\OpenAPI\Builder\Numeric;
@@ -50,6 +53,7 @@ use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Numeric\Maximum;
 use Membrane\Validator\String\BoolString;
 use Membrane\Validator\String\IntString;
+use Membrane\Validator\String\NumericString;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
@@ -354,7 +358,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         )
                     ),
                     'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                    'header' => new FieldSet('header', new Field('id', new IntString(), new ToInt())),
+                    'header' => new FieldSet('header', new Field('id',new Implode(','), new IntString(), new ToInt())),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new Passes()),
                 ]
@@ -379,8 +383,14 @@ class OpenAPIRequestBuilderTest extends TestCase
                         )
                     ),
                     'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                    'header' => new FieldSet('header', new Field('id', new IntString(), new ToInt())),
-                    'cookie' => new FieldSet('cookie', new Field('name', new IsString())),
+                    'header' => new FieldSet(
+                        'header',
+                        new Field('id',new Implode(','), new IntString(), new ToInt())
+                    ),
+                    'cookie' => new FieldSet(
+                        'cookie',
+                        new Field('name', new Implode(','), new IsString())
+                    ),
                     'body' => new Field('requestBody', new Passes()),
                 ]
 
@@ -435,7 +445,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         )
                     ),
                     'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                    'header' => new FieldSet('header', new Field('id', new IsString())),
+                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IsString())),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new Passes()),
                 ]
@@ -516,15 +526,24 @@ class OpenAPIRequestBuilderTest extends TestCase
                             new PathMatcher(new PathParameterExtractor('/requestbodypath/{id}')),
                             new RequiredFields('id')
                         ),
-                        new Field('id', new IntString(), new ToInt())
+                        new Field('id', new NumericString(), new ToFloat())
                     ),
                     'query' => new FieldSet(
                         'query',
                         new BeforeSet(new HTTPParameters()),
-                        new Field('name', new IsString())
+                        new Field('age', new IntString(), new ToInt())
                     ),
-                    'header' => new FieldSet('header', new Field('species', new IsString())),
-                    'cookie' => new FieldSet('cookie', new Field('subspecies', new IsString())),
+                    'header' => new FieldSet(
+                        'header',
+                        new Collection(
+                            'species',
+                            new BeforeSet(new IsList()),
+                            new Field('', new BoolString(), new ToBool())
+                        )
+                    ),
+                    'cookie' => new FieldSet('cookie',
+                        new Field('subspecies', new Implode(','), new NumericString(), new ToNumber())
+                    ),
                     'body' => new Field('requestBody', new IsFloat()),
                 ]
             ),
@@ -662,7 +681,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'request' => ['method' => 'get', 'operationId' => 'listPets'],
                         'path' => [],
                         'query' => [],
-                        'header' => [],
+                        'header' => ['Host' => ['petstore.swagger.io'],],
                         'cookie' => [],
                         'body' => '',
                     ],
@@ -680,7 +699,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'request' => ['method' => 'get', 'operationId' => 'showPetById'],
                         'path' => ['petId' => 'Harley'],
                         'query' => [],
-                        'header' => [],
+                        'header' => ['Host' => ['petstore.swagger.io'],],
                         'cookie' => [],
                         'body' => '',
                     ],
@@ -698,7 +717,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'request' => ['method' => 'get', 'operationId' => 'findPets'],
                         'path' => [],
                         'query' => ['limit' => 'five'],
-                        'header' => [],
+                        'header' => ['Host' => ['petstore.swagger.io'],],
                         'cookie' => [],
                         'body' => '',
                     ],
@@ -720,7 +739,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'request' => ['method' => 'get', 'operationId' => 'findPets'],
                         'path' => [],
                         'query' => ['limit' => 5, 'tags' => ['cat', 'tabby']],
-                        'header' => [],
+                        'header' => ['Host' => ['petstore.swagger.io'],],
                         'cookie' => [],
                         'body' => '',
                     ]

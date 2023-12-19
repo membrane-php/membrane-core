@@ -26,7 +26,11 @@ class Strings extends APIBuilder
     {
         assert($specification instanceof \Membrane\OpenAPI\Specification\Strings);
 
-        $chain = [new IsString()];
+        if ($specification->fromArray) {
+            $chain[] = new Implode(',');
+        }
+
+        $chain[] = new IsString();
 
         if ($specification->enum !== null) {
             $chain[] = new Contained($specification->enum);

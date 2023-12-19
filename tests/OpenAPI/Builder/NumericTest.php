@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Membrane\Tests\OpenAPI\Builder;
 
 use cebe\openapi\spec\Schema;
+use Membrane\Filter\String\Implode;
 use Membrane\Filter\Type\ToFloat;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
@@ -38,6 +39,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Maximum::class)]
 #[UsesClass(Minimum::class)]
 #[UsesClass(MultipleOf::class)]
+#[UsesClass(Implode::class)]
 class NumericTest extends TestCase
 {
     #[Test]
@@ -64,6 +66,14 @@ class NumericTest extends TestCase
             'integer input to convert from string' => [
                 new Specification\Numeric('', new Schema(['type' => 'integer']), true),
                 new Field('', new IntString(), new ToInt()),
+            ],
+            'integer input to convert from array' => [
+                new Specification\Numeric('', new Schema(['type' => 'integer']), false, true),
+                new Field('', new Implode(','), new IsInt()),
+            ],
+            'integer input to convert from array then from string' => [
+                new Specification\Numeric('', new Schema(['type' => 'integer']), true, true),
+                new Field('', new Implode(','), new IntString(), new ToInt()),
             ],
             'strict integer input' => [
                 new Specification\Numeric('', new Schema(['type' => 'integer']), false),

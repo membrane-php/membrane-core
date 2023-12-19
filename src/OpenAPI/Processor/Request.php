@@ -134,7 +134,7 @@ class Request implements Processor
 
         // If content type is unmatched, return raw body. This is /probably/ an error, but we can't do much better
         if ($contentType === ContentType::Unmatched) {
-            $value['body'] = (string)$request->getBody();
+            $value['body'] = (string) $request->getBody();
             return Result::noResult($value);
         }
 

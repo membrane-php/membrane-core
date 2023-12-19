@@ -6,6 +6,7 @@ namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
 use Membrane\Filter;
+use Membrane\Filter\String\Implode;
 use Membrane\Filter\Type\ToFloat;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
@@ -40,6 +41,10 @@ class Numeric extends APIBuilder
             $chain = $this->handleInteger($specification);
         }
 
+        if ($specification->fromArray) {
+            array_unshift($chain, new Implode(','));
+        }
+
         if ($specification->enum !== null) {
             $chain[] = new Contained($specification->enum);
         }
@@ -57,16 +62,16 @@ class Numeric extends APIBuilder
     private function handleNumber(OpenAPI\Specification\Numeric $specification): array
     {
         if (in_array($specification->format, ['float', 'double'], true)) {
-            return $specification->convertFromString ? [new NumericString(), new ToFloat()] : [new IsFloat()];
+            return $specification->fromString ? [new NumericString(), new ToFloat()] : [new IsFloat()];
         } else {
-            return $specification->convertFromString ? [new NumericString(), new ToNumber()] : [new IsNumber()];
+            return $specification->fromString ? [new NumericString(), new ToNumber()] : [new IsNumber()];
         }
     }
 
     /** @return Filter[]|Validator[] */
     private function handleInteger(OpenAPI\Specification\Numeric $specification): array
     {
-        return $specification->convertFromString ? [new IntString(), new ToInt()] : [new IsInt()];
+        return $specification->fromString ? [new IntString(), new ToInt()] : [new IsInt()];
     }
 
     /** @return Validator[] */
