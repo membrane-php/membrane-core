@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
-use cebe\openapi\spec\Parameter;
-use cebe\openapi\spec\Schema;
+use Membrane\Builder\Builder;
 use Membrane\Builder\Specification;
-use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Filter\HTTPParameters;
 use Membrane\OpenAPI\Filter\PathMatcher as PathMatcherFilter;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
+use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Field;
@@ -19,8 +18,10 @@ use Membrane\Processor\FieldSet;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Utility\Passes;
 
-class OpenAPIRequestBuilder extends APIBuilder
+class OpenAPIRequestBuilder implements Builder
 {
+    private ParameterBuilder $parameterBuilder;
+
     public function supports(Specification $specification): bool
     {
         return $specification instanceof OpenAPIRequest;
@@ -47,12 +48,10 @@ class OpenAPIRequestBuilder extends APIBuilder
             return new Field('requestBody', new Passes());
         }
 
-        return $this->fromSchema($specification->requestBodySchema, 'requestBody');
+        return $this->getParameterBuilder()->fromSchema($specification->requestBodySchema, 'requestBody');
     }
 
-    /**
-     * @return Processor[]
-     */
+    /** @return Processor[] */
     private function fromParameters(OpenAPIRequest $specification): array
     {
         $locationFields = [
@@ -66,10 +65,11 @@ class OpenAPIRequestBuilder extends APIBuilder
             'cookie' => ['required' => [], 'fields' => [], 'beforeSet' => []],
         ];
 
-        foreach ($specification->parameters as $p) {
-            $locationFields[$p->in]['fields'][] = $this->fromSchema($this->findSchema($p), $p->name, true);
-            if ($p->required) {
-                $locationFields[$p->in]['required'][] = $p->name;
+        foreach (array_map(fn($p) => new Parameter($p), $specification->parameters) as $parameter) {
+            $locationFields[$parameter->in]['fields'][] = $this->getParameterBuilder()
+                ->fromParameter($parameter, true);
+            if ($parameter->required) {
+                $locationFields[$parameter->in]['required'][] = $parameter->name;
             }
         }
 
@@ -89,14 +89,11 @@ class OpenAPIRequestBuilder extends APIBuilder
         return $fieldSets;
     }
 
-    private function findSchema(Parameter $parameter): Schema
+    private function getParameterBuilder(): ParameterBuilder
     {
-        // Membrane\OpenAPIReader\Reader ensures parameters have a schema xor non-empty content
-        $schema = $parameter->schema ??
-            $parameter->content['application/json']?->schema ??
-            throw CannotProcessOpenAPI::unsupportedMediaTypes(array_keys($parameter->content));
-
-        assert($schema instanceof Schema);
-        return $schema;
+        if (!isset($this->parameterBuilder)) {
+            $this->parameterBuilder = new ParameterBuilder();
+        }
+        return $this->parameterBuilder;
     }
 }

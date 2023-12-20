@@ -102,7 +102,7 @@ class RequestBuilderTest extends TestCase
 
         $mediaTypes = array_keys($openApi->paths->getPath('/requestpathexceptions')->post->parameters[0]->content);
 
-        self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes($mediaTypes));
+        self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes(...$mediaTypes));
 
         $sut->build($specification);
     }
@@ -544,7 +544,7 @@ class RequestBuilderTest extends TestCase
                     'http://petstore.swagger.io/api/pets',
                     Method::GET
                 ),
-                new ServerRequest('get', 'http://petstore.swagger.io/api/pets?limit=5&tags[]=cat&tags[]=tabby'),
+                new ServerRequest('get', 'http://petstore.swagger.io/api/pets?limit=5&tags=cat,tabby'),
                 Result::valid(
                     [
                         'request' => ['method' => 'get', 'operationId' => 'findPets'],

@@ -2,21 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Tests\OpenAPI\Builder;
+namespace OpenAPI\Builder;
 
-use cebe\openapi\spec\Operation;
-use cebe\openapi\spec\Parameter;
-use cebe\openapi\spec\PathItem;
-use cebe\openapi\spec\Schema;
+use cebe\openapi\spec as Cebe;
 use Generator;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;
+use Membrane\Filter\String\Explode;
 use Membrane\Filter\Type\ToBool;
 use Membrane\Filter\Type\ToInt;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Arrays;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
+use Membrane\OpenAPI\Builder\ParameterBuilder;
 use Membrane\OpenAPI\Builder\RequestBuilder;
 use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\ContentType;
@@ -32,6 +31,7 @@ use Membrane\OpenAPI\Processor\OneOf;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
+use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPIReader\FileFormat;
 use Membrane\OpenAPIReader\Method;
@@ -64,6 +64,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
 #[CoversClass(OpenAPIRequestBuilder::class)]
+#[CoversClass(ParameterBuilder::class)]
 #[CoversClass(APIBuilder::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
@@ -79,11 +80,13 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(PathParameterExtractor::class)]
 #[UsesClass(PathMatcherClass::class)]
 #[UsesClass(RequestProcessor::class)]
+#[UsesClass(Parameter::class)]
 #[UsesClass(APISchema::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Numeric::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Strings::class)]
 #[UsesClass(Request::class)]
+#[UsesClass(Explode::class)]
 #[UsesClass(ToInt::class)]
 #[UsesClass(BeforeSet::class)]
 #[UsesClass(Collection::class)]
@@ -102,7 +105,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(ContentType::class)]
 class OpenAPIRequestBuilderTest extends TestCase
 {
-    public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';
+    public const FIXTURES = __DIR__ . '/../../fixtures/OpenAPI/';
 
     #[Test, TestDox('It will support the OpenAPIRequest Specification')]
     public function supportsRequestSpecification(): void
@@ -126,7 +129,7 @@ class OpenAPIRequestBuilderTest extends TestCase
     public function throwsExceptionIfParameterHasContentThatIsNotJson(): void
     {
         $openApi = (new Reader([OpenAPIVersion::Version_3_0]))
-            ->readFromAbsoluteFilePath(__DIR__ . '/../../fixtures/OpenAPI/noReferences.json');
+            ->readFromAbsoluteFilePath(self::FIXTURES . 'noReferences.json');
 
         $specification = new OpenAPIRequest(
             new PathParameterExtractor('/requestpathexceptions'),
@@ -137,7 +140,7 @@ class OpenAPIRequestBuilderTest extends TestCase
 
         $mediaTypes = array_keys($openApi->paths->getPath('/requestpathexceptions')->post->parameters[0]->content);
 
-        self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes($mediaTypes));
+        self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes(...$mediaTypes));
 
         $sut->build($specification);
     }
@@ -254,24 +257,24 @@ class OpenAPIRequestBuilderTest extends TestCase
         yield 'Request: path param in path, operation param in query required, no requestBody' => [
             new OpenAPIRequest(
                 new PathParameterExtractor('/requestpathone/{id}'),
-                new PathItem([
+                new Cebe\PathItem([
                     'parameters' => [
-                        new Parameter([
+                        new Cebe\Parameter([
                             'name' => 'id',
                             'in' => 'path',
                             'required' => true,
-                            'schema' => new Schema(['type' => 'integer']),
+                            'schema' => new Cebe\Schema(['type' => 'integer']),
                         ]),
                     ],
-                    'put' => new Operation([
+                    'put' => new Cebe\Operation([
                         'operationId' => 'requestpathone-post',
                         'parameters' => [
-                            new Parameter(
+                            new Cebe\Parameter(
                                 [
                                     'name' => 'name',
                                     'in' => 'query',
                                     'required' => true,
-                                    'schema' => new Schema(['type' => 'string']),
+                                    'schema' => new Cebe\Schema(['type' => 'string']),
                                 ]
                             ),
                         ],
@@ -383,6 +386,7 @@ class OpenAPIRequestBuilderTest extends TestCase
 
             ),
         ];
+
         yield 'Request: identical param in header and query, no requestBody' => [
             new OpenAPIRequest(
                 new PathParameterExtractor('/requestpathtwo'),
@@ -412,6 +416,7 @@ class OpenAPIRequestBuilderTest extends TestCase
 
             ),
         ];
+
         yield 'Request: same param in path and operation with different types, no requestBody' => [
             new OpenAPIRequest(
                 new PathParameterExtractor('/requestpathtwo'),
@@ -437,6 +442,7 @@ class OpenAPIRequestBuilderTest extends TestCase
 
             ),
         ];
+
         yield 'Request: requestBody param' => [
             new OpenAPIRequest(
                 new PathParameterExtractor('/requestbodypath'),
@@ -462,6 +468,7 @@ class OpenAPIRequestBuilderTest extends TestCase
 
             ),
         ];
+
         yield 'Request: operation param in query, requestBody param' => [
             new OpenAPIRequest(
                 new PathParameterExtractor('/requestbodypath'),
@@ -491,6 +498,7 @@ class OpenAPIRequestBuilderTest extends TestCase
 
             ),
         ];
+
         yield 'Request: path param in path, operation param in query, header, cookie, requestBody param' => [
             new OpenAPIRequest(
                 new PathParameterExtractor('/requestbodypath/{id}'),
@@ -631,11 +639,10 @@ class OpenAPIRequestBuilderTest extends TestCase
     public static function dataSetsForDocExamples(): array
     {
         $petstoreApi = (new Reader([OpenAPIVersion::Version_3_0]))
-            ->readFromAbsoluteFilePath(self::DIR . '/docs/petstore.yaml');
+            ->readFromAbsoluteFilePath(self::FIXTURES . '/docs/petstore.yaml');
 
         $petstoreExpandedApi = (new Reader([OpenAPIVersion::Version_3_0]))
-            ->readFromAbsoluteFilePath(self::DIR . '/docs/petstore-expanded.json');
-
+            ->readFromAbsoluteFilePath(self::FIXTURES . '/docs/petstore-expanded.json');
 
         return [
             'petstore /pets get, minimal (valid)' => [
@@ -702,7 +709,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                     $petstoreExpandedApi->paths->getPath('/pets'),
                     Method::GET
                 ),
-                new ServerRequest('get', 'http://petstore.swagger.io/api/pets?limit=5&tags[]=cat&tags[]=tabby'),
+                new ServerRequest('get', 'http://petstore.swagger.io/api/pets?limit=5&tags=cat,tabby'),
                 Result::valid(
                     [
                         'request' => ['method' => 'get', 'operationId' => 'findPets'],

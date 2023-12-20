@@ -8,6 +8,7 @@ use Membrane;
 use Membrane\Console\Command\CacheOpenAPIProcessors;
 use Membrane\Console\Template;
 use Membrane\Filter\String\AlphaNumeric;
+use Membrane\Filter\String\Explode;
 use Membrane\Filter\String\ToPascalCase;
 use Membrane\Filter\Type as TypeFilter;
 use Membrane\OpenAPI\Builder as Builder;
@@ -52,6 +53,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[UsesClass(Membrane\Result\Result::class)]
 #[UsesClass(AlphaNumeric::class)]
 #[UsesClass(ToPascalCase::class)]
+#[UsesClass(Explode::class)]
 #[UsesClass(TypeFilter\ToInt::class)]
 #[UsesClass(Specification\APISchema::class)]
 #[UsesClass(Specification\Arrays::class)]

@@ -28,7 +28,7 @@ class OpenAPIResponseTest extends TestCase
             ],
         ]);
 
-        self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes(array_keys($response->content)));
+        self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes(...array_keys($response->content)));
 
         new OpenAPIResponse('testOperation', '200', $response);
     }

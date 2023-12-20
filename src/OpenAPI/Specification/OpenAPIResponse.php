@@ -29,7 +29,7 @@ class OpenAPIResponse implements Specification
 
         $schema = $content['application/json']?->schema
             ??
-            throw CannotProcessOpenAPI::unsupportedMediaTypes(array_keys($content));
+            throw CannotProcessOpenAPI::unsupportedMediaTypes(...array_keys($content));
 
         assert($schema instanceof Cebe\Schema);
         return $schema;

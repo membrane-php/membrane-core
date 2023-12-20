@@ -51,7 +51,7 @@ class OpenAPIRequestTest extends TestCase
         $pathParameterExtractor = new PathParameterExtractor('/path');
 
         self::expectExceptionObject(
-            CannotProcessOpenAPI::unsupportedMediaTypes(array_keys($pathItem->put->requestBody->content))
+            CannotProcessOpenAPI::unsupportedMediaTypes(...array_keys($pathItem->put->requestBody->content))
         );
 
         new OpenAPIRequest($pathParameterExtractor, $pathItem, Method::PUT);

@@ -15,6 +15,7 @@
             "description": "tags to filter by",
             "required": false,
             "style": "form",
+            "explode": false,
             "schema": {
               "type": "array",
               "items": {
