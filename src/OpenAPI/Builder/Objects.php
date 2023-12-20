@@ -13,6 +13,7 @@ use Membrane\Processor\BeforeSet;
 use Membrane\Processor\DefaultProcessor;
 use Membrane\Processor\FieldSet;
 use Membrane\Validator\Collection\Contained;
+use Membrane\Validator\Collection\Count;
 use Membrane\Validator\FieldSet\FixedFields;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Type\IsArray;
@@ -67,7 +68,10 @@ class Objects extends APIBuilder
         if ($specification->additionalProperties === false) {
             $beforeChain[] = new FixedFields(...array_keys($specification->properties));
         }
-        // @TODO support minProperties and maxProperties
+
+        if ($specification->minProperties > 0 || isset($specification->maxProperties)) {
+            $beforeChain[] = new Count($specification->minProperties, $specification->maxProperties);
+        }
 
         $beforeSet = new BeforeSet(...$beforeChain);
 

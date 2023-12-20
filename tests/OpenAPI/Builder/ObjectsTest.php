@@ -19,6 +19,7 @@ use Membrane\Processor\DefaultProcessor;
 use Membrane\Processor\Field;
 use Membrane\Processor\FieldSet;
 use Membrane\Validator\Collection\Contained;
+use Membrane\Validator\Collection\Count;
 use Membrane\Validator\FieldSet\FixedFields;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Type\IsArray;
@@ -77,6 +78,21 @@ class ObjectsTest extends TestCase
                 new Specification\Objects('', new Schema(['type' => 'object'])),
                 new FieldSet('', new BeforeSet(new IsArray())),
             ],
+            'minProperties greater than zero' => [
+                new Specification\Objects('', new Schema(['type' => 'object', 'minProperties' => 1])),
+                new FieldSet('', new BeforeSet(new IsArray(), new Count(1))),
+            ],
+            'maxProperties is set' => [
+                new Specification\Objects('', new Schema(['type' => 'object', 'maxProperties' => 1])),
+                new FieldSet('', new BeforeSet(new IsArray(), new Count(0, 1))),
+            ],
+            'minProperties and maxProperties is set' => [
+                new Specification\Objects(
+                    '',
+                    new Schema(['type' => 'object', 'minProperties' => 1, 'maxProperties' => 1])
+                ),
+                new FieldSet('', new BeforeSet(new IsArray(), new Count(1, 1))),
+            ],
             'additionalProperties set to false' => [
                 new Specification\Objects(
                     '', new Schema([
@@ -94,6 +110,8 @@ class ObjectsTest extends TestCase
                     '',
                     new Schema([
                         'type' => 'object',
+                        'minProperties' => 2,
+                        'maxProperties' => 5,
                         'additionalProperties' => [
                             'oneOf' => [
                                 new Schema(['type' => 'boolean']),
@@ -104,7 +122,7 @@ class ObjectsTest extends TestCase
                 ),
                 new FieldSet(
                     '',
-                    new BeforeSet(new IsArray()),
+                    new BeforeSet(new IsArray(), new Count(2, 5)),
                     new DefaultProcessor(
                         new OneOf(
                             '',
