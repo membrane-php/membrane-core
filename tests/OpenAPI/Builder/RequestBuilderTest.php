@@ -7,7 +7,9 @@ namespace Membrane\Tests\OpenAPI\Builder;
 use Generator;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;
+use Membrane\Filter\String\Explode;
 use Membrane\Filter\String\Implode;
+use Membrane\Filter\String\JsonDecode;
 use Membrane\Filter\Type\ToBool;
 use Membrane\Filter\Type\ToFloat;
 use Membrane\Filter\Type\ToInt;
@@ -16,8 +18,10 @@ use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Arrays;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
+use Membrane\OpenAPI\Builder\ParameterBuilder;
 use Membrane\OpenAPI\Builder\RequestBuilder;
 use Membrane\OpenAPI\Builder\Strings;
+use Membrane\OpenAPI\Builder\TrueFalse;
 use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
@@ -27,6 +31,7 @@ use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
+use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPIReader\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
@@ -49,6 +54,7 @@ use Membrane\Validator\Type\IsBool;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
+use Membrane\Validator\Type\IsNumber;
 use Membrane\Validator\Type\IsString;
 use Membrane\Validator\Utility\Passes;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -65,6 +71,8 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(APIBuilder::class)]
 #[UsesClass(OpenAPIRequestBuilder::class)]
 #[UsesClass(OpenAPIRequest::class)]
+#[UsesClass(ParameterBuilder::class)]
+#[UsesClass(TrueFalse::class)]
 #[UsesClass(Request::class)]
 #[UsesClass(Arrays::class)]
 #[UsesClass(Numeric::class)]
@@ -77,8 +85,12 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Numeric::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Strings::class)]
+#[UsesClass(\Membrane\OpenAPI\Specification\TrueFalse::class)]
+#[UsesClass(Parameter::class)]
 #[UsesClass(Request::class)]
 #[UsesClass(ToInt::class)]
+#[UsesClass(ToBool::class)]
+#[UsesClass(ToFloat::class)]
 #[UsesClass(BeforeSet::class)]
 #[UsesClass(Collection::class)]
 #[UsesClass(Field::class)]
@@ -92,8 +104,17 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(IsInt::class)]
 #[UsesClass(IsList::class)]
 #[UsesClass(IsString::class)]
+#[UsesClass(IsFloat::class)]
+#[UsesClass(IsNumber::class)]
 #[UsesClass(Passes::class)]
 #[UsesClass(ContentType::class)]
+#[UsesClass(IntString::class)]
+#[UsesClass(Explode::class)]
+#[UsesClass(Implode::class)]
+#[UsesClass(JsonDecode::class)]
+#[UsesClass(NumericString::class)]
+#[UsesClass(BoolString::class)]
+
 class RequestBuilderTest extends TestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';
@@ -685,7 +706,7 @@ class RequestBuilderTest extends TestCase
                     ),
                     'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
                     'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
-                    'cookie' => new FieldSet('cookie', new Field('name', new Implode(','), new IsString())),
+                    'cookie' => new FieldSet('cookie', new Field('name', new IsString())),
                     'body' => new Field('requestBody', new Passes()),
                 ]
             ),
@@ -721,19 +742,47 @@ class RequestBuilderTest extends TestCase
                     'operationId' => 'requestpathtwo-post'
                 ],
                 'path' => [],
-                'query' => ['name' => 'dave'],
+                'query' => [],
                 'header' => [
                     'Host' => ['www.test.com'],
                     'id' => '5'
                 ],
-                'cookie' => [],
+                'cookie' => ['name' => 'dave'],
                 'body' => '',
             ]),
-            new ServerRequest(
+            (new ServerRequest(
                 'post',
-                'http://www.test.com/requestpathtwo?name=dave',
+                'http://www.test.com/requestpathtwo',
                 ['id' => '5']
-            )
+            ))->withCookieParams(['name' => 'dave'])
+        );
+
+        yield 'Invalid:string cookie param specified as int' => $intHeaderStringCookieParam(
+            Result::invalid(
+                [
+                    'request' => [
+                        'method' => 'post',
+                        'operationId' => 'requestpathtwo-post'
+                    ],
+                    'path' => [],
+                    'query' => [],
+                    'header' => [
+                        'Host' => ['www.test.com'],
+                        'id' => '5'
+                    ],
+                    'cookie' => ['name' => 1],
+                    'body' => '',
+                ],
+                new MessageSet(
+                    new FieldName('name', '', 'cookie'),
+                    new Message('IsString validator expects string value, %s passed instead', ['integer'])
+                )
+            ),
+            (new ServerRequest(
+                'post',
+                'http://www.test.com/requestpathtwo',
+                ['id' => '5']
+            ))->withCookieParams(['name' => 1])
         );
 
         $intBodyParam = fn($result, $serverRequest) => [
@@ -842,7 +891,7 @@ class RequestBuilderTest extends TestCase
                     ),
                     'cookie' => new FieldSet(
                         'cookie',
-                        new Field('subspecies', new Implode(','), new NumericString(), new ToNumber())
+                        new Field('subspecies', new IsNumber())
                     ),
                     'body' => new Field('requestBody', new IsFloat()),
                 ]
@@ -856,7 +905,7 @@ class RequestBuilderTest extends TestCase
             $serverRequest,
         ];
 
-        yield 'Valid:Scalar parameters everything (except cookie) specified' => $scalarsInEverything(
+        yield 'Valid:Scalar parameters everything specified correctly' => $scalarsInEverything(
             Result::valid([
                 'request' => [
                     'method' => 'get',
@@ -869,10 +918,10 @@ class RequestBuilderTest extends TestCase
                     'Content-Type' => ['application/json'],
                     'species' => [true, false, true],
                 ],
-                'cookie' => [],
+                'cookie' => ['subspecies' => 1],
                 'body' => 3.14,
             ]),
-            new ServerRequest(
+            (new ServerRequest(
                 'get',
                 'http://www.test.com/requestbodypath/5.5?age=3',
                 [
@@ -880,7 +929,60 @@ class RequestBuilderTest extends TestCase
                     'species' => ['true', 'false', 'true'],
                 ],
                 '3.14'
-            )
+            ))->withCookieParams(['subspecies' => 1])
+        );
+
+        yield 'Invalid:Scalar parameters everything specified incorrectly' => $scalarsInEverything(
+            Result::invalid(
+                [
+                    'request' => [
+                        'method' => 'get',
+                        'operationId' => 'requestbodypath-id-get'
+                    ],
+                    'path' => ['id' => 'five'],
+                    'query' => ['age' => 3.14],
+                    'header' => [
+                        'Host' => ['www.test.com'],
+                        'Content-Type' => ['application/json'],
+                        'species' => ['yes', 'no'],
+                    ],
+                    'cookie' => ['subspecies' => 'dave'],
+                    'body' => 'pi',
+                ],
+                new MessageSet(
+                    new FieldName('requestBody', ''),
+                    new Message('IsFloat expects float value, %s passed instead', ['string'])
+                ),
+                new MessageSet(
+                    new FieldName('subspecies', '', 'cookie'),
+                    new Message('Value must be a number, %s passed', ['string'])
+                ),
+                new MessageSet(
+                    new FieldName('', '', 'header', 'species', '0'),
+                    new Message('String value must be a boolean.', [])
+                ),
+                new MessageSet(
+                    new FieldName('', '', 'header', 'species', '1'),
+                    new Message('String value must be a boolean.', [])
+                ),
+                new MessageSet(
+                    new FieldName('age', '', 'query'),
+                    new Message('String value must be an integer.', [])
+                ),
+                new MessageSet(
+                    new FieldName('id', '', 'path'),
+                    new Message('String value must be numeric', [])
+                ),
+            ),
+            (new ServerRequest(
+                'get',
+                'http://www.test.com/requestbodypath/five?age=3.14',
+                [
+                    'Content-Type' => 'application/json',
+                    'species' => ['yes', 'no'],
+                ],
+                '"pi"'
+            ))->withCookieParams(['subspecies' => 'dave'])
         );
     }
 

@@ -21,6 +21,7 @@ use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
 use Membrane\OpenAPI\Builder\ParameterBuilder;
 use Membrane\OpenAPI\Builder\RequestBuilder;
 use Membrane\OpenAPI\Builder\Strings;
+use Membrane\OpenAPI\Builder\TrueFalse;
 use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
@@ -57,6 +58,7 @@ use Membrane\Validator\String\NumericString;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
+use Membrane\Validator\Type\IsNumber;
 use Membrane\Validator\Type\IsString;
 use Membrane\Validator\Utility\Passes;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -79,6 +81,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(Arrays::class)]
 #[UsesClass(Numeric::class)]
 #[UsesClass(Strings::class)]
+#[UsesClass(TrueFalse::class)]
 #[UsesClass(HTTPParameters::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathParameterExtractor::class)]
@@ -89,6 +92,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Numeric::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Strings::class)]
+#[UsesClass(\Membrane\OpenAPI\Specification\TrueFalse::class)]
 #[UsesClass(Request::class)]
 #[UsesClass(Explode::class)]
 #[UsesClass(ToInt::class)]
@@ -96,6 +100,9 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(Collection::class)]
 #[UsesClass(Field::class)]
 #[UsesClass(FieldSet::class)]
+#[UsesClass(AnyOf::class)]
+#[UsesClass(AllOf::class)]
+#[UsesClass(OneOf::class)]
 #[UsesClass(FieldName::class)]
 #[UsesClass(Message::class)]
 #[UsesClass(MessageSet::class)]
@@ -105,8 +112,10 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(IsInt::class)]
 #[UsesClass(IsList::class)]
 #[UsesClass(IsString::class)]
+#[UsesClass(IntString::class)]
 #[UsesClass(Passes::class)]
 #[UsesClass(ContentType::class)]
+#[UsesClass(Implode::class)]
 class OpenAPIRequestBuilderTest extends TestCase
 {
     public const FIXTURES = __DIR__ . '/../../fixtures/OpenAPI/';
@@ -389,7 +398,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                     ),
                     'cookie' => new FieldSet(
                         'cookie',
-                        new Field('name', new Implode(','), new IsString())
+                        new Field('name', new IsString())
                     ),
                     'body' => new Field('requestBody', new Passes()),
                 ]
@@ -542,7 +551,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         )
                     ),
                     'cookie' => new FieldSet('cookie',
-                        new Field('subspecies', new Implode(','), new NumericString(), new ToNumber())
+                        new Field('subspecies', new IsNumber())
                     ),
                     'body' => new Field('requestBody', new IsFloat()),
                 ]

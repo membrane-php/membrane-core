@@ -106,7 +106,7 @@ class Request implements Processor
             'path' => $request->getUri()->getPath(),
             'query' => $request->getUri()->getQuery(),
             'header' => $request->getHeaders(),
-            'cookie' => [], //todo support cookie parameters => $request->getCookieParams()
+            'cookie' => $request->getCookieParams(),
         ];
 
         //There should only be one content type header; PHP ignores additional header values

@@ -42,6 +42,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[UsesClass(Builder\Objects::class)]
 #[UsesClass(Builder\OpenAPIRequestBuilder::class)]
 #[UsesClass(Builder\OpenAPIResponseBuilder::class)]
+#[UsesClass(Builder\ParameterBuilder::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathParameterExtractor::class)]
 #[UsesClass(Membrane\OpenAPI\Processor\AllOf::class)]
@@ -58,6 +59,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[UsesClass(Specification\APISchema::class)]
 #[UsesClass(Specification\Arrays::class)]
 #[UsesClass(Specification\Numeric::class)]
+#[UsesClass(Specification\Parameter::class)]
 #[UsesClass(Specification\Strings::class)]
 #[UsesClass(Processor\BeforeSet::class)]
 #[UsesClass(Processor\Collection::class)]
@@ -68,6 +70,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[UsesClass(TypeValidator\IsInt::class)]
 #[UsesClass(TypeValidator\IsList::class)]
 #[UsesClass(TypeValidator\IsString::class)]
+#[UsesClass(Membrane\Validator\String\IntString::class)]
 #[UsesClass(UtilityValidator\Passes::class)]
 #[UsesClass(ContentType::class)]
 class CacheOpenAPIProcessorsTest extends TestCase

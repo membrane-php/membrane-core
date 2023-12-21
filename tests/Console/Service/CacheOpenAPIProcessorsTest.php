@@ -38,6 +38,7 @@ use Psr\Log\LoggerInterface;
 #[UsesClass(Builder\Objects::class)]
 #[UsesClass(Builder\OpenAPIRequestBuilder::class)]
 #[UsesClass(Builder\OpenAPIResponseBuilder::class)]
+#[UsesClass(Builder\ParameterBuilder::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathParameterExtractor::class)]
 #[UsesClass(Membrane\OpenAPI\Processor\AllOf::class)]
@@ -46,6 +47,7 @@ use Psr\Log\LoggerInterface;
 #[UsesClass(Specification\Objects::class)]
 #[UsesClass(Specification\OpenAPIRequest::class)]
 #[UsesClass(Specification\OpenAPIResponse::class)]
+#[UsesClass(Specification\Parameter::class)]
 #[UsesClass(Membrane\Result\Result::class)]
 #[UsesClass(AlphaNumeric::class)]
 #[UsesClass(ToPascalCase::class)]
@@ -64,6 +66,7 @@ use Psr\Log\LoggerInterface;
 #[UsesClass(TypeValidator\IsInt::class)]
 #[UsesClass(TypeValidator\IsList::class)]
 #[UsesClass(TypeValidator\IsString::class)]
+#[UsesClass(Membrane\Validator\String\IntString::class)]
 #[UsesClass(UtilityValidator\Passes::class)]
 #[UsesClass(ContentType::class)]
 class CacheOpenAPIProcessorsTest extends TestCase
