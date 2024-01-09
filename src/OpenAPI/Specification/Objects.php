@@ -16,6 +16,9 @@ class Objects extends APISchema
     /** @var string[]|null */
     public readonly ?array $required;
 
+    public readonly ?int $maxProperties;
+    public readonly int $minProperties;
+
     public function __construct(
         string $fieldName,
         Cebe\Schema $schema,
@@ -31,6 +34,10 @@ class Objects extends APISchema
         $this->properties = array_filter($schema->properties ?? [], fn($p) => $p instanceof Cebe\Schema);
 
         $this->required = $schema->required;
+
+        $this->maxProperties = $schema->maxProperties ?? null;
+
+        $this->minProperties = $schema->minProperties ?? 0;
 
         parent::__construct($fieldName, $schema);
     }
