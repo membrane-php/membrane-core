@@ -23,6 +23,7 @@ class CannotProcessOpenAPI extends RuntimeException
     public const UNSUPPORTED_STYLE = 3;
     public const REFERENCES_NOT_RESOLVED = 4;
     public const MISSING_OPERATION_ID = 5;
+    public const REDUNDANT_COMPLEX_SCHEMA = 6;
 
     public static function invalidOpenAPI(string $fileName, string ...$errors): self
     {
@@ -86,5 +87,11 @@ class CannotProcessOpenAPI extends RuntimeException
             $method->value
         );
         return new self($message, self::MISSING_OPERATION_ID);
+    }
+
+    public static function pointlessComplexSchema(string $fieldName): self
+    {
+        $message = sprintf('"%s" has a redundant complex schema as it has no subschemas', $fieldName);
+        return new self($message, self::REDUNDANT_COMPLEX_SCHEMA);
     }
 }

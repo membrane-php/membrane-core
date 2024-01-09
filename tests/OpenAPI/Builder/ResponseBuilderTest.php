@@ -617,8 +617,8 @@ class ResponseBuilderTest extends TestCase
                 ),
                 new AllOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
                 ),
             ],
             'allOf, two objects, one unique parameters' => [
@@ -630,8 +630,8 @@ class ResponseBuilderTest extends TestCase
                 ),
                 new AllOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('name', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('name', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'allOf, two objects, conflicting parameter' => [
@@ -643,17 +643,17 @@ class ResponseBuilderTest extends TestCase
                 ),
                 new AllOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'allOf, two objects, unique parameters, one requiredField' => [
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '304'),
                 new AllOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new BeforeSet(new IsArray(), new RequiredFields('name')),
                         new Field('name', new IsString())
                     )
@@ -664,12 +664,12 @@ class ResponseBuilderTest extends TestCase
                 new AllOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -680,12 +680,12 @@ class ResponseBuilderTest extends TestCase
                 new AllOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     )
@@ -704,8 +704,8 @@ class ResponseBuilderTest extends TestCase
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '321'),
                 new AnyOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
                 ),
             ],
             'anyOf, two objects, one unique parameters' => [
@@ -717,8 +717,8 @@ class ResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('name', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('name', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'anyOf, two objects, conflicting parameter' => [
@@ -730,17 +730,17 @@ class ResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'anyOf, two objects, unique parameters, one requiredField' => [
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '324'),
                 new AnyOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -756,12 +756,12 @@ class ResponseBuilderTest extends TestCase
                 new AnyOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -777,12 +777,12 @@ class ResponseBuilderTest extends TestCase
                 new AnyOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     )
@@ -796,16 +796,16 @@ class ResponseBuilderTest extends TestCase
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '341'),
                 new OneOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
                 ),
             ],
             'oneOf, two objects, one unique parameters' => [
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '342'),
                 new OneOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('name', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('name', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'oneOf, two objects, conflicting parameter' => [
@@ -817,17 +817,17 @@ class ResponseBuilderTest extends TestCase
                 ),
                 new OneOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'oneOf, two objects, unique parameters, one requiredField' => [
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '344'),
                 new OneOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -843,12 +843,12 @@ class ResponseBuilderTest extends TestCase
                 new OneOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -864,12 +864,12 @@ class ResponseBuilderTest extends TestCase
                 new OneOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     )

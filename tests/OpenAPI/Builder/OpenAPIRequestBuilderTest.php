@@ -544,8 +544,13 @@ class OpenAPIRequestBuilderTest extends TestCase
                                     'in' => 'query',
                                     'schema' => [
                                         $xOf => [
-                                            ['type' => 'boolean'],
-                                            ['type' => 'integer'],
+                                            [
+                                                'title' => 'Uno',
+                                                'type' => 'boolean',
+                                            ],
+                                            [
+                                                'type' => 'integer',
+                                            ],
                                         ],
                                     ],
                                 ],
@@ -587,8 +592,8 @@ class OpenAPIRequestBuilderTest extends TestCase
             $complexProcessor(
                 new OneOf(
                     'complexity',
-                    new Field('complexity', new BoolString(), new ToBool()),
-                    new Field('complexity', new IntString(), new ToInt())
+                    new Field('Uno', new BoolString(), new ToBool()),
+                    new Field('Branch-2', new IntString(), new ToInt())
                 )
             ),
         ];
@@ -602,8 +607,8 @@ class OpenAPIRequestBuilderTest extends TestCase
             $complexProcessor(
                 new AnyOf(
                     'complexity',
-                    new Field('complexity', new BoolString(), new ToBool()),
-                    new Field('complexity', new IntString(), new ToInt())
+                    new Field('Uno', new BoolString(), new ToBool()),
+                    new Field('Branch-2', new IntString(), new ToInt())
                 )
             ),
         ];
@@ -617,8 +622,8 @@ class OpenAPIRequestBuilderTest extends TestCase
             $complexProcessor(
                 new AllOf(
                     'complexity',
-                    new Field('complexity', new BoolString(), new ToBool()),
-                    new Field('complexity', new IntString(), new ToInt())
+                    new Field('Uno', new BoolString(), new ToBool()),
+                    new Field('Branch-2', new IntString(), new ToInt())
                 )
             ),
         ];
