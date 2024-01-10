@@ -74,11 +74,12 @@ class ResponseBuilder implements Builder
 
     private function getResponse(Cebe\Operation $operation, string $httpStatus): Cebe\Response
     {
-        return $operation->responses[$httpStatus]
-            ??
-            $operation->responses['default']
-            ??
-            throw CannotProcessResponse::codeNotFound($httpStatus);
+        $response = $operation->responses?->getResponse($httpStatus) ??
+            $operation->responses?->getResponse('default');
+
+        assert(!$response instanceof Cebe\Reference);
+
+        return $response ?? throw CannotProcessResponse::codeNotFound($httpStatus);
     }
 
     private function matchServer(Cebe\OpenApi $openAPI, string $url): string
