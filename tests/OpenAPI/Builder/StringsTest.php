@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Membrane\Tests\OpenAPI\Builder;
 
 use cebe\openapi\spec\Schema;
+use Membrane\Filter\String\ToUpperCase;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\Processor\AnyOf;
@@ -65,7 +66,15 @@ class StringsTest extends TestCase
             ],
             'date-time input' => [
                 new Specification\Strings('', new Schema(['type' => 'string', 'format' => 'date-time',])),
-                new Field('', new IsString(), new DateString('Y-m-d\TH:i:sP', true)),
+                new Field(
+                    '',
+                    new IsString(),
+                    new ToUpperCase(),
+                    new \Membrane\Validator\Utility\AnyOf(
+                        new DateString('Y-m-d\TH:i:sP', true),
+                        new DateString('Y-m-d\TH:i:sp', true),
+                    ),
+                ),
             ],
             'detailed input' => [
                 new Specification\Strings(

@@ -76,7 +76,10 @@ class DateStringTest extends TestCase
         return [
             ['', ''],
             ['Y-m-d', '1970-01-01'],
-            ['d-M-y', '20-feb-22'],
+            ['d-M-y', '20-Feb-22'],
+            ['Y-m-d\TH:i:sP', '2019-08-24T14:15:22+00:00'],
+            ['Y-m-d\TH:i:sp', '2019-08-24T14:15:22Z'],
+
         ];
     }
 
@@ -84,7 +87,7 @@ class DateStringTest extends TestCase
     #[Test]
     public function stringsThatMatchFormatReturnValid(string $format, string $input): void
     {
-        $dateString = new DateString($format);
+        $dateString = new DateString($format, true);
         $expected = Result::valid($input);
 
         $result = $dateString->validate($input);
@@ -98,6 +101,8 @@ class DateStringTest extends TestCase
             ['Y-m-d', '1990 June 15'],
             ['Y-m', '01-April'],
             ['Y', ''],
+            ['Y-m-d\TH:i:sp', '2019-08-24t14:15:22z'],
+            ['Y-m-d\TH:i:sP', '2019-08-24t14:15:22+00:00'],
         ];
     }
 

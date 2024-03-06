@@ -6,6 +6,7 @@ namespace Membrane\Tests\OpenAPI\Builder;
 
 use cebe\openapi\Reader;
 use Membrane\Builder\Specification;
+use Membrane\Filter\String\ToUpperCase;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\OpenAPIResponseBuilder;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
@@ -337,7 +338,15 @@ class OpenAPIResponseBuilderTest extends TestCase
                     '224',
                     $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('224')
                 ),
-                new Field('', new IsString(), new DateString(DATE_ATOM, true)),
+                new Field(
+                    '',
+                    new IsString(),
+                    new ToUpperCase(),
+                    new \Membrane\Validator\Utility\AnyOf(
+                        new DateString('Y-m-d\TH:i:sP', true),
+                        new DateString('Y-m-d\TH:i:sp', true),
+                    ),
+                ),
             ],
             'string, minLength' => [
                 new OpenAPIResponse(
