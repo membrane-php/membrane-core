@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Membrane\Tests\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
+use Membrane\Filter\String\ToUpperCase;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\OpenAPIResponseBuilder;
 use Membrane\OpenAPI\Builder\ResponseBuilder;
@@ -54,6 +55,7 @@ use Membrane\Validator\Type\IsString;
 use Membrane\Validator\Utility\Passes;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -382,7 +384,15 @@ class ResponseBuilderTest extends TestCase
                     Method::GET,
                     '224'
                 ),
-                new Field('', new IsString(), new DateString(DATE_ATOM, true)),
+                new Field(
+                    '',
+                    new IsString(),
+                    new ToUpperCase(),
+                    new \Membrane\Validator\Utility\AnyOf(
+                        new DateString('Y-m-d\TH:i:sP', true),
+                        new DateString('Y-m-d\TH:i:sp', true),
+                    )
+                ),
             ],
             'string, minLength' => [
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '225'),
@@ -909,7 +919,8 @@ class ResponseBuilderTest extends TestCase
         ];
     }
 
-    #[Test, TestDox('It builds processors that can validate data matches response content')]
+    #[Test]
+    #[TestDox('It builds processors that validate response content')]
     #[DataProvider('dataSetsforBuilds')]
     public function buildsTest(Specification $spec, Processor $expected): void
     {
@@ -980,8 +991,8 @@ class ResponseBuilderTest extends TestCase
         ];
     }
 
-    #[DataProvider('dataSetsForDocExamples')]
     #[Test]
+    #[DataProvider('dataSetsForDocExamples')]
     public function docsTest(Specification $spec, array $data, Result $expected): void
     {
         $processor = $this->sut->build($spec);

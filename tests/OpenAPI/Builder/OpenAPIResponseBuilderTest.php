@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Membrane\Tests\OpenAPI\Builder;
 
 use cebe\openapi\Reader;
+use Generator;
 use Membrane\Builder\Specification;
+use Membrane\Filter\String\ToUpperCase;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\OpenAPIResponseBuilder;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
@@ -337,7 +339,15 @@ class OpenAPIResponseBuilderTest extends TestCase
                     '224',
                     $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('224')
                 ),
-                new Field('', new IsString(), new DateString(DATE_ATOM, true)),
+                new Field(
+                    '',
+                    new IsString(),
+                    new ToUpperCase(),
+                    new \Membrane\Validator\Utility\AnyOf(
+                        new DateString('Y-m-d\TH:i:sP', true),
+                        new DateString('Y-m-d\TH:i:sp', true),
+                    ),
+                ),
             ],
             'string, minLength' => [
                 new OpenAPIResponse(
@@ -1011,5 +1021,51 @@ class OpenAPIResponseBuilderTest extends TestCase
         $processor = $sut->build($spec);
 
         self::assertEquals($expected, $processor->process(new FieldName(''), $data));
+    }
+
+    #[Test]
+    #[DataProvider('provideDateStrings')]
+    public function itValidatesDateTime(Result $expected, string $dateTime): void
+    {
+        $noReferences = Reader::readFromJsonFile(self::DIR . 'noReferences.json');
+        $specification = new OpenAPIResponse(
+            $noReferences->paths->getPath('/responsepath')->get->operationId,
+            '224',
+            $noReferences->paths->getPath('/responsepath')->get->responses->getResponse('224')
+        );
+
+        $sut = new OpenAPIResponseBuilder();
+
+        $processor = $sut->build($specification);
+
+        self::assertEquals($expected, $processor->process(new FieldName(''), $dateTime));
+    }
+
+    public static function provideDateStrings(): Generator
+    {
+        yield 'valid, upper case T and Z' => [
+            Result::valid('1970-01-01T00:00:00Z'),
+            '1970-01-01T00:00:00Z',
+        ];
+
+        yield 'valid, upper case T, lower case z' => [
+            Result::valid('1970-01-01T00:00:00Z'),
+            '1970-01-01T00:00:00z',
+        ];
+
+        yield 'valid, lower case t, upper case z' => [
+            Result::valid('1970-01-01T00:00:00Z'),
+            '1970-01-01t00:00:00Z',
+        ];
+
+        yield 'valid, lower case t and z' => [
+            Result::valid('1970-01-01T00:00:00Z'),
+            '1970-01-01t00:00:00z',
+        ];
+
+        yield 'valid, lower case t and +00:00' => [
+            Result::valid('1970-01-01T00:00:00+00:00'),
+            '1970-01-01T00:00:00+00:00',
+        ];
     }
 }
