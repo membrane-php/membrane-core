@@ -2,23 +2,46 @@
 
 declare(strict_types=1);
 
-namespace Validator\Collection;
+namespace Membrane\Tests\Validator\Collection;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Collection\Identical;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Collection\Identical
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Identical::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class IdenticalTest extends TestCase
 {
-    public function dataSetsWithIncorrectTypes(): array
+    #[Test]
+    public function toStringTest(): void
+    {
+        $expected = 'contains only identical values';
+        $sut = new Identical();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    #[Test]
+    public function toPHPTest(): void
+    {
+        $sut = new Identical();
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [123, 'integer'],
@@ -29,14 +52,14 @@ class IdenticalTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectTypes
-     */
+    #[DataProvider('dataSetsWithIncorrectTypes')]
+    #[Test]
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $identical = new Identical();
-        $expected = Result::invalid($input, new MessageSet(
+        $expected = Result::invalid(
+            $input,
+            new MessageSet(
                 null,
                 new Message('Identical Validator requires an array, %s given', [$expectedVars])
             )
@@ -47,7 +70,7 @@ class IdenticalTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsForValidResults(): array
+    public static function dataSetsForValidResults(): array
     {
         return [
             [[]],
@@ -60,10 +83,8 @@ class IdenticalTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForValidResults
-     */
+    #[DataProvider('dataSetsForValidResults')]
+    #[Test]
     public function returnsValidIfEveryInputIsIdentical(mixed $input): void
     {
         $expected = Result::valid($input);
@@ -74,7 +95,7 @@ class IdenticalTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsForInvalidResults(): array
+    public static function dataSetsForInvalidResults(): array
     {
         return [
             [[null, 1], Result::INVALID],
@@ -90,10 +111,8 @@ class IdenticalTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForInvalidResults
-     */
+    #[DataProvider('dataSetsForInvalidResults')]
+    #[Test]
     public function returnsInvalidIfAnyInputIsDifferent(mixed $input): void
     {
         $expected = Result::invalid($input, new MessageSet(null, new Message('Do not match', [])));

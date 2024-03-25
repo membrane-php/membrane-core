@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Membrane;
 
 use Membrane\Attribute\Builder as AttributeBuilder;
-use Membrane\Builder\Builder as BuilderInterface;
+use Membrane\Builder\Builder;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Builder\RequestBuilder;
 use Membrane\OpenAPI\Builder\ResponseBuilder;
@@ -15,14 +15,29 @@ use RuntimeException;
 
 final class Membrane
 {
-    /** @var BuilderInterface[] */
-    private array $builders = [];
+    private bool $allowDefaults = true;
 
-    public function __construct()
+    /** @var Builder[] */
+    private readonly array $builders;
+    /** @var Builder[] */
+    private readonly array $defaultBuilders;
+
+    public function __construct(Builder ...$builders)
     {
-        $this->builders[] = new AttributeBuilder();
-        $this->builders[] = new RequestBuilder();
-        $this->builders[] = new ResponseBuilder();
+        $this->builders = $builders;
+
+        $this->defaultBuilders = [
+            new AttributeBuilder(),
+            new RequestBuilder(),
+            new ResponseBuilder(),
+        ];
+    }
+
+    public static function withoutDefaults(Builder ...$builders): self
+    {
+        $membrane = new Membrane(...$builders);
+        $membrane->allowDefaults = false;
+        return $membrane;
     }
 
     public function process(mixed $data, Specification ...$against): Result
@@ -45,7 +60,12 @@ final class Membrane
 
     private function getProcessorFor(Specification $specification): Processor
     {
-        foreach ($this->builders as $builder) {
+        $allowedBuilders = $this->builders;
+        if ($this->allowDefaults) {
+            array_push($allowedBuilders, ...$this->defaultBuilders);
+        }
+
+        foreach ($allowedBuilders as $builder) {
             if ($builder->supports($specification)) {
                 return $builder->build($specification);
             }

@@ -2,43 +2,58 @@
 
 declare(strict_types=1);
 
-namespace Validator\String;
+namespace Membrane\Tests\Validator\String;
 
+use Generator;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\String\Length;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\String\Length
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Result\MessageSet
- */
+#[CoversClass(Length::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class LengthTest extends TestCase
 {
-    public function dataSetsWithIncorrectTypes(): array
+    #[Test]
+    #[DataProvider('provideToStringCases')]
+    public function toStringTest(int $min, ?int $max, string $expected): void
     {
-        return [
-            [123, 'integer'],
-            [1.23, 'double'],
-            [[], 'array'],
-            [true, 'boolean'],
-            [null, 'NULL'],
-        ];
+        $sut = new Length($min, $max);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectTypes
-     */
-    public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
+    #[Test]
+    #[DataProvider('provideToPHPCases')]
+    public function toPHPTest(Length $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    #[Test]
+    #[DataProvider('provideNonStringTypes')]
+    public function itInvalidatesNonStringTypes(mixed $input): void
     {
         $length = new Length();
-        $expected = Result::invalid($input, new MessageSet(
+        $expected = Result::invalid(
+            $input,
+            new MessageSet(
                 null,
-                new Message('Length Validator requires a string, %s given', [$expectedVars])
+                new Message(
+                    'Length Validator requires a string, %s given',
+                    [gettype($input)]
+                )
             )
         );
 
@@ -47,55 +62,183 @@ class LengthTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatPass(): array
-    {
-        return [
-            ['', 0, 0],
-            ['', 0, null],
-            ['', 0, 5],
-            ['short', 0, 5],
-            ['longer string', 5, 100],
-        ];
-    }
-
-    /**
-     * @test
-     * @dataProvider dataSetsThatPass
-     */
-    public function stringLengthWithinMinAndMaxReturnsValid(mixed $input, int $min, ?int $max): void
-    {
-        $expected = Result::valid($input);
-        $length = new Length($min, $max);
-
-        $result = $length->validate($input);
-
-        self::assertEquals($expected, $result);
-    }
-
-    public function dataSetsThatFail(): array
-    {
-        return [
-            ['', 1, 5, new Message('String is expected to be a minimum of %d characters', [1])],
-            ['short', 6, 10, new Message('String is expected to be a minimum of %d characters', [6])],
-            ['longer string.', 6, 10, new Message('String is expected to be a maximum of %d characters', [10])],
-        ];
-    }
-
-    /**
-     * @test
-     * @dataProvider dataSetsThatFail
-     */
-    public function stringLengthOutsideMinOrMaxReturnsInvalid(
-        mixed $input,
+    #[Test]
+    #[DataProvider('provideStringsToValidate')]
+    public function itValidatesStringLengths(
+        Result $expected,
         int $min,
         ?int $max,
-        Message $expectedMessage
+        string $input
     ): void {
-        $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
-        $length = new Length($min, $max);
+        $sut = new Length($min, $max);
 
-        $result = $length->validate($input);
+        $actual = $sut->validate($input);
 
-        self::assertEquals($expected, $result);
+        self::assertEquals($expected, $actual);
+    }
+
+    /**
+     * @return array<array{
+     *     0: int,
+     *     1: ?int,
+     *     2: string,
+     * }>
+     */
+    public static function provideToStringCases(): array
+    {
+        return [
+            'no conditions' => [
+                0,
+                null,
+                'will return valid',
+            ],
+            'non-zero min' => [
+                1,
+                null,
+                'is 1 characters or more',
+            ],
+            'non-null max' => [
+                0,
+                5,
+                'is 5 characters or less',
+            ],
+            'non-zero min and non-null max' => [
+                2,
+                4,
+                'is 2 characters or more and is 4 characters or less',
+            ],
+        ];
+    }
+
+
+    public static function provideToPHPCases(): array
+    {
+        return [
+            'default arguments' => [new Length()],
+            'assigned arguments' => [new Length(1, 5)],
+        ];
+    }
+
+    public static function provideNonStringTypes(): array
+    {
+        return [
+            [123],
+            [1.23],
+            [[]],
+            [true],
+            [null],
+        ];
+    }
+
+    /**
+     * @return Generator<array{
+     *     0: Result,
+     *     1: int,
+     *     2: ?int,
+     *     3: string,
+     * }>
+     */
+    public static function provideStringsToValidate(): Generator
+    {
+        $invalidCase = fn($input, $min, $max, $message) => [
+            Result::invalid($input, new MessageSet(null, $message)),
+            $min,
+            $max,
+            $input,
+        ];
+
+        $validCase = fn($input, $min, $max) => [
+            Result::valid($input),
+            $min,
+            $max,
+            $input,
+        ];
+
+        yield 'empty string below min' => $invalidCase(
+            '',
+            1,
+            null,
+            new Message('String is expected to be a minimum of %d characters', [1])
+        );
+
+        yield 'empty string within range (inclusive min)' => $validCase(
+            '',
+            0,
+            null
+        );
+
+        yield 'empty string within range (inclusive min and max)' => $validCase(
+            '',
+            0,
+            0,
+        );
+
+        yield '"string" with min of zero and no max' => $validCase(
+          'string',
+          0,
+          null,
+        );
+
+        yield '"string" within range' => $validCase(
+          'string',
+          5,
+          7,
+        );
+
+        yield '"string" within range (inclusive min)' => $validCase(
+            'string',
+            6,
+            7,
+        );
+
+        yield '"string" within range (inclusive max)' => $validCase(
+            'string',
+            5,
+            6,
+        );
+
+        yield '"string" within range (inclusive min and max)' => $validCase(
+            'string',
+            6,
+            6,
+        );
+
+        yield '"short" below min' => $invalidCase(
+            'short',
+            6,
+            null,
+            new Message('String is expected to be a minimum of %d characters', [6])
+        );
+
+        yield '"long" above max' => $invalidCase(
+            'long',
+            0,
+            3,
+            new Message('String is expected to be a maximum of %d characters', [3])
+        );
+
+        yield '"äöü" within range' => $validCase(
+            'äöü',
+            2,
+            4,
+        );
+
+        yield '"äöü" within range (inclusive min)' => $validCase(
+            'äöü',
+            3,
+            4,
+        );
+
+        yield '"äöü" within range (inclusive max)' => $validCase(
+            'äöü',
+            2,
+            5,
+        );
+
+        yield '"äöü" within range (inclusive min and max)' => $validCase(
+            'äöü',
+            3,
+            3,
+        );
     }
 }

@@ -67,6 +67,7 @@ class JsonNested implements Renderer
             }
 
             if (!isset($errorField['fields'][$fieldName])) {
+                //@phpstan-ignore-next-line
                 $errorField['fields'][$fieldName] = ['errors' => [], 'fields' => []];
             }
 
@@ -74,6 +75,7 @@ class JsonNested implements Renderer
         }
 
         foreach ($messages as $message) {
+            //@phpstan-ignore-next-line
             $errorField['errors'][] = $message;
         }
     }

@@ -2,35 +2,54 @@
 
 declare(strict_types=1);
 
-namespace Filter\Shape;
+namespace Membrane\Tests\Filter\Shape;
 
-use Exception;
 use Membrane\Filter\Shape\Truncate;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\Shape\Truncate
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Truncate::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class TruncateTest extends TestCase
 {
-    /**
-     * @test
-     * @throws Exception
-     */
+    #[Test]
+    public function toStringTest(): void
+    {
+        $expected = 'truncate self to 5 fields or less';
+        $sut = new Truncate(5);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    #[Test]
+    public function toPHPTest(): void
+    {
+        $sut = new Truncate(5);
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    #[Test]
     public function negativeMaxLengthThrowsError()
     {
         self::expectExceptionMessage('Truncate filter cannot take negative max lengths');
 
-        $truncate = new Truncate(-1);
+        new Truncate(-1);
     }
 
-    public function dataSetsWithIncorrectInputs(): array
+    public static function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Truncate filter requires lists, %s given';
         $arrayMessage = 'Truncate filter requires lists, for arrays use Delete';
@@ -43,10 +62,8 @@ class TruncateTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectInputs
-     */
+    #[DataProvider('dataSetsWithIncorrectInputs')]
+    #[Test]
     public function incorrectInputsReturnInvalid(mixed $input, Message $expectedMessage): void
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
@@ -57,9 +74,7 @@ class TruncateTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function returnInputIfAlreadyBelowMaxLength(): void
     {
         $input = ['a', 'list'];
@@ -71,7 +86,7 @@ class TruncateTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsToFilter(): array
+    public static function dataSetsToFilter(): array
     {
         return [
             [
@@ -87,10 +102,8 @@ class TruncateTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToFilter
-     */
+    #[DataProvider('dataSetsToFilter')]
+    #[Test]
     public function listsAreTruncatedToMatchMaxLength(array $input, int $maxLength, array $expectedValue): void
     {
         $expected = Result::noResult($expectedValue);

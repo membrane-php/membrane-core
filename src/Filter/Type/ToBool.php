@@ -11,6 +11,16 @@ use Membrane\Result\Result;
 
 class ToBool implements Filter
 {
+    public function __toString(): string
+    {
+        return 'convert to a boolean';
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_scalar($value)) {

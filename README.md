@@ -25,8 +25,8 @@ However, it should not be used to validate that:
 
 These are all business rules which should be taken care of in a separate layer.
 
-Membrane will usually be your first line between a web request and your application, so I have made the design descision
+Membrane will usually be your first line between a web request and your application, so I have made the design decision
 that membrane will *NEVER* throw an
 exception because of bad user data. Exceptions will only be thrown due to membrane being setup incorrectly by the
 developer. As such, you will always get a
-result object back when validating user input even if the input was complete garbage. 
+result object back when validating user input even if the input was complete garbage.

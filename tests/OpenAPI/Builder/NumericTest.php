@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Builder;
+namespace Membrane\Tests\OpenAPI\Builder;
 
 use cebe\openapi\spec\Schema;
 use Membrane\Filter\Type\ToFloat;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
+use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
@@ -17,75 +18,106 @@ use Membrane\Validator\Collection\Contained;
 use Membrane\Validator\Numeric\Maximum;
 use Membrane\Validator\Numeric\Minimum;
 use Membrane\Validator\Numeric\MultipleOf;
+use Membrane\Validator\String\IntString;
+use Membrane\Validator\String\NumericString;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Type\IsNumber;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Builder\Numeric
- * @covers \Membrane\OpenAPI\Builder\APIBuilder
- * @uses   \Membrane\OpenAPI\Processor\AnyOf
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Validator\Collection\Contained
- * @uses   \Membrane\Validator\Numeric\Maximum
- * @uses   \Membrane\Validator\Numeric\Minimum
- * @uses   \Membrane\Validator\Numeric\MultipleOf
- */
+#[CoversClass(Numeric::class)]
+#[CoversClass(APIBuilder::class)]
+#[UsesClass(AnyOf::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(Contained::class)]
+#[UsesClass(Maximum::class)]
+#[UsesClass(Minimum::class)]
+#[UsesClass(MultipleOf::class)]
 class NumericTest extends TestCase
 {
-    public function specificationsToSupport(): array
+    #[Test]
+    public function supportsNumericSpecification(): void
     {
-        return [
-            [
-                new class() implements \Membrane\Builder\Specification {
-                },
-                false,
-            ],
-            [self::createStub(Specification\Numeric::class), true],
-        ];
-    }
-
-    /**
-     * @test
-     * @dataProvider specificationsToSupport
-     */
-    public function supportsTest(\Membrane\Builder\Specification $specification, bool $expected): void
-    {
+        $specification = self::createStub(Specification\Numeric::class);
         $sut = new Numeric();
 
-        self::assertSame($expected, $sut->supports($specification));
+        self::assertTrue($sut->supports($specification));
     }
 
-    public function specificationsToBuild(): array
+    #[Test]
+    public function doesNotSupportSpecificationsOtherThanNumeric(): void
+    {
+        $specification = self::createStub(\Membrane\Builder\Specification::class);
+        $sut = new Numeric();
+
+        self::assertFalse($sut->supports($specification));
+    }
+
+    public static function specificationsToBuild(): array
     {
         return [
-            'non-strict integer input' => [
-                new Specification\Numeric('', new Schema(['type' => 'integer']), false),
-                new Field('', new ToInt(), new IsInt()),
+            'integer input to convert from string' => [
+                new Specification\Numeric('', new Schema(['type' => 'integer']), true),
+                new Field('', new IntString(), new ToInt()),
             ],
             'strict integer input' => [
-                new Specification\Numeric('', new Schema(['type' => 'integer']), true),
+                new Specification\Numeric('', new Schema(['type' => 'integer']), false),
                 new Field('', new IsInt()),
             ],
-            'non-strict number input' => [
-                new Specification\Numeric('', new Schema(['type' => 'number']), false),
-                new Field('', new ToNumber(), new IsNumber()),
+            'number input to convert from string' => [
+                new Specification\Numeric('', new Schema(['type' => 'number']), true),
+                new Field('', new NumericString(), new ToNumber()),
             ],
             'strict number input' => [
-                new Specification\Numeric('', new Schema(['type' => 'number']), true),
+                new Specification\Numeric('', new Schema(['type' => 'number']), false),
                 new Field('', new IsNumber()),
             ],
-            'non-strict float input' => [
-                new Specification\Numeric('', new Schema(['type' => 'number', 'format' => 'float']), false),
-                new Field('', new ToFloat(), new IsFloat()),
+            'float input to convert from string' => [
+                new Specification\Numeric('', new Schema(['type' => 'number', 'format' => 'float']), true),
+                new Field('', new NumericString(), new ToFloat()),
             ],
             'strict float input' => [
-                new Specification\Numeric('', new Schema(['type' => 'number', 'format' => 'float']), true),
+                new Specification\Numeric('', new Schema(['type' => 'number', 'format' => 'float']), false),
                 new Field('', new IsFloat()),
             ],
-            'detailed input' => [
+            'detailed input to convert from string' => [
+                new Specification\Numeric(
+                    '',
+                    new Schema(
+                        [
+                            'type' => 'integer',
+                            'exclusiveMinimum' => true,
+                            'exclusiveMaximum' => true,
+                            'maximum' => 4,
+                            'minimum' => 0,
+                            'multipleOf' => 3,
+                            'enum' => [1, 2, 3, null],
+                            'format' => 'nullable int',
+                            'nullable' => true,
+                        ]
+                    ),
+                    true
+                ),
+                new AnyOf(
+                    '',
+                    new Field('', new IsNull()),
+                    new Field(
+                        '',
+                        new IntString(),
+                        new ToInt(),
+                        new Contained([1, 2, 3, null]),
+                        new Maximum(4, true),
+                        new Minimum(0, true),
+                        new MultipleOf(3)
+                    )
+                ),
+            ],
+            'strict detailed input' => [
                 new Specification\Numeric(
                     '',
                     new Schema(
@@ -108,7 +140,6 @@ class NumericTest extends TestCase
                     new Field('', new IsNull()),
                     new Field(
                         '',
-                        new ToInt(),
                         new IsInt(),
                         new Contained([1, 2, 3, null]),
                         new Maximum(4, true),
@@ -120,10 +151,8 @@ class NumericTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider specificationsToBuild
-     */
+    #[DataProvider('specificationsToBuild')]
+    #[Test]
     public function buildTest(Specification\Numeric $specification, Processor $expected): void
     {
         $sut = new Numeric();

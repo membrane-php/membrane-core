@@ -2,10 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Processor;
+namespace Membrane\Tests\Processor;
 
+use Generator;
 use Membrane\Filter;
+use Membrane\Filter\Type\ToFloat;
+use Membrane\OpenAPI\Processor\AllOf;
+use Membrane\OpenAPI\Processor\AnyOf;
+use Membrane\OpenAPI\Processor\OneOf;
+use Membrane\Processor;
 use Membrane\Processor\DefaultProcessor;
+use Membrane\Processor\Field;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
@@ -14,149 +21,118 @@ use Membrane\Validator;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Processor\DefaultProcessor
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Result\FieldName
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Validator\Utility\Fails
- * @uses   \Membrane\Validator\Utility\Indifferent
- * @uses   \Membrane\Validator\Utility\Passes
- */
+#[CoversClass(DefaultProcessor::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(ToFloat::class)]
+#[UsesClass(Validator\Type\IsFloat::class)]
+#[UsesClass(Validator\Type\IsBool::class)]
+#[UsesClass(Validator\Type\IsInt::class)]
+#[UsesClass(Validator\Type\IsNumber::class)]
+#[UsesClass(Fails::class)]
+#[UsesClass(Indifferent::class)]
+#[UsesClass(Passes::class)]
+#[UsesClass(AllOf::class)]
+#[UsesClass(AnyOf::class)]
+#[UsesClass(OneOf::class)]
 class DefaultProcessorTest extends TestCase
 {
-    /** @test */
-    public function processesTest(): void
+    public static function provideFiltersAndValidators(): Generator
+    {
+        yield 'nothing' => [];
+        yield '1 fails' => [new Fails()];
+        yield '1 indifferent' => [new Indifferent()];
+        yield '1 passes' => [new Passes()];
+        yield '3 fails' => [new Fails(), new Fails(), new Fails()];
+        yield '3 indifferents' => [new Indifferent(), new Indifferent(), new Indifferent()];
+        yield '3 passes' => [new Passes(), new Passes(), new Passes()];
+        yield '1 fails, 1 indifferent, 1 passes' => [new Fails(), new Indifferent(), new Passes()];
+        yield '1 passes, 2 indifferent' => [new Passes(), new Indifferent(), new Indifferent()];
+        yield '1 toFloat' => [new ToFloat()];
+        yield '1 isFloat, 1 toFloat' => [new Validator\Type\IsFloat(), new ToFloat()];
+        yield '1 toFloat, 1 isFloat' => [new ToFloat(), new Validator\Type\IsFloat()];
+    }
+
+    #[Test, DataProvider('provideFiltersAndValidators')]
+    public function itCanBeStaticallyConstructed(Filter | Validator ...$chain): void
+    {
+        $expected = new DefaultProcessor(new Field('', ...$chain));
+
+        $actual = DefaultProcessor::fromFiltersAndValidators(...$chain);
+
+        self::assertEquals($expected, $actual);
+    }
+
+    #[Test, DataProvider('provideFiltersAndValidators')]
+    public function toStringTest(Filter | Validator ...$chain): void
     {
         $expected = '';
-        $sut = DefaultProcessor::fromFiltersAndValidators();
+        foreach ($chain as $item) {
+            if ((string)$item !== '') {
+                $expected .= sprintf("\n\t- %s.", $item);
+            }
+        }
 
-        $actual = $sut->processes();
+        $sut = DefaultProcessor::fromFiltersAndValidators(...$chain);
 
-        self::assertSame($expected, $actual);
+        self::assertSame($expected, (string)$sut);
     }
 
-    public function dataSetsForFiltersOrValidators(): array
+    #[Test, DataProvider('provideFiltersAndValidators')]
+    public function toPHPTest(Filter | Validator ...$chain): void
     {
-        $incrementFilter = new class implements Filter {
-            public function filter(mixed $value): Result
-            {
-                foreach (array_keys($value) as $key) {
-                    $value[$key]++;
-                }
+        $sut = DefaultProcessor::fromFiltersAndValidators(...$chain);
 
-                return Result::noResult($value);
-            }
-        };
+        $actual = sprintf('return %s;', $sut->__toPHP());
 
-        $evenFilter = new class implements Filter {
-            public function filter(mixed $value): Result
-            {
-                foreach (array_keys($value) as $key) {
-                    $value[$key] *= 2;
-                }
-
-                return Result::noResult($value);
-            }
-        };
-
-        $evenValidator = new class implements Validator {
-            public function validate(mixed $value): Result
-            {
-                foreach (array_keys($value) as $key) {
-                    if ($value[$key] % 2 !== 0) {
-                        return Result::invalid(
-                            $value,
-                            new MessageSet(
-                                null,
-                                new Message('not even', [])
-                            )
-                        );
-                    }
-                }
-                return Result::valid($value);
-            }
-        };
-
-        return [
-            'checks it can return valid' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::valid(['a' => 1, 'b' => 2, 'c' => 3]),
-                new Passes(),
-            ],
-            'checks it can return invalid' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::invalid(['a' => 1, 'b' => 2, 'c' => 3],
-                    new MessageSet(
-                        new FieldName('', 'parent field'),
-                        new Message('I always fail', [])
-                    )),
-                new Fails(),
-            ],
-            'checks it can return noresult' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::noResult(['a' => 1, 'b' => 2, 'c' => 3]),
-                new Indifferent(),
-            ],
-            'checks it keeps track of previous results' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::valid(['a' => 1, 'b' => 2, 'c' => 3]),
-                new Passes(),
-                new Indifferent(),
-                new Indifferent(),
-            ],
-            'checks it can make changes to value' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::noResult(['a' => 2, 'b' => 3, 'c' => 4]),
-                $incrementFilter,
-            ],
-            'checks that changes made to value persist' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::noResult(['a' => 3, 'b' => 4, 'c' => 5]),
-                $incrementFilter,
-                $incrementFilter,
-            ],
-            'checks that chain runs in correct order' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::invalid(['a' => 1, 'b' => 2, 'c' => 3],
-                    new MessageSet(
-                        new FieldName('', 'parent field'),
-                        new Message('not even', [])
-                    )),
-                $evenValidator,
-                $evenFilter,
-            ],
-            'checks that chain stops as soon as result is invalid' => [
-                ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::invalid(['a' => 2, 'b' => 3, 'c' => 4],
-                    new MessageSet(
-                        new FieldName('', 'parent field'),
-                        new Message('not even', [])
-                    )),
-                $incrementFilter,
-                $evenValidator,
-                $incrementFilter,
-            ],
-        ];
+        self::assertEquals($sut, eval($actual));
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForFiltersOrValidators
-     */
-    public function processesCallsFilterOrValidatorMethods(
-        mixed $input,
-        Result $expected,
-        Filter|Validator ...$chain
-    ): void {
-        $afterSet = DefaultProcessor::fromFiltersAndValidators(...$chain);
+    #[Test]
+    public function processesTest(): void
+    {
+        $sut = new DefaultProcessor(new Field('This wont show up'));
 
-        $output = $afterSet->process(new FieldName('parent field'), $input);
+        self::assertSame('', $sut->processes());
+    }
 
-        self::assertEquals($expected, $output);
+    public static function provideProcessors(): Generator
+    {
+        foreach (self::provideFiltersAndValidators() as $case => $chain) {
+            yield sprintf('input of 5 and a field with %s', $case) => [5, new Field('', ...$chain)];
+        }
+
+        $isBool = new Field('', new Validator\Type\IsBool());
+        $isInt = new Field('', new Validator\Type\IsInt());
+        $isNumber = new Field('', new Validator\Type\IsNumber());
+
+        foreach ([true, 5, 5.5,] as $input) {
+            yield sprintf('input of %s and a oneOf: bool|int', $input) => [$input, new OneOf('', $isBool, $isInt)];
+            yield sprintf('input of %s and an anyOf: bool|int', $input) => [$input, new AnyOf('', $isBool, $isInt)];
+            yield sprintf('input of %s and an allOf: bool|int', $input) => [$input, new AllOf('', $isBool, $isInt)];
+            yield sprintf('input of %s and a oneOf: int|number', $input) => [$input, new OneOf('', $isInt, $isNumber)];
+            yield sprintf('input of %s and an anyOf: int|number', $input) => [$input, new AnyOf('', $isInt, $isNumber)];
+            yield sprintf('input of %s and an allOf: int|number', $input) => [$input, new AllOf('', $isInt, $isNumber)];
+        }
+    }
+
+    #[Test, DataProvider('provideProcessors')]
+    public function itUsesTheWrappedProcessorToProcess(mixed $input, Processor $processor): void
+    {
+        $expected = $processor->process(new FieldName(''), $input);
+
+        $actual = (new DefaultProcessor($processor))->process(new FieldName(''), $input);
+
+        self::assertEquals($expected, $actual);
+        self::assertSame($expected->value, $actual->value);
     }
 }

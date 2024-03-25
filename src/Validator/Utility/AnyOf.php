@@ -18,6 +18,24 @@ class AnyOf implements Validator
         $this->chain = $chain;
     }
 
+    public function __toString(): string
+    {
+        $conditions = array_filter($this->chain, fn($p) => (string)$p !== '');
+        if ($conditions === []) {
+            return '';
+        }
+
+        return "must satisfy at least one of the following:\n\t" .
+            implode("\n\t", array_map(fn($p) => '- ' . (string)$p . '.', $conditions));
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s(', self::class) .
+            implode(', ', array_map(fn($p) => $p->__toPHP(), $this->chain)) .
+            ')';
+    }
+
     public function validate(mixed $value): Result
     {
         $resultChain = [];

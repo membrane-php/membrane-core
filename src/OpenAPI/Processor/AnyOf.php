@@ -14,14 +14,30 @@ use function count;
 class AnyOf implements Processor
 {
     /** @var Processor[] */
-    public array $fieldSets;
+    public array $processors;
 
-    public function __construct(private readonly string $processes, Processor ...$fieldSets)
+    public function __construct(private readonly string $processes, Processor ...$processors)
     {
-        if (count($fieldSets) < 2) {
+        if (count($processors) < 2) {
             throw InvalidProcessorArguments::redundantProcessor(AnyOf::class);
         }
-        $this->fieldSets = $fieldSets;
+        $this->processors = $processors;
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf(
+            'new %s("%s"%s)',
+            self::class,
+            $this->processes(),
+            implode('', array_map(fn($p) => ', ' . $p->__toPHP(), $this->processors))
+        );
+    }
+
+    public function __toString(): string
+    {
+        return "Any of the following:\n\t" .
+            implode(".\n\t", array_map(fn($p) => preg_replace("#\n#m", "\n\t", (string)$p), $this->processors)) . '.';
     }
 
     public function processes(): string
@@ -34,7 +50,7 @@ class AnyOf implements Processor
         $results = [];
         $messageSets = [];
 
-        foreach ($this->fieldSets as $fieldSet) {
+        foreach ($this->processors as $fieldSet) {
             $itemResult = $fieldSet->process($parentFieldName, $value);
 
             if ($itemResult->result === Result::VALID) {

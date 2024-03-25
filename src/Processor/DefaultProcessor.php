@@ -17,14 +17,24 @@ class DefaultProcessor implements Processor
     ) {
     }
 
-    public static function fromFiltersAndValidators(Filter|Validator ...$chain): self
+    public static function fromFiltersAndValidators(Filter | Validator ...$chain): self
     {
         return new self(new Field('', ...$chain));
     }
 
+    public function __toString(): string
+    {
+        return (string)$this->processor;
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s(%s)', self::class, $this->processor->__toPHP());
+    }
+
     public function processes(): string
     {
-        return $this->processor->processes();
+        return '';
     }
 
     public function process(FieldName $parentFieldName, mixed $value): Result

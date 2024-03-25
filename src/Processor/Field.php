@@ -23,6 +23,35 @@ class Field implements Processor
         $this->chain = $chain;
     }
 
+    public function __toString(): string
+    {
+        $conditions = [];
+        foreach ($this->chain as $item) {
+            $condition = (string)$item;
+            if ($condition !== '') {
+                $conditions[] = sprintf("\n\t- %s", $item);
+            }
+        }
+
+        if ($conditions === []) {
+            return '';
+        } else {
+            return ($this->processes === '' ? '' : sprintf('"%s":', $this->processes)) .
+                implode('.', $conditions) .
+                '.';
+        }
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf(
+            'new %s("%s"%s)',
+            self::class,
+            $this->processes(),
+            implode('', array_map(fn($p) => ', ' . $p->__toPHP(), $this->chain))
+        );
+    }
+
     public function processes(): string
     {
         return $this->processes;

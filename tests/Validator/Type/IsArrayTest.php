@@ -2,23 +2,46 @@
 
 declare(strict_types=1);
 
-namespace Validator\Type;
+namespace Membrane\Tests\Validator\Type;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Type\IsArray;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Type\IsArray
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(IsArray::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class IsArrayTest extends TestCase
 {
-    public function dataSetsThatPass(): array
+    #[Test]
+    public function toStringTest(): void
+    {
+        $expected = 'is an array with string keys';
+        $sut = new IsArray();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    #[Test]
+    public function toPHPTest(): void
+    {
+        $sut = new IsArray();
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function dataSetsThatPass(): array
     {
         return [
             [['a' => 'arrays have', 'b' => 'string keys']],
@@ -26,10 +49,8 @@ class IsArrayTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatPass
-     */
+    #[DataProvider('dataSetsThatPass')]
+    #[Test]
     public function arrayReturnsValid($input): void
     {
         $isArray = new IsArray();
@@ -40,7 +61,7 @@ class IsArrayTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatAreNotArraysOrLists(): array
+    public static function dataSetsThatAreNotArraysOrLists(): array
     {
         return [
             ['true', 'string'],
@@ -51,10 +72,8 @@ class IsArrayTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatAreNotArraysOrLists
-     */
+    #[DataProvider('dataSetsThatAreNotArraysOrLists')]
+    #[Test]
     public function typesThatAreNotArraysReturnInvalid($input, $expectedVar): void
     {
         $isArray = new IsArray();
@@ -69,9 +88,7 @@ class IsArrayTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function listsReturnInvalid(): void
     {
         $input = ['this', 'is', 'a', 'list'];

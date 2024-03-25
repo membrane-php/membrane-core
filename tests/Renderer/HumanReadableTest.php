@@ -2,25 +2,27 @@
 
 declare(strict_types=1);
 
-namespace Renderer;
+namespace Membrane\Tests\Renderer;
 
 use Membrane\Renderer\HumanReadable;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Renderer\HumanReadable
- * @uses   \Membrane\Result\FieldName
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Result
- */
+#[CoversClass(HumanReadable::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class HumanReadableTest extends TestCase
 {
-    public function dataSetsToRenderAsArrays(): array
+    public static function dataSetsToRenderAsArrays(): array
     {
         $msg = fn($var) => new Message('%s', [$var]);
 
@@ -72,10 +74,8 @@ class HumanReadableTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToRenderAsArrays
-     */
+    #[DataProvider('dataSetsToRenderAsArrays')]
+    #[Test]
     public function toArrayTest(Result $result, array $expected): void
     {
         $sut = new HumanReadable($result);
@@ -85,7 +85,7 @@ class HumanReadableTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @test */
+    #[Test]
     public function jsonSerializeTest(): void
     {
         $result = Result::invalid(
@@ -102,7 +102,7 @@ class HumanReadableTest extends TestCase
     }
 
 
-    public function dataSetsToRenderAsStrings(): array
+    public static function dataSetsToRenderAsStrings(): array
     {
         $msg = fn($var) => new Message('%s', [$var]);
 
@@ -146,10 +146,8 @@ class HumanReadableTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToRenderAsStrings
-     */
+    #[DataProvider('dataSetsToRenderAsStrings')]
+    #[Test]
     public function renderTest(Result $result, string $expected): void
     {
         $sut = new HumanReadable($result);

@@ -9,4 +9,8 @@ use Membrane\Result\Result;
 interface Validator
 {
     public function validate(mixed $value): Result;
+
+    public function __toString(): string;
+
+    public function __toPHP(): string;
 }

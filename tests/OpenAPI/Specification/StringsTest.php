@@ -2,37 +2,39 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Specification;
+namespace Membrane\Tests\OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Strings;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Specification\Strings
- * @covers \Membrane\OpenAPI\Specification\APISchema
- * @covers \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
- */
+#[CoversClass(Strings::class)]
+#[CoversClass(APISchema::class)]
+#[CoversClass(CannotProcessSpecification::class)]
 class StringsTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function throwsExceptionForMissingType(): void
     {
-        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Strings::class, 'string', 'no type'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Strings::class, 'string', 'no type'));
 
         new Strings('', new Schema([]));
     }
 
-    /** @test */
+    #[Test]
     public function throwsExceptionForIncorrectType(): void
     {
-        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Strings::class, 'string', 'integer'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Strings::class, 'string', 'integer'));
 
         new Strings('', new Schema(['type' => 'integer']));
     }
 
-    public function dataSetsToConstruct(): array
+    public static function dataSetsToConstruct(): array
     {
         return [
             'default values' => [
@@ -68,10 +70,8 @@ class StringsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConstruct
-     */
+    #[DataProvider('dataSetsToConstruct')]
+    #[Test]
     public function constructTest(Schema $schema, array $expected): void
     {
         $sut = new Strings('', $schema);

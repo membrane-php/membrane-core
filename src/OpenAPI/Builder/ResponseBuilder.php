@@ -4,14 +4,23 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
+use cebe\openapi\spec as Cebe;
+use Membrane\Builder\Builder;
 use Membrane\Builder\Specification;
+use Membrane\OpenAPI\Exception\CannotProcessResponse;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
+use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
+use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
-use Membrane\Processor\Field;
-use Membrane\Validator\Utility\Passes;
 
-class ResponseBuilder extends APIBuilder
+class ResponseBuilder implements Builder
 {
+    private OpenAPIResponseBuilder $responseBuilder;
+
     public function supports(Specification $specification): bool
     {
         return ($specification instanceof Response);
@@ -21,15 +30,70 @@ class ResponseBuilder extends APIBuilder
     {
         assert($specification instanceof Response);
 
-        return $this->fromContent($specification);
-    }
+        $openAPI = (new Reader([OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath($specification->absoluteFilePath);
 
-    private function fromContent(Response $response): Processor
-    {
-        if ($response->schema === null) {
-            return new Field('', new Passes());
+        $serverUrl = $this->matchServer($openAPI, $specification->url);
+        foreach ($openAPI->paths->getPaths() as $path => $pathItem) {
+            $pathMatcher = new PathMatcher($serverUrl, $path);
+            if (!$pathMatcher->matches($specification->url)) {
+                continue;
+            }
+
+            $operation = $this->getOperation($pathItem, $specification->method);
+
+            $response = $this->getResponse($operation, $specification->statusCode);
+
+            $newSpecification = new OpenAPIResponse($operation->operationId, $specification->statusCode, $response);
+
+            return $this->getOpenAPIResponseBuilder()->build($newSpecification);
         }
 
-        return $this->fromSchema($response->schema);
+        throw CannotProcessSpecification::pathNotFound(
+            pathinfo($specification->absoluteFilePath, PATHINFO_BASENAME),
+            $specification->url
+        );
+    }
+
+    private function getOpenAPIResponseBuilder(): OpenAPIResponseBuilder
+    {
+        if (!isset($this->responseBuilder)) {
+            $this->responseBuilder = new OpenAPIResponseBuilder();
+        }
+
+        return $this->responseBuilder;
+    }
+
+
+    private function getOperation(Cebe\PathItem $pathItem, Method $method): Cebe\Operation
+    {
+        return $pathItem->getOperations()[$method->value]
+            ??
+            throw CannotProcessSpecification::methodNotFound($method->value);
+    }
+
+    private function getResponse(Cebe\Operation $operation, string $httpStatus): Cebe\Response
+    {
+        $response = $operation->responses?->getResponse($httpStatus) ??
+            $operation->responses?->getResponse('default');
+
+        assert(!$response instanceof Cebe\Reference);
+
+        return $response ?? throw CannotProcessResponse::codeNotFound($httpStatus);
+    }
+
+    private function matchServer(Cebe\OpenApi $openAPI, string $url): string
+    {
+        $servers = $openAPI->servers;
+        uasort($servers, fn($a, $b) => strlen($b->url) <=> strlen($a->url));
+
+        foreach ($servers as $server) {
+            $serverUrl = rtrim($server->url, '/');
+            if (str_starts_with($url, $serverUrl . '/')) {
+                return $serverUrl;
+            }
+        }
+
+        return '';
     }
 }

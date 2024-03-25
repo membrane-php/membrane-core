@@ -11,6 +11,16 @@ use Membrane\Result\Result;
 
 class ToInt implements Filter
 {
+    public function __toString(): string
+    {
+        return 'convert to an integer';
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function filter(mixed $value): Result
     {
         $type = gettype($value);

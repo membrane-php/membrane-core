@@ -2,25 +2,45 @@
 
 declare(strict_types=1);
 
-namespace Filter\CreateObject;
+namespace Membrane\Tests\Filter\CreateObject;
 
 use Membrane\Filter\CreateObject\FromArray;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\CreateObject\FromArray
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(FromArray::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class FromArrayTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
+    public function toStringTest(): void
+    {
+        $expected = 'calls \a\b::fromArray';
+        $sut = new FromArray('\a\b');
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    #[Test]
+    public function toPHPTest(): void
+    {
+        $sut = new FromArray('Arbitrary\Class');
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    #[Test]
     public function noFromArrayMethodReturnsInvalid(): void
     {
         $input = ['a' => 1, 'b' => 2];
@@ -43,9 +63,7 @@ class FromArrayTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function incorrectFilterInputReturnsInvalid(): void
     {
         $input = 'this is not an array';
@@ -72,9 +90,7 @@ class FromArrayTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function correctFilterInputReturnsResult(): void
     {
         $input = ['a', 'b', 'c'];

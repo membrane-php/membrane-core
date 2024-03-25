@@ -2,37 +2,39 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Specification;
+namespace Membrane\Tests\OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Arrays;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Specification\Arrays
- * @covers \Membrane\OpenAPI\Specification\APISchema
- * @covers \Membrane\OpenAPI\Exception\CannotProcessOpenAPI
- */
+#[CoversClass(Arrays::class)]
+#[CoversClass(APISchema::class)]
+#[CoversClass(CannotProcessSpecification::class)]
 class ArraysTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function throwsExceptionForMissingType(): void
     {
-        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Arrays::class, 'array', 'no type'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Arrays::class, 'array', 'no type'));
 
         new Arrays('', new Schema([]));
     }
 
-    /** @test */
+    #[Test]
     public function throwsExceptionForInvalidType(): void
     {
-        self::expectExceptionObject(CannotProcessOpenAPI::mismatchedType(Arrays::class, 'array', 'string'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Arrays::class, 'array', 'string'));
 
         new Arrays('', new Schema(['type' => 'string']));
     }
 
-    public function dataSetsToConstruct(): array
+    public static function dataSetsToConstruct(): array
     {
         return [
             'default values' => [
@@ -71,10 +73,8 @@ class ArraysTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToConstruct
-     */
+    #[DataProvider('dataSetsToConstruct')]
+    #[Test]
     public function constructTest(Schema $schema, array $expected): void
     {
         $sut = new Arrays('', $schema);

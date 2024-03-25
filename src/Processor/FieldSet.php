@@ -45,6 +45,75 @@ class FieldSet implements Processor
         }
     }
 
+    public function __toString(): string
+    {
+        if ($this->processes === '') {
+            return '';
+        }
+
+        $conditions = [];
+
+        if (isset($this->before)) {
+            $condition = (string)$this->before;
+            if ($condition !== '') {
+                $conditions[] = sprintf('Firstly "%s":', $this->processes) . $condition;
+            }
+        }
+
+        if ($this->chain !== []) {
+            foreach ($this->chain as $processors) {
+                foreach ($processors as $processor) {
+                    $condition = $processor->processes() === '' ? '' : (string)$processor;
+                    if ($condition !== '') {
+                        $conditions[] = sprintf('"%s"->', $this->processes) . $condition;
+                    }
+                }
+            }
+        }
+
+        if (isset($this->default)) {
+            $condition = (string)$this->default;
+            if ($condition !== '') {
+                $conditions[] = sprintf('Any other fields in "%s":', $this->processes) . $condition;
+            }
+        }
+
+        if (isset($this->after)) {
+            $condition = (string)$this->after;
+            if ($condition !== '') {
+                $conditions[] = sprintf('Lastly "%s":', $this->processes) . $condition;
+            }
+        }
+
+        return $conditions === [] ? '' : implode("\n", $conditions);
+    }
+
+    public function __toPHP(): string
+    {
+        $processors = [];
+        if (isset($this->before)) {
+            $processors[] = $this->before->__toPHP();
+        }
+        foreach ($this->chain as $field) {
+            foreach ($field as $processor) {
+                $processors[] = $processor->__toPHP();
+            }
+        }
+        if (isset($this->default)) {
+            $processors[] = $this->default->__toPHP();
+        }
+        if (isset($this->after)) {
+            $processors[] = $this->after->__toPHP();
+        }
+
+        return sprintf(
+            'new %s("%s"%s)',
+            self::class,
+            $this->processes(),
+            implode('', array_map(fn($p) => ', ' . $p, $processors))
+        );
+    }
+
     public function processes(): string
     {
         return $this->processes;
@@ -52,7 +121,7 @@ class FieldSet implements Processor
 
     public function process(FieldName $parentFieldName, mixed $value): Result
     {
-        $fieldName = $parentFieldName->push(new Fieldname($this->processes));
+        $fieldName = $parentFieldName->push(new FieldName($this->processes));
         $fieldSetResult = Result::noResult($value);
 
         if (isset($this->before)) {
@@ -63,7 +132,7 @@ class FieldSet implements Processor
             }
         }
 
-        if (!empty($this->chain)) {
+        if (!empty($this->chain) || isset($this->default)) {
             if (!is_array($value)) {
                 return Result::invalid(
                     $value,
@@ -92,10 +161,9 @@ class FieldSet implements Processor
                     $this->handleProcessor($this->default, $fieldName, $value[$fieldKey], $fieldSetResult);
                 }
             }
+
+            $fieldSetResult = $fieldSetResult->merge(Result::noResult($value));
         }
-
-        $fieldSetResult = $fieldSetResult->merge(Result::noResult($value));
-
         if (isset($this->after) && $fieldSetResult->isValid()) {
             $this->handleProcessor($this->after, $fieldName, $value, $fieldSetResult);
 

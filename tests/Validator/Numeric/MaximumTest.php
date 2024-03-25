@@ -2,23 +2,69 @@
 
 declare(strict_types=1);
 
-namespace Validator\Numeric;
+namespace Membrane\Tests\Validator\Numeric;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Numeric\Maximum;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Numeric\Maximum
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Maximum::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class MaximumTest extends TestCase
 {
-    public function dataSetsOfNonNumericValues(): array
+    public static function dataSetsToConvertToString(): array
+    {
+        return [
+            'inclusive max' => [
+                5,
+                false,
+                'is less than or equal to 5',
+            ],
+            'exclusive max' => [
+                7,
+                true,
+                'is less than 7',
+            ],
+        ];
+    }
+
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
+    public function toStringTest(int $max, bool $exclusive, string $expected): void
+    {
+        $sut = new Maximum($max, $exclusive);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    public static function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'inclusive maximum' => [new Maximum(5)],
+            'exclusive maximum' => [new Maximum(5, true)],
+        ];
+    }
+
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
+    public function toPHPTest(Maximum $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function dataSetsOfNonNumericValues(): array
     {
         return [
             [
@@ -40,10 +86,8 @@ class MaximumTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsOfNonNumericValues
-     */
+    #[DataProvider('dataSetsOfNonNumericValues')]
+    #[Test]
     public function invalidForNonNumericValues(mixed $value, array $messageVars): void
     {
         $expected = Result::invalid(
@@ -57,7 +101,7 @@ class MaximumTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
-    public function dataSetsToValidate(): array
+    public static function dataSetsToValidate(): array
     {
         return [
             'less than max (int, inclusive)' => [
@@ -141,11 +185,9 @@ class MaximumTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToValidate
-     */
-    public function validateTest(int|float $max, bool $exclusive, int|float $value, Result $expected): void
+    #[DataProvider('dataSetsToValidate')]
+    #[Test]
+    public function validateTest(int | float $max, bool $exclusive, int | float $value, Result $expected): void
     {
         $sut = new Maximum($max, $exclusive);
 

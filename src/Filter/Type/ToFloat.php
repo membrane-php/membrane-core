@@ -11,6 +11,17 @@ use Membrane\Result\Result;
 
 class ToFloat implements Filter
 {
+    public function __toString(): string
+    {
+        return 'convert to a float';
+    }
+
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function filter(mixed $value): Result
     {
         $type = gettype($value);

@@ -2,39 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Attribute;
+namespace Membrane\Tests\Attribute;
 
 use Membrane\Attribute\Builder;
 use Membrane\Attribute\ClassWithAttributes;
+use Membrane\Attribute\FilterOrValidator;
+use Membrane\Attribute\OverrideProcessorType;
+use Membrane\Attribute\SetFilterOrValidator;
+use Membrane\Attribute\Subtype;
 use Membrane\Builder\Specification;
 use Membrane\Exception\CannotProcessProperty;
 use Membrane\Filter\CreateObject\WithNamedArguments;
-use Membrane\Fixtures\Attribute\ArraySumFilter;
-use Membrane\Fixtures\Attribute\ClassThatOverridesProcessorType;
-use Membrane\Fixtures\Attribute\ClassWithClassArrayPropertyIsIntValidator;
-use Membrane\Fixtures\Attribute\ClassWithClassProperty;
-use Membrane\Fixtures\Attribute\ClassWithCompoundPropertyType;
-use Membrane\Fixtures\Attribute\ClassWithDateTimeProperty;
-use Membrane\Fixtures\Attribute\ClassWithIntArrayPropertyBeforeSet;
-use Membrane\Fixtures\Attribute\ClassWithIntArrayPropertyIsIntValidator;
-use Membrane\Fixtures\Attribute\ClassWithIntProperty;
-use Membrane\Fixtures\Attribute\ClassWithIntPropertyIgnoredProperty;
-use Membrane\Fixtures\Attribute\ClassWithIntPropertyIsIntValidator;
-use Membrane\Fixtures\Attribute\ClassWithNestedCollection;
-use Membrane\Fixtures\Attribute\ClassWithNoSubTypeHint;
-use Membrane\Fixtures\Attribute\ClassWithNoTypeHint;
-use Membrane\Fixtures\Attribute\ClassWithPromotedPropertyAfterSet;
-use Membrane\Fixtures\Attribute\ClassWithStringPropertyBeforeSet;
-use Membrane\Fixtures\Attribute\Docs\BlogPost;
-use Membrane\Fixtures\Attribute\Docs\BlogPostFromNamedArguments;
-use Membrane\Fixtures\Attribute\Docs\BlogPostIsItAString;
-use Membrane\Fixtures\Attribute\Docs\BlogPostMakeItAString;
-use Membrane\Fixtures\Attribute\Docs\BlogPostMaxTags;
-use Membrane\Fixtures\Attribute\Docs\BlogPostRegexAndMaxLength;
-use Membrane\Fixtures\Attribute\Docs\BlogPostRequiredFields;
-use Membrane\Fixtures\Attribute\Docs\BlogPostWithAllOf;
-use Membrane\Fixtures\Attribute\EmptyClass;
-use Membrane\Fixtures\Attribute\EmptyClassWithIgnoredProperty;
+use Membrane\Filter\Type\ToString;
 use Membrane\Processor\AfterSet;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -44,44 +23,75 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use Membrane\Tests\Fixtures\Attribute\ArraySumFilter;
+use Membrane\Tests\Fixtures\Attribute\ClassThatOverridesProcessorType;
+use Membrane\Tests\Fixtures\Attribute\ClassWithClassArrayPropertyIsIntValidator;
+use Membrane\Tests\Fixtures\Attribute\ClassWithClassProperty;
+use Membrane\Tests\Fixtures\Attribute\ClassWithCompoundPropertyType;
+use Membrane\Tests\Fixtures\Attribute\ClassWithDateTimeProperty;
+use Membrane\Tests\Fixtures\Attribute\ClassWithIntArrayPropertyBeforeSet;
+use Membrane\Tests\Fixtures\Attribute\ClassWithIntArrayPropertyIsIntValidator;
+use Membrane\Tests\Fixtures\Attribute\ClassWithIntProperty;
+use Membrane\Tests\Fixtures\Attribute\ClassWithIntPropertyIgnoredProperty;
+use Membrane\Tests\Fixtures\Attribute\ClassWithIntPropertyIsIntValidator;
+use Membrane\Tests\Fixtures\Attribute\ClassWithNestedCollection;
+use Membrane\Tests\Fixtures\Attribute\ClassWithNoSubTypeHint;
+use Membrane\Tests\Fixtures\Attribute\ClassWithNoTypeHint;
+use Membrane\Tests\Fixtures\Attribute\ClassWithPromotedPropertyAfterSet;
+use Membrane\Tests\Fixtures\Attribute\ClassWithStringPropertyBeforeSet;
+use Membrane\Tests\Fixtures\Attribute\Docs\BlogPost;
+use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostFromNamedArguments;
+use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostIsItAString;
+use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostMakeItAString;
+use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostMaxTags;
+use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostRegexAndMaxLength;
+use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostRequiredFields;
+use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostWithAllOf;
+use Membrane\Tests\Fixtures\Attribute\EmptyClass;
+use Membrane\Tests\Fixtures\Attribute\EmptyClassWithIgnoredProperty;
+use Membrane\Validator\Collection\Count;
 use Membrane\Validator\FieldSet\RequiredFields;
+use Membrane\Validator\String\Length;
+use Membrane\Validator\String\Regex;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
+use Membrane\Validator\Type\IsString;
+use Membrane\Validator\Utility\AllOf;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers   \Membrane\Attribute\Builder
- * @covers   \Membrane\Exception\CannotProcessProperty
- * @uses     \Membrane\Attribute\ClassWithAttributes
- * @uses     \Membrane\Attribute\FilterOrValidator
- * @uses     \Membrane\Attribute\SetFilterOrValidator
- * @uses     \Membrane\Attribute\OverrideProcessorType
- * @uses     \Membrane\Attribute\Subtype
- * @uses     \Membrane\Result\Result
- * @uses     \Membrane\Result\MessageSet
- * @uses     \Membrane\Result\Message
- * @uses     \Membrane\Result\FieldName
- * @uses     \Membrane\Processor\Collection
- * @uses     \Membrane\Processor\FieldSet
- * @uses     \Membrane\Processor\Field
- * @uses     \Membrane\Processor\BeforeSet
- * @uses     \Membrane\Processor\AfterSet
- * @uses     \Membrane\Validator\FieldSet\RequiredFields
- * @uses     \Membrane\Validator\Type\IsList
- * @uses     \Membrane\Validator\Type\IsInt
- * @uses     \Membrane\Validator\Type\IsString
- * @uses     \Membrane\Filter\Type\ToString
- * @uses     \Membrane\Validator\String\Length
- * @uses     \Membrane\Validator\String\Regex
- * @uses     \Membrane\Validator\Utility\AllOf
- * @uses     \Membrane\Validator\Collection\Count
- * @uses     \Membrane\Filter\CreateObject\WithNamedArguments
- */
+#[CoversClass(Builder::class)]
+#[CoversClass(CannotProcessProperty::class)]
+#[UsesClass(ClassWithAttributes::class)]
+#[UsesClass(FilterOrValidator::class)]
+#[UsesClass(SetFilterOrValidator::class)]
+#[UsesClass(OverrideProcessorType::class)]
+#[UsesClass(Subtype::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(Collection::class)]
+#[UsesClass(FieldSet::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(BeforeSet::class)]
+#[UsesClass(AfterSet::class)]
+#[UsesClass(RequiredFields::class)]
+#[UsesClass(IsList::class)]
+#[UsesClass(IsInt::class)]
+#[UsesClass(IsString::class)]
+#[UsesClass(ToString::class)]
+#[UsesClass(Length::class)]
+#[UsesClass(Regex::class)]
+#[UsesClass(AllOf::class)]
+#[UsesClass(Count::class)]
+#[UsesClass(WithNamedArguments::class)]
 class BuilderTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function supportsReturnsFalseIfSpecificationIsNotClassWithAttributes(): void
     {
         $specification = new class implements Specification {
@@ -93,9 +103,7 @@ class BuilderTest extends TestCase
         self::assertFalse($result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function supportsReturnsTrueIfSpecificationIsClassWithAttributes(): void
     {
         $class = new class {
@@ -108,9 +116,7 @@ class BuilderTest extends TestCase
         self::assertTrue($result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function noTypeHintThrowsException(): void
     {
         $specification = new ClassWithAttributes(ClassWithNoTypeHint::class);
@@ -122,9 +128,7 @@ class BuilderTest extends TestCase
         $builder->build($specification);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function noSubTypeHintThrowsException(): void
     {
         $specification = new ClassWithAttributes(ClassWithNoSubTypeHint::class);
@@ -136,9 +140,7 @@ class BuilderTest extends TestCase
         $builder->build($specification);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function compoundPropertyThrowsException(): void
     {
         $specification = new ClassWithAttributes(ClassWithCompoundPropertyType::class);
@@ -152,9 +154,7 @@ class BuilderTest extends TestCase
         $builder->build($specification);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function nestedCollectionThrowsException(): void
     {
         $specification = new ClassWithAttributes(ClassWithNestedCollection::class);
@@ -169,7 +169,7 @@ class BuilderTest extends TestCase
         $builder->build($specification);
     }
 
-    public function dataSetOfClassesToBuild(): array
+    public static function dataSetOfClassesToBuild(): array
     {
         return [
             EmptyClass::class => [
@@ -260,10 +260,8 @@ class BuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetOfClassesToBuild
-     */
+    #[DataProvider('dataSetOfClassesToBuild')]
+    #[Test]
     public function BuildingProcessorsTest(Specification $specification, FieldSet $expected): void
     {
         $builder = new Builder();
@@ -273,7 +271,7 @@ class BuilderTest extends TestCase
         self::assertEquals($expected, $output);
     }
 
-    public function dataSetOfInputsAndOutputs(): array
+    public static function dataSetOfInputsAndOutputs(): array
     {
         return [
             EmptyClass::class => [
@@ -345,10 +343,8 @@ class BuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetOfInputsAndOutputs
-     */
+    #[DataProvider('dataSetOfInputsAndOutputs')]
+    #[Test]
     public function InputsAndOutputsTest(Specification $specification, mixed $input, mixed $expected): void
     {
         $builder = new Builder();
@@ -359,7 +355,7 @@ class BuilderTest extends TestCase
         self::assertEquals($expected, $output);
     }
 
-    public function dataSetsWithDocExamples(): array
+    public static function dataSetsWithDocExamples(): array
     {
         return [
             'Blog Post: A' => [
@@ -524,10 +520,8 @@ class BuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithDocExamples
-     */
+    #[DataProvider('dataSetsWithDocExamples')]
+    #[Test]
     public function docExamplesTest(Specification $specification, array $input, Result $expected): void
     {
         $builder = new Builder();

@@ -2,23 +2,55 @@
 
 declare(strict_types=1);
 
-namespace Validator\String;
+namespace Membrane\Tests\Validator\String;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\String\Regex;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\String\Regex
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Regex::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class RegexTest extends TestCase
 {
-    public function dataSetsWithIncorrectTypes(): array
+    #[Test]
+    public function toStringTest(): void
+    {
+        $expected = 'matches the regex: "#^[a-zA-Z]+$#"';
+        $sut = new Regex('#^[a-zA-Z]+$#');
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    #[Test]
+    #[DataProvider('provideRegularExpresions')]
+    public function toPHPTest(string $regex): void
+    {
+        $sut = new Regex($regex);
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function provideRegularExpresions(): array
+    {
+        return [
+            'simple regex' => ['/[abc]/i'],
+            'regex with special chars' => ['#^[^$\'"]$#'],
+        ];
+    }
+
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [123, 'integer'],
@@ -29,14 +61,14 @@ class RegexTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectTypes
-     */
+    #[DataProvider('dataSetsWithIncorrectTypes')]
+    #[Test]
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $regex = new Regex('');
-        $expected = Result::invalid($input, new MessageSet(
+        $expected = Result::invalid(
+            $input,
+            new MessageSet(
                 null,
                 new Message('Regex Validator requires a string, %s given', [$expectedVars])
             )
@@ -47,7 +79,7 @@ class RegexTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatPass(): array
+    public static function dataSetsThatPass(): array
     {
         return [
             ['//', ''],
@@ -56,10 +88,8 @@ class RegexTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatPass
-     */
+    #[DataProvider('dataSetsThatPass')]
+    #[Test]
     public function stringsThatMatchPatternReturnValid(string $pattern, string $input): void
     {
         $regex = new Regex($pattern);
@@ -70,7 +100,7 @@ class RegexTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatFail(): array
+    public static function dataSetsThatFail(): array
     {
         return [
             ['/abc/', 'ABC'],
@@ -79,10 +109,8 @@ class RegexTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatFail
-     */
+    #[DataProvider('dataSetsThatFail')]
+    #[Test]
     public function stringsThatDoNotMatchPatternReturnInvalid(string $pattern, string $input): void
     {
         $regex = new Regex($pattern);

@@ -2,23 +2,46 @@
 
 declare(strict_types=1);
 
-namespace Filter\Type;
+namespace Membrane\Tests\Filter\Type;
 
 use Membrane\Filter\Type\ToBool;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\Type\ToBool
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(ToBool::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class ToBoolTest extends TestCase
 {
-    public function dataSetsWithAcceptableInputs(): array
+    #[Test]
+    public function toStringTest(): void
+    {
+        $expected = 'convert to a boolean';
+        $sut = new ToBool();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    #[Test]
+    public function toPHPTest(): void
+    {
+        $sut = new ToBool();
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function dataSetsWithAcceptableInputs(): array
     {
         return [
             [1, true],
@@ -36,10 +59,8 @@ class ToBoolTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithAcceptableInputs
-     */
+    #[DataProvider('dataSetsWithAcceptableInputs')]
+    #[Test]
     public function acceptableTypesReturnBooleanValues($input, $expectedValue): void
     {
         $toBool = new ToBool();
@@ -51,7 +72,7 @@ class ToBoolTest extends TestCase
         self::assertEquals($expected->result, $result->result);
     }
 
-    public function dataSetsWithUnacceptableInputs(): array
+    public static function dataSetsWithUnacceptableInputs(): array
     {
         $unacceptableMessage = 'ToBool filter only accepts scalar values, %s given';
         $failureMessage = 'ToBool filter failed to convert value to boolean';
@@ -90,10 +111,8 @@ class ToBoolTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithUnacceptableInputs
-     */
+    #[DataProvider('dataSetsWithUnacceptableInputs')]
+    #[Test]
     public function unacceptableTypesReturnInvalid($input, $expectedMessage): void
     {
         $toBool = new ToBool();

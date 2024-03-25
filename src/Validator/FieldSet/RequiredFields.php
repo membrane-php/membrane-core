@@ -19,6 +19,22 @@ class RequiredFields implements Validator
         $this->fields = $fields;
     }
 
+    public function __toString(): string
+    {
+        if ($this->fields === []) {
+            return 'will return valid';
+        }
+
+        return 'contains the following fields: "' . implode('", "', $this->fields) . '"';
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s(', self::class) .
+            implode(', ', array_map(fn($p) => '"' . $p . '"', $this->fields)) .
+            ')';
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_array($value)) {

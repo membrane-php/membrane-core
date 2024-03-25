@@ -11,6 +11,16 @@ use Membrane\Result\Result;
 
 class JsonDecode implements Filter
 {
+    public function __toString(): string
+    {
+        return 'convert from json to a PHP value';
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_string($value)) {

@@ -3,19 +3,42 @@
 Filters attempt to change data to the correct format.  
 If you do not want to change incoming data; See [Validators](validators.md)
 
-All Filters implement the Membrane\Filter interface:
+## Interface
+
+All Filters implement the `Membrane\Filter` interface:
 
 ```php
 interface Filter
 {
     public function filter(mixed $value): Result;
+    
+    public function __toString(): string;
 }
 ```
+
+## Methods
+
+### Filter
+
+```php
+public function filter(mixed $value): Result
+```
+
+`filter()` will return a [Result](result.md) object detailing if and how the given value was filtered.
 
 [Results](result.md) returned from Filters will always be [Result::NO_RESULT or Result::INVALID](result.md#result).  
 Filters cannot validate data, they can only invalidate data.
 
 Best practice is to use Filters in combination with Validators to ensure data is returned in the correct format.
+
+### __ToString
+
+```php
+__toString(): string
+```
+
+`__toString()` returns a plain english description of what the filter does, you may find this useful for debugging.
+This method can also be called implicitly by typecasting your filter as string. i.e. `(string) $filter`
 
 ## Create Object
 
@@ -147,6 +170,60 @@ new Delete(...$fieldNames)
 | Parameter      | Type   |
 |----------------|--------|
 | ...$fieldNames | string |
+
+**Example**
+
+```php
+use Membrane\Filter\Shape\Delete;
+
+$array = ['a' => 1, 'b' => 2, 'c' => 3]
+$delete = new Delete('a', 'b');
+
+$result = $delete->filter($array);
+
+echo json_encode($result->value);
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+
+The above example will output the following
+
+```text
+["c":3]
+Result was valid
+```
+
+### Key Value Split
+
+Split a list into two, then combine to form a key-value array.
+
+```php
+new \Membrane\Filter\Shape\KeyValueSplit($keysFirst)
+```
+
+| Parameter  | Type |
+|------------|------|
+| $keysFirst | bool |
+
+**Example**
+
+```php
+use Membrane\Filter\Shape\KeyValueSplit;
+
+$list = ['a', 'one', 'b', 'two', 'c', 'three']
+$keyValueSplit = new KeyValueSplit();
+
+$result = $keyValueSplit->filter($list);
+
+echo json_encode($result->value);
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
+
+The above example will output the following
+
+```text
+["a":"one", "b":"two", "c":"three"]
+Result was valid
+```
 
 ### Nest
 
@@ -283,12 +360,64 @@ Result was valid
 
 ## String
 
+### AlphaNumeric
+
+```php
+new Membrane\Filter\String\AlphaNumeric();
+```
+
+Removes any characters that are not alphanumeric from the string.
+
+```php
+$string = '@alpha?Numer!ic^';
+$alphaNumeric = new Membrane\Filter\String\AlphaNumeric();
+
+$result = $alphaNumeric->filter($string);
+
+echo $result->value;
+echo $result->isValid() ? 'is valid' : 'is invalid';
+```
+
+The above example will output the following
+
+```text
+alphaNumeric is valid
+```
+
+### Explode
+
+```php
+new Membrane\Filter\String\Explode($delimiter)
+```
+
+| Parameter  | Type   | Notes                     |
+|------------|--------|---------------------------|
+| $delimiter | string | Cannot be an empty string |
+
+Explodes a string into an array based on the given delimiter.
+
+```php
+$string = 'one,two,three';
+$explode = new Membrane\Filter\String\Explode(',');
+
+$result = $explode->filter($string);
+
+echo json_encode($result->value);
+echo $result->isValid() ? 'is valid' : 'is invalid';
+```
+
+The above example will output the following
+
+```text
+["one", "two", "three"] is valid
+```
+
 ### JsonDecode
 
 Filters a string into a json object, as long as it follows json format.
 
 ```php
-new JsonDecode()
+new Membrane\Filter\String\\Membrane\Filter\String\JsonDecode();
 ```
 
 **Example**
@@ -312,6 +441,30 @@ The above example will output the following
     "type": "dog"
 }
 Result was valid
+```
+
+### ToPascalCase
+
+```php
+new Membrane\Filter\String\ToPascalCase();
+```
+
+Converts string into PascalCase (i.e. no whitespaces, uppercase for first letter of each word).
+
+```php
+$string = 'hello_there friend-how are you_doing';
+$pascalCase = new Membrane\Filter\String\ToPascalCase();
+
+$result = $pascalCase->filter($string);
+
+echo $result->value;
+echo $result->isValid() ? 'is valid' : 'is invalid';
+```
+
+The above example will output the following
+
+```text
+HelloThereFriendHowAreYouDoing is valid
 ```
 
 ## Type

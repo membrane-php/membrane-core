@@ -44,6 +44,60 @@ class Collection implements Processor
         }
     }
 
+    public function __toString(): string
+    {
+        if ($this->processes === '') {
+            return '';
+        }
+
+        $conditions = [];
+
+        if (isset($this->before)) {
+            $condition = (string)$this->before;
+            if ($condition !== '') {
+                $conditions[] = sprintf('Firstly "%s":', $this->processes) . $condition;
+            }
+        }
+
+        if (isset($this->each)) {
+            $condition = (string)$this->each;
+            if ($condition !== '') {
+                $conditions[] = sprintf('Each field in "%s":', $this->processes) .
+                    str_replace(sprintf('"%s":', $this->each->processes()), '', $condition);
+            }
+        }
+
+        if (isset($this->after)) {
+            $condition = (string)$this->after;
+            if ($condition !== '') {
+                $conditions[] = sprintf('Lastly "%s":', $this->processes) . $condition;
+            }
+        }
+
+        return $conditions === [] ? '' : implode("\n", $conditions);
+    }
+
+    public function __toPHP(): string
+    {
+        $processors = [];
+        if (isset($this->before)) {
+            $processors[] = $this->before->__toPHP();
+        }
+        if (isset($this->each)) {
+            $processors[] = $this->each->__toPHP();
+        }
+        if (isset($this->after)) {
+            $processors[] = $this->after->__toPHP();
+        }
+
+        return sprintf(
+            'new %s("%s"%s)',
+            self::class,
+            $this->processes(),
+            implode('', array_map(fn($p) => ', ' . $p, $processors))
+        );
+    }
+
     public function processes(): string
     {
         return $this->processes;

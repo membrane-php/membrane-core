@@ -2,17 +2,29 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Builder;
+namespace Membrane\Tests\OpenAPI\Builder;
 
-use Exception;
 use Membrane\Builder\Specification;
+use Membrane\Filter\String\ToUpperCase;
+use Membrane\OpenAPI\Builder\APIBuilder;
+use Membrane\OpenAPI\Builder\OpenAPIResponseBuilder;
 use Membrane\OpenAPI\Builder\ResponseBuilder;
-use Membrane\OpenAPI\Method;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessResponse;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
 use Membrane\OpenAPI\Processor\AllOf;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
-use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPI\Specification\APISchema;
+use Membrane\OpenAPI\Specification\Arrays;
+use Membrane\OpenAPI\Specification\Numeric;
+use Membrane\OpenAPI\Specification\Objects;
+use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
+use Membrane\OpenAPI\Specification\Strings;
+use Membrane\OpenAPI\Specification\TrueFalse;
+use Membrane\OpenAPIReader\Method;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -41,99 +53,138 @@ use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Type\IsNumber;
 use Membrane\Validator\Type\IsString;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers   \Membrane\OpenAPI\Builder\ResponseBuilder
- * @covers   \Membrane\OpenAPI\Builder\APIBuilder
- * @uses     \Membrane\OpenAPI\Builder\Arrays
- * @uses     \Membrane\OpenAPI\Builder\TrueFalse
- * @uses     \Membrane\OpenAPI\Builder\Numeric
- * @uses     \Membrane\OpenAPI\Builder\Objects
- * @uses     \Membrane\OpenAPI\Builder\Strings
- * @uses     \Membrane\OpenAPI\PathMatcher
- * @uses     \Membrane\OpenAPI\Processor\AllOf
- * @uses     \Membrane\OpenAPI\Processor\AnyOf
- * @uses     \Membrane\OpenAPI\Processor\OneOf
- * @uses     \Membrane\OpenAPI\Specification\APISchema
- * @uses     \Membrane\OpenAPI\Specification\APISpec
- * @uses     \Membrane\OpenAPI\Specification\Arrays
- * @uses     \Membrane\OpenAPI\Specification\TrueFalse
- * @uses     \Membrane\OpenAPI\Specification\Numeric
- * @uses     \Membrane\OpenAPI\Specification\Objects
- * @uses     \Membrane\OpenAPI\Specification\Strings
- * @uses     \Membrane\OpenAPI\Specification\Response
- * @uses     \Membrane\Processor\BeforeSet
- * @uses     \Membrane\Processor\Collection
- * @uses     \Membrane\Processor\Field
- * @uses     \Membrane\Processor\FieldSet
- * @uses     \Membrane\Result\FieldName
- * @uses     \Membrane\Result\Message
- * @uses     \Membrane\Result\MessageSet
- * @uses     \Membrane\Result\Result
- * @uses     \Membrane\Validator\Collection\Contained
- * @uses     \Membrane\Validator\Collection\Count
- * @uses     \Membrane\Validator\Collection\Unique
- * @uses     \Membrane\Validator\FieldSet\RequiredFields
- * @uses     \Membrane\Validator\Numeric\Maximum
- * @uses     \Membrane\Validator\Numeric\Minimum
- * @uses     \Membrane\Validator\Numeric\MultipleOf
- * @uses     \Membrane\Validator\String\DateString
- * @uses     \Membrane\Validator\String\Length
- * @uses     \Membrane\Validator\String\Regex
- * @uses     \Membrane\Validator\Type\IsArray
- * @uses     \Membrane\Validator\Type\IsInt
- * @uses     \Membrane\Validator\Type\IsList
- * @uses     \Membrane\Validator\Type\IsString
- */
+#[CoversClass(ResponseBuilder::class)]
+#[CoversClass(CannotProcessResponse::class)]
+#[CoversClass(CannotProcessSpecification::class)]
+#[CoversClass(CannotProcessOpenAPI::class)]
+#[UsesClass(APIBuilder::class)]
+#[UsesClass(OpenAPIResponseBuilder::class)]
+#[UsesClass(OpenAPIResponse::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\Arrays::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\TrueFalse::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\Numeric::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\Objects::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\Strings::class)]
+#[UsesClass(PathMatcher::class)]
+#[UsesClass(AllOf::class)]
+#[UsesClass(AnyOf::class)]
+#[UsesClass(OneOf::class)]
+#[UsesClass(APISchema::class)]
+#[UsesClass(Arrays::class)]
+#[UsesClass(TrueFalse::class)]
+#[UsesClass(Numeric::class)]
+#[UsesClass(Objects::class)]
+#[UsesClass(Strings::class)]
+#[UsesClass(Response::class)]
+#[UsesClass(BeforeSet::class)]
+#[UsesClass(Collection::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(FieldSet::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(Contained::class)]
+#[UsesClass(Count::class)]
+#[UsesClass(Unique::class)]
+#[UsesClass(RequiredFields::class)]
+#[UsesClass(Maximum::class)]
+#[UsesClass(Minimum::class)]
+#[UsesClass(MultipleOf::class)]
+#[UsesClass(DateString::class)]
+#[UsesClass(Length::class)]
+#[UsesClass(Regex::class)]
+#[UsesClass(IsArray::class)]
+#[UsesClass(IsInt::class)]
+#[UsesClass(IsList::class)]
+#[UsesClass(IsString::class)]
 class ResponseBuilderTest extends TestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';
+    private ResponseBuilder $sut;
 
-    /** @test */
+    public function setUp(): void
+    {
+        $this->sut = new ResponseBuilder();
+    }
+
+    #[Test, TestDox('It throws an exception if you try to use the keyword "not"')]
     public function throwsExceptionIfNotIsFound(): void
     {
-        $sut = new ResponseBuilder();
         $response = new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '360');
 
-        self::expectExceptionObject(new Exception("Keyword 'not' is currently unsupported"));
+        self::expectExceptionObject(CannotProcessOpenAPI::unsupportedKeyword('not'));
 
-        $sut->build($response);
+        $this->sut->build($response);
     }
 
-    public function dataSetsforSupports(): array
+    #[Test, TestDox('Throws an exception if the method has not been specified on the PathItem')]
+    public function throwsExceptionIfMethodNotFound(): void
     {
-        return [
-            [
-                new class() implements Specification {
-                },
-                false,
-            ],
-            [
-                self::createStub(Request::class),
-                false,
-            ],
-            [
-                self::createStub(Response::class),
-                true,
-            ],
-        ];
+        $petstoreAPIFilePath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
+        $specification = new Response(
+            $petstoreAPIFilePath,
+            'http://petstore.swagger.io/api/pets',
+            Method::DELETE,
+            '200'
+        );
+
+        self::expectExceptionObject(CannotProcessSpecification::methodNotFound(Method::DELETE->value));
+
+        $this->sut->build($specification);
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsforSupports
-     */
-    public function supportsTest(Specification $spec, bool $expected): void
+    #[Test, TestDox('Throws an exception if the response code has not been specified on the Operation')]
+    public function throwsExceptionIfCodeNotFound(): void
     {
-        $sut = new ResponseBuilder();
+        $petstoreAPIFilePath = __DIR__ . '/../../fixtures/OpenAPI/hatstore.json';
+        $specification = new Response(
+            $petstoreAPIFilePath,
+            '/hats',
+            Method::GET,
+            '418'
+        );
 
-        $supported = $sut->supports($spec);
+        self::expectExceptionObject(CannotProcessResponse::codeNotFound('418'));
 
-        self::assertSame($expected, $supported);
+        $this->sut->build($specification);
     }
 
-    public function dataSetsforBuilds(): array
+    #[Test, TestDox('It supports the Response Specification')]
+    public function supportsResponseSpecification(): void
+    {
+        $specification = self::createStub(Response::class);
+
+        self::assertTrue($this->sut->supports($specification));
+    }
+
+    #[Test, TestDox('It does not support any Specifications that are not Response')]
+    public function doesNotSupportSpecificationsThatAreNotResponse(): void
+    {
+        $specification = self::createStub(\Membrane\Builder\Specification::class);
+
+        self::assertFalse($this->sut->supports($specification));
+    }
+
+    #[Test, TestDox('Throws an exception if it cannot find a matching path in the OpenAPI spec provided')]
+    public function throwsExceptionIfPathCannotBeFound(): void
+    {
+        self::expectExceptionObject(CannotProcessSpecification::pathNotFound('noReferences.json', '/nonexistentpath'));
+
+        $specification = new Response(self::DIR . 'noReferences.json', '/nonexistentpath', Method::GET, '200');
+
+        (new ResponseBuilder())->build($specification);
+    }
+
+    public static function dataSetsforBuilds(): array
     {
         return [
             'no properties' => [
@@ -229,7 +280,6 @@ class ResponseBuilderTest extends TestCase
                         new Maximum(100),
                         new Minimum(0, true),
                         new MultipleOf(3)
-
                     )
                 ),
             ],
@@ -325,7 +375,7 @@ class ResponseBuilderTest extends TestCase
                     Method::GET,
                     '223'
                 ),
-                new Field('', new IsString(), new DateString('Y-m-d')),
+                new Field('', new IsString(), new DateString('Y-m-d', true)),
             ],
             'string, date-time format' => [
                 new Response(
@@ -334,7 +384,15 @@ class ResponseBuilderTest extends TestCase
                     Method::GET,
                     '224'
                 ),
-                new Field('', new IsString(), new DateString(DATE_ATOM)),
+                new Field(
+                    '',
+                    new IsString(),
+                    new ToUpperCase(),
+                    new \Membrane\Validator\Utility\AnyOf(
+                        new DateString('Y-m-d\TH:i:sP', true),
+                        new DateString('Y-m-d\TH:i:sp', true),
+                    )
+                ),
             ],
             'string, minLength' => [
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '225'),
@@ -569,8 +627,8 @@ class ResponseBuilderTest extends TestCase
                 ),
                 new AllOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
                 ),
             ],
             'allOf, two objects, one unique parameters' => [
@@ -582,8 +640,8 @@ class ResponseBuilderTest extends TestCase
                 ),
                 new AllOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('name', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('name', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'allOf, two objects, conflicting parameter' => [
@@ -595,17 +653,17 @@ class ResponseBuilderTest extends TestCase
                 ),
                 new AllOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'allOf, two objects, unique parameters, one requiredField' => [
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '304'),
                 new AllOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new BeforeSet(new IsArray(), new RequiredFields('name')),
                         new Field('name', new IsString())
                     )
@@ -616,12 +674,12 @@ class ResponseBuilderTest extends TestCase
                 new AllOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -632,12 +690,12 @@ class ResponseBuilderTest extends TestCase
                 new AllOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     )
@@ -656,8 +714,8 @@ class ResponseBuilderTest extends TestCase
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '321'),
                 new AnyOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
                 ),
             ],
             'anyOf, two objects, one unique parameters' => [
@@ -669,8 +727,8 @@ class ResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('name', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('name', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'anyOf, two objects, conflicting parameter' => [
@@ -682,17 +740,17 @@ class ResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'anyOf, two objects, unique parameters, one requiredField' => [
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '324'),
                 new AnyOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -708,12 +766,12 @@ class ResponseBuilderTest extends TestCase
                 new AnyOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -729,12 +787,12 @@ class ResponseBuilderTest extends TestCase
                 new AnyOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     )
@@ -748,16 +806,16 @@ class ResponseBuilderTest extends TestCase
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '341'),
                 new OneOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsInt()), new BeforeSet(new IsArray()))
                 ),
             ],
             'oneOf, two objects, one unique parameters' => [
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '342'),
                 new OneOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('name', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('name', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'oneOf, two objects, conflicting parameter' => [
@@ -769,17 +827,17 @@ class ResponseBuilderTest extends TestCase
                 ),
                 new OneOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
-                    new FieldSet('', new Field('id', new IsString()), new BeforeSet(new IsArray()))
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-2', new Field('id', new IsString()), new BeforeSet(new IsArray()))
                 ),
             ],
             'oneOf, two objects, unique parameters, one requiredField' => [
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '344'),
                 new OneOf(
                     '',
-                    new FieldSet('', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
+                    new FieldSet('Branch-1', new Field('id', new IsInt()), new BeforeSet(new IsArray())),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -795,12 +853,12 @@ class ResponseBuilderTest extends TestCase
                 new OneOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     )
@@ -816,12 +874,12 @@ class ResponseBuilderTest extends TestCase
                 new OneOf(
                     '',
                     new FieldSet(
-                        '',
+                        'Branch-1',
                         new Field('id', new IsInt()),
                         new BeforeSet(new IsArray(), new RequiredFields('name'))
                     ),
                     new FieldSet(
-                        '',
+                        'Branch-2',
                         new Field('name', new IsString()),
                         new BeforeSet(new IsArray(), new RequiredFields('id'))
                     )
@@ -829,6 +887,14 @@ class ResponseBuilderTest extends TestCase
             ],
             'schema with no specified type' => [
                 new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '404'),
+                new Field('', new Passes()),
+            ],
+            'schema with empty content' => [
+                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '405'),
+                new Field('', new Passes()),
+            ],
+            'schema with no content' => [
+                new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '406'),
                 new Field('', new Passes()),
             ],
             'petstore.yaml: /pets path -> get operation -> 200 response' => [
@@ -853,20 +919,17 @@ class ResponseBuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsforBuilds
-     */
+    #[Test]
+    #[TestDox('It builds processors that validate response content')]
+    #[DataProvider('dataSetsforBuilds')]
     public function buildsTest(Specification $spec, Processor $expected): void
     {
-        $sut = new ResponseBuilder();
-
-        $processor = $sut->build($spec);
+        $processor = $this->sut->build($spec);
 
         self::assertEquals($expected, $processor);
     }
 
-    public function dataSetsForDocExamples(): array
+    public static function dataSetsForDocExamples(): array
     {
         $petStore1 = new Response(
             self::DIR . 'docs/petstore.yaml',
@@ -928,15 +991,11 @@ class ResponseBuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForDocExamples
-     */
+    #[Test]
+    #[DataProvider('dataSetsForDocExamples')]
     public function docsTest(Specification $spec, array $data, Result $expected): void
     {
-        $sut = new ResponseBuilder();
-
-        $processor = $sut->build($spec);
+        $processor = $this->sut->build($spec);
 
         self::assertEquals($expected, $processor->process(new FieldName(''), $data));
     }

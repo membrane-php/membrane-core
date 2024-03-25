@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Filter\Type;
+namespace Membrane\Tests\Filter\Type;
 
 use DateTime;
 use DateTimeImmutable;
@@ -10,17 +10,47 @@ use Membrane\Filter\Type\ToDateTime;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\Type\ToDateTime
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(ToDateTime::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class ToDateTimeTest extends TestCase
 {
-    public function dataSetsWithIncorrectTypes(): array
+    #[Test]
+    public function toStringTest(): void
+    {
+        $expected = 'convert to a DateTime';
+        $sut = new ToDateTime('');
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    public static function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'immutable' => [new ToDateTime('Y-m-d', true)],
+            'mutable' => [new ToDateTime('Y-m-d', false)],
+        ];
+    }
+
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
+    public function toPHPTest(ToDateTime $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [123, 'integer'],
@@ -31,14 +61,14 @@ class ToDateTimeTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectTypes
-     */
+    #[DataProvider('dataSetsWithIncorrectTypes')]
+    #[Test]
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $toDateTime = new ToDateTime('');
-        $expected = Result::invalid($input, new MessageSet(
+        $expected = Result::invalid(
+            $input,
+            new MessageSet(
                 null,
                 new Message('ToDateTime filter requires a string, %s given', [$expectedVars])
             )
@@ -49,7 +79,7 @@ class ToDateTimeTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatPass(): array
+    public static function dataSetsThatPass(): array
     {
         return [
             ['', ''],
@@ -58,10 +88,8 @@ class ToDateTimeTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatPass
-     */
+    #[DataProvider('dataSetsThatPass')]
+    #[Test]
     public function stringsThatMatchFormatReturnImmutableDateTimes(string $format, string $input): void
     {
         $toDateTime = new ToDateTime($format);
@@ -73,10 +101,8 @@ class ToDateTimeTest extends TestCase
         self::assertTrue($result->value instanceof DateTimeImmutable);
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatPass
-     */
+    #[DataProvider('dataSetsThatPass')]
+    #[Test]
     public function stringsThatMatchFormatReturnDateTimesIfImmutableSetToFalse(string $format, string $input,): void
     {
         $toDateTime = new ToDateTime($format, false);
@@ -88,7 +114,7 @@ class ToDateTimeTest extends TestCase
         self::assertTrue($result->value instanceof DateTime);
     }
 
-    public function dataSetsThatFail(): array
+    public static function dataSetsThatFail(): array
     {
         // @TODO once min requirement is PHP 8.2: remove version_compare statements
         return [
@@ -138,14 +164,12 @@ class ToDateTimeTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatFail
-     */
+    #[DataProvider('dataSetsThatFail')]
+    #[Test]
     public function stringsThatDoNotMatchFormatReturnInvalid(string $format, string $input, array $expectedVars): void
     {
         $toDateTime = new ToDateTime($format);
-        $expectedMessage = new Message('String does not match the required format', [$expectedVars]);
+        $expectedMessage = new Message('String does not match the required format', [json_encode($expectedVars)]);
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
 
         $result = $toDateTime->filter($input);

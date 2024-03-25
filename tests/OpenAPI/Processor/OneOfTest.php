@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Processor;
+namespace Membrane\Tests\OpenAPI\Processor;
 
 use Membrane\Exception\InvalidProcessorArguments;
 use Membrane\OpenAPI\Processor\OneOf;
+use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Field;
 use Membrane\Processor\FieldSet;
@@ -20,29 +21,70 @@ use Membrane\Validator\Type\IsString;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Indifferent;
 use Membrane\Validator\Utility\Passes;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\OpenAPI\Processor\OneOf
- * @covers \Membrane\Exception\InvalidProcessorArguments
- * @uses   \Membrane\Processor\BeforeSet
- * @uses   \Membrane\Processor\Field
- * @uses   \Membrane\Processor\FieldSet
- * @uses   \Membrane\Result\FieldName
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Validator\FieldSet\RequiredFields
- * @uses   \Membrane\Validator\Type\IsArray
- * @uses   \Membrane\Validator\Type\IsInt
- * @uses   \Membrane\Validator\Type\IsString
- * @uses   \Membrane\Validator\Utility\Fails
- * @uses   \Membrane\Validator\Utility\Indifferent
- * @uses   \Membrane\Validator\Utility\Passes
- */
+#[CoversClass(OneOf::class)]
+#[CoversClass(InvalidProcessorArguments::class)]
+#[UsesClass(BeforeSet::class)]
+#[UsesClass(Field::class)]
+#[UsesClass(FieldSet::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(RequiredFields::class)]
+#[UsesClass(IsArray::class)]
+#[UsesClass(IsInt::class)]
+#[UsesClass(IsString::class)]
+#[UsesClass(Fails::class)]
+#[UsesClass(Indifferent::class)]
+#[UsesClass(Passes::class)]
 class OneOfTest extends TestCase
 {
-    /** @test */
+    public static function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            '2 validators' => [new OneOf('a', new Field('b'), new Field('c'))],
+            '3 validators' => [
+                new OneOf('a', new Field('b', new Passes()), new Field('c', new Fails()), new Field('d')),
+            ],
+        ];
+    }
+
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
+    public function toPHPTest(OneOf $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    #[Test]
+    public function toStringTest(): void
+    {
+        $expected = <<<END
+            One of the following:
+            \t"id":
+            \t\t- condition.
+            \t"id":
+            \t\t- condition.
+            END;
+        $processor = self::createMock(Processor::class);
+        $processor->method('__toString')
+            ->willReturn("\"id\":\n\t- condition");
+        $sut = new OneOf('id', $processor, $processor);
+
+        $actual = (string)$sut;
+
+        self::assertSame($expected, $actual);
+    }
+
+    #[Test]
     public function throwsExceptionIfLessThanTwoProcessors(): void
     {
         self::expectExceptionObject(InvalidProcessorArguments::redundantProcessor(OneOf::class));
@@ -50,7 +92,7 @@ class OneOfTest extends TestCase
         new OneOf('');
     }
 
-    /** @test */
+    #[Test]
     public function processesTest(): void
     {
         $processes = 'test';
@@ -59,7 +101,7 @@ class OneOfTest extends TestCase
         self::assertEquals($processes, $sut->processes());
     }
 
-    public function dataSetsToProcess(): array
+    public static function dataSetsToProcess(): array
     {
         return [
             'two Fields with valid results' => [
@@ -67,7 +109,13 @@ class OneOfTest extends TestCase
                 [new Field('', new Passes()), new Field('', new Passes())],
                 new FieldName(''),
                 5,
-                Result::invalid(5),
+                Result::invalid(
+                    5,
+                    new MessageSet(
+                        new FieldName(''),
+                        new Message('one and only one schema must pass', [])
+                    )
+                ),
             ],
             'two Fields with invalid results' => [
                 '',
@@ -76,6 +124,10 @@ class OneOfTest extends TestCase
                 5,
                 Result::invalid(
                     5,
+                    new MessageSet(
+                        new FieldName(''),
+                        new Message('one and only one schema must pass', [])
+                    ),
                     new MessageSet(
                         new FieldName('', ''),
                         new Message('I always fail', [])
@@ -91,7 +143,13 @@ class OneOfTest extends TestCase
                 [new Field('', new Indifferent()), new Field('', new Indifferent())],
                 new FieldName(''),
                 5,
-                Result::noResult(5),
+                Result::invalid(
+                    5,
+                    new MessageSet(
+                        new FieldName(''),
+                        new Message('one and only one schema must pass', [])
+                    )
+                ),
             ],
             'one valid result, one invalid result' => [
                 '',
@@ -105,7 +163,13 @@ class OneOfTest extends TestCase
                 [new Field('', new Indifferent()), new Field('', new Passes())],
                 new FieldName(''),
                 5,
-                Result::valid(5),
+                Result::invalid(
+                    5,
+                    new MessageSet(
+                        new FieldName(''),
+                        new Message('one and only one schema must pass', [])
+                    )
+                ),
             ],
             'expects an object which may have integer id and string name (valid input)' => [
                 '',
@@ -141,7 +205,13 @@ class OneOfTest extends TestCase
                 ],
                 new FieldName(''),
                 [],
-                Result::invalid([]),
+                Result::invalid(
+                    [],
+                    new MessageSet(
+                        new FieldName(''),
+                        new Message('one and only one schema must pass', [])
+                    )
+                ),
 
             ],
             'expects an object which must have integer id and string name (valid input)' => [
@@ -178,15 +248,19 @@ class OneOfTest extends TestCase
                 ],
                 new FieldName(''),
                 ['id' => 5, 'name' => 'Harley'],
-                Result::invalid(['id' => 5, 'name' => 'Harley']),
+                Result::invalid(
+                    ['id' => 5, 'name' => 'Harley'],
+                    new MessageSet(
+                        new FieldName(''),
+                        new Message('one and only one schema must pass', [])
+                    )
+                ),
             ],
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToProcess
-     */
+    #[DataProvider('dataSetsToProcess')]
+    #[Test]
     public function processTest(
         string $processes,
         array $processors,

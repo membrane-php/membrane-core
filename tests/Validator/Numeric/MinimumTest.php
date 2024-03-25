@@ -2,23 +2,69 @@
 
 declare(strict_types=1);
 
-namespace Validator\Numeric;
+namespace Membrane\Tests\Validator\Numeric;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Numeric\Minimum;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Numeric\Minimum
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Minimum::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class MinimumTest extends TestCase
 {
-    public function dataSetsOfNonNumericValues(): array
+    public static function dataSetsToConvertToString(): array
+    {
+        return [
+            'inclusive min' => [
+                5,
+                false,
+                'is greater than or equal to 5',
+            ],
+            'exclusive min' => [
+                7,
+                true,
+                'is greater than 7',
+            ],
+        ];
+    }
+
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
+    public function toStringTest(int $min, bool $exclusive, string $expected): void
+    {
+        $sut = new Minimum($min, $exclusive);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    public static function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'inclusive minimum' => [new Minimum(5)],
+            'exclusive minimum' => [new Minimum(5, true)],
+        ];
+    }
+
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
+    public function toPHPTest(Minimum $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function dataSetsOfNonNumericValues(): array
     {
         return [
             [
@@ -40,10 +86,8 @@ class MinimumTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsOfNonNumericValues
-     */
+    #[DataProvider('dataSetsOfNonNumericValues')]
+    #[Test]
     public function invalidForNonNumericValues(mixed $value, array $messageVars): void
     {
         $expected = Result::invalid(
@@ -57,7 +101,7 @@ class MinimumTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
-    public function dataSetsToValidate(): array
+    public static function dataSetsToValidate(): array
     {
         return [
             'greater than min (int, inclusive)' => [
@@ -141,11 +185,9 @@ class MinimumTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToValidate
-     */
-    public function validateTest(int|float $min, bool $exclusive, int|float $value, Result $expected): void
+    #[DataProvider('dataSetsToValidate')]
+    #[Test]
+    public function validateTest(int | float $min, bool $exclusive, int | float $value, Result $expected): void
     {
         $sut = new Minimum($min, $exclusive);
 

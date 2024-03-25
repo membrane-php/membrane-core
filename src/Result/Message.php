@@ -6,7 +6,7 @@ namespace Membrane\Result;
 
 class Message
 {
-    /** @param mixed[] $vars */
+    /** @param array<bool|float|int|string|null> $vars */
     public function __construct(
         public readonly string $message,
         public readonly array $vars

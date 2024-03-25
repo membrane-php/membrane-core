@@ -2,25 +2,46 @@
 
 declare(strict_types=1);
 
-namespace Filter\Shape;
+namespace Membrane\Tests\Filter\Shape;
 
 use Membrane\Filter\Shape\Rename;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\Shape\Rename
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Rename::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class RenameTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
+    public function toStringTest(): void
+    {
+        $expected = 'rename "a" to "b"';
+        $sut = new Rename('a', 'b');
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    #[Test]
+    public function toPHPTest(): void
+    {
+        $sut = new Rename('a', 'b');
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    #[Test]
     public function oldAndNewCannotBeEqual(): void
     {
         self::expectException('RuntimeException');
@@ -29,7 +50,7 @@ class RenameTest extends TestCase
         new Rename('a', 'a');
     }
 
-    public function dataSetsWithIncorrectInputs(): array
+    public static function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Rename filter requires arrays, %s given';
         $listMessage = 'Rename filter requires arrays with key-value pairs';
@@ -42,10 +63,8 @@ class RenameTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectInputs
-     */
+    #[DataProvider('dataSetsWithIncorrectInputs')]
+    #[Test]
     public function incorrectInputsReturnInvalid(mixed $input, Message $expectedMessage): void
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
@@ -56,9 +75,7 @@ class RenameTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function nonExistentKeysAreIgnored(): void
     {
         $input = ['a' => 1, 'b' => 2];
@@ -70,7 +87,7 @@ class RenameTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsToFilter(): array
+    public static function dataSetsToFilter(): array
     {
         return [
             [
@@ -88,10 +105,8 @@ class RenameTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToFilter
-     */
+    #[DataProvider('dataSetsToFilter')]
+    #[Test]
     public function ifOldKeyExistsThenItIsRenamed(array $input, mixed $old, mixed $new, array $expectedValue): void
     {
         $expected = Result::noResult($expectedValue);

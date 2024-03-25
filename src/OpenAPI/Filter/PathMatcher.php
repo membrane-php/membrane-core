@@ -5,16 +5,26 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Filter;
 
 use Membrane\Filter;
-use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
-use Membrane\OpenAPI\PathMatcher as PathMatcherClass;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPI\ExtractPathParameters\ExtractsPathParameters;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 
 class PathMatcher implements Filter
 {
-    public function __construct(private readonly PathMatcherClass $pathMatcher)
+    public function __construct(private readonly ExtractsPathParameters $pathMatcher)
     {
+    }
+
+    public function __toString(): string
+    {
+        return 'convert url to a field set of path parameters';
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s(%s)', self::class, $this->pathMatcher->__toPHP());
     }
 
     public function filter(mixed $value): Result
@@ -28,7 +38,7 @@ class PathMatcher implements Filter
 
         try {
             $pathParams = $this->pathMatcher->getPathParams($value);
-        } catch (CannotProcessOpenAPI) {
+        } catch (CannotProcessSpecification) {
             return Result::invalid(
                 $value,
                 new MessageSet(null, new Message('requestPath does not match expected pattern', []))

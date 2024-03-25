@@ -2,23 +2,72 @@
 
 declare(strict_types=1);
 
-namespace Validator\FieldSet;
+namespace Membrane\Tests\Validator\FieldSet;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\FieldSet\RequiredFields;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\FieldSet\RequiredFields
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(RequiredFields::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class RequiredFieldsTest extends TestCase
 {
-    public function dataSetsWithIncorrectTypes(): array
+    public static function dataSetsToConvertToString(): array
+    {
+        return [
+            'no required fields' => [
+                [],
+                'will return valid',
+            ],
+            'single required field' => [
+                ['a'],
+                'contains the following fields: "a"',
+            ],
+            'multiple required fields' => [
+                ['a', 'b', 'c'],
+                'contains the following fields: "a", "b", "c"',
+            ],
+        ];
+    }
+
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
+    public function toStringTest(array $fields, string $expected): void
+    {
+        $sut = new RequiredFields(...$fields);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    public static function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no fields' => [new RequiredFields()],
+            '1 field' => [new RequiredFields('a')],
+            '3 fields' => [new RequiredFields('a', 'b', 'c')],
+        ];
+    }
+
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
+    public function toPHPTest(RequiredFields $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [123, 'integer'],
@@ -29,10 +78,8 @@ class RequiredFieldsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectTypes
-     */
+    #[DataProvider('dataSetsWithIncorrectTypes')]
+    #[Test]
     public function incorrectTypesReturnInvalidResults($input, $inputType): void
     {
         $sut = new RequiredFields();
@@ -49,7 +96,7 @@ class RequiredFieldsTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsForValidResults(): array
+    public static function dataSetsForValidResults(): array
     {
         return [
             'no required fields' => [
@@ -82,10 +129,8 @@ class RequiredFieldsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForValidResults
-     */
+    #[DataProvider('dataSetsForValidResults')]
+    #[Test]
     public function ifRequiredFieldsAreFilledReturnValid(array $requiredFields, array $input): void
     {
         $expected = Result::valid($input);
@@ -96,7 +141,7 @@ class RequiredFieldsTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsForInvalidResults(): array
+    public static function dataSetsForInvalidResults(): array
     {
         return [
             'one required field, none filled' => [
@@ -125,10 +170,8 @@ class RequiredFieldsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsForInvalidResults
-     */
+    #[DataProvider('dataSetsForInvalidResults')]
+    #[Test]
     public function ifRequiredFieldsAreNotFilledReturnInvalid(
         array $requiredFields,
         array $input,

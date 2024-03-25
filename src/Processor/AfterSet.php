@@ -12,11 +12,24 @@ use Membrane\Validator;
 
 class AfterSet implements Processor
 {
+    /** @var Filter[]|Validator[] */
+    private readonly array $chain;
     private readonly Field $field;
 
     public function __construct(Filter|Validator ...$chain)
     {
-        $this->field = new Field('', ...$chain);
+        $this->chain = $chain;
+        $this->field = new Field('', ...$this->chain);
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s(%s)', self::class, implode(', ', array_map(fn($p) => $p->__toPHP(), $this->chain)));
+    }
+
+    public function __toString(): string
+    {
+        return (string)$this->field;
     }
 
     public function processes(): string

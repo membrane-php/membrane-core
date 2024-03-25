@@ -2,24 +2,46 @@
 
 declare(strict_types=1);
 
-namespace Validator\Type;
+namespace Membrane\Tests\Validator\Type;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Type\IsNumber;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Type\IsNumber
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Result
- */
+#[CoversClass(IsNumber::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class IsNumberTest extends TestCase
 {
+    #[Test]
+    public function toStringTest(): void
+    {
+        $expected = 'is a number';
+        $sut = new IsNumber();
 
-    public function dataSetsToValidate(): array
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    #[Test]
+    public function toPHPTest(): void
+    {
+        $sut = new IsNumber();
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function dataSetsToValidate(): array
     {
         $class = new class {
         };
@@ -83,10 +105,8 @@ class IsNumberTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToValidate
-     */
+    #[DataProvider('dataSetsToValidate')]
+    #[Test]
     public function validateTest(mixed $value, Result $expected): void
     {
         $sut = new IsNumber();

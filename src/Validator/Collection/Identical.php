@@ -11,6 +11,16 @@ use Membrane\Validator;
 
 class Identical implements Validator
 {
+    public function __toString(): string
+    {
+        return 'contains only identical values';
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function validate(mixed $value): Result
     {
         if (!is_array($value)) {

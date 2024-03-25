@@ -2,33 +2,54 @@
 
 declare(strict_types=1);
 
-namespace Validator\Utility;
+namespace Membrane\Tests\Validator\Utility;
 
 use Membrane\Result\Result;
 use Membrane\Validator\Utility\Indifferent;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Utility\Indifferent
- * @uses   \Membrane\Result\Result
- */
+#[CoversClass(Indifferent::class)]
+#[UsesClass(Result::class)]
 class IndifferentTest extends TestCase
 {
-    public function dataSets(): array
+    #[Test]
+    public function toStringTest(): void
+    {
+        $expected = '';
+        $sut = new Indifferent();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    #[Test]
+    public function toPHPTest(): void
+    {
+        $sut = new Indifferent();
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function dataSets(): array
     {
         return [[1], [1.1], ['one'], [false], [null],];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSets
-     */
+    #[DataProvider('dataSets')]
+    #[Test]
     public function indifferentAlwaysReturnsNoResult(mixed $input): void
     {
-        $indifferent = new Indifferent();
+        $sut = new Indifferent();
         $expected = Result::noResult($input);
 
-        $result = $indifferent->validate($input);
+        $result = $sut->validate($input);
 
         self::assertEquals($expected, $result);
     }

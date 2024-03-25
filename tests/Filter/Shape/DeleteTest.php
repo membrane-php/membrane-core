@@ -2,23 +2,72 @@
 
 declare(strict_types=1);
 
-namespace Filter\Shape;
+namespace Membrane\Tests\Filter\Shape;
 
 use Membrane\Filter\Shape\Delete;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\Shape\Delete
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Delete::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class DeleteTest extends TestCase
 {
-    public function dataSetsWithIncorrectInputs(): array
+    public static function dataSetsToConvertToString(): array
+    {
+        return [
+            'no fields' => [
+                [],
+                '',
+            ],
+            'single field' => [
+                ['a'],
+                'delete "a" from self',
+            ],
+            'multiple fields' => [
+                ['a', 'b', 'c'],
+                'delete "a", "b", "c" from self',
+            ],
+        ];
+    }
+
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
+    public function toStringTest(array $fields, string $expected): void
+    {
+        $sut = new Delete(...$fields);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    public static function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no fields' => [new Delete(),],
+            'one field' => [new Delete('a'),],
+            'multiple fields' => [new Delete('a', 'b', 'c'),],
+        ];
+    }
+
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
+    public function toPHPTest(Delete $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function dataSetsWithIncorrectInputs(): array
     {
         $notArrayMessage = 'Delete filter requires arrays, %s given';
         $listMessage = 'Delete filter requires arrays, for lists use Truncate';
@@ -31,10 +80,8 @@ class DeleteTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectInputs
-     */
+    #[DataProvider('dataSetsWithIncorrectInputs')]
+    #[Test]
     public function incorrectInputsReturnInvalid(mixed $input, Message $expectedMessage): void
     {
         $expected = Result::invalid($input, new MessageSet(null, $expectedMessage));
@@ -45,7 +92,7 @@ class DeleteTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsToFilter(): array
+    public static function dataSetsToFilter(): array
     {
         return [
             [
@@ -66,10 +113,8 @@ class DeleteTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToFilter
-     */
+    #[DataProvider('dataSetsToFilter')]
+    #[Test]
     public function listsAreTruncatedToMatchMaxLength(array $input, array $fieldNames, array $expectedValue): void
     {
         $expected = Result::noResult($expectedValue);

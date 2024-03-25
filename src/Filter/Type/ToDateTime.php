@@ -19,6 +19,16 @@ class ToDateTime implements Filter
     ) {
     }
 
+    public function __toString(): string
+    {
+        return 'convert to a DateTime';
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s("%s", %s)', self::class, $this->format, $this->immutable ? 'true' : 'false');
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_string($value)) {
@@ -35,7 +45,7 @@ class ToDateTime implements Filter
         if ($dateTime === false) {
             $message = new Message(
                 'String does not match the required format',
-                [$this->immutable ? DateTimeImmutable::getLastErrors() : DateTime::getLastErrors()]
+                [json_encode($this->immutable ? DateTimeImmutable::getLastErrors() : DateTime::getLastErrors())]
             );
             return Result::invalid($value, new MessageSet(null, $message));
         }

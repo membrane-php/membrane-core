@@ -2,23 +2,46 @@
 
 declare(strict_types=1);
 
-namespace Filter\Type;
+namespace Membrane\Tests\Filter\Type;
 
 use Membrane\Filter\Type\ToNumber;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\Type\ToNumber
- * @uses   \Membrane\Result\Message
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Result
- */
+#[CoversClass(ToNumber::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Result::class)]
 class ToNumberTest extends TestCase
 {
-    public function dataSetsToFilter(): array
+    #[Test]
+    public function toStringTest(): void
+    {
+        $expected = 'convert to a number';
+        $sut = new ToNumber();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    #[Test]
+    public function toPHPTest(): void
+    {
+        $sut = new ToNumber();
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function dataSetsToFilter(): array
     {
         $class = new class {
         };
@@ -76,10 +99,8 @@ class ToNumberTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToFilter
-     */
+    #[DataProvider('dataSetsToFilter')]
+    #[Test]
     public function validateTest(mixed $value, Result $expected): void
     {
         $sut = new ToNumber();

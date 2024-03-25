@@ -2,25 +2,46 @@
 
 declare(strict_types=1);
 
-namespace Validator\Type;
+namespace Membrane\Tests\Validator\Type;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Type\IsFloat;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Type\IsFloat
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(IsFloat::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class IsFloatTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
+    public function toStringTest(): void
+    {
+        $expected = 'is a float';
+        $sut = new IsFloat();
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    #[Test]
+    public function toPHPTest(): void
+    {
+        $sut = new IsFloat();
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    #[Test]
     public function floatReturnValid(): void
     {
         $input = 1.1;
@@ -32,7 +53,7 @@ class IsFloatTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatFail(): array
+    public static function dataSetsThatFail(): array
     {
         return [
             [true, 'boolean'],
@@ -43,10 +64,8 @@ class IsFloatTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatFail
-     */
+    #[DataProvider('dataSetsThatFail')]
+    #[Test]
     public function typesThatAreNotFloatReturnInvalid($input, $expectedVar): void
     {
         $isFloat = new IsFloat();

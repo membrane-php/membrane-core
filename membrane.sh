@@ -20,8 +20,17 @@ function installComposer() {
     return $RESULT
 }
 
+function cleanup(){
+  docker run -ti -u $(id -u):$(id -g)  -v "$PWD":/app -w /app php:8.1-cli-alpine vendor/bin/phpcbf
+  docker run -ti -u $(id -u):$(id -g)  -v "$PWD":/app -w /app php:8.1-cli-alpine vendor/bin/phpcs
+}
+
+function qualityCheck(){
+  docker run -ti -u $(id -u):$(id -g)  -v "$PWD":/app -w /app php:8.1-cli-alpine vendor/bin/phpstan
+}
+
 function test(){
-  docker run -ti -u $(id -u):$(id -g)  -v "$PWD":/app -w /app php:8.1-cli-alpine vendor/bin/phpunit
+  docker run -ti -u $(id -u):$(id -g) -v "$PWD":/app -w /app php:8.1-cli-alpine vendor/bin/phpunit -d memory_limit=1G
 }
 
 function shell(){
@@ -36,8 +45,13 @@ setup)
   exit 0
   ;;
 
-shell)
-  shell
+cleanup)
+  cleanup
+  exit 0
+  ;;
+
+qualityCheck)
+  qualityCheck
   exit 0
   ;;
 
@@ -47,8 +61,13 @@ test)
   exit 0
   ;;
 
+shell)
+  shell
+  exit 0
+  ;;
+
 *)
-  echo "Usage: membrane.sh {test|shell|setup}"
+  echo "Usage: membrane.sh {cleanup|qualityCheck|test|shell|setup}"
   exit 1
   ;;
 

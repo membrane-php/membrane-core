@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
+use Membrane\Filter\String\ToUpperCase;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
@@ -12,6 +13,7 @@ use Membrane\Validator\String\DateString;
 use Membrane\Validator\String\Length;
 use Membrane\Validator\String\Regex;
 use Membrane\Validator\Type\IsString;
+use Membrane\Validator\Utility\AnyOf;
 
 class Strings extends APIBuilder
 {
@@ -31,11 +33,15 @@ class Strings extends APIBuilder
         }
 
         if ($specification->format === 'date') {
-            $chain[] = new DateString('Y-m-d');
+            $chain[] = new DateString('Y-m-d', true);
         }
 
         if ($specification->format === 'date-time') {
-            $chain[] = new DateString('Y-m-d\TH:i:sP');
+            $chain[] = new ToUpperCase();
+            $chain[] = new AnyOf(
+                new DateString('Y-m-d\TH:i:sP', true),
+                new DateString('Y-m-d\TH:i:sp', true),
+            );
         }
 
         if ($specification->minLength > 0 || $specification->maxLength !== null) {

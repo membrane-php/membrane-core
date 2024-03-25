@@ -7,6 +7,8 @@ namespace Membrane\OpenAPI\Processor;
 use Membrane\Exception\InvalidProcessorArguments;
 use Membrane\Processor;
 use Membrane\Result\FieldName;
+use Membrane\Result\Message;
+use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 
 use function count;
@@ -14,14 +16,30 @@ use function count;
 class OneOf implements Processor
 {
     /** @var Processor[] */
-    public array $fieldSets;
+    public array $processors;
 
-    public function __construct(private readonly string $processes, Processor ...$fieldSets)
+    public function __construct(private readonly string $processes, Processor ...$processors)
     {
-        if (count($fieldSets) < 2) {
+        if (count($processors) < 2) {
             throw InvalidProcessorArguments::redundantProcessor(OneOf::class);
         }
-        $this->fieldSets = $fieldSets;
+        $this->processors = $processors;
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf(
+            'new %s("%s"%s)',
+            self::class,
+            $this->processes(),
+            implode('', array_map(fn($p) => ', ' . $p->__toPHP(), $this->processors))
+        );
+    }
+
+    public function __toString(): string
+    {
+        return "One of the following:\n\t" .
+            implode(".\n\t", array_map(fn($p) => preg_replace("#\n#m", "\n\t", (string)$p), $this->processors)) . '.';
     }
 
     public function processes(): string
@@ -31,44 +49,38 @@ class OneOf implements Processor
 
     public function process(FieldName $parentFieldName, mixed $value): Result
     {
-        $results = [];
-        $messageSets = [];
+        $results = array_map(
+            fn($p) => $p->process($parentFieldName, $value),
+            $this->processors
+        );
 
-        foreach ($this->fieldSets as $fieldSet) {
-            $itemResult = $fieldSet->process($parentFieldName, $value);
+        if ($this->hasExactlyOneValidResult($results)) {
+            return Result::valid($value);
+        }
 
-            $results [] = $itemResult->result;
+        $messageSets = [
+            new MessageSet(
+                $parentFieldName,
+                new Message('one and only one schema must pass', [])
+            ),
+        ];
 
-            if (!$itemResult->isValid()) {
-                $messageSets [] = $itemResult->messageSets[0];
+        foreach ($results as $result) {
+            if (!$result->isValid()) {
+                foreach ($result->messageSets as $messageSet) {
+                    if (!$messageSet->isEmpty()) {
+                        $messageSets[] = $messageSet;
+                    }
+                }
             }
         }
 
-        $result = $this->mergeResults($results);
-
-        return new Result(
-            $value,
-            $result,
-            ...($result === Result::INVALID ? $messageSets : [])
-        );
+        return Result::invalid($value, ...$messageSets);
     }
 
-    /** @param int[] $results */
-    private function mergeResults(array $results): int
+    /** @param Result[] $results */
+    private function hasExactlyOneValidResult(array $results): bool
     {
-        $results = array_count_values($results);
-
-        if (isset($results[Result::VALID])) {
-            if ($results[Result::VALID] === 1) {
-                return Result::VALID;
-            }
-            return Result::INVALID;
-        }
-
-        if (isset($results[Result::INVALID])) {
-            return Result::INVALID;
-        }
-
-        return Result::NO_RESULT;
+        return count(array_filter($results, fn($r) => $r->isValid())) === 1;
     }
 }

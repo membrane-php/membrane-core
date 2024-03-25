@@ -2,23 +2,47 @@
 
 declare(strict_types=1);
 
-namespace Validator\String;
+namespace Membrane\Tests\Validator\String;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\String\DateString;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\String\DateString
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(DateString::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class DateStringTest extends TestCase
 {
-    public function dataSetsWithIncorrectTypes(): array
+    #[Test]
+    public function toStringTest(): void
+    {
+        $expected = 'matches the DateTime format: "#^[a-zA-Z]+$#"';
+        $sut = new DateString('#^[a-zA-Z]+$#');
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    #[Test]
+    public function toPHPTest(): void
+    {
+        $sut = new DateString('Y-m-d');
+
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [123, 'integer'],
@@ -29,14 +53,14 @@ class DateStringTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectTypes
-     */
+    #[DataProvider('dataSetsWithIncorrectTypes')]
+    #[Test]
     public function incorrectTypesReturnInvalidResults($input, $expectedVars): void
     {
         $dateString = new DateString('');
-        $expected = Result::invalid($input, new MessageSet(
+        $expected = Result::invalid(
+            $input,
+            new MessageSet(
                 null,
                 new Message('DateString Validator requires a string, %s given', [$expectedVars])
             )
@@ -47,22 +71,23 @@ class DateStringTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatPass(): array
+    public static function dataSetsThatPass(): array
     {
         return [
             ['', ''],
             ['Y-m-d', '1970-01-01'],
-            ['d-M-y', '20-feb-22'],
+            ['d-M-y', '20-Feb-22'],
+            ['Y-m-d\TH:i:sP', '2019-08-24T14:15:22+00:00'],
+            ['Y-m-d\TH:i:sp', '2019-08-24T14:15:22Z'],
+
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatPass
-     */
+    #[DataProvider('dataSetsThatPass')]
+    #[Test]
     public function stringsThatMatchFormatReturnValid(string $format, string $input): void
     {
-        $dateString = new DateString($format);
+        $dateString = new DateString($format, true);
         $expected = Result::valid($input);
 
         $result = $dateString->validate($input);
@@ -70,19 +95,19 @@ class DateStringTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsThatFail(): array
+    public static function dataSetsThatFail(): array
     {
         return [
             ['Y-m-d', '1990 June 15'],
             ['Y-m', '01-April'],
             ['Y', ''],
+            ['Y-m-d\TH:i:sp', '2019-08-24t14:15:22z'],
+            ['Y-m-d\TH:i:sP', '2019-08-24t14:15:22+00:00'],
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsThatFail
-     */
+    #[DataProvider('dataSetsThatFail')]
+    #[Test]
     public function stringsThatDoNotMatchFormatReturnInvalid(string $format, string $input): void
     {
         $dateString = new DateString($format);
@@ -92,5 +117,28 @@ class DateStringTest extends TestCase
         $result = $dateString->validate($input);
 
         self::assertEquals($expected, $result);
+    }
+
+    #[Test, TestDox('Tests that a date which matches the format string but is otherwise invalid fails validation')]
+    public function testInvalidDateFailsValidationInStrictMode(): void
+    {
+        $format = 'Y-m-d';
+        $value = '2022-13-05';
+
+        $expectedMessage = new Message('String does not represent a valid date in format %s', [$format]);
+        $expected = Result::invalid($value, new MessageSet(null, $expectedMessage));
+
+        $sut = new DateString($format, true);
+
+        $result = $sut->validate($value);
+        self::assertEquals($expected, $result);
+    }
+
+    #[Test, TestDox('Tests a format which cannot be used in strict mode still validates properly in non-strict mode')]
+    public function testDatesPassInNonStrictMode(): void
+    {
+        $sut = new DateString('Y-m-d|', false);
+
+        self::assertTrue($sut->validate('2022-05-13')->isValid());
     }
 }

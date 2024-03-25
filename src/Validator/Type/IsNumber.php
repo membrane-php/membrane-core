@@ -11,6 +11,16 @@ use Membrane\Validator;
 
 class IsNumber implements Validator
 {
+    public function __toString(): string
+    {
+        return 'is a number';
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function validate(mixed $value): Result
     {
         if (!(is_int($value) || is_float($value))) {

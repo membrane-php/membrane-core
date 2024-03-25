@@ -2,23 +2,76 @@
 
 declare(strict_types=1);
 
-namespace Validator\Collection;
+namespace Membrane\Tests\Validator\Collection;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Validator\Collection\Contained;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Validator\Collection\Contained
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Contained::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class ContainedTest extends TestCase
 {
-    public function dataSetsToValidate(): array
+    public static function dataSetsToConvertToString(): array
+    {
+        return [
+            'no values' => [
+                [],
+                'will return invalid',
+            ],
+            'single integer value' => [
+                [1],
+                'is one of the following values: 1',
+            ],
+            'single string value' => [
+                ['a'],
+                'is one of the following values: "a"',
+            ],
+            'multiple fixed values' => [
+                [1, 'a', true],
+                'is one of the following values: 1, "a", true',
+            ],
+        ];
+    }
+
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
+    public function toStringTest(array $enum, string $expected): void
+    {
+        $sut = new Contained($enum);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    public static function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'empty array' => [new Contained([])],
+            'array with 1 value' => [new Contained(['a'])],
+            'array with 3 values' => [new Contained(['a', 1, true])],
+        ];
+    }
+
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
+    public function toPHPTest(Contained $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function dataSetsToValidate(): array
     {
         return [
             'value contained in array' => [
@@ -33,7 +86,10 @@ class ContainedTest extends TestCase
                     'Where am I?',
                     new MessageSet(
                         null,
-                        new Message('Contained validator did not find value within array', [['Not', 'in', 'here']])
+                        new Message(
+                            'Contained validator did not find value within array',
+                            [json_encode(['Not', 'in', 'here'])]
+                        )
                     )
                 ),
             ],
@@ -44,17 +100,18 @@ class ContainedTest extends TestCase
                     1,
                     new MessageSet(
                         null,
-                        new Message('Contained validator did not find value within array', [['1', '2', '3']])
+                        new Message(
+                            'Contained validator did not find value within array',
+                            [json_encode(['1', '2', '3'])]
+                        )
                     )
                 ),
             ],
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsToValidate
-     */
+    #[DataProvider('dataSetsToValidate')]
+    #[Test]
     public function validateTest(mixed $value, array $enum, Result $expected): void
     {
         $sut = new Contained($enum);

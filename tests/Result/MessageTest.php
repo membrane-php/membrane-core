@@ -2,19 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Result;
+namespace Membrane\Tests\Result;
 
 use Membrane\Result\Message;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Result\Message
- */
+#[CoversClass(Message::class)]
 class MessageTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function renderedMessageTest(): void
     {
         $expected = 'This message is a test';

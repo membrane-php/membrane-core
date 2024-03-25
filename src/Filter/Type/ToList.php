@@ -11,6 +11,16 @@ use Membrane\Result\Result;
 
 class ToList implements Filter
 {
+    public function __toString(): string
+    {
+        return 'convert to a list';
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_array($value)) {

@@ -3,16 +3,42 @@
 Validators check data is in the correct format, Validators will never change data.  
 If you expect that you'll need to change incoming data; See [Filters](filters.md).
 
-All Validators implement the Membrane\Validator interface:
+## Interface
+
+All Validators implement the `Membrane\Validator` interface:
 
 ```php
 interface Validator
 {
     public function validate(mixed $value): Result;
+    
+    public function __toString(): string;
 }
 ```
 
-[Results](result.md) returned from Validators will always be [Result::VALID or Result::INVALID](result.md#result).
+## Methods
+
+All Validators contain the following methods:
+
+### Validate
+
+```php
+public function validate(mixed $value): Result
+```
+
+`validate()` will return a [Result](result.md) object detailing if and how the given value was validated.
+
+[Results](result.md) returned from Validators will always be [Result::VALID or Result::INVALID](result.md#result).  
+(Only the `Validators\Utility` namespace contains exceptions to this rule).
+
+### __ToString
+
+```php
+__toString(): string
+```
+
+`__toString()` returns a plain english description of what the validator does, you may find this useful for debugging.
+This method can also be called implicitly by typecasting your validator as string. i.e. `(string) $validator`
 
 ## Collection
 
@@ -656,6 +682,57 @@ The above example will output the following
 
 ## String
 
+### BoolString
+
+Validates that input is a boolean string. For an input to be considered valid it MUST be the string "true" or
+"false" (case-insensitive).
+
+For boolean values, refer to [IsBool](#isbool)
+
+To convert values to bolean refer to [ToBool](filters.md#tobool).
+
+**Example**
+
+```php
+<?php
+use Membrane\Validator\String\BoolString;
+
+$examples = [
+    '1',
+    'true',
+    'FALSE',
+    'yes',
+    true,
+    false,
+];
+
+$boolString = new BoolString()
+
+foreach ($examples as $example) {
+    $result = $boolString->validate($example);
+
+    echo "json_encode($result->value) is" . ($result->isValid() ? 'valid' : 'invalid') . "\n";
+    foreach($result->messageSets[0]->messages as $message) {
+        echo "\t $message->rendered() \n";
+    } 
+}
+```
+
+The above example will output:
+
+```text
+"1" is invalid
+  - String value must be a boolean.
+"true" is valid
+"FALSE" is valid
+"yes is invalid"
+  - String value must be a boolean.
+true is invalid
+  - String value expected, boolean provided.
+false is invalid
+  - String value expected, boolean provided.
+```
+
 ### DateString
 
 Checks if string input follows specified DateTime format.
@@ -719,6 +796,102 @@ The above example will output the following
 ```text
 this string is 28 characters
 Result was valid
+```
+
+### IntString
+
+Validates that input is a integer string. For an input to be considered valid it MUST be a string, and that string
+MUST be an integer.
+
+For non-numeric strings refer to [IsString](#isstring).
+
+For non-string numbers, refer to [IsFloat](#isfloat), [IsInt](#isint) and [IsNumber](#isnumber).
+
+**Example**
+
+```php
+<?php
+use Membrane\Validator\String\IntString;
+
+$examples = [
+    '1',
+    '1.0',
+    'five',
+    5,
+];
+
+$intString = new IntString()
+
+foreach ($examples as $example) {
+    $result = $intString->validate($example);
+
+    echo "json_encode($result->value) is" . ($result->isValid() ? 'valid' : 'invalid') . "\n";
+    foreach($result->messageSets[0]->messages as $message) {
+        echo "\t $message->rendered() \n";
+    } 
+}
+```
+
+The above example will output:
+
+```text
+"1" is valid
+"1.0" is invalid
+  - String value must be an integer.
+"five" is invalid
+  - String value must be an integer.
+5 is invalid
+  - string value expected, integer provided
+```
+
+### NumericString
+
+Validates that input is a numeric string. For an input to be considered valid it MUST be a string, and that string
+MUST be a number.
+
+For non-numeric strings refer to [IsString](#isstring).
+
+For non-string numbers, refer to [IsFloat](#isfloat), [IsInt](#isint) and [IsNumber](#isnumber).
+
+**Example**
+
+```php
+<?php
+use Membrane\Validator\String\NumericString;
+
+$examples = [
+    '1',
+    '1.0',
+    '2.3',
+    'five',
+    5,
+    5.5
+];
+
+$numericString = new NumericString()
+
+foreach ($examples as $example) {
+    $result = $numericString->validate($example);
+
+    echo "json_encode($result->value) is" . ($result->isValid() ? 'valid' : 'invalid') . "\n";
+    foreach($result->messageSets[0]->messages as $message) {
+        echo "\t $message->rendered() \n";
+    } 
+}
+```
+
+The above example will output:
+
+```text
+"1" is valid
+"1.0" is valid
+"2.3" is valid
+"five" is invalid
+  - String value must be numeric
+5 is invalid
+  - string value expected, integer provided
+5.5 is invalid
+  - string value expected, double provided
 ```
 
 ### Regex

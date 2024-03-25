@@ -20,6 +20,7 @@
     "/path": {
       "description": "/path has all operations, only DELETE has a default response",
       "get": {
+        "operationId": "path-get",
         "description": "Get operation on /path, no requestBody",
         "responses": {
           "200": {
@@ -27,7 +28,17 @@
           }
         }
       },
+      "patch": {
+        "operationId": "path-patch",
+        "description": "Patch operation on /path, no requestBody",
+        "responses": {
+          "200": {
+            "description": "successful response, no content"
+          }
+        }
+      },
       "post": {
+        "operationId": "path-post",
         "requestBody": {
           "description": "Post operation on /path, requestBody->content is empty",
           "required": true,
@@ -41,6 +52,7 @@
         }
       },
       "put": {
+        "operationId": "path-put",
         "requestBody": {
           "description": "Put operation on /path, requestBody content is not application/json",
           "required": true,
@@ -66,6 +78,7 @@
         }
       },
       "delete": {
+        "operationId": "path-delete",
         "requestBody": {
           "description": "Delete operation on /path, requestBody content is application/json",
           "required": true,
@@ -115,6 +128,7 @@
         }
       ],
       "get": {
+        "operationId": "parampath-get",
         "description": "Get operation in /parampath/{id}, should have two parameters, 'id' and 'name'",
         "parameters": [
           {
@@ -134,20 +148,8 @@
       }
     },
     "/requestpathexceptions": {
-      "get": {
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
       "post": {
+        "operationId": "unsupported-content-type",
         "parameters": [
           {
             "name": "id",
@@ -180,6 +182,7 @@
         }
       ],
       "get": {
+        "operationId": "requestpathone-get",
         "responses": {
           "200": {
             "description": ""
@@ -187,12 +190,13 @@
         }
       },
       "post": {
+        "operationId": "requestpathone-post",
         "parameters": [
           {
-            "name": "names",
+            "name": "age",
             "in": "query",
             "schema": {
-              "type": "array"
+              "type": "integer"
             }
           }
         ],
@@ -203,6 +207,7 @@
         }
       },
       "put": {
+        "operationId": "requestpathone-put",
         "parameters": [
           {
             "name": "name",
@@ -220,6 +225,7 @@
         }
       },
       "delete": {
+        "operationId": "requestpathone-delete",
         "parameters": [
           {
             "name": "name",
@@ -252,6 +258,7 @@
         }
       ],
       "get": {
+        "operationId": "requestpathtwo-get",
         "responses": {
           "200": {
             "description": ""
@@ -259,6 +266,7 @@
         }
       },
       "post": {
+        "operationId": "requestpathtwo-post",
         "parameters": [
           {
             "name": "name",
@@ -275,6 +283,7 @@
         }
       },
       "put": {
+        "operationId": "requestpathtwo-put",
         "parameters": [
           {
             "name": "id",
@@ -291,6 +300,7 @@
         }
       },
       "delete": {
+        "operationId": "requestpathtwo-delete",
         "parameters": [
           {
             "name": "id",
@@ -309,6 +319,7 @@
     },
     "/requestbodypath": {
       "get": {
+        "operationId": "requestbodypath-get",
         "requestBody": {
           "content": {
             "application/json": {
@@ -325,6 +336,7 @@
         }
       },
       "post": {
+        "operationId": "requestbodypath-post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -362,6 +374,7 @@
         }
       ],
       "get": {
+        "operationId": "requestbodypath-id-get",
         "parameters": [
           {
             "name": "name",
@@ -404,6 +417,7 @@
     },
     "/responsepath": {
       "get": {
+        "operationId": "responsepath-get",
         "responses": {
           "200": {
             "description": "int",
@@ -1638,6 +1652,14 @@
                 }
               }
             }
+          },
+          "405": {
+            "description": "schema with empty content",
+            "content": {
+            }
+          },
+          "406": {
+            "description": "schema with no content"
           }
         }
       }

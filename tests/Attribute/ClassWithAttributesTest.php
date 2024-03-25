@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Attribute;
+namespace Membrane\Tests\Attribute;
 
 use Membrane\Attribute\ClassWithAttributes;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -12,9 +13,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ClassWithAttributesTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function passingNonExistentClassNameToFromClassThrowsException(): void
     {
         self::expectException('Exception');

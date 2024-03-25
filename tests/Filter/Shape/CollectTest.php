@@ -2,23 +2,72 @@
 
 declare(strict_types=1);
 
-namespace Filter\Shape;
+namespace Membrane\Tests\Filter\Shape;
 
 use Membrane\Filter\Shape\Collect;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Filter\Shape\Collect
- * @uses   \Membrane\Result\Result
- * @uses   \Membrane\Result\MessageSet
- * @uses   \Membrane\Result\Message
- */
+#[CoversClass(Collect::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Message::class)]
 class CollectTest extends TestCase
 {
-    public function dataSetsWithIncorrectTypes(): array
+    public static function dataSetsToConvertToString(): array
+    {
+        return [
+            'no fields' => [
+                [],
+                '',
+            ],
+            'single field' => [
+                ['a'],
+                'collect "a" from self and append their values to a nested collection "new collection"',
+            ],
+            'multiple fields' => [
+                ['a', 'b', 'c'],
+                'collect "a", "b", "c" from self and append their values to a nested collection "new collection"',
+            ],
+        ];
+    }
+
+    #[DataProvider('dataSetsToConvertToString')]
+    #[Test]
+    public function toStringTest(array $fields, string $expected): void
+    {
+        $sut = new Collect('new collection', ...$fields);
+
+        $actual = $sut->__toString();
+
+        self::assertSame($expected, $actual);
+    }
+
+    public static function dataSetsToConvertToPHPString(): array
+    {
+        return [
+            'no fields' => [new Collect('collection')],
+            'one field' => [new Collect('collection', 'a')],
+            'multiple fields' => [new Collect('collection', 'a', 'b', 'c')],
+        ];
+    }
+
+    #[DataProvider('dataSetsToConvertToPHPString')]
+    #[Test]
+    public function toPHPTest(Collect $sut): void
+    {
+        $actual = $sut->__toPHP();
+
+        self::assertEquals($sut, eval('return ' . $actual . ';'));
+    }
+
+    public static function dataSetsWithIncorrectTypes(): array
     {
         return [
             [
@@ -34,10 +83,8 @@ class CollectTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithIncorrectTypes
-     */
+    #[DataProvider('dataSetsWithIncorrectTypes')]
+    #[Test]
     public function incorrectFilterInputReturnsInvalid(mixed $input, string $expectedMessage, array $expectedVars): void
     {
         $collect = new Collect('new field', 'a', 'b');
@@ -48,7 +95,7 @@ class CollectTest extends TestCase
         self::assertEquals($expected, $result);
     }
 
-    public function dataSetsWithCorrectTypes(): array
+    public static function dataSetsWithCorrectTypes(): array
     {
         return [
             'collecting all items in array' => [
@@ -69,10 +116,8 @@ class CollectTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider dataSetsWithCorrectTypes
-     */
+    #[DataProvider('dataSetsWithCorrectTypes')]
+    #[Test]
     public function correctFilterInputReturnsResult(array $input, array $fieldsToCollect, array $expectedValue): void
     {
         $collect = new Collect('new field', ...$fieldsToCollect);

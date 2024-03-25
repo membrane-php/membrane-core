@@ -2,23 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Result;
+namespace Membrane\Tests\Result;
 
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Membrane\Result\Result
- * @covers \Membrane\Result\MessageSet
- * @covers \Membrane\Result\Message
- */
+#[CoversClass(Result::class)]
+#[CoversClass(MessageSet::class)]
+#[CoversClass(Message::class)]
 class ResultTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function validConstructorReturnsValid(): void
     {
         $input = 'arbitrary value';
@@ -30,9 +28,7 @@ class ResultTest extends TestCase
         self::assertTrue($result->isValid());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function invalidConstructorReturnsInvalid(): void
     {
         $inputValue = 'arbitrary value';
@@ -45,9 +41,7 @@ class ResultTest extends TestCase
         self::assertFalse($result->isValid());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function noResultConstructorReturnsNoResult(): void
     {
         $input = 'arbitrary value';
@@ -59,9 +53,7 @@ class ResultTest extends TestCase
         self::assertTrue($result->isValid());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mergeTwoValidsReturnsValid(): void
     {
         $firstInputValue = 'a value';
@@ -75,9 +67,7 @@ class ResultTest extends TestCase
         self::assertEquals($expected, $mergedResult);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mergeNoResultAndValidReturnsValid(): void
     {
         $firstInputValue = 'a value';
@@ -91,9 +81,7 @@ class ResultTest extends TestCase
         self::assertEquals($expected, $mergedResult);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mergeInvalidAndValidReturnsInvalid(): void
     {
         $firstInputValue = 'a value';
@@ -108,9 +96,7 @@ class ResultTest extends TestCase
         self::assertEquals($expected, $mergedResult);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mergeTwoInvalidsReturnsInvalid(): void
     {
         $firstInputValue = 'a value';
@@ -126,9 +112,7 @@ class ResultTest extends TestCase
         self::assertEquals($expected, $mergedResult);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mergeNoResultAndInvalidReturnsInvalid(): void
     {
         $firstValue = 'a value';

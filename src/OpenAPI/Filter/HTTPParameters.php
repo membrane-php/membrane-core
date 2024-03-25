@@ -11,6 +11,16 @@ use Membrane\Result\Result;
 
 class HTTPParameters implements Filter
 {
+    public function __toString(): string
+    {
+        return 'convert query string to a field set of query parameters';
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s()', self::class);
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_string($value)) {

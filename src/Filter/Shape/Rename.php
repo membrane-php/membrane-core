@@ -24,6 +24,16 @@ class Rename implements Filter
         $this->new = $new;
     }
 
+    public function __toString(): string
+    {
+        return sprintf('rename "%s" to "%s"', $this->old, $this->new);
+    }
+
+    public function __toPHP(): string
+    {
+        return sprintf('new %s("%s", "%s")', self::class, $this->old, $this->new);
+    }
+
     public function filter(mixed $value): Result
     {
         if (!is_array($value)) {
