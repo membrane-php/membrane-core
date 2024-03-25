@@ -63,12 +63,12 @@ class Request implements Processor
     public function process(FieldName $parentFieldName, mixed $value): Result
     {
         if ($value instanceof ServerRequestInterface) {
-            $value = $this->formatPsr7($parentFieldName, $value);
-            if (!$value->isValid()) {
-                return $value;
+            $result = $this->formatPsr7($parentFieldName, $value);
+            if (!$result->isValid()) {
+                return $result;
             }
 
-            $value = $value->value;
+            $value = $result->value;
         }
 
         if (!is_array($value)) {

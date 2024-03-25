@@ -6,8 +6,7 @@ namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Builder;
 use Membrane\Builder\Specification;
-use Membrane\OpenAPI\Filter\HTTPParameters;
-use Membrane\OpenAPI\Filter\PathMatcher as PathMatcherFilter;
+use Membrane\OpenAPI\Filter;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Parameter;
@@ -54,32 +53,31 @@ class OpenAPIRequestBuilder implements Builder
     /** @return Processor[] */
     private function fromParameters(OpenAPIRequest $specification): array
     {
-        $locationFields = [
-            'path' => [
-                'required' => [],
-                'fields' => [],
-                'beforeSet' => [new PathMatcherFilter($specification->pathParameterExtractor)],
-            ],
-            'query' => ['required' => [], 'fields' => [], 'beforeSet' => [new HTTPParameters()]],
-            'header' => ['required' => [], 'fields' => [], 'beforeSet' => []],
-            'cookie' => ['required' => [], 'fields' => [], 'beforeSet' => []],
+        $location = fn(array $chain) => ['required' => [], 'fields' => [], 'beforeSet' => $chain];
+        $locations = [
+            'path' => $location([new Filter\PathMatcher($specification->pathParameterExtractor)]),
+            'query' => $location([new Filter\HTTPParameters()]),
+            'header' => $location([]),
+            'cookie' => $location([]),
         ];
 
         foreach (array_map(fn($p) => new Parameter($p), $specification->parameters) as $parameter) {
-            $locationFields[$parameter->in]['fields'][] = $this->getParameterBuilder()
+            $locations[$parameter->in]['fields'][] = $this
+                ->getParameterBuilder()
                 ->fromParameter($parameter, true);
+
             if ($parameter->required) {
-                $locationFields[$parameter->in]['required'][] = $parameter->name;
+                $locations[$parameter->in]['required'][] = $parameter->name;
             }
         }
 
         $fieldSets = [];
-        foreach ($locationFields as $in => ['required' => $required, 'fields' => $fields, 'beforeSet' => $beforeSet]) {
-            if (count($required) > 0) {
+        foreach ($locations as $in => ['required' => $required, 'fields' => $fields, 'beforeSet' => $beforeSet]) {
+            if (!empty($required)) {
                 $beforeSet[] = new RequiredFields(...$required);
             }
 
-            if (count($beforeSet) > 0) {
+            if (!empty($beforeSet)) {
                 $fields[] = new BeforeSet(...$beforeSet);
             }
 
