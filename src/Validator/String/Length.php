@@ -47,7 +47,7 @@ class Length implements Validator
             return Result::invalid($value, new MessageSet(null, $message));
         }
 
-        $length = strlen($value);
+        $length = mb_strlen($value);
 
         if ($length < $this->min) {
             $message = new Message('String is expected to be a minimum of %d characters', [$this->min]);
