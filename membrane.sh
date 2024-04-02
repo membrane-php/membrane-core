@@ -20,21 +20,21 @@ function installComposer() {
     return $RESULT
 }
 
-function cleanup(){
-  docker run -ti -u $(id -u):$(id -g)  -v "$PWD":/app -w /app php:8.1-cli-alpine vendor/bin/phpcbf
-  docker run -ti -u $(id -u):$(id -g)  -v "$PWD":/app -w /app php:8.1-cli-alpine vendor/bin/phpcs
-}
-
-function qualityCheck(){
-  docker run -ti -u $(id -u):$(id -g)  -v "$PWD":/app -w /app php:8.1-cli-alpine vendor/bin/phpstan
+function analyse(){
+  docker run -ti -u $(id -u):$(id -g)  -v "$PWD":/app -w /app php:8.2-cli-alpine vendor/bin/phpstan
 }
 
 function test(){
-  docker run -ti -u $(id -u):$(id -g) -v "$PWD":/app -w /app php:8.1-cli-alpine vendor/bin/phpunit -d memory_limit=1G
+  docker run -ti -u $(id -u):$(id -g) -v "$PWD":/app -w /app php:8.2-cli-alpine vendor/bin/phpunit -d memory_limit=1G
 }
 
 function shell(){
-  docker run -ti -u $(id -u):$(id -g)  -v "$PWD":/app -w /app php:8.1-cli-alpine /bin/sh
+  docker run -ti -u $(id -u):$(id -g)  -v "$PWD":/app -w /app php:8.2-cli-alpine /bin/sh
+}
+
+function sniff(){
+  docker run -ti -u $(id -u):$(id -g)  -v "$PWD":/app -w /app php:8.2-cli-alpine vendor/bin/phpcbf
+  docker run -ti -u $(id -u):$(id -g)  -v "$PWD":/app -w /app php:8.2-cli-alpine vendor/bin/phpcs
 }
 
 case "$1" in
@@ -45,13 +45,13 @@ setup)
   exit 0
   ;;
 
-cleanup)
-  cleanup
+analyse)
+  analyse
   exit 0
   ;;
 
-qualityCheck)
-  qualityCheck
+sniff)
+  sniff
   exit 0
   ;;
 
@@ -67,7 +67,7 @@ shell)
   ;;
 
 *)
-  echo "Usage: membrane.sh {cleanup|qualityCheck|test|shell|setup}"
+  echo "Usage: membrane.sh {analyse|test|shell|setup|sniff}"
   exit 1
   ;;
 
