@@ -6,11 +6,13 @@ namespace Membrane\Tests\OpenAPI\Builder;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;
+use Membrane\Filter\String\Explode;
 use Membrane\Filter\Type\ToInt;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Arrays;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
+use Membrane\OpenAPI\Builder\ParameterBuilder;
 use Membrane\OpenAPI\Builder\RequestBuilder;
 use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\ContentType;
@@ -22,6 +24,7 @@ use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
+use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
@@ -61,6 +64,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(Arrays::class)]
 #[UsesClass(Numeric::class)]
 #[UsesClass(Strings::class)]
+#[UsesClass(ParameterBuilder::class)]
 #[UsesClass(HTTPParameters::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathMatcherClass::class)]
@@ -69,8 +73,10 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Numeric::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Strings::class)]
+#[UsesClass(Parameter::class)]
 #[UsesClass(Request::class)]
 #[UsesClass(ToInt::class)]
+#[UsesClass(Explode::class)]
 #[UsesClass(BeforeSet::class)]
 #[UsesClass(Collection::class)]
 #[UsesClass(Field::class)]
@@ -82,6 +88,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(RequiredFields::class)]
 #[UsesClass(Maximum::class)]
 #[UsesClass(IsInt::class)]
+#[UsesClass(IntString::class)]
 #[UsesClass(IsList::class)]
 #[UsesClass(IsString::class)]
 #[UsesClass(Passes::class)]

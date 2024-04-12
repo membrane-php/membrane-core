@@ -91,6 +91,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Contained::class)]
 #[UsesClass(Count::class)]
 #[UsesClass(Unique::class)]
+#[UsesClass(ToUpperCase::class)]
 #[UsesClass(RequiredFields::class)]
 #[UsesClass(Maximum::class)]
 #[UsesClass(Minimum::class)]
@@ -102,6 +103,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(IsInt::class)]
 #[UsesClass(IsList::class)]
 #[UsesClass(IsString::class)]
+#[UsesClass(\Membrane\Validator\Utility\AnyOf::class)]
 class OpenAPIResponseBuilderTest extends TestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';

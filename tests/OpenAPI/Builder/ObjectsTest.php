@@ -51,6 +51,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Contained::class)]
 #[UsesClass(FixedFields::class)]
 #[UsesClass(RequiredFields::class)]
+#[UsesClass(Count::class)]
 class ObjectsTest extends TestCase
 {
     #[Test]

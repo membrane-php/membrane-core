@@ -106,6 +106,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(IsInt::class)]
 #[UsesClass(IsList::class)]
 #[UsesClass(IsString::class)]
+#[UsesClass(\Membrane\Validator\Utility\AnyOf::class)]
 class ResponseBuilderTest extends TestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';

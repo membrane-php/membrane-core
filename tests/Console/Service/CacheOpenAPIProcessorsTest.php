@@ -20,7 +20,10 @@ use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
-use Membrane\Validator\{FieldSet as FieldSetValidator, Type as TypeValidator, Utility as UtilityValidator};
+use Membrane\Validator\{FieldSet as FieldSetValidator,
+    String\IntString,
+    Type as TypeValidator,
+    Utility as UtilityValidator};
 use org\bovigo\vfs\{vfsStream, vfsStreamDirectory};
 use PHPUnit\Framework\Attributes\{CoversClass, DataProvider, Test, TestDox, UsesClass};
 use PHPUnit\Framework\TestCase;
@@ -36,6 +39,7 @@ use Psr\Log\LoggerInterface;
 #[UsesClass(Builder\Numeric::class)]
 #[UsesClass(Builder\Strings::class)]
 #[UsesClass(Builder\Objects::class)]
+#[UsesClass(Builder\ParameterBuilder::class)]
 #[UsesClass(Builder\OpenAPIRequestBuilder::class)]
 #[UsesClass(Builder\OpenAPIResponseBuilder::class)]
 #[UsesClass(PathMatcher::class)]
@@ -47,11 +51,13 @@ use Psr\Log\LoggerInterface;
 #[UsesClass(Specification\OpenAPIRequest::class)]
 #[UsesClass(Specification\OpenAPIResponse::class)]
 #[UsesClass(Membrane\Result\Result::class)]
+#[UsesClass(IntString::class)]
 #[UsesClass(AlphaNumeric::class)]
 #[UsesClass(ToPascalCase::class)]
 #[UsesClass(Explode::class)]
 #[UsesClass(TypeFilter\ToInt::class)]
 #[UsesClass(Specification\APISchema::class)]
+#[UsesClass(Specification\Parameter::class)]
 #[UsesClass(Specification\Arrays::class)]
 #[UsesClass(Specification\Numeric::class)]
 #[UsesClass(Specification\Strings::class)]
