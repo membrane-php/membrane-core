@@ -27,7 +27,9 @@ class OpenAPIRequest implements Specification
         $operation = $this->getOperation($this->path, $this->method);
 
         $this->parameters = $this->getParameters($this->path, $operation);
-        $this->operationId = $operation->operationId ?? throw CannotProcessOpenAPI::missingOperationId($this->method);
+
+        assert(isset($operation->operationId));
+        $this->operationId = $operation->operationId;
 
         assert(!$operation->requestBody instanceof Cebe\Reference);
         $this->requestBodySchema = $operation->requestBody === null ?

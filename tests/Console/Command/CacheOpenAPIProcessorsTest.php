@@ -14,7 +14,6 @@ use Membrane\Filter\Type as TypeFilter;
 use Membrane\OpenAPI\Builder as Builder;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
 use Membrane\OpenAPI\ContentType;
-use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Processor\Request;
@@ -33,7 +32,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 #[CoversClass(CacheOpenAPIProcessors::class)]
-#[CoversClass(CannotReadOpenAPI::class)]
 #[UsesClass(Membrane\Console\Service\CacheOpenAPIProcessors::class)]
 #[UsesClass(Template\Processor::class)]
 #[UsesClass(Template\ResponseBuilder::class)]

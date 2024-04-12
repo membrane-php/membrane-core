@@ -35,6 +35,7 @@ abstract class APIBuilder implements Builder
         }
 
         if ($schema->allOf !== null) {
+            assert(!empty($schema->allOf));
             return $this->fromComplexSchema(
                 AllOf::class,
                 $fieldName,
@@ -44,6 +45,7 @@ abstract class APIBuilder implements Builder
         }
 
         if ($schema->anyOf !== null) {
+            assert(!empty($schema->anyOf));
             return $this->fromComplexSchema(
                 AnyOf::class,
                 $fieldName,
@@ -53,6 +55,7 @@ abstract class APIBuilder implements Builder
         }
 
         if ($schema->oneOf !== null) {
+            assert(!empty($schema->oneOf));
             return $this->fromComplexSchema(
                 OneOf::class,
                 $fieldName,
@@ -100,10 +103,6 @@ abstract class APIBuilder implements Builder
         array $subSchemas,
         bool $convertFromString
     ): Processor {
-        if (empty($subSchemas)) {
-            throw OpenAPI\Exception\CannotProcessOpenAPI::pointlessComplexSchema($fieldName);
-        }
-
         if (count($subSchemas) < 2) {
             assert($subSchemas[0] instanceof Schema);
             return $this->fromSchema($subSchemas[0], $fieldName, $convertFromString);

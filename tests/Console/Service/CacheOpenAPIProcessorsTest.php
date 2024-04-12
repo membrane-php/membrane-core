@@ -30,7 +30,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 #[CoversClass(CacheOpenAPIProcessors::class)]
-#[CoversClass(CannotReadOpenAPI::class)]
 #[UsesClass(Template\Processor::class)]
 #[UsesClass(Template\ResponseBuilder::class)]
 #[UsesClass(Template\RequestBuilder::class)]
