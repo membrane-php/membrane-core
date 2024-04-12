@@ -133,7 +133,7 @@ class ResponseBuilderTest extends TestCase
         $petstoreAPIFilePath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
         $specification = new Response(
             $petstoreAPIFilePath,
-            'http://petstore.swagger.io/api/pets',
+            'https://petstore.swagger.io/v2/pets',
             Method::DELETE,
             '200'
         );

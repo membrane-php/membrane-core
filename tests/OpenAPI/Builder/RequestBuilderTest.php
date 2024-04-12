@@ -526,10 +526,10 @@ class RequestBuilderTest extends TestCase
             'petstore expanded /pets get (invalid)' => [
                 new Request(
                     $expanded,
-                    'http://petstore.swagger.io/api/pets',
+                    'https://petstore.swagger.io/v2/pets',
                     Method::GET
                 ),
-                new ServerRequest('get', 'http://petstore.swagger.io/api/pets?limit=five'),
+                new ServerRequest('get', 'https://petstore.swagger.io/v2/pets?limit=five'),
                 Result::invalid(
                     [
                         'request' => ['method' => 'get', 'operationId' => 'findPets'],
@@ -548,10 +548,10 @@ class RequestBuilderTest extends TestCase
             'petstore expanded /pets get, minimal (valid)' => [
                 new Request(
                     $expanded,
-                    'http://petstore.swagger.io/api/pets',
+                    'https://petstore.swagger.io/v2/pets',
                     Method::GET
                 ),
-                new ServerRequest('get', 'http://petstore.swagger.io/api/pets?limit=5&tags=cat,tabby'),
+                new ServerRequest('get', 'https://petstore.swagger.io/v2/pets?limit=5&tags=cat,tabby'),
                 Result::valid(
                     [
                         'request' => ['method' => 'get', 'operationId' => 'findPets'],

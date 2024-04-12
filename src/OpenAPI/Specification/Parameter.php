@@ -53,10 +53,6 @@ class Parameter implements Specification
         $this->explode = $parameter->explode;
         $this->schema = $this->findSchema($parameter);
 
-        if ($this->explode === true && in_array($this->schema->type, ['array', 'object'])) {
-            throw CannotProcessOpenAPI::unsupportedStyle($this->name, $this->style);
-        }
-
         $this->required = $parameter->required;
     }
 

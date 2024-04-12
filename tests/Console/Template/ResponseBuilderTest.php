@@ -86,7 +86,7 @@ class ResponseBuilderTest extends TestCase
     ): Response {
         $responseSpecification = new Response(
             $this->petstoreAPIPath,
-            'http://petstore.swagger.io/api/pets',
+            'https://petstore.swagger.io/v2/pets',
             Method::GET,
             '200'
         );

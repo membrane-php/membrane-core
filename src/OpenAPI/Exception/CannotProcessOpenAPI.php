@@ -63,16 +63,6 @@ class CannotProcessOpenAPI extends RuntimeException
         return new self($message, self::UNSUPPORTED_KEYWORD);
     }
 
-    public static function unsupportedStyle(string $name, string $style): self
-    {
-        $message = sprintf(
-            'Membrane does not currently support "style":"%s" with "explode":true in parameter "%s"',
-            $style,
-            $name
-        );
-        return new self($message, self::UNSUPPORTED_STYLE);
-    }
-
     public static function unresolvedReference(string $fileName, UnresolvableReferenceException $e): self
     {
         $message = sprintf('Failed to resolve reference in %s', $fileName);

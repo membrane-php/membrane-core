@@ -111,21 +111,6 @@ class ParameterTest extends TestCase
         new Parameter($parameter);
     }
 
-    #[Test, TestDox('throws CannotProcessOpenAPI if "explode":true if the parameter is of "type": "array" or "object"')]
-    public function throwsExceptionForExplodeOnArraysAndObjects(): void
-    {
-        $parameter = new Cebe\Parameter([
-            'name' => 'tags',
-            'in' => 'query',
-            'explode' => true,
-            'schema' => new Cebe\Schema(['type' => 'array']),
-        ]);
-
-        self::expectExceptionObject(CannotProcessOpenAPI::unsupportedStyle('tags', 'form'));
-
-        new Parameter($parameter);
-    }
-
     public static function provideValidParameters(): array
     {
         return [
