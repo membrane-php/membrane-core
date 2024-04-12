@@ -19,7 +19,7 @@ use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Processor\Request;
 use Membrane\OpenAPI\Specification as Specification;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
 use Membrane\Validator\{FieldSet as FieldSetValidator, Type as TypeValidator, Utility as UtilityValidator};
@@ -137,7 +137,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
                     new Specification\OpenAPIRequest(
                         new PathParameterExtractor('/pets'),
                         $petstoreExpandedOpenApi->paths->getPath('/pets'),
-                        Membrane\OpenAPIReader\Method::GET
+                        Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method::GET
                     )
                 ),
             ],
@@ -176,7 +176,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
                     new Specification\OpenAPIRequest(
                         new PathParameterExtractor('/pets'),
                         $petstoreExpandedOpenApi->paths->getPath('/pets'),
-                        Membrane\OpenAPIReader\Method::POST
+                        Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method::POST
                     )
                 ),
             ],
@@ -215,7 +215,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
                     new Specification\OpenAPIRequest(
                         new PathParameterExtractor('/pets/{id}'),
                         $petstoreExpandedOpenApi->paths->getPath('/pets/{id}'),
-                        Membrane\OpenAPIReader\Method::GET
+                        Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method::GET
                     )
                 ),
             ],
@@ -254,7 +254,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
                     new Specification\OpenAPIRequest(
                         new PathParameterExtractor('/pets/{id}'),
                         $petstoreExpandedOpenApi->paths->getPath('/pets/{id}'),
-                        Membrane\OpenAPIReader\Method::DELETE
+                        Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method::DELETE
                     )
                 ),
             ],

@@ -10,7 +10,7 @@ use GuzzleHttp\Psr7\UploadedFile;
 use Membrane\Filter\String\JsonDecode;
 use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Processor\Request;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Result\FieldName;

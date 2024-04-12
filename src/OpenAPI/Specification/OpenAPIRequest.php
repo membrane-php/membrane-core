@@ -10,7 +10,7 @@ use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\ExtractsPathParameters;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 
 class OpenAPIRequest implements Specification
 {

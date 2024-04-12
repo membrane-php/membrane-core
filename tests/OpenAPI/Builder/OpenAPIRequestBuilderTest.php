@@ -34,7 +34,7 @@ use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPIReader\FileFormat;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;

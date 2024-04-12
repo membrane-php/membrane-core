@@ -24,7 +24,7 @@ use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPI\Specification\Strings;
 use Membrane\OpenAPI\Specification\TrueFalse;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;

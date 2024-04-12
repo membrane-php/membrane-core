@@ -23,7 +23,7 @@ use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Request;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;

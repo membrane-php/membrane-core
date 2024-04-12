@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Exception;
 
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use RuntimeException;
 
 /*

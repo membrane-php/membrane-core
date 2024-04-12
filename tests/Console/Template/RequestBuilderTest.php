@@ -6,7 +6,8 @@ namespace Membrane\Tests\Console\Template;
 
 use Membrane\Console\Template;
 use Membrane\OpenAPI\Specification\Request;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\MembraneReader;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
 use Membrane\OpenAPIRouter\RouteCollection;
@@ -49,7 +50,7 @@ class RequestBuilderTest extends TestCase
 
         eval('//' . $phpString);
 
-        $openAPI = (new Reader([OpenAPIVersion::Version_3_0]))
+        $openAPI = (new MembraneReader([OpenAPIVersion::Version_3_0]))
             ->readFromAbsoluteFilePath($petstoreExpandedFilePath);
         $routeCollection = (new RouteCollector())
             ->collect($openAPI);

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Exception;
 
 use cebe\openapi\exceptions\UnresolvableReferenceException;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use RuntimeException;
 
 /*

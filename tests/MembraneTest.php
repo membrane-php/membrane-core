@@ -10,7 +10,7 @@ use Membrane\Builder\Specification;
 use Membrane\Membrane;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPI\Specification\Response;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\Result\Result;
 use Membrane\Tests\Fixtures\Attribute\EmptyClass;
 use PHPUnit\Framework\Attributes\CoversClass;

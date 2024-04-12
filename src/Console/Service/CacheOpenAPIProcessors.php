@@ -10,7 +10,7 @@ use Membrane\Filter\String\AlphaNumeric;
 use Membrane\Filter\String\ToPascalCase;
 use Membrane\OpenAPI\Builder\{OpenAPIRequestBuilder, OpenAPIResponseBuilder};
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPI\Specification\{OpenAPIRequest, OpenAPIResponse};
 use Membrane\OpenAPIReader\Exception\CannotRead;
 use Membrane\OpenAPIReader\Exception\CannotSupport;
