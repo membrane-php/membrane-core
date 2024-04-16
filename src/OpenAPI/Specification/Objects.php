@@ -23,7 +23,9 @@ class Objects extends APISchema
         string $fieldName,
         Cebe\Schema $schema,
         public readonly bool $convertFromString = false,
+        public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
+        public readonly ?bool $explode = null,
     ) {
         if ($schema->type !== 'object') {
             throw CannotProcessSpecification::mismatchedType(self::class, 'object', $schema->type);

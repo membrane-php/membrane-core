@@ -6,7 +6,8 @@ namespace Membrane\OpenAPI\Builder;
 
 use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
-use Membrane\Filter\String\Explode;
+use Membrane\Filter;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -37,12 +38,21 @@ class Arrays extends APIBuilder
 
         $beforeChain = [];
 
+        if ($specification->convertFromArray) {
+            array_unshift($beforeChain, new Filter\String\Implode(','));
+        }
+
         if (isset($specification->style)) {
+            switch (Style::tryFrom($specification->style)) {
+                case Style::Simple:
+                    $beforeChain[] = new Filter\String\Explode(',');
+            }
+
             switch ($specification->style) {
                 case self::STYLE_FORM:
                 case self::STYLE_SPACE_DELIMITED:
                 case self::STYLE_PIPE_DELIMITED:
-                    $beforeChain[] = new Explode(self::STYLE_DELIMITER_MAP[$specification->style]);
+                    $beforeChain[] = new Filter\String\Explode(self::STYLE_DELIMITER_MAP[$specification->style]);
                     break;
             }
         }

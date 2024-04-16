@@ -32,7 +32,8 @@ class ParameterBuilder extends APIBuilder
             $specification->name,
             $convertFromString,
             $convertFromArray,
-            $specification->style
+            $specification->style,
+            $specification->explode,
         );
 
         return $schemaProcessor;

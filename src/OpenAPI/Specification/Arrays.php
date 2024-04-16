@@ -18,7 +18,9 @@ class Arrays extends APISchema
         string $fieldName,
         Cebe\Schema $schema,
         public readonly bool $convertFromString = false,
-        public readonly ?string $style = null
+        public readonly bool $convertFromArray = false,
+        public readonly ?string $style = null,
+        public readonly ?bool $explode = null,
     ) {
         if ($schema->type !== 'array') {
             throw CannotProcessSpecification::mismatchedType(self::class, 'array', $schema->type);

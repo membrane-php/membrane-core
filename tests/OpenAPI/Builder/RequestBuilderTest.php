@@ -7,6 +7,7 @@ namespace Membrane\Tests\OpenAPI\Builder;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\Explode;
+use Membrane\Filter\String\Implode;
 use Membrane\Filter\Type\ToInt;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Arrays;
@@ -38,6 +39,7 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use Membrane\Tests\MembraneTestCase;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Numeric\Maximum;
 use Membrane\Validator\String\IntString;
@@ -93,7 +95,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(IsString::class)]
 #[UsesClass(Passes::class)]
 #[UsesClass(ContentType::class)]
-class RequestBuilderTest extends TestCase
+class RequestBuilderTest extends MembraneTestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';
 
@@ -308,7 +310,11 @@ class RequestBuilderTest extends TestCase
                             )
                         ),
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header', new Field('id', new IntString(), new ToInt())),
+                        'header' => new FieldSet('header', new Field('id',
+                            new Implode(','),
+                            new IntString(),
+                            new ToInt()
+                        )),
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new Passes()),
                     ]
@@ -329,7 +335,7 @@ class RequestBuilderTest extends TestCase
                             )
                         ),
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header', new Field('id', new IntString(), new ToInt())),
+                        'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
                         'cookie' => new FieldSet('cookie', new Field('name', new IsString())),
                         'body' => new Field('requestBody', new Passes()),
                     ]
@@ -383,7 +389,7 @@ class RequestBuilderTest extends TestCase
                             )
                         ),
                         'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                        'header' => new FieldSet('header', new Field('id', new IsString())),
+                        'header' => new FieldSet('header', new Field('id', new Implode(','), new IsString())),
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new Passes()),
                     ]
@@ -468,7 +474,7 @@ class RequestBuilderTest extends TestCase
                             new BeforeSet(new HTTPParameters()),
                             new Field('name', new IsString())
                         ),
-                        'header' => new FieldSet('header', new Field('species', new IsString())),
+                        'header' => new FieldSet('header', new Field('species', new Implode(','), new IsString())),
                         'cookie' => new FieldSet('cookie', new Field('subspecies', new IsString())),
                         'body' => new Field('requestBody', new IsFloat()),
                     ]
@@ -579,7 +585,7 @@ class RequestBuilderTest extends TestCase
 
         $actual = $processor->process(new FieldName(''), $serverRequest);
 
-        self::assertEquals($expected, $actual);
+        self::assertResultEquals($expected, $actual);
         self::assertSame($expected->value, $actual->value);
     }
 }

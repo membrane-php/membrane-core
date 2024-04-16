@@ -6,8 +6,8 @@ namespace Membrane\OpenAPI\Builder;
 
 use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
-use Membrane\Filter\Shape\KeyValueSplit;
-use Membrane\Filter\String\Explode;
+use Membrane\Filter;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\DefaultProcessor;
@@ -41,13 +41,25 @@ class Objects extends APIBuilder
 
         $beforeChain = [];
 
+        if ($specification->convertFromArray) {
+            array_unshift($beforeChain, new Filter\String\Implode(','));
+        }
+
         if (isset($specification->style)) {
+            switch (Style::tryFrom($specification->style)) {
+                case Style::Simple:
+                    $beforeChain[] = $specification->explode === true ?
+                        new Filter\String\Explode(',', '=') :
+                        new Filter\String\Explode(',');
+                    $beforeChain[] = new Filter\Shape\KeyValueSplit();
+            };
+
             switch ($specification->style) {
                 case self::STYLE_FORM:
                 case self::STYLE_SPACE_DELIMITED:
                 case self::STYLE_PIPE_DELIMITED:
-                    $beforeChain[] = new Explode(self::STYLE_DELIMITER_MAP[$specification->style]);
-                    $beforeChain[] = new KeyValueSplit();
+                    $beforeChain[] = new Filter\String\Explode(self::STYLE_DELIMITER_MAP[$specification->style]);
+                    $beforeChain[] = new Filter\Shape\KeyValueSplit();
                     break;
                 case self::STYLE_DEEP_OBJECT:
                     // parse_str from HTTPParameters already deals with this
@@ -55,7 +67,7 @@ class Objects extends APIBuilder
             }
         }
 
-        $beforeChain = [new IsArray()];
+        $beforeChain[] = new IsArray();
 
         if ($specification->enum !== null) {
             $beforeChain[] = new Contained($specification->enum);
@@ -79,12 +91,20 @@ class Objects extends APIBuilder
 
         foreach ($specification->properties as $key => $schema) {
             assert($schema instanceof Schema);
-            $fields [] = $this->fromSchema($schema, $key);
+            $fields [] = $this->fromSchema(
+                $schema,
+                $key,
+                $specification->convertFromString
+            );
         }
 
         if ($specification->additionalProperties instanceof Schema) {
             $fields [] = new DefaultProcessor(
-                $this->fromSchema($specification->additionalProperties)
+                $this->fromSchema(
+                    $specification->additionalProperties,
+                    '',
+                    $specification->convertFromString
+                )
             );
         }
 

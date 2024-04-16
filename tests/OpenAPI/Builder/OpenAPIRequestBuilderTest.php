@@ -9,6 +9,7 @@ use Generator;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\Explode;
+use Membrane\Filter\String\Implode;
 use Membrane\Filter\Type\ToBool;
 use Membrane\Filter\Type\ToInt;
 use Membrane\OpenAPI\Builder\APIBuilder;
@@ -47,6 +48,9 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use Membrane\Tests\Fixtures\OpenAPI\MakesOperation;
+use Membrane\Tests\Fixtures\OpenAPI\MakesPathItem;
+use Membrane\Tests\MembraneTestCase;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Numeric\Maximum;
 use Membrane\Validator\String\BoolString;
@@ -110,7 +114,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(IsString::class)]
 #[UsesClass(Passes::class)]
 #[UsesClass(ContentType::class)]
-class OpenAPIRequestBuilderTest extends TestCase
+class OpenAPIRequestBuilderTest extends MembraneTestCase
 {
     public const FIXTURES = __DIR__ . '/../../fixtures/OpenAPI/';
 
@@ -361,7 +365,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         )
                     ),
                     'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                    'header' => new FieldSet('header', new Field('id', new IntString(), new ToInt())),
+                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new Passes()),
                 ]
@@ -386,7 +390,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         )
                     ),
                     'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                    'header' => new FieldSet('header', new Field('id', new IntString(), new ToInt())),
+                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
                     'cookie' => new FieldSet('cookie', new Field('name', new IsString())),
                     'body' => new Field('requestBody', new Passes()),
                 ]
@@ -442,7 +446,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         )
                     ),
                     'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                    'header' => new FieldSet('header', new Field('id', new IsString())),
+                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IsString())),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new Passes()),
                 ]
@@ -530,7 +534,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         new BeforeSet(new HTTPParameters()),
                         new Field('name', new IsString())
                     ),
-                    'header' => new FieldSet('header', new Field('species', new IsString())),
+                    'header' => new FieldSet('header', new Field('species', new Implode(','), new IsString())),
                     'cookie' => new FieldSet('cookie', new Field('subspecies', new IsString())),
                     'body' => new Field('requestBody', new IsFloat()),
                 ]
@@ -644,7 +648,7 @@ class OpenAPIRequestBuilderTest extends TestCase
 
         $actual = $sut->build($spec);
 
-        self::assertEquals($expected, $actual);
+        self::assertProcessorEquals($expected, $actual);
     }
 
 
@@ -736,9 +740,172 @@ class OpenAPIRequestBuilderTest extends TestCase
         ];
     }
 
-    #[DataProvider('dataSetsForDocExamples')]
+    /** @return Generator<array{
+     *     0: OpenAPIRequest,
+     *     1: array | ServerRequestInterface,
+     *     2: Result,
+     *  }>
+     */
+    public static function provideAPIWithHeaders(): Generator
+    {
+        $dataSet = fn(
+            Cebe\PathItem $pathItem,
+            array $requestHeaders,
+            array $resultHeaders
+        ) => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/path'),
+                $pathItem,
+                Method::GET
+            ),
+            new ServerRequest('get', '/path', $requestHeaders),
+            Result::valid([
+                'request' => ['method' => 'get', 'operationId' => 'test'],
+                'path' => [],
+                'query' => [],
+                'header' => $resultHeaders,
+                'cookie' => [],
+                'body' => '',
+            ])
+        ];
+
+        yield 'api with string header (explode:false)' => $dataSet(
+            (new MakesPathItem(MakesOperation::withHeader(
+                'colour',
+                true,
+                false,
+                ['type' => 'string'],
+            )))->asCebeObject(),
+            ['colour' => 'blue'],
+            ['colour' => 'blue'],
+        );
+
+        yield 'api with string header (explode:true)' => $dataSet(
+            (new MakesPathItem(MakesOperation::withHeader(
+                'colour',
+                true,
+                true,
+                ['type' => 'string'],
+            )))->asCebeObject(),
+            ['colour' => 'blue'],
+            ['colour' => 'blue'],
+        );
+
+        yield 'api with integer header (explode:false)' => $dataSet(
+            (new MakesPathItem(MakesOperation::withHeader(
+                'colour',
+                true,
+                false,
+                ['type' => 'integer'],
+            )))->asCebeObject(),
+            ['colour' => '255'],
+            ['colour' => 255],
+        );
+
+        yield 'api with integer header (explode:true)' => $dataSet(
+            (new MakesPathItem(MakesOperation::withHeader(
+                'colour',
+                true,
+                true,
+                ['type' => 'integer'],
+            )))->asCebeObject(),
+            ['colour' => '255'],
+            ['colour' => 255],
+        );
+
+        yield 'api with boolean header (explode:false)' => $dataSet(
+            (new MakesPathItem(MakesOperation::withHeader(
+                'colour',
+                true,
+                false,
+                ['type' => 'boolean'],
+            )))->asCebeObject(),
+            ['colour' => 'true'],
+            ['colour' => true],
+        );
+
+        yield 'api with boolean header (explode:true)' => $dataSet(
+            (new MakesPathItem(MakesOperation::withHeader(
+                'colour',
+                true,
+                true,
+                ['type' => 'boolean'],
+            )))->asCebeObject(),
+            ['colour' => 'true'],
+            ['colour' => true],
+        );
+
+        yield 'api with string array header (explode:false)' => $dataSet(
+            (new MakesPathItem(MakesOperation::withHeader(
+                'colour',
+                true,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            )))->asCebeObject(),
+            ['colour' => 'blue,black,brown'],
+            ['colour' => ['blue', 'black', 'brown']],
+        );
+
+        yield 'api with string array header (explode:true)' => $dataSet(
+            (new MakesPathItem(MakesOperation::withHeader(
+                'colour',
+                true,
+                true,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            )))->asCebeObject(),
+            ['colour' => 'blue,black,brown'],
+            ['colour' => ['blue', 'black', 'brown']],
+        );
+
+        yield 'api with int array header (explode:false)' => $dataSet(
+            (new MakesPathItem(MakesOperation::withHeader(
+                'colour',
+                true,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'integer']],
+            )))->asCebeObject(),
+            ['colour' => '100,200,150'],
+            ['colour' => [100, 200, 150]],
+        );
+
+        yield 'api with int array header (explode:true)' => $dataSet(
+            (new MakesPathItem(MakesOperation::withHeader(
+                'colour',
+                true,
+                true,
+                ['type' => 'array', 'items' => ['type' => 'integer']],
+            )))->asCebeObject(),
+            ['colour' => '100,200,150'],
+            ['colour' => [100, 200, 150]],
+        );
+
+        yield 'api with object header with additional int properties (explode:false)' => $dataSet(
+            (new MakesPathItem(MakesOperation::withHeader(
+                'colour',
+                true,
+                false,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            )))->asCebeObject(),
+            ['colour' => 'R,100,G,200,B,150'],
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
+        );
+
+        yield 'api with object header additional int properties (explode:true)' => $dataSet(
+            (new MakesPathItem(MakesOperation::withHeader(
+                'colour',
+                true,
+                true,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            )))->asCebeObject(),
+            ['colour' => 'R=100,G=200,B=150'],
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
+        );
+    }
+
     #[Test]
-    public function docsTest(
+    #[DataProvider('dataSetsForDocExamples')]
+    #[DataProvider('provideAPIWithHeaders')]
+    public function itBuildsProcessorsThatValidateRequests(
         OpenAPIRequest $specification,
         array | ServerRequestInterface $serverRequest,
         Result $expected
@@ -749,7 +916,7 @@ class OpenAPIRequestBuilderTest extends TestCase
 
         $actual = $processor->process(new FieldName(''), $serverRequest);
 
-        self::assertEquals($expected, $actual);
+        self::assertResultEquals($expected, $actual);
         self::assertSame($expected->value, $actual->value);
     }
 }

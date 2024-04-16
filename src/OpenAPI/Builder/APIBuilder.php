@@ -30,6 +30,7 @@ abstract class APIBuilder implements Builder
         bool $convertFromString = false,
         bool $convertFromArray = false,
         ?string $style = null,
+        ?bool $explode = null,
     ): Processor {
         if ($schema->not !== null) {
             throw OpenAPI\Exception\CannotProcessOpenAPI::unsupportedKeyword('not');
@@ -43,6 +44,8 @@ abstract class APIBuilder implements Builder
                 $schema->allOf,
                 $convertFromString,
                 $convertFromArray,
+                $style,
+                $explode,
             );
         }
 
@@ -54,6 +57,8 @@ abstract class APIBuilder implements Builder
                 $schema->anyOf,
                 $convertFromString,
                 $convertFromArray,
+                $style,
+                $explode,
             );
         }
 
@@ -65,15 +70,28 @@ abstract class APIBuilder implements Builder
                 $schema->oneOf,
                 $convertFromString,
                 $convertFromArray,
+                $style,
+                $explode,
             );
         }
 
         return match ($schema->type) {
             'string' => ($this->getStringBuilder())
-                ->build(new OpenAPI\Specification\Strings($fieldName, $schema, $convertFromArray)),
+                ->build(new OpenAPI\Specification\Strings(
+                    $fieldName,
+                    $schema,
+                    $convertFromArray,
+                    $style
+                )),
 
             'number', 'integer' => $this->getNumericBuilder()
-                ->build(new OpenAPI\Specification\Numeric($fieldName, $schema, $convertFromString, $convertFromArray)),
+                ->build(new OpenAPI\Specification\Numeric(
+                    $fieldName,
+                    $schema,
+                    $convertFromString,
+                    $convertFromArray,
+                    $style
+                )),
 
             'boolean' => $this->getTrueFalseBuilder()
                 ->build(new OpenAPI\Specification\TrueFalse(
@@ -81,13 +99,28 @@ abstract class APIBuilder implements Builder
                     $schema,
                     $convertFromString,
                     $convertFromArray,
+                    $style,
                 )),
 
             'array' => $this->getArrayBuilder()
-                ->build(new OpenAPI\Specification\Arrays($fieldName, $schema, $convertFromString, $style)),
+                ->build(new OpenAPI\Specification\Arrays(
+                    $fieldName,
+                    $schema,
+                    $convertFromString,
+                    $convertFromArray,
+                    $style,
+                    $explode,
+                )),
 
             'object' => $this->getObjectBuilder()
-                ->build(new OpenAPI\Specification\Objects($fieldName, $schema, $convertFromString, $style)),
+                ->build(new OpenAPI\Specification\Objects(
+                    $fieldName,
+                    $schema,
+                    $convertFromString,
+                    $convertFromArray,
+                    $style,
+                    $explode,
+                )),
 
             default => new Field('', new Utility\Passes()),
         };
@@ -112,6 +145,8 @@ abstract class APIBuilder implements Builder
         array $subSchemas,
         bool $convertFromString,
         bool $convertFromArray,
+        ?string $style,
+        ?bool $explode,
     ): Processor {
         if (count($subSchemas) < 2) {
             assert($subSchemas[0] instanceof Schema);
@@ -131,7 +166,10 @@ abstract class APIBuilder implements Builder
             $subProcessors[] = $this->fromSchema(
                 $subSchema,
                 $title ?? sprintf('Branch-%s', $index + 1),
-                $convertFromString
+                $convertFromString,
+                $convertFromArray,
+                $style,
+                $explode,
             );
         }
 

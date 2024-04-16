@@ -10,6 +10,7 @@ use Membrane\OpenAPI\Filter;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Parameter;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\In;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Field;
@@ -64,7 +65,11 @@ class OpenAPIRequestBuilder implements Builder
         foreach (array_map(fn($p) => new Parameter($p), $specification->parameters) as $parameter) {
             $locations[$parameter->in]['fields'][] = $this
                 ->getParameterBuilder()
-                ->fromParameter($parameter, true);
+                ->fromParameter(
+                    $parameter,
+                    true,
+                    $parameter->in === In::Header->value,
+                );
 
             if ($parameter->required) {
                 $locations[$parameter->in]['required'][] = $parameter->name;
