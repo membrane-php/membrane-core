@@ -72,7 +72,15 @@ class Arrays extends APIBuilder
         }
 
         assert($specification->items instanceof Schema);
-        $collection = new Collection($specification->fieldName, $beforeSet, $this->fromSchema($specification->items));
+        $collection = new Collection(
+            $specification->fieldName,
+            $beforeSet,
+            $this->fromSchema(
+                $specification->items,
+                '',
+                $specification->convertFromString,
+            )
+        );
 
         if ($specification->nullable) {
             return $this->handleNullable($specification->fieldName, $collection);

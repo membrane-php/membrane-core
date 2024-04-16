@@ -13,8 +13,11 @@ class Strings extends APISchema
     public readonly int $minLength;
     public readonly ?string $pattern;
 
-    public function __construct(string $fieldName, Schema $schema)
-    {
+    public function __construct(
+        string $fieldName,
+        Schema $schema,
+        public readonly bool $convertFromArray = false
+    ) {
         if ($schema->type !== 'string') {
             throw CannotProcessSpecification::mismatchedType(self::class, 'string', $schema->type);
         }

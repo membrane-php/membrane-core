@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
+use Membrane\Filter\String\Implode;
 use Membrane\Filter\String\ToUpperCase;
 use Membrane\Processor;
 use Membrane\Processor\Field;
@@ -27,6 +28,10 @@ class Strings extends APIBuilder
         assert($specification instanceof \Membrane\OpenAPI\Specification\Strings);
 
         $chain = [new IsString()];
+
+        if ($specification->convertFromArray) {
+            array_unshift($chain, new Implode(','));
+        }
 
         if ($specification->enum !== null) {
             $chain[] = new Contained($specification->enum);

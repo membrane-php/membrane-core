@@ -24,12 +24,14 @@ class ParameterBuilder extends APIBuilder
 
     public function fromParameter(
         Parameter $specification,
-        bool $convertFromString = false
+        bool $convertFromString = false,
+        bool $convertFromArray = false,
     ): Processor {
         $schemaProcessor = $this->fromSchema(
             $specification->schema,
             $specification->name,
             $convertFromString,
+            $convertFromArray,
             $specification->style
         );
 

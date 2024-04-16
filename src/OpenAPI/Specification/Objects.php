@@ -22,6 +22,7 @@ class Objects extends APISchema
     public function __construct(
         string $fieldName,
         Cebe\Schema $schema,
+        public readonly bool $convertFromString = false,
         public readonly ?string $style = null,
     ) {
         if ($schema->type !== 'object') {

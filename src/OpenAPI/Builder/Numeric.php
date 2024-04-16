@@ -40,6 +40,10 @@ class Numeric extends APIBuilder
             $chain = $this->handleInteger($specification);
         }
 
+        if ($specification->convertFromArray) {
+            array_unshift($chain, new Filter\String\Implode(','));
+        }
+
         if ($specification->enum !== null) {
             $chain[] = new Contained($specification->enum);
         }
