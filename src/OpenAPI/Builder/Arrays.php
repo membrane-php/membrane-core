@@ -20,7 +20,6 @@ class Arrays extends APIBuilder
     private const STYLE_FORM = 'form';
     private const STYLE_SPACE_DELIMITED = 'spaceDelimited';
     private const STYLE_PIPE_DELIMITED = 'pipeDelimited';
-    private const STYLE_DEEP_OBJECT = 'deepObject';
     private const STYLE_DELIMITER_MAP = [
         self::STYLE_FORM => ',',
         self::STYLE_SPACE_DELIMITED => ' ',
@@ -44,9 +43,6 @@ class Arrays extends APIBuilder
                 case self::STYLE_SPACE_DELIMITED:
                 case self::STYLE_PIPE_DELIMITED:
                     $beforeChain[] = new Explode(self::STYLE_DELIMITER_MAP[$specification->style]);
-                    break;
-                case self::STYLE_DEEP_OBJECT:
-                    // parse_str from HTTPParameters already deals with this
                     break;
             }
         }
