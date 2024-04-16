@@ -197,7 +197,7 @@ class RequestTest extends TestCase
                     'request' => ['method' => 'get', 'operationId' => ''],
                     'path' => '/pets',
                     'query' => 'limit=5',
-                    'header' => [],
+                    'header' => ['Host' => ['www.swaggerstore.io']],
                     'cookie' => [],
                     'body' => 'request body',
                 ]),
@@ -215,7 +215,7 @@ class RequestTest extends TestCase
                     'request' => ['method' => 'get', 'operationId' => ''],
                     'path' => '/pets',
                     'query' => 'limit=5',
-                    'header' => [],
+                    'header' => ['Host' => ['www.swaggerstore.io']],
                     'cookie' => [],
                     'body' => 'request body',
                 ]),
@@ -234,7 +234,7 @@ class RequestTest extends TestCase
                         'request' => ['method' => 'get', 'operationId' => ''],
                         'path' => '/pets',
                         'query' => 'limit=5',
-                        'header' => [],
+                        'header' => ['Host' => ['www.swaggerstore.io']],
                         'cookie' => [],
                         'body' => 'request body',
                     ],
@@ -260,7 +260,10 @@ class RequestTest extends TestCase
                     [
                         'path' => '/pets',
                         'query' => 'limit=5',
-                        'header' => [],
+                        'header' => [
+                            'Host' => ['www.swaggerstore.io'],
+                            'Content-Type' => ['application/json']
+                        ],
                         'cookie' => [],
                         'body' => null,
                     ],
@@ -288,7 +291,10 @@ class RequestTest extends TestCase
                     'request' => ['method' => 'get', 'operationId' => ''],
                     'path' => '/pets',
                     'query' => 'limit=5',
-                    'header' => [],
+                    'header' => [
+                        'Host' => ['www.swaggerstore.io'],
+                        'Content-Type' => ['application/json']
+                    ],
                     'cookie' => [],
                     'body' => ['field' => 2],
                 ]),
@@ -311,7 +317,10 @@ class RequestTest extends TestCase
                     'request' => ['method' => 'get', 'operationId' => ''],
                     'path' => '/pets',
                     'query' => 'limit=5',
-                    'header' => [],
+                    'header' => [
+                        'Host' => ['www.swaggerstore.io'],
+                        'Content-Type' => ['application/json']
+                    ],
                     'cookie' => [],
                     'body' => '',
                 ]),
@@ -334,7 +343,10 @@ class RequestTest extends TestCase
                     'request' => ['method' => 'get', 'operationId' => ''],
                     'path' => '/pets',
                     'query' => 'limit=5',
-                    'header' => [],
+                    'header' => [
+                        'Host' => ['www.swaggerstore.io'],
+                        'Content-Type' => ['application/x-www-form-urlencoded']
+                    ],
                     'cookie' => [],
                     'body' => ['field' => 3],
                 ]),
@@ -364,7 +376,10 @@ class RequestTest extends TestCase
                     'request' => ['method' => 'get', 'operationId' => ''],
                     'path' => '/pets',
                     'query' => 'limit=5',
-                    'header' => [],
+                    'header' => [
+                        'Host' => ['www.swaggerstore.io'],
+                        'Content-Type' => ['multipart/x-www-form-urlencoded']
+                    ],
                     'cookie' => [],
                     'body' => ['field' => 3, 'file' => 'filedata'],
                 ]),

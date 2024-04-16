@@ -102,12 +102,10 @@ class Request implements Processor
 
     private function formatPsr7(FieldName $parentFieldName, ServerRequestInterface $request): Result
     {
-        $value = ['header' => [], 'cookie' => []];
+        $value = ['cookie' => []];
         $value['path'] = $request->getUri()->getPath();
         $value['query'] = $request->getUri()->getQuery();
-        // @TODO support header
-        //$value['header'] = $this->getHeaderParams($request->getHeaders());
-        // @TODO support cookie
+        $value['header'] = $request->getHeaders();
         //$value['cookie'] = $request->getCookieParams();
 
         //There should only be one content type header; PHP ignores additional header values
