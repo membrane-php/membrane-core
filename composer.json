@@ -19,8 +19,8 @@
     "psr/http-message": "^1.0 || ^2.0",
     "psr/log": "^2.0 || ^3.0",
     "symfony/console": "^6.2",
-    "membrane/openapi-reader": "dev-own-api-objects",
-    "membrane/openapi-router": "dev-use-membrane-reader"
+    "membrane/openapi-reader": "^2.0.0",
+    "membrane/openapi-router": "^0.4.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^10.1",
