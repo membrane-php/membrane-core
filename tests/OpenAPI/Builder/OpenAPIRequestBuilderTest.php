@@ -39,6 +39,7 @@ use Membrane\OpenAPIReader\FileFormat;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -154,6 +155,37 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes(...$mediaTypes));
 
         $sut->build($specification);
+    }
+
+    #[Test]
+    #[TestDox('Builds a Processor for the Operation Object (specified by the PathItem and method provided')]
+    #[DataProvider('dataSetsForBuild')]
+    public function buildTest(Specification $spec, Processor $expected): void
+    {
+        $sut = new OpenAPIRequestBuilder();
+
+        $actual = $sut->build($spec);
+
+        self::assertProcessorEquals($expected, $actual);
+    }
+
+    #[Test]
+    #[DataProvider('dataSetsForDocExamples')]
+    #[DataProvider('provideAPIWithPathParameters')]
+    #[DataProvider('provideAPIWithHeaderParameters')]
+    public function itBuildsProcessorsThatValidateRequests(
+        OpenAPIRequest $specification,
+        array | ServerRequestInterface $serverRequest,
+        Result $expected
+    ): void {
+        $sut = new OpenAPIRequestBuilder();
+
+        $processor = $sut->build($specification);
+
+        $actual = $processor->process(new FieldName(''), $serverRequest);
+
+        self::assertResultEquals($expected, $actual);
+        self::assertSame($expected->value, $actual->value);
     }
 
     public static function dataSetsForBuild(): Generator
@@ -640,16 +672,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         ];
     }
 
-    #[Test, TestDox('Builds a Processor for the Operation Object (specified by the PathItem and method provided')]
-    #[DataProvider('dataSetsForBuild')]
-    public function buildTest(Specification $spec, Processor $expected): void
-    {
-        $sut = new OpenAPIRequestBuilder();
 
-        $actual = $sut->build($spec);
-
-        self::assertProcessorEquals($expected, $actual);
-    }
 
 
     public static function dataSetsForDocExamples(): array
@@ -746,16 +769,118 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
      *     2: Result,
      *  }>
      */
-    public static function provideAPIWithHeaders(): Generator
+    public static function provideAPIWithPathParameters(): Generator {
+        $dataSet = fn(
+            MakesOperation $operation,
+            string $path,
+            string $input,
+            array $output,
+        ) => [
+            new OpenAPIRequest(
+                new PathParameterExtractor($path),
+                (new MakesPathItem($operation))->asCebeObject(),
+                Method::GET
+            ),
+            new ServerRequest('get', $input),
+            Result::valid([
+                'request' => ['method' => 'get', 'operationId' => 'test'],
+                'path' => $output,
+                'query' => [],
+                'header' => [],
+                'cookie' => [],
+                'body' => '',
+            ])
+        ];
+
+        yield 'api with string path parameter (style:simple, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Simple,
+                false,
+                ['type' => 'string'],
+            ),
+            '/path/{colour}',
+            '/path/blue',
+            ['colour' => 'blue']
+        );
+
+        yield 'api with string path parameter (style:simple, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Simple,
+                true,
+                ['type' => 'string'],
+            ),
+            '/path/{colour}',
+            '/path/blue',
+            ['colour' => 'blue']
+        );
+
+        yield 'api with string path parameter (style:matrix, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                false,
+                ['type' => 'string'],
+            ),
+            '/path/{colour}',
+            '/path/;colour=blue',
+            ['colour' => 'blue']
+        );
+
+        yield 'api with string path parameter (style:matrix, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                true,
+                ['type' => 'string'],
+            ),
+            '/path/{colour}',
+            '/path/;colour=blue',
+            ['colour' => 'blue']
+        );
+
+        yield 'api with string path parameter (style:label, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                false,
+                ['type' => 'string'],
+            ),
+            '/path/{colour}',
+            '/path/.blue',
+            ['colour' => 'blue']
+        );
+
+        yield 'api with string path parameter (style:label, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                true,
+                ['type' => 'string'],
+            ),
+            '/path/{colour}',
+            '/path/.blue',
+            ['colour' => 'blue']
+        );
+    }
+
+    /** @return Generator<array{
+     *     0: OpenAPIRequest,
+     *     1: array | ServerRequestInterface,
+     *     2: Result,
+     *  }>
+     */
+    public static function provideAPIWithHeaderParameters(): Generator
     {
         $dataSet = fn(
-            Cebe\PathItem $pathItem,
+            MakesOperation $operation,
             array $requestHeaders,
             array $resultHeaders
         ) => [
             new OpenAPIRequest(
                 new PathParameterExtractor('/path'),
-                $pathItem,
+                (new MakesPathItem($operation))->asCebeObject(),
                 Method::GET
             ),
             new ServerRequest('get', '/path', $requestHeaders),
@@ -770,153 +895,135 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         ];
 
         yield 'api with string header (explode:false)' => $dataSet(
-            (new MakesPathItem(MakesOperation::withHeader(
+            MakesOperation::withHeaderParameter(
                 'colour',
                 true,
                 false,
                 ['type' => 'string'],
-            )))->asCebeObject(),
+            ),
             ['colour' => 'blue'],
             ['colour' => 'blue'],
         );
 
         yield 'api with string header (explode:true)' => $dataSet(
-            (new MakesPathItem(MakesOperation::withHeader(
+            MakesOperation::withHeaderParameter(
                 'colour',
                 true,
                 true,
                 ['type' => 'string'],
-            )))->asCebeObject(),
+            ),
             ['colour' => 'blue'],
             ['colour' => 'blue'],
         );
 
         yield 'api with integer header (explode:false)' => $dataSet(
-            (new MakesPathItem(MakesOperation::withHeader(
+            MakesOperation::withHeaderParameter(
                 'colour',
                 true,
                 false,
                 ['type' => 'integer'],
-            )))->asCebeObject(),
+            ),
             ['colour' => '255'],
             ['colour' => 255],
         );
 
         yield 'api with integer header (explode:true)' => $dataSet(
-            (new MakesPathItem(MakesOperation::withHeader(
+            MakesOperation::withHeaderParameter(
                 'colour',
                 true,
                 true,
                 ['type' => 'integer'],
-            )))->asCebeObject(),
+            ),
             ['colour' => '255'],
             ['colour' => 255],
         );
 
         yield 'api with boolean header (explode:false)' => $dataSet(
-            (new MakesPathItem(MakesOperation::withHeader(
+            MakesOperation::withHeaderParameter(
                 'colour',
                 true,
                 false,
                 ['type' => 'boolean'],
-            )))->asCebeObject(),
+            ),
             ['colour' => 'true'],
             ['colour' => true],
         );
 
         yield 'api with boolean header (explode:true)' => $dataSet(
-            (new MakesPathItem(MakesOperation::withHeader(
+            MakesOperation::withHeaderParameter(
                 'colour',
                 true,
                 true,
                 ['type' => 'boolean'],
-            )))->asCebeObject(),
+            ),
             ['colour' => 'true'],
             ['colour' => true],
         );
 
         yield 'api with string array header (explode:false)' => $dataSet(
-            (new MakesPathItem(MakesOperation::withHeader(
+            MakesOperation::withHeaderParameter(
                 'colour',
                 true,
                 false,
                 ['type' => 'array', 'items' => ['type' => 'string']],
-            )))->asCebeObject(),
+            ),
             ['colour' => 'blue,black,brown'],
             ['colour' => ['blue', 'black', 'brown']],
         );
 
         yield 'api with string array header (explode:true)' => $dataSet(
-            (new MakesPathItem(MakesOperation::withHeader(
+            MakesOperation::withHeaderParameter(
                 'colour',
                 true,
                 true,
                 ['type' => 'array', 'items' => ['type' => 'string']],
-            )))->asCebeObject(),
+            ),
             ['colour' => 'blue,black,brown'],
             ['colour' => ['blue', 'black', 'brown']],
         );
 
         yield 'api with int array header (explode:false)' => $dataSet(
-            (new MakesPathItem(MakesOperation::withHeader(
+            MakesOperation::withHeaderParameter(
                 'colour',
                 true,
                 false,
                 ['type' => 'array', 'items' => ['type' => 'integer']],
-            )))->asCebeObject(),
+            ),
             ['colour' => '100,200,150'],
             ['colour' => [100, 200, 150]],
         );
 
         yield 'api with int array header (explode:true)' => $dataSet(
-            (new MakesPathItem(MakesOperation::withHeader(
+            MakesOperation::withHeaderParameter(
                 'colour',
                 true,
                 true,
                 ['type' => 'array', 'items' => ['type' => 'integer']],
-            )))->asCebeObject(),
+            ),
             ['colour' => '100,200,150'],
             ['colour' => [100, 200, 150]],
         );
 
         yield 'api with object header with additional int properties (explode:false)' => $dataSet(
-            (new MakesPathItem(MakesOperation::withHeader(
+            MakesOperation::withHeaderParameter(
                 'colour',
                 true,
                 false,
                 ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
-            )))->asCebeObject(),
+            ),
             ['colour' => 'R,100,G,200,B,150'],
             ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
         );
 
         yield 'api with object header additional int properties (explode:true)' => $dataSet(
-            (new MakesPathItem(MakesOperation::withHeader(
+            MakesOperation::withHeaderParameter(
                 'colour',
                 true,
                 true,
                 ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
-            )))->asCebeObject(),
+            ),
             ['colour' => 'R=100,G=200,B=150'],
             ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
         );
-    }
-
-    #[Test]
-    #[DataProvider('dataSetsForDocExamples')]
-    #[DataProvider('provideAPIWithHeaders')]
-    public function itBuildsProcessorsThatValidateRequests(
-        OpenAPIRequest $specification,
-        array | ServerRequestInterface $serverRequest,
-        Result $expected
-    ): void {
-        $sut = new OpenAPIRequestBuilder();
-
-        $processor = $sut->build($specification);
-
-        $actual = $processor->process(new FieldName(''), $serverRequest);
-
-        self::assertResultEquals($expected, $actual);
-        self::assertSame($expected->value, $actual->value);
     }
 }

@@ -49,7 +49,7 @@ class Objects extends APIBuilder
             switch (Style::tryFrom($specification->style)) {
                 case Style::Simple:
                     $beforeChain[] = $specification->explode === true ?
-                        new Filter\String\Explode(',', '=') :
+                        new Filter\String\Tokenize(',=') :
                         new Filter\String\Explode(',');
                     $beforeChain[] = new Filter\Shape\KeyValueSplit();
             };

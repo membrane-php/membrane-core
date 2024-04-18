@@ -62,6 +62,9 @@ class OpenAPIRequestBuilder implements Builder
             'cookie' => $location([]),
         ];
 
+        // todo is this where I need to handle query and path parameter styles?
+        // may require changes to the http parameters
+
         foreach (array_map(fn($p) => new Parameter($p), $specification->parameters) as $parameter) {
             $locations[$parameter->in]['fields'][] = $this
                 ->getParameterBuilder()

@@ -41,7 +41,7 @@ class MakesOperationTest extends TestCase
             'responses' => ['200' => ['description' => 'Success']],
         ];
 
-        $sut = MakesOperation::withHeader(...$data);
+        $sut = MakesOperation::withHeaderParameter(...$data);
 
         self::assertEquals($expected, $sut->jsonSerialize());
     }

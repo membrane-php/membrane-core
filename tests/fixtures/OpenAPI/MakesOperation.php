@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Membrane\Tests\Fixtures\OpenAPI;
 
 use JsonSerializable;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 
 final class MakesOperation implements JsonSerializable
 {
@@ -13,7 +14,23 @@ final class MakesOperation implements JsonSerializable
     ) {
     }
 
-    public static function withHeader(
+    public static function withPathParameter(
+        string $name,
+        Style $style,
+        bool $explode,
+        bool|array $schema,
+    ): self {
+        return new self([[
+            'name' => $name,
+            'in' => 'path',
+            'required' => true,
+            'style' => $style->value,
+            'explode' => $explode,
+            'schema' => $schema,
+        ]]);
+    }
+
+    public static function withHeaderParameter(
         string $name,
         bool $required,
         bool $explode,

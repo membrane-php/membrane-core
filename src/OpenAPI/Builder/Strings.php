@@ -6,7 +6,10 @@ namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\Implode;
+use Membrane\Filter\String\LeftTrim;
 use Membrane\Filter\String\ToUpperCase;
+use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
@@ -31,6 +34,20 @@ class Strings extends APIBuilder
 
         if ($specification->convertFromArray) {
             array_unshift($chain, new Implode(','));
+        }
+
+        if (isset($specification->style)) {
+            switch (Style::tryFrom($specification->style)) {
+                case Style::Matrix:
+                    $chain[] = new Matrix('string', false);
+                    break;
+                case Style::Label:
+                    $chain[] = new LeftTrim('.');
+                    break;
+                case Style::Form:
+                    // @todo
+                    break;
+            }
         }
 
         if ($specification->enum !== null) {
