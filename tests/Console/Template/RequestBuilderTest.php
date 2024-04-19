@@ -6,7 +6,8 @@ namespace Membrane\Tests\Console\Template;
 
 use Membrane\Console\Template;
 use Membrane\OpenAPI\Specification\Request;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\MembraneReader;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
 use Membrane\OpenAPIRouter\RouteCollection;
@@ -26,7 +27,7 @@ use PHPUnit\Framework\TestCase;
 class RequestBuilderTest extends TestCase
 {
     private Template\RequestBuilder $sut;
-    private $petstoreAPIPath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
+    private string $petstoreAPIPath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
 
     protected function setUp(): void
     {
@@ -49,7 +50,7 @@ class RequestBuilderTest extends TestCase
 
         eval('//' . $phpString);
 
-        $openAPI = (new Reader([OpenAPIVersion::Version_3_0]))
+        $openAPI = (new MembraneReader([OpenAPIVersion::Version_3_0]))
             ->readFromAbsoluteFilePath($petstoreExpandedFilePath);
         $routeCollection = (new RouteCollector())
             ->collect($openAPI);
@@ -75,7 +76,7 @@ class RequestBuilderTest extends TestCase
     ): Request {
         $requestSpecification = new Request(
             $this->petstoreAPIPath,
-            'http://petstore.swagger.io/api/pets',
+            'https://petstore.swagger.io/v2/pets',
             Method::GET,
         );
 
@@ -92,7 +93,6 @@ class RequestBuilderTest extends TestCase
     ): void {
         eval(
         '
-
 namespace RequestBuilderTemplateTest\Petstore\Request;
 
 use Membrane;

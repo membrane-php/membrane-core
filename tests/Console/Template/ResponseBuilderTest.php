@@ -7,7 +7,9 @@ namespace Membrane\Tests\Console\Template;
 use cebe\openapi\Reader;
 use Membrane\Console\Template;
 use Membrane\OpenAPI\Specification\Response;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\MembraneReader;
+use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIRouter\RouteCollection;
 use Membrane\OpenAPIRouter\RouteCollector;
 use Membrane\OpenAPIRouter\Router;
@@ -58,7 +60,10 @@ class ResponseBuilderTest extends TestCase
         $phpString = $this->sut->createFromTemplate($namespace, $petstoreExpandedFilePath, $map);
         eval('//' . $phpString);
 
-        $routeCollection = (new RouteCollector())->collect(Reader::readFromJsonFile($petstoreExpandedFilePath));
+        $openAPI = (new MembraneReader([OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath($petstoreExpandedFilePath);
+
+        $routeCollection = (new RouteCollector())->collect($openAPI);
         $createdBuilder = eval(
         sprintf(
             'return new \\%s\\CachedResponseBuilder(new %s(new %s(%s)));',
@@ -81,7 +86,7 @@ class ResponseBuilderTest extends TestCase
     ): Response {
         $responseSpecification = new Response(
             $this->petstoreAPIPath,
-            'http://petstore.swagger.io/api/pets',
+            'https://petstore.swagger.io/v2/pets',
             Method::GET,
             '200'
         );

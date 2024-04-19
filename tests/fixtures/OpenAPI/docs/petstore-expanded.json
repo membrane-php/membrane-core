@@ -17,7 +17,7 @@
   },
   "servers": [
     {
-      "url": "http://petstore.swagger.io/api"
+      "url": "https://petstore.swagger.io/v2"
     }
   ],
   "paths": {
@@ -32,7 +32,6 @@
             "description": "tags to filter by",
             "required": false,
             "style": "form",
-            "explode": false,
             "schema": {
               "type": "array",
               "items": {
@@ -45,7 +44,6 @@
             "in": "query",
             "description": "maximum number of results to return",
             "required": false,
-            "explode": false,
             "schema": {
               "type": "integer",
               "format": "int32"

@@ -6,7 +6,7 @@ namespace Membrane\OpenAPI\Specification;
 
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Psr\Http\Message\ServerRequestInterface;
 
 class Request implements Specification

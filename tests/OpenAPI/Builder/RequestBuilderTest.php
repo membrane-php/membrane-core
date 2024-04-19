@@ -6,11 +6,13 @@ namespace Membrane\Tests\OpenAPI\Builder;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;
+use Membrane\Filter\String\Explode;
 use Membrane\Filter\Type\ToInt;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Arrays;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
+use Membrane\OpenAPI\Builder\ParameterBuilder;
 use Membrane\OpenAPI\Builder\RequestBuilder;
 use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\ContentType;
@@ -22,8 +24,9 @@ use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
+use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
@@ -61,6 +64,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(Arrays::class)]
 #[UsesClass(Numeric::class)]
 #[UsesClass(Strings::class)]
+#[UsesClass(ParameterBuilder::class)]
 #[UsesClass(HTTPParameters::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathMatcherClass::class)]
@@ -69,8 +73,10 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Numeric::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Strings::class)]
+#[UsesClass(Parameter::class)]
 #[UsesClass(Request::class)]
 #[UsesClass(ToInt::class)]
+#[UsesClass(Explode::class)]
 #[UsesClass(BeforeSet::class)]
 #[UsesClass(Collection::class)]
 #[UsesClass(Field::class)]
@@ -82,6 +88,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(RequiredFields::class)]
 #[UsesClass(Maximum::class)]
 #[UsesClass(IsInt::class)]
+#[UsesClass(IntString::class)]
 #[UsesClass(IsList::class)]
 #[UsesClass(IsString::class)]
 #[UsesClass(Passes::class)]
@@ -519,10 +526,10 @@ class RequestBuilderTest extends TestCase
             'petstore expanded /pets get (invalid)' => [
                 new Request(
                     $expanded,
-                    'http://petstore.swagger.io/api/pets',
+                    'https://petstore.swagger.io/v2/pets',
                     Method::GET
                 ),
-                new ServerRequest('get', 'http://petstore.swagger.io/api/pets?limit=five'),
+                new ServerRequest('get', 'https://petstore.swagger.io/v2/pets?limit=five'),
                 Result::invalid(
                     [
                         'request' => ['method' => 'get', 'operationId' => 'findPets'],
@@ -541,10 +548,10 @@ class RequestBuilderTest extends TestCase
             'petstore expanded /pets get, minimal (valid)' => [
                 new Request(
                     $expanded,
-                    'http://petstore.swagger.io/api/pets',
+                    'https://petstore.swagger.io/v2/pets',
                     Method::GET
                 ),
-                new ServerRequest('get', 'http://petstore.swagger.io/api/pets?limit=5&tags=cat,tabby'),
+                new ServerRequest('get', 'https://petstore.swagger.io/v2/pets?limit=5&tags=cat,tabby'),
                 Result::valid(
                     [
                         'request' => ['method' => 'get', 'operationId' => 'findPets'],

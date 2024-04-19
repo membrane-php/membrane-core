@@ -10,7 +10,7 @@ use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\ExtractsPathParameters;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 
 class OpenAPIRequest implements Specification
 {
@@ -27,7 +27,9 @@ class OpenAPIRequest implements Specification
         $operation = $this->getOperation($this->path, $this->method);
 
         $this->parameters = $this->getParameters($this->path, $operation);
-        $this->operationId = $operation->operationId ?? throw CannotProcessOpenAPI::missingOperationId($this->method);
+
+        assert(isset($operation->operationId));
+        $this->operationId = $operation->operationId;
 
         assert(!$operation->requestBody instanceof Cebe\Reference);
         $this->requestBodySchema = $operation->requestBody === null ?

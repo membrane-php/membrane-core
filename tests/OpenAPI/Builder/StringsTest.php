@@ -33,6 +33,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(DateString::class)]
 #[UsesClass(Length::class)]
 #[UsesClass(Regex::class)]
+#[UsesClass(\Membrane\Validator\Utility\AnyOf::class)]
 class StringsTest extends TestCase
 {
     #[Test]

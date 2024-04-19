@@ -33,8 +33,9 @@ use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPI\Specification\TrueFalse;
 use Membrane\OpenAPIReader\FileFormat;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
@@ -70,6 +71,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[CoversClass(CannotProcessOpenAPI::class)]
 #[UsesClass(RequestBuilder::class)]
 #[UsesClass(OpenAPIRequestBuilder::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\TrueFalse::class)]
 #[UsesClass(OpenAPIRequest::class)]
 #[UsesClass(Request::class)]
 #[UsesClass(Arrays::class)]
@@ -82,9 +84,13 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(RequestProcessor::class)]
 #[UsesClass(Parameter::class)]
 #[UsesClass(APISchema::class)]
+#[UsesClass(AllOf::class)]
+#[UsesClass(AnyOf::class)]
+#[UsesClass(OneOf::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Numeric::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Strings::class)]
+#[UsesClass(TrueFalse::class)]
 #[UsesClass(Request::class)]
 #[UsesClass(Explode::class)]
 #[UsesClass(ToInt::class)]
@@ -99,6 +105,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(RequiredFields::class)]
 #[UsesClass(Maximum::class)]
 #[UsesClass(IsInt::class)]
+#[UsesClass(IntString::class)]
 #[UsesClass(IsList::class)]
 #[UsesClass(IsString::class)]
 #[UsesClass(Passes::class)]

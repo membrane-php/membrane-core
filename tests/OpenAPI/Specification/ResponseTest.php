@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Membrane\Tests\OpenAPI\Specification;
 
 use Membrane\OpenAPI\Specification\Response;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;

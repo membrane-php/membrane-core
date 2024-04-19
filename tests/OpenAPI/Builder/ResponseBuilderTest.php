@@ -24,7 +24,7 @@ use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPI\Specification\Strings;
 use Membrane\OpenAPI\Specification\TrueFalse;
-use Membrane\OpenAPIReader\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -106,6 +106,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(IsInt::class)]
 #[UsesClass(IsList::class)]
 #[UsesClass(IsString::class)]
+#[UsesClass(\Membrane\Validator\Utility\AnyOf::class)]
 class ResponseBuilderTest extends TestCase
 {
     public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';
@@ -132,7 +133,7 @@ class ResponseBuilderTest extends TestCase
         $petstoreAPIFilePath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
         $specification = new Response(
             $petstoreAPIFilePath,
-            'http://petstore.swagger.io/api/pets',
+            'https://petstore.swagger.io/v2/pets',
             Method::DELETE,
             '200'
         );
