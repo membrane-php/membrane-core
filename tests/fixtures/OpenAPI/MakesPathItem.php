@@ -18,11 +18,6 @@ final class MakesPathItem implements JsonSerializable
         return new PathItem($this->jsonSerialize());
     }
 
-    public function asJson(): string
-    {
-        return json_encode($this);
-    }
-
     public function jsonSerialize(): mixed
     {
         return array_filter(

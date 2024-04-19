@@ -6,11 +6,13 @@ namespace Membrane\Tests\Filter\String;
 
 use Generator;
 use Membrane\Filter\String\LeftTrim;
+use Membrane\Renderer\HumanReadable;
 use Membrane\Result\{Message, MessageSet, Result};
 use Membrane\Tests\MembraneTestCase;
 use PHPUnit\Framework\Attributes\{CoversClass, DataProvider, Test, TestDox, UsesClass};
 
 #[CoversClass(LeftTrim::class)]
+#[UsesClass(HumanReadable::class)] // to render test failure messages
 #[UsesClass(Message::class)]
 #[UsesClass(MessageSet::class)]
 #[UsesClass(Result::class)]

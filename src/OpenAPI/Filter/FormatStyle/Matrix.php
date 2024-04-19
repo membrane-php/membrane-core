@@ -54,5 +54,29 @@ final class Matrix implements Filter
         if (in_array($this->type, self::PRIMITIVE_TYPES)) {
             return Result::noResult(preg_replace('#^;.+=#', '', $value, 1));
         }
+
+        if ($this->type === 'array') {
+            $result = preg_replace('#^;[^=]+=#', '', $value, 1);
+
+            if ($this->explode) {
+                assert(is_string($result));
+                $result = preg_replace('#;[^=]+=#', ',', $result);
+            }
+            return Result::noResult(explode(',', $result));
+        }
+
+        if ($this->type === 'object') {
+            if ($this->explode) {
+                $result = preg_replace('#^;#', '', $value);
+                assert(is_string($result));
+                $result = str_replace('=', ';', $result);
+                assert(is_string($result));
+                return Result::noResult(explode(';', $result));
+            } else {
+                $result = preg_replace('#^;[^=]+=#', '', $value, 1);
+                assert(is_string($result));
+                return Result::noResult(explode(',', $result));
+            }
+        }
     }
 }

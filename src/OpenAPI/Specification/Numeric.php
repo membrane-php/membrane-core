@@ -21,6 +21,7 @@ class Numeric extends APISchema
         Schema $schema,
         public readonly bool $convertFromString = false,
         public readonly bool $convertFromArray = false,
+        public readonly ?string $style = null,
     ) {
         if (!in_array($schema->type, ['number', 'integer'], true)) {
             throw CannotProcessSpecification::mismatchedType(self::class, 'integer or number', $schema->type);

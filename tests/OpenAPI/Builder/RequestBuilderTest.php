@@ -35,6 +35,7 @@ use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
 use Membrane\Processor\Field;
 use Membrane\Processor\FieldSet;
+use Membrane\Renderer\HumanReadable;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
@@ -59,6 +60,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[CoversClass(RequestBuilder::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
+#[UsesClass(HumanReadable::class)]
 #[UsesClass(APIBuilder::class)]
 #[UsesClass(OpenAPIRequestBuilder::class)]
 #[UsesClass(OpenAPIRequest::class)]
@@ -79,6 +81,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(Request::class)]
 #[UsesClass(ToInt::class)]
 #[UsesClass(Explode::class)]
+#[UsesClass(Implode::class)]
 #[UsesClass(BeforeSet::class)]
 #[UsesClass(Collection::class)]
 #[UsesClass(Field::class)]

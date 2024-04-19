@@ -46,11 +46,6 @@ final class MakesOperation implements JsonSerializable
         ]]);
     }
 
-    public function asJson(): string
-    {
-        return json_encode($this);
-    }
-
     public function jsonSerialize(): mixed
     {
         $result = [

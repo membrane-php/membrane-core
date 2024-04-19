@@ -7,6 +7,7 @@ namespace Membrane\OpenAPI\Builder;
 use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
 use Membrane\Filter;
+use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
@@ -47,11 +48,23 @@ class Objects extends APIBuilder
 
         if (isset($specification->style)) {
             switch (Style::tryFrom($specification->style)) {
+                case Style::Matrix:
+                    $beforeChain[] = new Matrix('object', $specification->explode ?? false);
+                    $beforeChain[] = new Filter\Shape\KeyValueSplit();
+                    break;
+                case Style::Label:
+                    $beforeChain[] = new Filter\String\LeftTrim('.');
+                    $beforeChain[] = ($specification->explode ?? false) ?
+                        new Filter\String\Tokenize('.=') :
+                        new Filter\String\Explode(',');
+                    $beforeChain[] = new Filter\Shape\KeyValueSplit();
+                    break;
                 case Style::Simple:
                     $beforeChain[] = $specification->explode === true ?
                         new Filter\String\Tokenize(',=') :
                         new Filter\String\Explode(',');
                     $beforeChain[] = new Filter\Shape\KeyValueSplit();
+                    break;
             };
 
             switch ($specification->style) {

@@ -6,10 +6,12 @@ namespace Membrane\Tests\Filter\String;
 
 use Membrane\Exception\InvalidFilterArguments;
 use Membrane\Filter\String\Tokenize;
+use Membrane\Renderer\HumanReadable;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Tests\MembraneTestCase;
+use Membrane\Tests\Renderer\HumanReadableTest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -18,6 +20,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 
 #[CoversClass(Tokenize::class)]
 #[CoversClass(InvalidFilterArguments::class)]
+#[UsesClass(HumanReadable::class)] // to render test failure messages
 #[UsesClass(Result::class)]
 #[UsesClass(MessageSet::class)]
 #[UsesClass(Message::class)]
