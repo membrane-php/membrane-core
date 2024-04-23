@@ -7,7 +7,11 @@ namespace Membrane\OpenAPI\Builder;
 use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
 use Membrane\Filter;
+use Membrane\OpenAPI\Filter\FormatStyle\DeepObject;
+use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
+use Membrane\OpenAPI\Filter\FormatStyle\PipeDelimited;
+use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
@@ -21,16 +25,6 @@ use Membrane\Validator\Type\IsArray;
 
 class Objects extends APIBuilder
 {
-    private const STYLE_FORM = 'form';
-    private const STYLE_SPACE_DELIMITED = 'spaceDelimited';
-    private const STYLE_PIPE_DELIMITED = 'pipeDelimited';
-    private const STYLE_DEEP_OBJECT = 'deepObject';
-    private const STYLE_DELIMITER_MAP = [
-        self::STYLE_FORM => ',',
-        self::STYLE_SPACE_DELIMITED => ' ',
-        self::STYLE_PIPE_DELIMITED => '|',
-    ];
-
     public function supports(Specification $specification): bool
     {
         return $specification instanceof \Membrane\OpenAPI\Specification\Objects;
@@ -47,37 +41,33 @@ class Objects extends APIBuilder
         }
 
         if (isset($specification->style)) {
-            switch (Style::tryFrom($specification->style)) {
-                case Style::Matrix:
-                    $beforeChain[] = new Matrix('object', $specification->explode ?? false);
-                    $beforeChain[] = new Filter\Shape\KeyValueSplit();
-                    break;
-                case Style::Label:
-                    $beforeChain[] = new Filter\String\LeftTrim('.');
-                    $beforeChain[] = ($specification->explode ?? false) ?
-                        new Filter\String\Tokenize('.=') :
-                        new Filter\String\Explode(',');
-                    $beforeChain[] = new Filter\Shape\KeyValueSplit();
-                    break;
-                case Style::Simple:
-                    $beforeChain[] = $specification->explode === true ?
-                        new Filter\String\Tokenize(',=') :
-                        new Filter\String\Explode(',');
-                    $beforeChain[] = new Filter\Shape\KeyValueSplit();
-                    break;
-            };
-
-            switch ($specification->style) {
-                case self::STYLE_FORM:
-                case self::STYLE_SPACE_DELIMITED:
-                case self::STYLE_PIPE_DELIMITED:
-                    $beforeChain[] = new Filter\String\Explode(self::STYLE_DELIMITER_MAP[$specification->style]);
-                    $beforeChain[] = new Filter\Shape\KeyValueSplit();
-                    break;
-                case self::STYLE_DEEP_OBJECT:
-                    // parse_str from HTTPParameters already deals with this
-                    break;
-            }
+            $beforeChain = array_merge(
+                $beforeChain,
+                match (Style::tryFrom($specification->style)) {
+                    Style::Matrix => [
+                        new Matrix('object', $specification->explode ?? false),
+                    ],
+                    Style::Label => [
+                        new Filter\String\LeftTrim('.'),
+                        $specification->explode ?? false ?
+                            new Filter\String\Tokenize('.=') :
+                            new Filter\String\Explode(','),
+                    ],
+                    Style::Simple => [
+                        $specification->explode === true ?
+                            new Filter\String\Tokenize(',=') :
+                            new Filter\String\Explode(','),
+                    ],
+                    Style::Form => [
+                        new Form('object', $specification->explode ?? true),
+                    ],
+                    Style::SpaceDelimited => [new SpaceDelimited()],
+                    Style::PipeDelimited => [new PipeDelimited()],
+                    Style::DeepObject => [new DeepObject()],
+                    default => [],
+                },
+                [new Filter\Shape\KeyValueSplit()]
+            );
         }
 
         $beforeChain[] = new IsArray();

@@ -11,6 +11,7 @@ use Membrane\Filter\Type\ToFloat;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
 use Membrane\OpenAPI;
+use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\Processor;
@@ -44,13 +45,15 @@ class Numeric extends APIBuilder
         if (isset($specification->style)) {
             switch (Style::tryFrom($specification->style)) {
                 case Style::Matrix:
-                    $chain[] = new Matrix('integer', false);
+                    $chain[] = new Matrix($specification->type, false);
                     break;
                 case Style::Label:
                     $chain[] = new LeftTrim('.');
                     break;
                 case Style::Form:
-                    // @todo
+                case Style::SpaceDelimited:
+                case Style::PipeDelimited:
+                    $chain[] = new Form($specification->type, false);
                     break;
             }
         }

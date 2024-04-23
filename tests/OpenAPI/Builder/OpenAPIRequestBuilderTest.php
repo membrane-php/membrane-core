@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Builder;
+namespace Membrane\Tests\OpenAPI\Builder;
 
 use cebe\openapi\spec as Cebe;
 use Generator;
@@ -29,9 +29,14 @@ use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher as PathMatcherClass;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
+use Membrane\OpenAPI\Filter\FormatStyle\DeepObject;
+use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
+use Membrane\OpenAPI\Filter\FormatStyle\PipeDelimited;
+use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
 use Membrane\OpenAPI\Filter\HTTPParameters;
 use Membrane\OpenAPI\Filter\PathMatcher;
+use Membrane\OpenAPI\Filter\QueryStringToArray;
 use Membrane\OpenAPI\Processor\AllOf;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
@@ -93,7 +98,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(Numeric::class)]
 #[UsesClass(Objects::class)]
 #[UsesClass(Strings::class)]
-#[UsesClass(HTTPParameters::class)]
+#[UsesClass(QueryStringToArray::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathParameterExtractor::class)]
 #[UsesClass(PathMatcherClass::class)]
@@ -136,6 +141,10 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(IsString::class)]
 #[UsesClass(Passes::class)]
 #[UsesClass(Matrix::class)]
+#[UsesClass(Form::class)]
+#[UsesClass(SpaceDelimited::class)]
+#[UsesClass(PipeDelimited::class)]
+#[UsesClass(DeepObject::class)]
 #[UsesClass(ContentType::class)]
 #[UsesClass(LeftTrim::class)]
 #[UsesClass(KeyValueSplit::class)]
@@ -196,6 +205,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
     #[Test]
     #[DataProvider('dataSetsForDocExamples')]
     #[DataProvider('provideAPIWithPathParameters')]
+    #[DataProvider('provideAPIWithQueryParameters')]
     #[DataProvider('provideAPIWithHeaderParameters')]
     public function itBuildsProcessorsThatValidateRequests(
         OpenAPIRequest $specification,
@@ -234,7 +244,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                             new PathMatcher(new PathParameterExtractor('/path'))
                         )
                     ),
-                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new Passes()),
@@ -258,7 +268,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                             new PathMatcher(new PathParameterExtractor('/path'))
                         )
                     ),
-                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new Passes()),
@@ -284,7 +294,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                         ),
                         new Field('id', new IntString(), new ToInt())
                     ),
-                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new Passes()),
@@ -312,8 +322,8 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                     ),
                     'query' => new FieldSet(
                         'query',
-                        new BeforeSet(new HTTPParameters()),
-                        new Field('age', new IntString(), new ToInt())
+                        new BeforeSet(new QueryStringToArray(['age' => ['style' => 'form', 'explode' => true]])),
+                        new Field('age', new Form('integer', false), new IntString(), new ToInt())
                     ),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
@@ -364,8 +374,11 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                     ),
                     'query' => new FieldSet(
                         'query',
-                        new BeforeSet(new HTTPParameters(), new RequiredFields('name')),
-                        new Field('name', new IsString())
+                        new BeforeSet(new QueryStringToArray(
+                            ['name' => ['style' => 'form', 'explode' => true]]),
+                            new RequiredFields('name')
+                        ),
+                        new Field('name', new Form('string', false), new IsString())
                     ),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
@@ -394,8 +407,11 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                     ),
                     'query' => new FieldSet(
                         'query',
-                        new BeforeSet(new HTTPParameters(), new RequiredFields('name')),
-                        new Field('name', new IsString())
+                        new BeforeSet(new QueryStringToArray(
+                            ['name' => ['style' => 'form', 'explode' => true]]),
+                            new RequiredFields('name')
+                        ),
+                        new Field('name', new Form('string', false), new IsString())
                     ),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
@@ -420,7 +436,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                             new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
                         )
                     ),
-                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                     'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new Passes()),
@@ -445,9 +461,9 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                             new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
                         )
                     ),
-                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                     'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
-                    'cookie' => new FieldSet('cookie', new Field('name', new IsString())),
+                    'cookie' => new FieldSet('cookie', new Field('name', new Form('string', false), new IsString())),
                     'body' => new Field('requestBody', new Passes()),
                 ]
 
@@ -473,8 +489,8 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                     ),
                     'query' => new FieldSet(
                         'query',
-                        new BeforeSet(new HTTPParameters()),
-                        new Field('id', new IntString(), new ToInt())
+                        new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form', 'explode' => true]])),
+                        new Field('id', new Form('integer', false), new IntString(), new ToInt())
                     ),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
@@ -501,7 +517,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                             new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
                         )
                     ),
-                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                     'header' => new FieldSet('header', new Field('id', new Implode(','), new IsString())),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new Passes()),
@@ -527,7 +543,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                             new PathMatcher(new PathParameterExtractor('/requestbodypath'))
                         )
                     ),
-                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new IsInt()),
@@ -555,8 +571,8 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                     ),
                     'query' => new FieldSet(
                         'query',
-                        new BeforeSet(new HTTPParameters()),
-                        new Field('id', new IsString())
+                        new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form', 'explode' => true]])),
+                        new Field('id', new Form('string', false), new IsString())
                     ),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
@@ -587,11 +603,11 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                     ),
                     'query' => new FieldSet(
                         'query',
-                        new BeforeSet(new HTTPParameters()),
-                        new Field('name', new IsString())
+                        new BeforeSet(new QueryStringToArray(['name' => ['style' => 'form', 'explode' => true]])),
+                        new Field('name', new Form('string', false), new IsString())
                     ),
                     'header' => new FieldSet('header', new Field('species', new Implode(','), new IsString())),
-                    'cookie' => new FieldSet('cookie', new Field('subspecies', new IsString())),
+                    'cookie' => new FieldSet('cookie', new Field('subspecies', new Form('string', false), new IsString())),
                     'body' => new Field('requestBody', new IsFloat()),
                 ]
             ),
@@ -630,7 +646,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
             FileFormat::Json
         );
 
-        $complexProcessor = fn($processor) => new RequestProcessor(
+        $complexProcessor = fn($processor, $queryParameters = []) => new RequestProcessor(
             '',
             'getPath',
             Method::GET,
@@ -641,7 +657,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                 ),
                 'query' => new FieldSet(
                     'query',
-                    new BeforeSet(new HTTPParameters()),
+                    new BeforeSet(new QueryStringToArray($queryParameters)),
                     $processor
                 ),
                 'header' => new FieldSet('header'),
@@ -659,9 +675,10 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
             $complexProcessor(
                 new OneOf(
                     'complexity',
-                    new Field('Uno', new BoolString(), new ToBool()),
-                    new Field('Branch-2', new IntString(), new ToInt())
-                )
+                    new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
+                    new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
+                ),
+                ['complexity' => ['style' => 'form', 'explode' => true]]
             ),
         ];
 
@@ -674,9 +691,10 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
             $complexProcessor(
                 new AnyOf(
                     'complexity',
-                    new Field('Uno', new BoolString(), new ToBool()),
-                    new Field('Branch-2', new IntString(), new ToInt())
-                )
+                    new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
+                    new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
+                ),
+                ['complexity' => ['style' => 'form', 'explode' => true]]
             ),
         ];
 
@@ -689,9 +707,10 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
             $complexProcessor(
                 new AllOf(
                     'complexity',
-                    new Field('Uno', new BoolString(), new ToBool()),
-                    new Field('Branch-2', new IntString(), new ToInt())
-                )
+                    new Field('Uno',new Form('boolean', false), new BoolString(), new ToBool()),
+                    new Field('Branch-2',new Form('integer', false), new IntString(), new ToInt())
+                ),
+                ['complexity' => ['style' => 'form', 'explode' => true]]
             ),
         ];
     }
@@ -1296,6 +1315,216 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
             '/path/{colour}',
             '/path/.R=100.G=200.B=150',
             ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]]
+        );
+    }
+
+    /** @return Generator<array{
+     *     0: OpenAPIRequest,
+     *     1: array | ServerRequestInterface,
+     *     2: Result,
+     *  }>
+     */
+    public static function provideAPIWithQueryParameters(): Generator
+    {
+        $dataSet = fn(
+            MakesOperation $operation,
+            string $input,
+            array $output,
+        ) => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/pets'),
+                (new MakesPathItem($operation))->asCebeObject(),
+                Method::GET
+            ),
+            new ServerRequest('get', '/pets?' . $input),
+            Result::valid([
+                'request' => ['method' => 'get', 'operationId' => 'test'],
+                'path' => [],
+                'query' => $output,
+                'header' => [],
+                'cookie' => [],
+                'body' => '',
+            ])
+        ];
+
+        yield 'type:string, style:form, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                false,
+                ['type' => 'string'],
+            ),
+            'colour=blue',
+            ['colour' => 'blue'],
+        );
+
+        yield 'type:string, style:form, explode:true' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                true,
+                ['type' => 'string'],
+            ),
+            'colour=blue',
+            ['colour' => 'blue'],
+        );
+
+        yield 'type:boolean, style:form, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                false,
+                ['type' => 'boolean'],
+            ),
+            'colour=true',
+            ['colour' => true],
+        );
+
+        yield 'type:boolean, style:form, explode:true' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                true,
+                ['type' => 'boolean'],
+            ),
+            'colour=true',
+            ['colour' => true],
+        );
+
+        yield 'type:integer, style:form, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'id',
+                true,
+                Style::Form->value,
+                false,
+                ['type' => 'integer'],
+            ),
+            'id=5',
+            ['id' => 5],
+        );
+
+        yield 'type:integer, style:form, explode:true' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'id',
+                true,
+                Style::Form->value,
+                true,
+                ['type' => 'integer'],
+            ),
+            'id=5',
+            ['id' => 5],
+        );
+
+        yield 'type:array, style:form, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            'colour=blue,black,brown',
+            ['colour' => ['blue', 'black', 'brown']],
+        );
+
+        yield 'type:array, style:form, explode:true' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                true,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            'colour=blue&colour=black&colour=brown',
+            ['colour' => ['blue', 'black', 'brown']],
+        );
+
+        yield 'type:object, style:form, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                false,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            'colour=R,100,G,200,B,150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
+        );
+
+        yield 'type:object, style:form, explode:true' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                true,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            'R=100&G=200&B=150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
+        );
+
+        yield 'type:array, style:spaceDelimited, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::SpaceDelimited->value,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            'colour=blue%20black%20brown',
+            ['colour' => ['blue', 'black', 'brown']],
+        );
+
+        yield 'type:object, style:spaceDelimited, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::SpaceDelimited->value,
+                false,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            'colour=R%20100%20G%20200%20B%20150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
+        );
+
+        yield 'type:array, style:pipeDelimited, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::PipeDelimited->value,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            'colour=blue|black|brown',
+            ['colour' => ['blue', 'black', 'brown']],
+        );
+
+        yield 'type:object, style:pipeDelimited, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::PipeDelimited->value,
+                false,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            'colour=R|100|G|200|B|150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
+        );
+
+        yield 'type:object, style:deepObject, explode:true' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::DeepObject->value,
+                true,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            'colour[R]=100&colour[G]=200&colour[B]=150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
         );
     }
 

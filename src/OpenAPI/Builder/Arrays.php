@@ -6,8 +6,14 @@ namespace Membrane\OpenAPI\Builder;
 
 use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
+use Membrane\Exception\InvalidProcessorArguments;
 use Membrane\Filter;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
+use Membrane\OpenAPI\Filter\FormatStyle\PipeDelimited;
+use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
+use Membrane\OpenAPIReader\Exception\InvalidOpenAPI;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
@@ -19,15 +25,6 @@ use Membrane\Validator\Type\IsList;
 
 class Arrays extends APIBuilder
 {
-    private const STYLE_FORM = 'form';
-    private const STYLE_SPACE_DELIMITED = 'spaceDelimited';
-    private const STYLE_PIPE_DELIMITED = 'pipeDelimited';
-    private const STYLE_DELIMITER_MAP = [
-        self::STYLE_FORM => ',',
-        self::STYLE_SPACE_DELIMITED => ' ',
-        self::STYLE_PIPE_DELIMITED => '|',
-    ];
-
     public function supports(Specification $specification): bool
     {
         return $specification instanceof \Membrane\OpenAPI\Specification\Arrays;
@@ -42,30 +39,31 @@ class Arrays extends APIBuilder
             [];
 
         if (isset($specification->style)) {
-            switch (Style::tryFrom($specification->style)) {
-                case Style::Matrix:
-                    $beforeChain[] = new Matrix('array', $specification->explode ?? false);
-                    break;
-                case Style::Label:
-                    $beforeChain[] = new Filter\String\LeftTrim('.');
-                    $beforeChain[] = new Filter\String\Explode(
-                        ($specification->explode ?? false) ?
-                            '.' :
-                            ','
-                    );
-                    break;
-                case Style::Simple:
-                    $beforeChain[] = new Filter\String\Explode(',');
-                    break;
-            }
-
-            switch ($specification->style) {
-                case self::STYLE_FORM:
-                case self::STYLE_SPACE_DELIMITED:
-                case self::STYLE_PIPE_DELIMITED:
-                    $beforeChain[] = new Filter\String\Explode(self::STYLE_DELIMITER_MAP[$specification->style]);
-                    break;
-            }
+            $beforeChain = array_merge(
+                $beforeChain,
+                match (Style::from($specification->style)) {
+                    Style::Matrix => [
+                        new Matrix('array', $specification->explode ?? false),
+                    ],
+                    Style::Label => [
+                        new Filter\String\LeftTrim('.'),
+                        new Filter\String\Explode(
+                            $specification->explode ?? false ?
+                                '.' :
+                                ','
+                        ),
+                    ],
+                    Style::Form => [
+                        new Form('array', $specification->explode ?? true),
+                    ],
+                    Style::Simple => [
+                        new Filter\String\Explode(',')
+                    ],
+                    Style::SpaceDelimited => [new SpaceDelimited()],
+                    Style::PipeDelimited => [new PipeDelimited()],
+                    Style::DeepObject => [],
+                },
+            );
         }
 
         $beforeChain[] = new IsList();

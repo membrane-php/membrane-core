@@ -8,6 +8,7 @@ use Membrane\Builder\Specification;
 use Membrane\Filter\String\Implode;
 use Membrane\Filter\String\LeftTrim;
 use Membrane\Filter\Type\ToBool;
+use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\Processor;
@@ -40,7 +41,9 @@ class TrueFalse extends APIBuilder
                     $chain[] = new LeftTrim('.');
                     break;
                 case Style::Form:
-                    // @todo
+                case Style::SpaceDelimited:
+                case Style::PipeDelimited:
+                    $chain[] = new Form('boolean', false);
                     break;
             }
         }

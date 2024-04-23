@@ -30,6 +30,23 @@ final class MakesOperation implements JsonSerializable
         ]]);
     }
 
+    public static function withQueryParameter(
+        string $name,
+        bool $required,
+        string $style,
+        bool $explode,
+        bool|array $schema,
+    ): self {
+        return new self([[
+            'name' => $name,
+            'in' => 'query',
+            'required' => $required,
+            'style' => $style,
+            'explode' => $explode,
+            'schema' => $schema,
+        ]]);
+    }
+
     public static function withHeaderParameter(
         string $name,
         bool $required,

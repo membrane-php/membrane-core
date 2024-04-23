@@ -20,16 +20,17 @@ use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher as PathMatcherClass;
-use Membrane\OpenAPI\Filter\HTTPParameters;
+use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\PathMatcher;
+use Membrane\OpenAPI\Filter\QueryStringToArray;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
-use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -54,7 +55,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\UsesClass;
-use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
 #[CoversClass(RequestBuilder::class)]
@@ -69,7 +69,8 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(Numeric::class)]
 #[UsesClass(Strings::class)]
 #[UsesClass(ParameterBuilder::class)]
-#[UsesClass(HTTPParameters::class)]
+#[UsesClass(QueryStringToArray::class)]
+#[UsesClass(Form::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathMatcherClass::class)]
 #[UsesClass(RequestProcessor::class)]
@@ -169,7 +170,7 @@ class RequestBuilderTest extends MembraneTestCase
                                 new PathMatcher(new PathMatcherClass('http://www.test.com/path', '/path'))
                             )
                         ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                        'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new Passes()),
@@ -196,7 +197,7 @@ class RequestBuilderTest extends MembraneTestCase
                             ),
                             new Field('id', new IntString(), new ToInt())
                         ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                        'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new Passes()),
@@ -225,8 +226,8 @@ class RequestBuilderTest extends MembraneTestCase
                         ),
                         'query' => new FieldSet(
                             'query',
-                            new BeforeSet(new HTTPParameters()),
-                            new Field('age', new IntString(), new ToInt())
+                            new BeforeSet(new QueryStringToArray(['age' => ['style' => 'form' , 'explode' => true]])),
+                            new Field('age', new Form('integer', false), new IntString(), new ToInt())
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
@@ -255,8 +256,12 @@ class RequestBuilderTest extends MembraneTestCase
                         ),
                         'query' => new FieldSet(
                             'query',
-                            new BeforeSet(new HTTPParameters(), new RequiredFields('name')),
-                            new Field('name', new IsString())
+                            new BeforeSet(
+                                new QueryStringToArray(
+                                ['name' => ['style' => 'form' , 'explode' => true]]),
+                                new RequiredFields('name')
+                            ),
+                            new Field('name', new Form('string', false), new IsString())
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
@@ -286,8 +291,11 @@ class RequestBuilderTest extends MembraneTestCase
                         ),
                         'query' => new FieldSet(
                             'query',
-                            new BeforeSet(new HTTPParameters(), new RequiredFields('name')),
-                            new Field('name', new IsString())
+                            new BeforeSet(
+                                new QueryStringToArray(['name' => ['style' => 'form', 'explode' => true]]),
+                                new RequiredFields('name')
+                            ),
+                            new Field('name', new Form('string', false), new IsString())
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
@@ -312,7 +320,7 @@ class RequestBuilderTest extends MembraneTestCase
                                 new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathtwo'))
                             )
                         ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                        'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                         'header' => new FieldSet('header', new Field('id',
                             new Implode(','),
                             new IntString(),
@@ -337,9 +345,13 @@ class RequestBuilderTest extends MembraneTestCase
                                 new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathtwo'))
                             )
                         ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                        'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                         'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
-                        'cookie' => new FieldSet('cookie', new Field('name', new IsString())),
+                        'cookie' => new FieldSet('cookie', new Field(
+                            'name',
+                            new Form('string', false),
+                            new IsString()
+                        )),
                         'body' => new Field('requestBody', new Passes()),
                     ]
 
@@ -364,8 +376,8 @@ class RequestBuilderTest extends MembraneTestCase
                         ),
                         'query' => new FieldSet(
                             'query',
-                            new BeforeSet(new HTTPParameters()),
-                            new Field('id', new IntString(), new ToInt())
+                            new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form' , 'explode' => true]])),
+                            new Field('id', new Form('integer', false), new IntString(), new ToInt())
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
@@ -391,7 +403,7 @@ class RequestBuilderTest extends MembraneTestCase
                                 new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestpathtwo'))
                             )
                         ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                        'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                         'header' => new FieldSet('header', new Field('id', new Implode(','), new IsString())),
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new Passes()),
@@ -416,7 +428,7 @@ class RequestBuilderTest extends MembraneTestCase
                                 new PathMatcher(new PathMatcherClass('http://www.test.com', '/requestbodypath'))
                             )
                         ),
-                        'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                        'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new IsInt()),
@@ -443,8 +455,8 @@ class RequestBuilderTest extends MembraneTestCase
                         ),
                         'query' => new FieldSet(
                             'query',
-                            new BeforeSet(new HTTPParameters()),
-                            new Field('id', new IsString())
+                            new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form' , 'explode' => true]])),
+                            new Field('id', new Form('string', false), new IsString())
                         ),
                         'header' => new FieldSet('header'),
                         'cookie' => new FieldSet('cookie'),
@@ -474,11 +486,15 @@ class RequestBuilderTest extends MembraneTestCase
                         ),
                         'query' => new FieldSet(
                             'query',
-                            new BeforeSet(new HTTPParameters()),
-                            new Field('name', new IsString())
+                            new BeforeSet(new QueryStringToArray(['name' => ['style' => 'form', 'explode' => true]])),
+                            new Field('name', new Form('string', false), new IsString())
                         ),
                         'header' => new FieldSet('header', new Field('species', new Implode(','), new IsString())),
-                        'cookie' => new FieldSet('cookie', new Field('subspecies', new IsString())),
+                        'cookie' => new FieldSet('cookie', new Field(
+                            'subspecies',
+                            new Form('string', false),
+                            new IsString()
+                        )),
                         'body' => new Field('requestBody', new IsFloat()),
                     ]
                 ),

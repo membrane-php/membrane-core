@@ -32,7 +32,7 @@ final class Matrix implements Filter
     public function __toPHP(): string
     {
         return sprintf(
-            'new %s(%s,"%s")',
+            'new %s("%s",%s)',
             self::class,
             $this->type,
             $this->explode ? 'true' : 'false'
@@ -57,11 +57,13 @@ final class Matrix implements Filter
 
         if ($this->type === 'array') {
             $result = preg_replace('#^;[^=]+=#', '', $value, 1);
+            assert(is_string($result));
 
             if ($this->explode) {
-                assert(is_string($result));
                 $result = preg_replace('#;[^=]+=#', ',', $result);
+                assert(is_string($result));
             }
+
             return Result::noResult(explode(',', $result));
         }
 
@@ -69,14 +71,19 @@ final class Matrix implements Filter
             if ($this->explode) {
                 $result = preg_replace('#^;#', '', $value);
                 assert(is_string($result));
+
                 $result = str_replace('=', ';', $result);
                 assert(is_string($result));
+
                 return Result::noResult(explode(';', $result));
             } else {
                 $result = preg_replace('#^;[^=]+=#', '', $value, 1);
                 assert(is_string($result));
+
                 return Result::noResult(explode(',', $result));
             }
         }
+
+        return Result::noResult($value);
     }
 }

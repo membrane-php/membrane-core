@@ -54,18 +54,27 @@ class OpenAPIRequestBuilder implements Builder
     /** @return Processor[] */
     private function fromParameters(OpenAPIRequest $specification): array
     {
+        $parameters = array_map(fn($p) => new Parameter($p), $specification->parameters);
+        $queryParameters = array_filter($parameters, fn($p) => $p->in === 'query');
+
         $location = fn(array $chain) => ['required' => [], 'fields' => [], 'beforeSet' => $chain];
         $locations = [
             'path' => $location([new Filter\PathMatcher($specification->pathParameterExtractor)]),
-            'query' => $location([new Filter\HTTPParameters()]),
+            'query' => $location([new Filter\QueryStringToArray(array_combine(
+                array_map(fn($p) => $p->name, $queryParameters),
+                array_map(
+                    fn($p) => [
+                        'style' => $p->style,
+                        'explode' => $p->explode
+                    ],
+                    $queryParameters,
+                )
+            ))]),
             'header' => $location([]),
             'cookie' => $location([]),
         ];
 
-        // todo is this where I need to handle query and path parameter styles?
-        // may require changes to the http parameters
-
-        foreach (array_map(fn($p) => new Parameter($p), $specification->parameters) as $parameter) {
+        foreach ($parameters as $parameter) {
             $locations[$parameter->in]['fields'][] = $this
                 ->getParameterBuilder()
                 ->fromParameter(
