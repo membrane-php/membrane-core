@@ -10,6 +10,7 @@ use Membrane\OpenAPI\Filter;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Parameter;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\In;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Field;
@@ -53,18 +54,34 @@ class OpenAPIRequestBuilder implements Builder
     /** @return Processor[] */
     private function fromParameters(OpenAPIRequest $specification): array
     {
+        $parameters = array_map(fn($p) => new Parameter($p), $specification->parameters);
+        $queryParameters = array_filter($parameters, fn($p) => $p->in === 'query');
+
         $location = fn(array $chain) => ['required' => [], 'fields' => [], 'beforeSet' => $chain];
         $locations = [
             'path' => $location([new Filter\PathMatcher($specification->pathParameterExtractor)]),
-            'query' => $location([new Filter\HTTPParameters()]),
+            'query' => $location([new Filter\QueryStringToArray(array_combine(
+                array_map(fn($p) => $p->name, $queryParameters),
+                array_map(
+                    fn($p) => [
+                        'style' => $p->style,
+                        'explode' => $p->explode
+                    ],
+                    $queryParameters,
+                )
+            ))]),
             'header' => $location([]),
             'cookie' => $location([]),
         ];
 
-        foreach (array_map(fn($p) => new Parameter($p), $specification->parameters) as $parameter) {
+        foreach ($parameters as $parameter) {
             $locations[$parameter->in]['fields'][] = $this
                 ->getParameterBuilder()
-                ->fromParameter($parameter, true);
+                ->fromParameter(
+                    $parameter,
+                    true,
+                    $parameter->in === In::Header->value,
+                );
 
             if ($parameter->required) {
                 $locations[$parameter->in]['required'][] = $parameter->name;

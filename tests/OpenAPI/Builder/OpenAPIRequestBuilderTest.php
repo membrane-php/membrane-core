@@ -2,18 +2,24 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Builder;
+namespace Membrane\Tests\OpenAPI\Builder;
 
 use cebe\openapi\spec as Cebe;
 use Generator;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;
+use Membrane\Filter\Shape\KeyValueSplit;
 use Membrane\Filter\String\Explode;
+use Membrane\Filter\String\Implode;
+use Membrane\Filter\String\LeftTrim;
+use Membrane\Filter\String\Tokenize;
 use Membrane\Filter\Type\ToBool;
 use Membrane\Filter\Type\ToInt;
+use Membrane\Filter\Type\ToNumber;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Arrays;
 use Membrane\OpenAPI\Builder\Numeric;
+use Membrane\OpenAPI\Builder\Objects;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
 use Membrane\OpenAPI\Builder\ParameterBuilder;
 use Membrane\OpenAPI\Builder\RequestBuilder;
@@ -23,8 +29,14 @@ use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher as PathMatcherClass;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
+use Membrane\OpenAPI\Filter\FormatStyle\DeepObject;
+use Membrane\OpenAPI\Filter\FormatStyle\Form;
+use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
+use Membrane\OpenAPI\Filter\FormatStyle\PipeDelimited;
+use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
 use Membrane\OpenAPI\Filter\HTTPParameters;
 use Membrane\OpenAPI\Filter\PathMatcher;
+use Membrane\OpenAPI\Filter\QueryStringToArray;
 use Membrane\OpenAPI\Processor\AllOf;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
@@ -35,22 +47,30 @@ use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPI\Specification\TrueFalse;
 use Membrane\OpenAPIReader\FileFormat;
-use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
+use Membrane\Processor\DefaultProcessor;
 use Membrane\Processor\Field;
 use Membrane\Processor\FieldSet;
+use Membrane\Renderer\HumanReadable;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use Membrane\Tests\Fixtures\OpenAPI\MakesOperation;
+use Membrane\Tests\Fixtures\OpenAPI\MakesPathItem;
+use Membrane\Tests\MembraneTestCase;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Numeric\Maximum;
 use Membrane\Validator\String\BoolString;
 use Membrane\Validator\String\IntString;
+use Membrane\Validator\String\NumericString;
+use Membrane\Validator\Type\IsArray;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
@@ -61,7 +81,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\UsesClass;
-use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
 #[CoversClass(OpenAPIRequestBuilder::class)]
@@ -69,6 +88,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[CoversClass(APIBuilder::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
+#[UsesClass(HumanReadable::class)] // to render test failure messages
 #[UsesClass(RequestBuilder::class)]
 #[UsesClass(OpenAPIRequestBuilder::class)]
 #[UsesClass(\Membrane\OpenAPI\Builder\TrueFalse::class)]
@@ -76,8 +96,9 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(Request::class)]
 #[UsesClass(Arrays::class)]
 #[UsesClass(Numeric::class)]
+#[UsesClass(Objects::class)]
 #[UsesClass(Strings::class)]
-#[UsesClass(HTTPParameters::class)]
+#[UsesClass(QueryStringToArray::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathParameterExtractor::class)]
 #[UsesClass(PathMatcherClass::class)]
@@ -89,13 +110,19 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(OneOf::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Numeric::class)]
+#[UsesClass(\Membrane\OpenAPI\Specification\Objects::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Strings::class)]
 #[UsesClass(TrueFalse::class)]
 #[UsesClass(Request::class)]
 #[UsesClass(Explode::class)]
+#[UsesClass(Implode::class)]
+#[UsesClass(Tokenize::class)]
+#[UsesClass(ToBool::class)]
 #[UsesClass(ToInt::class)]
+#[UsesClass(ToNumber::class)]
 #[UsesClass(BeforeSet::class)]
 #[UsesClass(Collection::class)]
+#[UsesClass(DefaultProcessor::class)]
 #[UsesClass(Field::class)]
 #[UsesClass(FieldSet::class)]
 #[UsesClass(FieldName::class)]
@@ -104,13 +131,24 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(Result::class)]
 #[UsesClass(RequiredFields::class)]
 #[UsesClass(Maximum::class)]
+#[UsesClass(BoolString::class)]
+#[UsesClass(IsArray::class)]
 #[UsesClass(IsInt::class)]
 #[UsesClass(IntString::class)]
+#[UsesClass(IsFloat::class)]
 #[UsesClass(IsList::class)]
+#[UsesClass(NumericString::class)]
 #[UsesClass(IsString::class)]
 #[UsesClass(Passes::class)]
+#[UsesClass(Matrix::class)]
+#[UsesClass(Form::class)]
+#[UsesClass(SpaceDelimited::class)]
+#[UsesClass(PipeDelimited::class)]
+#[UsesClass(DeepObject::class)]
 #[UsesClass(ContentType::class)]
-class OpenAPIRequestBuilderTest extends TestCase
+#[UsesClass(LeftTrim::class)]
+#[UsesClass(KeyValueSplit::class)]
+class OpenAPIRequestBuilderTest extends MembraneTestCase
 {
     public const FIXTURES = __DIR__ . '/../../fixtures/OpenAPI/';
 
@@ -152,6 +190,38 @@ class OpenAPIRequestBuilderTest extends TestCase
         $sut->build($specification);
     }
 
+    #[Test]
+    #[TestDox('Builds a Processor for the Operation Object (specified by the PathItem and method provided')]
+    #[DataProvider('dataSetsForBuild')]
+    public function buildTest(Specification $spec, Processor $expected): void
+    {
+        $sut = new OpenAPIRequestBuilder();
+
+        $actual = $sut->build($spec);
+
+        self::assertProcessorEquals($expected, $actual);
+    }
+
+    #[Test]
+    #[DataProvider('dataSetsForDocExamples')]
+    #[DataProvider('provideAPIWithPathParameters')]
+    #[DataProvider('provideAPIWithQueryParameters')]
+    #[DataProvider('provideAPIWithHeaderParameters')]
+    public function itBuildsProcessorsThatValidateRequests(
+        OpenAPIRequest $specification,
+        array | ServerRequestInterface $serverRequest,
+        Result $expected
+    ): void {
+        $sut = new OpenAPIRequestBuilder();
+
+        $processor = $sut->build($specification);
+
+        $actual = $processor->process(new FieldName(''), $serverRequest);
+
+        self::assertResultEquals($expected, $actual);
+        self::assertSame($expected->value, $actual->value);
+    }
+
     public static function dataSetsForBuild(): Generator
     {
         $noRefAPI = (new Reader([OpenAPIVersion::Version_3_0]))
@@ -174,7 +244,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                             new PathMatcher(new PathParameterExtractor('/path'))
                         )
                     ),
-                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new Passes()),
@@ -198,7 +268,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                             new PathMatcher(new PathParameterExtractor('/path'))
                         )
                     ),
-                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new Passes()),
@@ -224,7 +294,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         ),
                         new Field('id', new IntString(), new ToInt())
                     ),
-                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new Passes()),
@@ -252,8 +322,8 @@ class OpenAPIRequestBuilderTest extends TestCase
                     ),
                     'query' => new FieldSet(
                         'query',
-                        new BeforeSet(new HTTPParameters()),
-                        new Field('age', new IntString(), new ToInt())
+                        new BeforeSet(new QueryStringToArray(['age' => ['style' => 'form', 'explode' => true]])),
+                        new Field('age', new Form('integer', false), new IntString(), new ToInt())
                     ),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
@@ -304,8 +374,11 @@ class OpenAPIRequestBuilderTest extends TestCase
                     ),
                     'query' => new FieldSet(
                         'query',
-                        new BeforeSet(new HTTPParameters(), new RequiredFields('name')),
-                        new Field('name', new IsString())
+                        new BeforeSet(new QueryStringToArray(
+                            ['name' => ['style' => 'form', 'explode' => true]]),
+                            new RequiredFields('name')
+                        ),
+                        new Field('name', new Form('string', false), new IsString())
                     ),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
@@ -334,8 +407,11 @@ class OpenAPIRequestBuilderTest extends TestCase
                     ),
                     'query' => new FieldSet(
                         'query',
-                        new BeforeSet(new HTTPParameters(), new RequiredFields('name')),
-                        new Field('name', new IsString())
+                        new BeforeSet(new QueryStringToArray(
+                            ['name' => ['style' => 'form', 'explode' => true]]),
+                            new RequiredFields('name')
+                        ),
+                        new Field('name', new Form('string', false), new IsString())
                     ),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
@@ -360,8 +436,8 @@ class OpenAPIRequestBuilderTest extends TestCase
                             new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
                         )
                     ),
-                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                    'header' => new FieldSet('header', new Field('id', new IntString(), new ToInt())),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new Passes()),
                 ]
@@ -385,9 +461,9 @@ class OpenAPIRequestBuilderTest extends TestCase
                             new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
                         )
                     ),
-                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                    'header' => new FieldSet('header', new Field('id', new IntString(), new ToInt())),
-                    'cookie' => new FieldSet('cookie', new Field('name', new IsString())),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
+                    'cookie' => new FieldSet('cookie', new Field('name', new Form('string', false), new IsString())),
                     'body' => new Field('requestBody', new Passes()),
                 ]
 
@@ -413,8 +489,8 @@ class OpenAPIRequestBuilderTest extends TestCase
                     ),
                     'query' => new FieldSet(
                         'query',
-                        new BeforeSet(new HTTPParameters()),
-                        new Field('id', new IntString(), new ToInt())
+                        new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form', 'explode' => true]])),
+                        new Field('id', new Form('integer', false), new IntString(), new ToInt())
                     ),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
@@ -441,8 +517,8 @@ class OpenAPIRequestBuilderTest extends TestCase
                             new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
                         )
                     ),
-                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
-                    'header' => new FieldSet('header', new Field('id', new IsString())),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IsString())),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new Passes()),
                 ]
@@ -467,7 +543,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                             new PathMatcher(new PathParameterExtractor('/requestbodypath'))
                         )
                     ),
-                    'query' => new FieldSet('query', new BeforeSet(new HTTPParameters())),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
                     'body' => new Field('requestBody', new IsInt()),
@@ -495,8 +571,8 @@ class OpenAPIRequestBuilderTest extends TestCase
                     ),
                     'query' => new FieldSet(
                         'query',
-                        new BeforeSet(new HTTPParameters()),
-                        new Field('id', new IsString())
+                        new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form', 'explode' => true]])),
+                        new Field('id', new Form('string', false), new IsString())
                     ),
                     'header' => new FieldSet('header'),
                     'cookie' => new FieldSet('cookie'),
@@ -527,11 +603,11 @@ class OpenAPIRequestBuilderTest extends TestCase
                     ),
                     'query' => new FieldSet(
                         'query',
-                        new BeforeSet(new HTTPParameters()),
-                        new Field('name', new IsString())
+                        new BeforeSet(new QueryStringToArray(['name' => ['style' => 'form', 'explode' => true]])),
+                        new Field('name', new Form('string', false), new IsString())
                     ),
-                    'header' => new FieldSet('header', new Field('species', new IsString())),
-                    'cookie' => new FieldSet('cookie', new Field('subspecies', new IsString())),
+                    'header' => new FieldSet('header', new Field('species', new Implode(','), new IsString())),
+                    'cookie' => new FieldSet('cookie', new Field('subspecies', new Form('string', false), new IsString())),
                     'body' => new Field('requestBody', new IsFloat()),
                 ]
             ),
@@ -570,7 +646,7 @@ class OpenAPIRequestBuilderTest extends TestCase
             FileFormat::Json
         );
 
-        $complexProcessor = fn($processor) => new RequestProcessor(
+        $complexProcessor = fn($processor, $queryParameters = []) => new RequestProcessor(
             '',
             'getPath',
             Method::GET,
@@ -581,7 +657,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                 ),
                 'query' => new FieldSet(
                     'query',
-                    new BeforeSet(new HTTPParameters()),
+                    new BeforeSet(new QueryStringToArray($queryParameters)),
                     $processor
                 ),
                 'header' => new FieldSet('header'),
@@ -599,9 +675,10 @@ class OpenAPIRequestBuilderTest extends TestCase
             $complexProcessor(
                 new OneOf(
                     'complexity',
-                    new Field('Uno', new BoolString(), new ToBool()),
-                    new Field('Branch-2', new IntString(), new ToInt())
-                )
+                    new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
+                    new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
+                ),
+                ['complexity' => ['style' => 'form', 'explode' => true]]
             ),
         ];
 
@@ -614,9 +691,10 @@ class OpenAPIRequestBuilderTest extends TestCase
             $complexProcessor(
                 new AnyOf(
                     'complexity',
-                    new Field('Uno', new BoolString(), new ToBool()),
-                    new Field('Branch-2', new IntString(), new ToInt())
-                )
+                    new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
+                    new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
+                ),
+                ['complexity' => ['style' => 'form', 'explode' => true]]
             ),
         ];
 
@@ -629,23 +707,15 @@ class OpenAPIRequestBuilderTest extends TestCase
             $complexProcessor(
                 new AllOf(
                     'complexity',
-                    new Field('Uno', new BoolString(), new ToBool()),
-                    new Field('Branch-2', new IntString(), new ToInt())
-                )
+                    new Field('Uno',new Form('boolean', false), new BoolString(), new ToBool()),
+                    new Field('Branch-2',new Form('integer', false), new IntString(), new ToInt())
+                ),
+                ['complexity' => ['style' => 'form', 'explode' => true]]
             ),
         ];
     }
 
-    #[Test, TestDox('Builds a Processor for the Operation Object (specified by the PathItem and method provided')]
-    #[DataProvider('dataSetsForBuild')]
-    public function buildTest(Specification $spec, Processor $expected): void
-    {
-        $sut = new OpenAPIRequestBuilder();
 
-        $actual = $sut->build($spec);
-
-        self::assertEquals($expected, $actual);
-    }
 
 
     public static function dataSetsForDocExamples(): array
@@ -669,7 +739,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'request' => ['method' => 'get', 'operationId' => 'listPets'],
                         'path' => [],
                         'query' => [],
-                        'header' => [],
+                        'header' => ['Host' => ['petstore.swagger.io']],
                         'cookie' => [],
                         'body' => '',
                     ],
@@ -687,7 +757,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'request' => ['method' => 'get', 'operationId' => 'showPetById'],
                         'path' => ['petId' => 'Harley'],
                         'query' => [],
-                        'header' => [],
+                        'header' => ['Host' => ['petstore.swagger.io']],
                         'cookie' => [],
                         'body' => '',
                     ],
@@ -705,7 +775,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'request' => ['method' => 'get', 'operationId' => 'findPets'],
                         'path' => [],
                         'query' => ['limit' => 'five'],
-                        'header' => [],
+                        'header' => ['Host' => ['petstore.swagger.io']],
                         'cookie' => [],
                         'body' => '',
                     ],
@@ -727,7 +797,7 @@ class OpenAPIRequestBuilderTest extends TestCase
                         'request' => ['method' => 'get', 'operationId' => 'findPets'],
                         'path' => [],
                         'query' => ['limit' => 5, 'tags' => ['cat', 'tabby']],
-                        'header' => [],
+                        'header' => ['Host' => ['petstore.swagger.io']],
                         'cookie' => [],
                         'body' => '',
                     ]
@@ -736,20 +806,887 @@ class OpenAPIRequestBuilderTest extends TestCase
         ];
     }
 
-    #[DataProvider('dataSetsForDocExamples')]
-    #[Test]
-    public function docsTest(
-        OpenAPIRequest $specification,
-        array | ServerRequestInterface $serverRequest,
-        Result $expected
-    ): void {
-        $sut = new OpenAPIRequestBuilder();
+    /** @return Generator<array{
+     *     0: OpenAPIRequest,
+     *     1: array | ServerRequestInterface,
+     *     2: Result,
+     *  }>
+     */
+    public static function provideAPIWithPathParameters(): Generator {
+        $dataSet = fn(
+            MakesOperation $operation,
+            string $path,
+            string $input,
+            array $output,
+        ) => [
+            new OpenAPIRequest(
+                new PathParameterExtractor($path),
+                (new MakesPathItem($operation))->asCebeObject(),
+                Method::GET
+            ),
+            new ServerRequest('get', $input),
+            Result::valid([
+                'request' => ['method' => 'get', 'operationId' => 'test'],
+                'path' => $output,
+                'query' => [],
+                'header' => [],
+                'cookie' => [],
+                'body' => '',
+            ])
+        ];
 
-        $processor = $sut->build($specification);
+        yield 'bool path parameter (style:simple, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Simple,
+                false,
+                ['type' => 'boolean'],
+            ),
+            '/path/{colour}',
+            '/path/true',
+            ['colour' => true]
+        );
 
-        $actual = $processor->process(new FieldName(''), $serverRequest);
+        yield 'boolean path parameter (style:simple, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Simple,
+                true,
+                ['type' => 'boolean'],
+            ),
+            '/path/{colour}',
+            '/path/false',
+            ['colour' => false]
+        );
 
-        self::assertEquals($expected, $actual);
-        self::assertSame($expected->value, $actual->value);
+        yield 'boolean path parameter (style:matrix, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                false,
+                ['type' => 'boolean'],
+            ),
+            '/path/{colour}',
+            '/path/;colour=true',
+            ['colour' => true]
+        );
+
+        yield 'boolean path parameter (style:matrix, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                true,
+                ['type' => 'boolean'],
+            ),
+            '/path/{colour}',
+            '/path/;colour=false',
+            ['colour' => false]
+        );
+
+        yield 'boolean path parameter (style:label, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                false,
+                ['type' => 'boolean'],
+            ),
+            '/path/{colour}',
+            '/path/.true',
+            ['colour' => true]
+        );
+
+        yield 'boolean path parameter (style:label, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                true,
+                ['type' => 'boolean'],
+            ),
+            '/path/{colour}',
+            '/path/.false',
+            ['colour' => false]
+        );
+
+        yield 'string path parameter (style:simple, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Simple,
+                false,
+                ['type' => 'string'],
+            ),
+            '/path/{colour}',
+            '/path/blue',
+            ['colour' => 'blue']
+        );
+
+        yield 'string path parameter (style:simple, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Simple,
+                true,
+                ['type' => 'string'],
+            ),
+            '/path/{colour}',
+            '/path/blue',
+            ['colour' => 'blue']
+        );
+
+        yield 'string path parameter (style:matrix, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                false,
+                ['type' => 'string'],
+            ),
+            '/path/{colour}',
+            '/path/;colour=blue',
+            ['colour' => 'blue']
+        );
+
+        yield 'string path parameter (style:matrix, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                true,
+                ['type' => 'string'],
+            ),
+            '/path/{colour}',
+            '/path/;colour=blue',
+            ['colour' => 'blue']
+        );
+
+        yield 'string path parameter (style:label, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                false,
+                ['type' => 'string'],
+            ),
+            '/path/{colour}',
+            '/path/.blue',
+            ['colour' => 'blue']
+        );
+
+        yield 'string path parameter (style:label, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                true,
+                ['type' => 'string'],
+            ),
+            '/path/{colour}',
+            '/path/.blue',
+            ['colour' => 'blue']
+        );
+
+        yield 'int path parameter (style:simple, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Simple,
+                false,
+                ['type' => 'integer'],
+            ),
+            '/path/{colour}',
+            '/path/255',
+            ['colour' => 255]
+        );
+
+        yield 'int path parameter (style:simple, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Simple,
+                true,
+                ['type' => 'integer'],
+            ),
+            '/path/{colour}',
+            '/path/255',
+            ['colour' => 255]
+        );
+
+        yield 'int path parameter (style:matrix, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                false,
+                ['type' => 'integer'],
+            ),
+            '/path/{colour}',
+            '/path/;colour=255',
+            ['colour' => 255]
+        );
+
+        yield 'int path parameter (style:matrix, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                true,
+                ['type' => 'integer'],
+            ),
+            '/path/{colour}',
+            '/path/;colour=255',
+            ['colour' => 255]
+        );
+
+        yield 'int path parameter (style:label, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                false,
+                ['type' => 'integer'],
+            ),
+            '/path/{colour}',
+            '/path/.255',
+            ['colour' => 255]
+        );
+
+        yield 'int path parameter (style:label, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                true,
+                ['type' => 'integer'],
+            ),
+            '/path/{colour}',
+            '/path/.255',
+            ['colour' => 255]
+        );
+
+        yield 'number path parameter (style:simple, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Simple,
+                false,
+                ['type' => 'number'],
+            ),
+            '/path/{colour}',
+            '/path/255',
+            ['colour' => 255]
+        );
+
+        yield 'number path parameter (style:simple, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Simple,
+                true,
+                ['type' => 'number'],
+            ),
+            '/path/{colour}',
+            '/path/255',
+            ['colour' => 255]
+        );
+
+        yield 'number path parameter (style:matrix, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                false,
+                ['type' => 'number'],
+            ),
+            '/path/{colour}',
+            '/path/;colour=255',
+            ['colour' => 255]
+        );
+
+        yield 'number path parameter (style:matrix, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                true,
+                ['type' => 'number'],
+            ),
+            '/path/{colour}',
+            '/path/;colour=255',
+            ['colour' => 255]
+        );
+
+        yield 'number path parameter (style:label, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                false,
+                ['type' => 'number'],
+            ),
+            '/path/{colour}',
+            '/path/.255',
+            ['colour' => 255]
+        );
+
+        yield 'number path parameter (style:label, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                true,
+                ['type' => 'number'],
+            ),
+            '/path/{colour}',
+            '/path/.255',
+            ['colour' => 255]
+        );
+
+        yield 'array path parameter with int items (style:simple, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Simple,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'integer']],
+            ),
+            '/path/{colour}',
+            '/path/100,200,150',
+            ['colour' => [100, 200, 150]]
+        );
+
+        yield 'array path parameter with int items (style:simple, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Simple,
+                true,
+                ['type' => 'array', 'items' => ['type' => 'integer']],
+            ),
+            '/path/{colour}',
+            '/path/100,200,150',
+            ['colour' => [100, 200, 150]]
+        );
+
+        yield 'array path parameter with int items (style:matrix, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'integer']],
+            ),
+            '/path/{colour}',
+            '/path/;color=100,200,150',
+            ['colour' => [100, 200, 150]]
+        );
+
+        yield 'array path parameter with int items (style:matrix, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                true,
+                ['type' => 'array', 'items' => ['type' => 'integer']],
+            ),
+            '/path/{colour}',
+            '/path/;color=100;color=200;color=150',
+            ['colour' => [100, 200, 150]]
+        );
+
+        yield 'array path parameter with int items (style:label, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'integer']],
+            ),
+            '/path/{colour}',
+            '/path/.100,200,150',
+            ['colour' => [100, 200, 150]]
+        );
+
+        yield 'array path parameter with int items (style:label, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                true,
+                ['type' => 'array', 'items' => ['type' => 'integer']],
+            ),
+            '/path/{colour}',
+            '/path/.100.200.150',
+            ['colour' => [100, 200, 150]]
+        );
+
+        yield 'array path parameter with string items (style:matrix, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            '/path/{colour}',
+            '/path/;color=blue,black,brown',
+            ['colour' => ['blue', 'black', 'brown']]
+        );
+
+        yield 'array path parameter with string items (style:matrix, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                true,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            '/path/{colour}',
+            '/path/;color=blue;color=black;color=brown',
+            ['colour' => ['blue', 'black', 'brown']]
+        );
+
+        yield 'array path parameter with string items (style:label, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            '/path/{colour}',
+            '/path/.blue,black,brown',
+            ['colour' => ['blue', 'black', 'brown']]
+        );
+
+        yield 'array path parameter with string items (style:label, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                true,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            '/path/{colour}',
+            '/path/.blue.black.brown',
+            ['colour' => ['blue', 'black', 'brown']]
+        );
+
+
+
+        yield 'object path parameter with int additionalProperties (style:simple, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Simple,
+                false,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            '/path/{colour}',
+            '/path/R,100,G,200,B,150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]]
+        );
+
+        yield 'object path parameter with int additionalProperties (style:simple, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Simple,
+                true,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            '/path/{colour}',
+            '/path/R=100,G=200,B=150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]]
+        );
+
+        yield 'object path parameter with int additionalProperties (style:matrix, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                false,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            '/path/{colour}',
+            '/path/;color=R,100,G,200,B,150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]]
+        );
+
+        yield 'object path parameter with int additionalProperties (style:matrix, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Matrix,
+                true,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            '/path/{colour}',
+            '/path/;R=100;G=200;B=150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]]
+        );
+
+        yield 'object path parameter with int additionalProperties (style:label, explode:false)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                false,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            '/path/{colour}',
+            '/path/.R,100,G,200,B,150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]]
+        );
+
+        yield 'object path parameter with int additionalProperties (style:label, explode:true)' => $dataSet(
+            MakesOperation::withPathParameter(
+                'colour',
+                Style::Label,
+                true,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            '/path/{colour}',
+            '/path/.R=100.G=200.B=150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]]
+        );
+    }
+
+    /** @return Generator<array{
+     *     0: OpenAPIRequest,
+     *     1: array | ServerRequestInterface,
+     *     2: Result,
+     *  }>
+     */
+    public static function provideAPIWithQueryParameters(): Generator
+    {
+        $dataSet = fn(
+            MakesOperation $operation,
+            string $input,
+            array $output,
+        ) => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/pets'),
+                (new MakesPathItem($operation))->asCebeObject(),
+                Method::GET
+            ),
+            new ServerRequest('get', '/pets?' . $input),
+            Result::valid([
+                'request' => ['method' => 'get', 'operationId' => 'test'],
+                'path' => [],
+                'query' => $output,
+                'header' => [],
+                'cookie' => [],
+                'body' => '',
+            ])
+        ];
+
+        yield 'type:string, style:form, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                false,
+                ['type' => 'string'],
+            ),
+            'colour=blue',
+            ['colour' => 'blue'],
+        );
+
+        yield 'type:string, style:form, explode:true' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                true,
+                ['type' => 'string'],
+            ),
+            'colour=blue',
+            ['colour' => 'blue'],
+        );
+
+        yield 'type:boolean, style:form, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                false,
+                ['type' => 'boolean'],
+            ),
+            'colour=true',
+            ['colour' => true],
+        );
+
+        yield 'type:boolean, style:form, explode:true' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                true,
+                ['type' => 'boolean'],
+            ),
+            'colour=true',
+            ['colour' => true],
+        );
+
+        yield 'type:integer, style:form, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'id',
+                true,
+                Style::Form->value,
+                false,
+                ['type' => 'integer'],
+            ),
+            'id=5',
+            ['id' => 5],
+        );
+
+        yield 'type:integer, style:form, explode:true' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'id',
+                true,
+                Style::Form->value,
+                true,
+                ['type' => 'integer'],
+            ),
+            'id=5',
+            ['id' => 5],
+        );
+
+        yield 'type:array, style:form, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            'colour=blue,black,brown',
+            ['colour' => ['blue', 'black', 'brown']],
+        );
+
+        yield 'type:array, style:form, explode:true' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                true,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            'colour=blue&colour=black&colour=brown',
+            ['colour' => ['blue', 'black', 'brown']],
+        );
+
+        yield 'type:object, style:form, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                false,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            'colour=R,100,G,200,B,150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
+        );
+
+        yield 'type:object, style:form, explode:true' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::Form->value,
+                true,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            'R=100&G=200&B=150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
+        );
+
+        yield 'type:array, style:spaceDelimited, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::SpaceDelimited->value,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            'colour=blue%20black%20brown',
+            ['colour' => ['blue', 'black', 'brown']],
+        );
+
+        yield 'type:object, style:spaceDelimited, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::SpaceDelimited->value,
+                false,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            'colour=R%20100%20G%20200%20B%20150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
+        );
+
+        yield 'type:array, style:pipeDelimited, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::PipeDelimited->value,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            'colour=blue|black|brown',
+            ['colour' => ['blue', 'black', 'brown']],
+        );
+
+        yield 'type:object, style:pipeDelimited, explode:false' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::PipeDelimited->value,
+                false,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            'colour=R|100|G|200|B|150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
+        );
+
+        yield 'type:object, style:deepObject, explode:true' => $dataSet(
+            MakesOperation::withQueryParameter(
+                'colour',
+                true,
+                Style::DeepObject->value,
+                true,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            'colour[R]=100&colour[G]=200&colour[B]=150',
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
+        );
+    }
+
+    /** @return Generator<array{
+     *     0: OpenAPIRequest,
+     *     1: array | ServerRequestInterface,
+     *     2: Result,
+     *  }>
+     */
+    public static function provideAPIWithHeaderParameters(): Generator
+    {
+        $dataSet = fn(
+            MakesOperation $operation,
+            array $requestHeaders,
+            array $resultHeaders
+        ) => [
+            new OpenAPIRequest(
+                new PathParameterExtractor('/path'),
+                (new MakesPathItem($operation))->asCebeObject(),
+                Method::GET
+            ),
+            new ServerRequest('get', '/path', $requestHeaders),
+            Result::valid([
+                'request' => ['method' => 'get', 'operationId' => 'test'],
+                'path' => [],
+                'query' => [],
+                'header' => $resultHeaders,
+                'cookie' => [],
+                'body' => '',
+            ])
+        ];
+
+        yield 'string header (explode:false)' => $dataSet(
+            MakesOperation::withHeaderParameter(
+                'colour',
+                true,
+                false,
+                ['type' => 'string'],
+            ),
+            ['colour' => 'blue'],
+            ['colour' => 'blue'],
+        );
+
+        yield 'string header (explode:true)' => $dataSet(
+            MakesOperation::withHeaderParameter(
+                'colour',
+                true,
+                true,
+                ['type' => 'string'],
+            ),
+            ['colour' => 'blue'],
+            ['colour' => 'blue'],
+        );
+
+        yield 'integer header (explode:false)' => $dataSet(
+            MakesOperation::withHeaderParameter(
+                'colour',
+                true,
+                false,
+                ['type' => 'integer'],
+            ),
+            ['colour' => '255'],
+            ['colour' => 255],
+        );
+
+        yield 'integer header (explode:true)' => $dataSet(
+            MakesOperation::withHeaderParameter(
+                'colour',
+                true,
+                true,
+                ['type' => 'integer'],
+            ),
+            ['colour' => '255'],
+            ['colour' => 255],
+        );
+
+        yield 'boolean header (explode:false)' => $dataSet(
+            MakesOperation::withHeaderParameter(
+                'colour',
+                true,
+                false,
+                ['type' => 'boolean'],
+            ),
+            ['colour' => 'true'],
+            ['colour' => true],
+        );
+
+        yield 'boolean header (explode:true)' => $dataSet(
+            MakesOperation::withHeaderParameter(
+                'colour',
+                true,
+                true,
+                ['type' => 'boolean'],
+            ),
+            ['colour' => 'true'],
+            ['colour' => true],
+        );
+
+        yield 'string array header (explode:false)' => $dataSet(
+            MakesOperation::withHeaderParameter(
+                'colour',
+                true,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            ['colour' => 'blue,black,brown'],
+            ['colour' => ['blue', 'black', 'brown']],
+        );
+
+        yield 'string array header (explode:true)' => $dataSet(
+            MakesOperation::withHeaderParameter(
+                'colour',
+                true,
+                true,
+                ['type' => 'array', 'items' => ['type' => 'string']],
+            ),
+            ['colour' => 'blue,black,brown'],
+            ['colour' => ['blue', 'black', 'brown']],
+        );
+
+        yield 'int array header (explode:false)' => $dataSet(
+            MakesOperation::withHeaderParameter(
+                'colour',
+                true,
+                false,
+                ['type' => 'array', 'items' => ['type' => 'integer']],
+            ),
+            ['colour' => '100,200,150'],
+            ['colour' => [100, 200, 150]],
+        );
+
+        yield 'int array header (explode:true)' => $dataSet(
+            MakesOperation::withHeaderParameter(
+                'colour',
+                true,
+                true,
+                ['type' => 'array', 'items' => ['type' => 'integer']],
+            ),
+            ['colour' => '100,200,150'],
+            ['colour' => [100, 200, 150]],
+        );
+
+        yield 'object header with additional int properties (explode:false)' => $dataSet(
+            MakesOperation::withHeaderParameter(
+                'colour',
+                true,
+                false,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            ['colour' => 'R,100,G,200,B,150'],
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
+        );
+
+        yield 'object header additional int properties (explode:true)' => $dataSet(
+            MakesOperation::withHeaderParameter(
+                'colour',
+                true,
+                true,
+                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            ),
+            ['colour' => 'R=100,G=200,B=150'],
+            ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
+        );
     }
 }

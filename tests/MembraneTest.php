@@ -34,6 +34,8 @@ use RuntimeException;
 #[UsesClass(\Membrane\OpenAPI\Builder\ResponseBuilder::class)]
 #[UsesClass(\Membrane\OpenAPI\Builder\Strings::class)]
 #[UsesClass(\Membrane\OpenAPI\ExtractPathParameters\PathMatcher::class)]
+#[UsesClass(\Membrane\OpenAPI\Filter\QueryStringToArray::class)]
+#[UsesClass(\Membrane\OpenAPI\Filter\FormatStyle\Form::class)]
 #[UsesClass(\Membrane\OpenAPI\Filter\PathMatcher::class)]
 #[UsesClass(\Membrane\OpenAPI\Processor\Request::class)]
 #[UsesClass(\Membrane\OpenAPI\Processor\AllOf::class)]

@@ -9,6 +9,7 @@ use cebe\openapi\spec as Cebe;
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\Explode;
 use Membrane\OpenAPI\Builder as OpenAPIBuilder;
+use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
 use Membrane\OpenAPI\Specification as OpenAPISpecification;
 use Membrane\Processor;
 use Membrane\Validator\Type\IsInt;
@@ -90,7 +91,7 @@ class ParameterBuilderTest extends TestCase
                 ),
                 new Processor\Collection(
                     'tags',
-                    new Processor\BeforeSet(new Explode(' '), new IsList()),
+                    new Processor\BeforeSet(new SpaceDelimited(), new IsList()),
                     new Processor\Field('', new IsString())
                 ),
             ],

@@ -7,6 +7,8 @@ namespace Membrane\OpenAPI\Specification;
 use cebe\openapi\spec as Cebe;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\In;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 
 class Parameter implements Specification
 {

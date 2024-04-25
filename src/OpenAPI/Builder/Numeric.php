@@ -6,10 +6,14 @@ namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
 use Membrane\Filter;
+use Membrane\Filter\String\LeftTrim;
 use Membrane\Filter\Type\ToFloat;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
 use Membrane\OpenAPI;
+use Membrane\OpenAPI\Filter\FormatStyle\Form;
+use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator;
@@ -34,11 +38,29 @@ class Numeric extends APIBuilder
     {
         assert($specification instanceof OpenAPI\Specification\Numeric);
 
-        if ($specification->type === 'number') {
-            $chain = $this->handleNumber($specification);
-        } else {
-            $chain = $this->handleInteger($specification);
+        $chain = $specification->convertFromArray ?
+            [new Filter\String\Implode(',')] :
+            [];
+
+        if (isset($specification->style)) {
+            switch (Style::tryFrom($specification->style)) {
+                case Style::Matrix:
+                    $chain[] = new Matrix($specification->type, false);
+                    break;
+                case Style::Label:
+                    $chain[] = new LeftTrim('.');
+                    break;
+                case Style::Form:
+                case Style::SpaceDelimited:
+                case Style::PipeDelimited:
+                    $chain[] = new Form($specification->type, false);
+                    break;
+            }
         }
+
+        $chain = array_merge($chain, $specification->type === 'number' ?
+            $this->handleNumber($specification) :
+            $this->handleInteger($specification));
 
         if ($specification->enum !== null) {
             $chain[] = new Contained($specification->enum);

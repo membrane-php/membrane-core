@@ -91,6 +91,7 @@ class Request implements Processor
         );
 
         $result = Result::valid($value);
+
         foreach ($this->processors as $in => $processor) {
             $itemResult = $processor->process($parentFieldName, $value[$in]);
             $value[$in] = $itemResult->value;
@@ -102,13 +103,11 @@ class Request implements Processor
 
     private function formatPsr7(FieldName $parentFieldName, ServerRequestInterface $request): Result
     {
-        $value = ['header' => [], 'cookie' => []];
+        $value = ['cookie' => []];
         $value['path'] = $request->getUri()->getPath();
         $value['query'] = $request->getUri()->getQuery();
-        // @TODO support header
-        //$value['header'] = $this->getHeaderParams($request->getHeaders());
-        // @TODO support cookie
-        //$value['cookie'] = $request->getCookieParams();
+        $value['header'] = $this->filterHeaders($request->getHeaders());
+//        $value['cookie'] = $request->getCookieParams();
 
         //There should only be one content type header; PHP ignores additional header values
         $contentType = ContentType::fromContentTypeHeader(current($request->getHeader('Content-Type')));
@@ -166,5 +165,19 @@ class Request implements Processor
         }
 
         return $result;
+    }
+
+    /**
+     * @param string[][] $headers
+     *
+     * @return string[][]
+     */
+    private function filterHeaders(array $headers): array
+    {
+        return array_filter(
+            $headers,
+            fn($k) => strtolower($k) !== 'cookie',
+            ARRAY_FILTER_USE_KEY
+        );
     }
 }
