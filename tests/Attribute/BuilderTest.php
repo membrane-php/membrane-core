@@ -13,6 +13,7 @@ use Membrane\Attribute\Subtype;
 use Membrane\Builder\Specification;
 use Membrane\Exception\CannotProcessProperty;
 use Membrane\Filter\CreateObject\WithNamedArguments;
+use Membrane\Filter\Type\ToBackedEnum;
 use Membrane\Filter\Type\ToString;
 use Membrane\Processor\AfterSet;
 use Membrane\Processor\BeforeSet;
@@ -49,6 +50,10 @@ use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostRequiredFields;
 use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostWithAllOf;
 use Membrane\Tests\Fixtures\Attribute\EmptyClass;
 use Membrane\Tests\Fixtures\Attribute\EmptyClassWithIgnoredProperty;
+use Membrane\Tests\Fixtures\Attribute\EnumProperties;
+use Membrane\Tests\Fixtures\Attribute\EnumPropertiesWithAttributes;
+use Membrane\Tests\Fixtures\Enum\IntBackedDummy;
+use Membrane\Tests\Fixtures\Enum\StringBackedDummy;
 use Membrane\Validator\Collection\Count;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\String\Length;
@@ -196,10 +201,27 @@ class BuilderTest extends TestCase
                 new ClassWithAttributes(ClassWithIntPropertyIsIntValidator::class),
                 new FieldSet('', new Field('integerProperty', new IsInt())),
             ],
+            EnumPropeties::class => [
+                new ClassWithAttributes(EnumProperties::class),
+                new FieldSet(
+                    '',
+                    new Field('stringBackedEnum'),
+                    new Field('intBackedEnum'),
+                )
+            ],
+            EnumPropertiesWithAttributes::class => [
+                new ClassWithAttributes(EnumPropertiesWithAttributes::class),
+                new FieldSet(
+                    '',
+                    new Field('stringBackedEnum', new ToBackedEnum(StringBackedDummy::class)),
+                    new Field('intBackedEnum', new ToBackedEnum(IntBackedDummy::class)),
+                )
+            ],
             ClassWithIntArrayPropertyIsIntValidator::class => [
                 new ClassWithAttributes(ClassWithIntArrayPropertyIsIntValidator::class),
                 new FieldSet(
-                    '', new Collection(
+                    '',
+                    new Collection(
                         'arrayOfInts',
                         new Field('arrayOfInts', new IsInt())
                     )
@@ -208,7 +230,8 @@ class BuilderTest extends TestCase
             ClassWithClassArrayPropertyIsIntValidator::class => [
                 new ClassWithAttributes(ClassWithClassArrayPropertyIsIntValidator::class),
                 new FieldSet(
-                    '', new Collection(
+                    '',
+                    new Collection(
                         'arrayOfClasses',
                         new FieldSet('arrayOfClasses', new Field('integerProperty', new IsInt()))
                     )
@@ -217,7 +240,8 @@ class BuilderTest extends TestCase
             ClassWithClassProperty::class => [
                 new ClassWithAttributes(ClassWithClassProperty::class),
                 new FieldSet(
-                    '', new FieldSet(
+                    '',
+                    new FieldSet(
                         'class',
                         new Field('integerProperty', new IsInt())
                     )
@@ -230,7 +254,8 @@ class BuilderTest extends TestCase
             ClassWithIntArrayPropertyBeforeSet::class => [
                 new ClassWithAttributes(ClassWithIntArrayPropertyBeforeSet::class),
                 new FieldSet(
-                    '', new Collection(
+                    '',
+                    new Collection(
                         'arrayOfInts',
                         new BeforeSet(new IsList()),
                         new Field('arrayOfInts', new IsInt())
@@ -248,7 +273,8 @@ class BuilderTest extends TestCase
             ClassThatOverridesProcessorType::class => [
                 new ClassWithAttributes(ClassThatOverridesProcessorType::class),
                 new FieldSet(
-                    '', new Collection(
+                    '',
+                    new Collection(
                         'sumOfInts',
                         new BeforeSet(new IsList()),
                         new Field('sumOfInts', new IsInt()),
@@ -396,13 +422,15 @@ class BuilderTest extends TestCase
                 Result::invalid(
                     ['title' => false, 'body' => null],
                     new MessageSet(
-                        new FieldName('title', '', ''), new Message(
+                        new FieldName('title', '', ''),
+                        new Message(
                             'IsString validator expects string value, %s passed instead',
                             ['boolean']
                         )
                     ),
                     new MessageSet(
-                        new FieldName('body', '', ''), new Message(
+                        new FieldName('body', '', ''),
+                        new Message(
                             'IsString validator expects string value, %s passed instead',
                             ['NULL']
                         )
@@ -420,7 +448,8 @@ class BuilderTest extends TestCase
                 Result::invalid(
                     ['title' => ['a', 'b'], 'body' => 'My content'],
                     new MessageSet(
-                        new FieldName('title', '', ''), new Message(
+                        new FieldName('title', '', ''),
+                        new Message(
                             'ToString filter only accepts objects, null or scalar values, %s given',
                             ['array']
                         )
@@ -438,7 +467,8 @@ class BuilderTest extends TestCase
                 Result::invalid(
                     ['title' => '', 'body' => '', 'tags' => ['a', 'b', 'c', 'd', 'e', 'f']],
                     new MessageSet(
-                        new FieldName('', '', '', 'tags'), new Message(
+                        new FieldName('', '', '', 'tags'),
+                        new Message(
                             'Array is expected have a maximum of %d values',
                             [5]
                         )
@@ -464,7 +494,8 @@ class BuilderTest extends TestCase
                         'tags' => ['a', 'b', 'c'],
                     ],
                     new MessageSet(
-                        new FieldName('title', '', ''), new Message(
+                        new FieldName('title', '', ''),
+                        new Message(
                             'String is expected to be a maximum of %d characters',
                             [50]
                         )
@@ -531,5 +562,4 @@ class BuilderTest extends TestCase
 
         self::assertEquals($expected, $result);
     }
-
 }
