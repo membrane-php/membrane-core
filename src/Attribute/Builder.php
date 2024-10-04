@@ -82,6 +82,13 @@ class Builder implements BuilderInterface
 
     private function getProcessorTypeFromPropertyType(string $type): ProcessorType
     {
+        if (
+            enum_exists($type)
+            && (in_array(\BackedEnum::class, class_implements($type)))
+        ) {
+            return ProcessorType::Field;
+        }
+
         return match ($type) {
             'string', 'int', 'bool', 'float' => ProcessorType::Field,
             DateTime::class, DateTimeImmutable::class, DateTimeInterface::class => ProcessorType::Field,
