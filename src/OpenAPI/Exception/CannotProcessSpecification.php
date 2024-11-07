@@ -59,4 +59,12 @@ class CannotProcessSpecification extends RuntimeException
         $message = sprintf('%s expects %s data types, %s provided', $processor, $expected, $actual ?? 'no type');
         return new self($message, self::TYPE_MISMATCH);
     }
+
+    public static function arrayOfTypesIsUnsupported(): self
+    {
+        return new self(
+            'providing "type" as an array of values is exclusive to OpenAPI 3.1, which is currently unsupported',
+            self::TYPE_MISMATCH
+        );
+    }
 }

@@ -27,6 +27,10 @@ class Objects extends APISchema
         public readonly ?string $style = null,
         public readonly ?bool $explode = null,
     ) {
+        if (is_array($schema->type)) {
+            throw CannotProcessSpecification::arrayOfTypesIsUnsupported();
+        }
+
         if ($schema->type !== 'object') {
             throw CannotProcessSpecification::mismatchedType(self::class, 'object', $schema->type);
         }

@@ -22,6 +22,10 @@ class Arrays extends APISchema
         public readonly ?string $style = null,
         public readonly ?bool $explode = null,
     ) {
+        if (is_array($schema->type)) {
+            throw CannotProcessSpecification::arrayOfTypesIsUnsupported();
+        }
+
         if ($schema->type !== 'array') {
             throw CannotProcessSpecification::mismatchedType(self::class, 'array', $schema->type);
         }
