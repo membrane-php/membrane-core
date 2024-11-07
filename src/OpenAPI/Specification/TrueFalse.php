@@ -16,6 +16,10 @@ class TrueFalse extends APISchema
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
     ) {
+        if (is_array($schema->type)) {
+            throw CannotProcessSpecification::arrayOfTypesIsUnsupported();
+        }
+
         if ($schema->type !== 'boolean') {
             throw CannotProcessSpecification::mismatchedType(self::class, 'boolean', $schema->type);
         }
