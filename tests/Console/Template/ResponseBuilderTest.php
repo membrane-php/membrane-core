@@ -25,13 +25,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Field::class)]
 class ResponseBuilderTest extends TestCase
 {
-    private Template\ResponseBuilder $sut;
     private $petstoreAPIPath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
-
-    protected function setUp(): void
-    {
-        $this->sut = new Template\ResponseBuilder();
-    }
 
     #[Test, TestDox('createFromTemplate will return a string of PHP code that can evaluate to a CachedResponseBuilder')]
     public function createFromTemplateReturnsPHPString(): \ResponseBuilderTemplateTest\Petstore\CachedResponseBuilder
@@ -56,7 +50,8 @@ class ResponseBuilderTest extends TestCase
             ],
         ];
 
-        $phpString = $this->sut->createFromTemplate($namespace, $petstoreExpandedFilePath, $map);
+        $sut = new Template\ResponseBuilder($namespace, $petstoreExpandedFilePath, $map);
+        $phpString = $sut->getCode();
         eval('//' . $phpString);
 
         $openAPI = (new MembraneReader([OpenAPIVersion::Version_3_0]))

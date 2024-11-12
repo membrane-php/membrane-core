@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Membrane\Console\Template;
 
-class RequestBuilder
+
+use Atto\CodegenTools\ClassDefinition\PHPClassDefinition;
+
+class RequestBuilder implements PHPClassDefinition
 {
-    private const TEMPLATE_CODE =
-        '<?php
+    private const TEMPLATE_CODE = <<<'END'
+<?php
 
 declare(strict_types=1);
 
@@ -21,7 +24,7 @@ use Membrane\OpenAPI\Specification\Request as RequestSpecification;
 
 class CachedRequestBuilder implements Builder
 {
-    private const OPEN_API_FILENAME = \'%s\';
+    private const OPEN_API_FILENAME = '%s';
     private const MAP = [%s];
 
     /** @var array<string,string> */
@@ -64,16 +67,33 @@ class CachedRequestBuilder implements Builder
         return $this->operationIDs[$key];
     }
 }
-        ';
+END;
 
     /** @param array<string, string> $map */
-    public function createFromTemplate(string $namespace, string $openAPIFilePath, array $map): string
+    public function __construct(
+        private readonly string $namespace,
+        private readonly string $openAPIFilePath,
+        private readonly array $map
+    ) {
+    }
+
+    public function getNamespace(): string
+    {
+        return $this->namespace;
+    }
+
+    public function getName(): string
+    {
+        return 'CachedRequestBuilder';
+    }
+
+    public function getCode(): string
     {
         $implodedMap = '';
-        foreach ($map as $operationId => $processor) {
+        foreach ($this->map as $operationId => $processor) {
             $implodedMap .= sprintf('\'%s\' => \'%s\', ', $operationId, $processor);
         }
 
-        return sprintf(self::TEMPLATE_CODE, $namespace, $openAPIFilePath, $implodedMap);
+        return sprintf(self::TEMPLATE_CODE, $this->namespace, $this->openAPIFilePath, $implodedMap);
     }
 }
