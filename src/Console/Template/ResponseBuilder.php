@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Membrane\Console\Template;
 
-class ResponseBuilder
+
+use Atto\CodegenTools\ClassDefinition\PHPClassDefinition;
+
+class ResponseBuilder implements PHPClassDefinition
 {
-    private const TEMPLATE_CODE =
-        '<?php
+    private const TEMPLATE_CODE = <<<'END'
+<?php
 
 declare(strict_types=1);
 
@@ -21,7 +24,7 @@ use \Membrane\OpenAPI\Specification\Response as ResponseSpecification;
 
 class CachedResponseBuilder implements Builder
 {
-    private const OPEN_API_FILENAME = \'%s\';
+    private const OPEN_API_FILENAME = '%s';
     private const MAP = [%s];
 
     private array $operationIDs = [];
@@ -48,7 +51,7 @@ class CachedResponseBuilder implements Builder
         assert($specification instanceof ResponseSpecification && $this->supports($specification));
 
         $operationId = $this->getOperationId($specification);
-        $statusCode = \'Code\' . ucfirst($specification->statusCode);
+        $statusCode = 'Code' . ucfirst($specification->statusCode);
 
         return new (self::MAP[$operationId][$statusCode])();
     }
@@ -64,13 +67,30 @@ class CachedResponseBuilder implements Builder
         return $this->operationIDs[$key];
     }
 }
-        ';
+END;
 
     /** @param array<string, array<string,string>> $map */
-    public function createFromTemplate(string $namespace, string $openAPIFilePath, array $map): string
+    public function __construct(
+        private readonly string $namespace,
+        private readonly string $openAPIFilePath,
+        private readonly array $map
+    ) {
+    }
+
+    public function getNamespace(): string
+    {
+        return $this->namespace;
+    }
+
+    public function getName(): string
+    {
+        return 'CachedResponseBuilder';
+    }
+
+    public function getCode(): string
     {
         $implodedMap = '';
-        foreach ($map as $operationId => $responses) {
+        foreach ($this->map as $operationId => $responses) {
             $implodedResponses = implode(
                 ', ',
                 array_map(
@@ -82,6 +102,6 @@ class CachedResponseBuilder implements Builder
             $implodedMap .= sprintf('\'%s\' => [%s], ', $operationId, $implodedResponses);
         }
 
-        return sprintf(self::TEMPLATE_CODE, $namespace, $openAPIFilePath, $implodedMap);
+        return sprintf(self::TEMPLATE_CODE, $this->namespace, $this->openAPIFilePath, $implodedMap);
     }
 }

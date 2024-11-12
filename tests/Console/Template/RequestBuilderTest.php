@@ -26,13 +26,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Field::class)]
 class RequestBuilderTest extends TestCase
 {
-    private Template\RequestBuilder $sut;
     private string $petstoreAPIPath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
-
-    protected function setUp(): void
-    {
-        $this->sut = new Template\RequestBuilder();
-    }
 
     #[Test, TestDox('createFromTemplate will return a string of PHP code that can evaluate to a CachedRequestBuilder')]
     public function createFromTemplateReturnsPHPString(): \RequestBuilderTemplateTest\Petstore\CachedRequestBuilder
@@ -46,7 +40,9 @@ class RequestBuilderTest extends TestCase
             'deletePet' => 'RequestBuilderTemplateTest\\Petstore\\Request\\DeletePet',
         ];
 
-        $phpString = $this->sut->createFromTemplate($namespace, $petstoreExpandedFilePath, $map);
+        $sut = new Template\RequestBuilder($namespace, $petstoreExpandedFilePath, $map);
+
+        $phpString = $sut->getCode();
 
         eval('//' . $phpString);
 
@@ -55,13 +51,13 @@ class RequestBuilderTest extends TestCase
         $routeCollection = (new RouteCollector())
             ->collect($openAPI);
         $createdBuilder = eval(
-        sprintf(
-            'return new \\%s\\CachedRequestBuilder(new %s(new %s(%s)));',
-            $namespace,
-            Router::class,
-            RouteCollection::class,
-            var_export($routeCollection->routes, true)
-        )
+            sprintf(
+                'return new \\%s\\CachedRequestBuilder(new %s(new %s(%s)));',
+                $namespace,
+                Router::class,
+                RouteCollection::class,
+                var_export($routeCollection->routes, true)
+            )
         );
 
         self::assertInstanceOf('\RequestBuilderTemplateTest\Petstore\CachedRequestBuilder', $createdBuilder);

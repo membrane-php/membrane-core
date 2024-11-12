@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Membrane\Console\Template;
 
-class Processor
+use Atto\CodegenTools\ClassDefinition\PHPClassDefinition;
+use Membrane\Processor as MembraneProcessor;
+
+final class Processor implements PHPClassDefinition
 {
-    private const TEMPLATE_CODE =
-        '<?php 
+    private const TEMPLATE_CODE = <<<'END'
+<?php 
 
 declare(strict_types=1);
     
@@ -44,10 +47,27 @@ class %s implements Membrane\Processor
         return $this->processor->__toPHP();
     }
 }
-';
+END;
 
-    public function createFromTemplate(string $namespace, string $className, \Membrane\Processor $processor): string
+    public function __construct(
+        private readonly string $namespace,
+        private readonly string $name,
+        private readonly MembraneProcessor $processor
+    ) {
+    }
+
+    public function getNamespace(): string
     {
-        return sprintf(self::TEMPLATE_CODE, $namespace, $className, $processor->__toPHP());
+        return $this->namespace;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getCode(): string
+    {
+        return sprintf(self::TEMPLATE_CODE, $this->namespace, $this->name, $this->processor->__toPHP());
     }
 }

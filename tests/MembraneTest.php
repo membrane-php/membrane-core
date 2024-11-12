@@ -5,58 +5,69 @@ declare(strict_types=1);
 namespace Membrane\Tests;
 
 use Generator;
+use Membrane\Attribute\Builder as AttributeBuilder;
 use Membrane\Attribute\ClassWithAttributes;
 use Membrane\Builder\Specification;
+use Membrane\Filter\String\Explode;
 use Membrane\Membrane;
+use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
+use Membrane\Processor;
+use Membrane\Result\FieldName;
+use Membrane\Result\Message;
+use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 use Membrane\Tests\Fixtures\Attribute\EmptyClass;
+use Membrane\Validator\FieldSet\RequiredFields;
+use Membrane\Validator\Type\IsList;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Membrane\OpenAPI\Builder as Builder;
+use Membrane\OpenAPI\Specification as OpenAPISpecification;
 
 #[CoversClass(Membrane::class)]
-#[UsesClass(\Membrane\Attribute\Builder::class)]
-#[UsesClass(\Membrane\Filter\String\Explode::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\APIBuilder::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\Arrays::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\Numeric::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\Objects::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\OpenAPIRequestBuilder::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\OpenAPIResponseBuilder::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\ParameterBuilder::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\RequestBuilder::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\ResponseBuilder::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\Strings::class)]
-#[UsesClass(\Membrane\OpenAPI\ExtractPathParameters\PathMatcher::class)]
-#[UsesClass(\Membrane\OpenAPI\Filter\QueryStringToArray::class)]
-#[UsesClass(\Membrane\OpenAPI\Filter\FormatStyle\Form::class)]
-#[UsesClass(\Membrane\OpenAPI\Filter\PathMatcher::class)]
+#[UsesClass(AttributeBuilder::class)]
+#[UsesClass(Builder\APIBuilder::class)]
+#[UsesClass(Builder\Arrays::class)]
+#[UsesClass(Builder\Numeric::class)]
+#[UsesClass(Builder\Strings::class)]
+#[UsesClass(Builder\Objects::class)]
+#[UsesClass(Builder\ParameterBuilder::class)]
+#[UsesClass(Builder\OpenAPIRequestBuilder::class)]
+#[UsesClass(Builder\OpenAPIResponseBuilder::class)]
+#[UsesClass(Builder\RequestBuilder::class)]
+#[UsesClass(Builder\ResponseBuilder::class)]
+#[UsesClass(OpenAPISpecification\Objects::class)]
+#[UsesClass(OpenAPISpecification\Parameter::class)]
+#[UsesClass(OpenAPISpecification\OpenAPIRequest::class)]
+#[UsesClass(OpenAPISpecification\OpenAPIResponse::class)]
+#[UsesClass(OpenAPISpecification\APISchema::class)]
+#[UsesClass(OpenAPISpecification\Arrays::class)]
+#[UsesClass(OpenAPISpecification\Numeric::class)]
+#[UsesClass(OpenAPISpecification\Strings::class)]
+#[UsesClass(Processor\FieldSet::class)]
+#[UsesClass(Processor\BeforeSet::class)]
+#[UsesClass(Processor\Collection::class)]
+#[UsesClass(Processor\FieldSet::class)]
+#[UsesClass(Processor\Field::class)]
 #[UsesClass(\Membrane\OpenAPI\Processor\Request::class)]
 #[UsesClass(\Membrane\OpenAPI\Processor\AllOf::class)]
-#[UsesClass(\Membrane\OpenAPI\Specification\APISchema::class)]
-#[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
-#[UsesClass(\Membrane\OpenAPI\Specification\Numeric::class)]
-#[UsesClass(\Membrane\OpenAPI\Specification\Objects::class)]
-#[UsesClass(\Membrane\OpenAPI\Specification\OpenAPIRequest::class)]
-#[UsesClass(\Membrane\OpenAPI\Specification\OpenAPIResponse::class)]
-#[UsesClass(\Membrane\OpenAPI\Specification\Parameter::class)]
-#[UsesClass(\Membrane\OpenAPI\Specification\Strings::class)]
-#[UsesClass(\Membrane\Processor\BeforeSet::class)]
-#[UsesClass(\Membrane\Processor\Collection::class)]
-#[UsesClass(\Membrane\Processor\Field::class)]
-#[UsesClass(\Membrane\Processor\FieldSet::class)]
-#[UsesClass(\Membrane\Result\FieldName::class)]
-#[UsesClass(\Membrane\Result\Message::class)]
-#[UsesClass(\Membrane\Result\MessageSet::class)]
-#[UsesClass(\Membrane\Result\Result::class)]
-#[UsesClass(\Membrane\Validator\FieldSet\RequiredFields::class)]
-#[UsesClass(\Membrane\Validator\Type\IsList::class)]
+#[UsesClass(Result::class)]
+#[UsesClass(FieldName::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(MessageSet::class)]
+#[UsesClass(Explode::class)]
+#[UsesClass(PathMatcher::class)]
+#[UsesClass(\Membrane\OpenAPI\Filter\PathMatcher::class)]
+#[UsesClass(IsList::class)]
+#[UsesClass(RequiredFields::class)]
+
 class MembraneTest extends TestCase
 {
     private const __FIXTURES__ = __DIR__ . '/fixtures/';

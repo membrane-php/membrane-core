@@ -17,13 +17,6 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Processor\Field::class)]
 class ProcessorTest extends TestCase
 {
-    private Template\Processor $sut;
-
-    protected function setUp(): void
-    {
-        $this->sut = new Template\Processor();
-    }
-
     public static function provideCasesToCreateFromTemplate(): array
     {
         return [
@@ -39,7 +32,9 @@ class ProcessorTest extends TestCase
     #[DataProvider('provideCasesToCreateFromTemplate')]
     public function createFromTemplateReturnsPHPString(string $nameSpace, string $className, Processor $processor): void
     {
-        $phpString = $this->sut->createFromTemplate($nameSpace, $className, $processor);
+        $sut = new Template\Processor($nameSpace, $className, $processor);
+
+        $phpString = $sut->getCode();
         eval('//' . $phpString);
 
         $createdProcessor = eval(sprintf('return new %s\\%s();', $nameSpace, $className));
