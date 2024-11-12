@@ -89,5 +89,4 @@ class JsonDecodeTest extends TestCase
 
         self::assertEquals($expected, $actual);
     }
-
 }

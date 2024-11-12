@@ -178,14 +178,15 @@ class RequestTest extends TestCase
                     'cookie' => $invalidProcessor,
                     'body' => $validProcessor,
                 ],
-                Result::invalid([
+                Result::invalid(
+                    [
                     'request' => ['method' => 'get', 'operationId' => ''],
                     'path' => '',
                     'query' => '',
                     'header' => [],
                     'cookie' => [],
                     'body' => '',
-                ],
+                    ],
                     new MessageSet(new FieldName('', ''), new Message('I always fail', [])),
                     new MessageSet(new FieldName('', ''), new Message('I always fail', []))
                 ),

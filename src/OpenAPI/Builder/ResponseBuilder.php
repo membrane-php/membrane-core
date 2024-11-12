@@ -30,7 +30,7 @@ class ResponseBuilder implements Builder
     {
         assert($specification instanceof Response);
 
-        $openAPI = (new Reader([OpenAPIVersion::Version_3_0]))
+        $openAPI = (new Reader([OpenAPIVersion::Version_3_0, OpenAPIVersion::Version_3_1]))
             ->readFromAbsoluteFilePath($specification->absoluteFilePath);
 
         $serverUrl = $this->matchServer($openAPI, $specification->url);
@@ -44,7 +44,12 @@ class ResponseBuilder implements Builder
 
             $response = $this->getResponse($operation, $specification->statusCode);
 
-            $newSpecification = new OpenAPIResponse($operation->operationId, $specification->statusCode, $response);
+            $newSpecification = new OpenAPIResponse(
+                OpenAPIVersion::fromString($openAPI->openapi),
+                $operation->operationId,
+                $specification->statusCode,
+                $response
+            );
 
             return $this->getOpenAPIResponseBuilder()->build($newSpecification);
         }

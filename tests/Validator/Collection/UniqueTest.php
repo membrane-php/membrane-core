@@ -111,5 +111,4 @@ class UniqueTest extends TestCase
 
         self::assertEquals($expected, $actual);
     }
-
 }

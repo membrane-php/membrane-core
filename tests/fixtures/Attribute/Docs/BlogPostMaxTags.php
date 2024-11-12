@@ -12,7 +12,6 @@ use Membrane\Filter\Type\ToString;
 use Membrane\Validator\Collection\Count;
 use Membrane\Validator\FieldSet\RequiredFields;
 
-
 #[SetFilterOrValidator(new RequiredFields('title', 'body'), Placement::BEFORE)]
 class BlogPostMaxTags
 {

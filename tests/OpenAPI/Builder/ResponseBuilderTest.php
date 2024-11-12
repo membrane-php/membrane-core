@@ -341,14 +341,15 @@ class ResponseBuilderTest extends TestCase
                     '219'
                 ),
                 new AnyOf(
-                    '', new Field('', new IsNull()), new Field(
+                    '',
+                    new Field('', new IsNull()),
+                    new Field(
                         '',
                         new IsNumber(),
                         new Contained([1, 2.3, 4]),
                         new Maximum(99.99, true),
                         new Minimum(6.66),
                         new MultipleOf(3.33)
-
                     )
                 ),
             ],
@@ -535,7 +536,6 @@ class ResponseBuilderTest extends TestCase
                             new Contained([[1, 2.0, null], [4.0, null, 6]]),
                             new Count(2, 5),
                             new Unique()
-
                         ),
                         new AnyOf('', new Field('', new IsNull()), new Field('', new IsNumber()))
                     )
@@ -568,7 +568,6 @@ class ResponseBuilderTest extends TestCase
                     '',
                     new Field('', new IsNull()),
                     new FieldSet('', new BeforeSet(new IsArray()), new Field('price', new IsFloat()))
-
                 ),
             ],
             'object with (string) name, (int) id, (bool) status' => [

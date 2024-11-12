@@ -15,7 +15,8 @@ use PHPUnit\Framework\TestCase;
 class MakesOperationTest extends TestCase
 {
     #[Test]
-    public function itCanMakeAnOperationWithoutParameters(): void {
+    public function itCanMakeAnOperationWithoutParameters(): void
+    {
         $expected = [
             'operationId' => 'test',
             'responses' => ['200' => ['description' => 'Success']],
@@ -57,5 +58,4 @@ class MakesOperationTest extends TestCase
 
         yield 'one parameter' => $dataSet();
     }
-
 }

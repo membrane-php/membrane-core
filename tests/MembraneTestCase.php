@@ -15,7 +15,8 @@ abstract class MembraneTestCase extends TestCase
         Processor $expected,
         Processor $actual,
     ): void {
-        self::assertEquals($expected, $actual, sprintf(<<<TEXT
+        self::assertEquals($expected, $actual, sprintf(
+            <<<TEXT
             expected: 
             %s
             actual: 
@@ -31,7 +32,8 @@ abstract class MembraneTestCase extends TestCase
         Result $expected,
         Result $actual,
     ): void {
-        $message = sprintf(<<<TEXT
+        $message = sprintf(
+            <<<TEXT
             expected: 
             %s
             actual: 

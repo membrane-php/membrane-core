@@ -46,11 +46,13 @@ class HTTPParametersTest extends TestCase
         return [
             [
                 ['id' => '1'],
-                Result::invalid(['id' => '1'],
+                Result::invalid(
+                    ['id' => '1'],
                     new MessageSet(
                         null,
                         new Message('HTTPParameters expects string value, %s passed instead', ['array'])
-                    )),
+                    )
+                ),
             ],
             [
                 'id=1',

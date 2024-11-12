@@ -36,5 +36,4 @@ class MakesPathItemTest extends TestCase
             new MakesOperation(),
         ];
     }
-
 }

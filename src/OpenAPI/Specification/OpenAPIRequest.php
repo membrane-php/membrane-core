@@ -10,6 +10,7 @@ use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\ExtractsPathParameters;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 
 class OpenAPIRequest implements Specification
@@ -20,6 +21,7 @@ class OpenAPIRequest implements Specification
     public readonly ?Cebe\Schema $requestBodySchema;
 
     public function __construct(
+        public readonly OpenAPIVersion $openAPIVersion,
         public readonly ExtractsPathParameters $pathParameterExtractor,
         private readonly Cebe\PathItem $path,
         public readonly Method $method,

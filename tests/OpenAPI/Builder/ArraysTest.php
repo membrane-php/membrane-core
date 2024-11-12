@@ -85,7 +85,6 @@ class ArraysTest extends TestCase
                     '',
                     new BeforeSet(new IsList(), new Contained([[1, 2, 3], null]), new Count(1, 3), new Unique()),
                     new Field('', new IsInt())
-
                 ),
             ],
             'detailed nullable input' => [

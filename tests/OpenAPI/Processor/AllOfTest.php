@@ -190,11 +190,13 @@ class AllOfTest extends TestCase
                 ],
                 new FieldName(''),
                 ['id' => '5', 'name' => 'Harley'],
-                Result::invalid(['id' => '5', 'name' => 'Harley'],
+                Result::invalid(
+                    ['id' => '5', 'name' => 'Harley'],
                     new MessageSet(
                         new FieldName('id', '', ''),
                         new Message('IsInt validator expects integer value, %s passed instead', ['string'])
-                    )),
+                    )
+                ),
             ],
             'expects an object which must have integer id and string name (valid input)' => [
                 '',
@@ -230,8 +232,10 @@ class AllOfTest extends TestCase
                 ],
                 new FieldName(''),
                 ['id' => 5],
-                Result::invalid(['id' => 5],
-                    new MessageSet(new FieldName('', '', ''), new Message('%s is a required field', ['name']))),
+                Result::invalid(
+                    ['id' => 5],
+                    new MessageSet(new FieldName('', '', ''), new Message('%s is a required field', ['name']))
+                ),
             ],
         ];
     }
@@ -251,5 +255,4 @@ class AllOfTest extends TestCase
 
         self::assertEquals($expected, $actual);
     }
-
 }

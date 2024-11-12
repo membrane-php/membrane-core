@@ -9,6 +9,7 @@ use cebe\openapi\spec\Response;
 use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -30,7 +31,7 @@ class OpenAPIResponseTest extends TestCase
 
         self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes(...array_keys($response->content)));
 
-        new OpenAPIResponse('testOperation', '200', $response);
+        new OpenAPIResponse(OpenAPIVersion::Version_3_0, 'testOperation', '200', $response);
     }
 
     #[Test, TestDox('$schema contains a Schema Object if the response has content')]
@@ -40,7 +41,7 @@ class OpenAPIResponseTest extends TestCase
             'description' => 'Success',
         ]);
 
-        $sut = new OpenAPIResponse('testOperation', '200', $response);
+        $sut = new OpenAPIResponse(OpenAPIVersion::Version_3_0, 'testOperation', '200', $response);
 
         self::assertNull($sut->schema);
     }
@@ -53,7 +54,7 @@ class OpenAPIResponseTest extends TestCase
             'content' => [],
         ]);
 
-        $sut = new OpenAPIResponse('testOperation', '200', $response);
+        $sut = new OpenAPIResponse(OpenAPIVersion::Version_3_0, 'testOperation', '200', $response);
 
         self::assertNull($sut->schema);
     }
@@ -69,7 +70,7 @@ class OpenAPIResponseTest extends TestCase
             ],
         ]);
 
-        $sut = new OpenAPIResponse('testOperation', '200', $response);
+        $sut = new OpenAPIResponse(OpenAPIVersion::Version_3_0, 'testOperation', '200', $response);
 
         self::assertEquals($expected, $sut->schema);
     }

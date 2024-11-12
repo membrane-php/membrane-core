@@ -90,7 +90,10 @@ class CollectionTest extends TestCase
                 \t- will return valid.
                 END,
                 new Collection(
-                    'a', new BeforeSet(new Fails()), new Field('', new Passes()), new AfterSet(new Passes())
+                    'a',
+                    new BeforeSet(new Fails()),
+                    new Field('', new Passes()),
+                    new AfterSet(new Passes())
                 ),
             ],
         ];
@@ -255,7 +258,8 @@ class CollectionTest extends TestCase
             ],
             'BeforeSet processes before AfterSet' => [
                 [1, 2, 3],
-                Result::invalid([1, 2],
+                Result::invalid(
+                    [1, 2],
                     new MessageSet(
                         new FieldName('', 'parent field', 'field to process'),
                         new Message('Array is expected have a minimum of %d values', [3])

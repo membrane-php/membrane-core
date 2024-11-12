@@ -55,13 +55,13 @@ class RequestBuilderTest extends TestCase
         $routeCollection = (new RouteCollector())
             ->collect($openAPI);
         $createdBuilder = eval(
-        sprintf(
-            'return new \\%s\\CachedRequestBuilder(new %s(new %s(%s)));',
-            $namespace,
-            Router::class,
-            RouteCollection::class,
-            var_export($routeCollection->routes, true)
-        )
+            sprintf(
+                'return new \\%s\\CachedRequestBuilder(new %s(new %s(%s)));',
+                $namespace,
+                Router::class,
+                RouteCollection::class,
+                var_export($routeCollection->routes, true)
+            )
         );
 
         self::assertInstanceOf('\RequestBuilderTemplateTest\Petstore\CachedRequestBuilder', $createdBuilder);
@@ -92,7 +92,7 @@ class RequestBuilderTest extends TestCase
         Request $requestSpecification
     ): void {
         eval(
-        '
+            '
 namespace RequestBuilderTemplateTest\Petstore\Request;
 
 use Membrane;

@@ -86,8 +86,10 @@ class ToNumberTest extends TestCase
             ],
             'invalidates array' => [
                 [1, 2, 3],
-                Result::invalid([1, 2, 3],
-                    new MessageSet(null, new Message('ToNumber filter expects numeric values, %s passed', ['array']))),
+                Result::invalid(
+                    [1, 2, 3],
+                    new MessageSet(null, new Message('ToNumber filter expects numeric values, %s passed', ['array']))
+                ),
             ],
             'invalidates object' => [
                 $class,

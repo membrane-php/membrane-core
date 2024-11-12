@@ -11,7 +11,6 @@ use Membrane\Attribute\Subtype;
 use Membrane\Filter\Type\ToString;
 use Membrane\Validator\FieldSet\RequiredFields;
 
-
 #[SetFilterOrValidator(new RequiredFields('title', 'body'), Placement::BEFORE)]
 class BlogPostMakeItAString
 {

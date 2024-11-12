@@ -180,5 +180,4 @@ class PathMatcherTest extends TestCase
 
         self::assertSame($expected, $actual);
     }
-
 }

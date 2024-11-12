@@ -27,7 +27,7 @@ class RequestBuilder implements Builder
     {
         assert($specification instanceof Request);
 
-        $openAPI = (new Reader([OpenAPIVersion::Version_3_0]))
+        $openAPI = (new Reader([OpenAPIVersion::Version_3_0, OpenAPIVersion::Version_3_1,]))
             ->readFromAbsoluteFilePath($specification->absoluteFilePath);
 
         $serverUrl = $this->matchServer($openAPI, $specification->url);
@@ -37,7 +37,12 @@ class RequestBuilder implements Builder
                 continue;
             }
 
-            $newSpecification = new OpenAPIRequest($pathMatcher, $pathItem, $specification->method);
+            $newSpecification = new OpenAPIRequest(
+                OpenAPIVersion::fromString($openAPI->openapi),
+                $pathMatcher,
+                $pathItem,
+                $specification->method
+            );
 
             return $this->getOpenAPIRequestBuilder()->build($newSpecification);
         }

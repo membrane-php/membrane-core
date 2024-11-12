@@ -6,6 +6,7 @@ namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 
 class Strings extends APISchema
 {
@@ -19,6 +20,9 @@ class Strings extends APISchema
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
     ) {
+        //@todo get openapi version
+        //@todo construct membrane schema
+
         if (is_array($schema->type)) {
             throw CannotProcessSpecification::arrayOfTypesIsUnsupported();
         }

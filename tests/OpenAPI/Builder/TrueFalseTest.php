@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Builder;
 
-
 use cebe\openapi\spec\Schema;
 use Membrane\Filter\Type\ToBool;
 use Membrane\OpenAPI\Builder\APIBuilder;

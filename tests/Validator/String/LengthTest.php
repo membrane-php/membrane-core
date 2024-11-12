@@ -174,15 +174,15 @@ class LengthTest extends TestCase
         );
 
         yield '"string" with min of zero and no max' => $validCase(
-          'string',
-          0,
-          null,
+            'string',
+            0,
+            null,
         );
 
         yield '"string" within range' => $validCase(
-          'string',
-          5,
-          7,
+            'string',
+            5,
+            7,
         );
 
         yield '"string" within range (inclusive min)' => $validCase(

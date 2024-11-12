@@ -76,5 +76,4 @@ final class MakesOperation implements JsonSerializable
 
         return $result;
     }
-
 }

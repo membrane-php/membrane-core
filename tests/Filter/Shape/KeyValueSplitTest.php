@@ -21,7 +21,6 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Message::class)]
 class KeyValueSplitTest extends TestCase
 {
-
     #[Test, TestDox('toString returns a plain english description of what this filter accomplishes')]
     public function toStringTest(): void
     {

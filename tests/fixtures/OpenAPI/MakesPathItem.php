@@ -11,7 +11,8 @@ final class MakesPathItem implements JsonSerializable
 {
     public function __construct(
         private readonly ?MakesOperation $get = null,
-    ) {}
+    ) {
+    }
 
     public function asCebeObject(): PathItem
     {
@@ -27,5 +28,4 @@ final class MakesPathItem implements JsonSerializable
             fn($o) => $o !== '',
         );
     }
-
 }

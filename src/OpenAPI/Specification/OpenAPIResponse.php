@@ -7,12 +7,14 @@ namespace Membrane\OpenAPI\Specification;
 use cebe\openapi\spec as Cebe;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 
 class OpenAPIResponse implements Specification
 {
     public readonly ?Cebe\Schema $schema;
 
     public function __construct(
+        public readonly OpenAPIVersion $openAPIVersion,
         public readonly string $operationId,
         public readonly string $statusCode,
         Cebe\Response $response
