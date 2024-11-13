@@ -10,6 +10,7 @@ use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\TrueFalse;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
@@ -52,15 +53,25 @@ class TrueFalseTest extends TestCase
     {
         return [
             'input to convert from string' => [
-                new Specification\TrueFalse('', new Schema(['type' => 'boolean']), true),
+                new Specification\TrueFalse(OpenAPIVersion::Version_3_0,
+                    '',
+                    new Schema(['type' => 'boolean']),
+                    true,
+                ),
                 new Field('', new BoolString(), new ToBool()),
             ],
             'strict input' => [
-                new Specification\TrueFalse('', new Schema(['type' => 'boolean']), false),
+                new Specification\TrueFalse(
+                    OpenAPIVersion::Version_3_0,
+                    '',
+                    new Schema(['type' => 'boolean']),
+                    false,
+                ),
                 new Field('', new IsBool()),
             ],
             'detailed input to convert from string' => [
                 new Specification\TrueFalse(
+                    OpenAPIVersion::Version_3_0,
                     '',
                     new Schema(
                         [
@@ -80,6 +91,7 @@ class TrueFalseTest extends TestCase
             ],
             'strict detailed input' => [
                 new Specification\TrueFalse(
+                    OpenAPIVersion::Version_3_0,
                     '',
                     new Schema(
                         [

@@ -8,8 +8,6 @@ use cebe\openapi\spec as Cebe;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\ValueObject\Valid\Enum\In;
-use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 
 class Parameter implements Specification
 {
@@ -21,7 +19,7 @@ class Parameter implements Specification
     public readonly Cebe\Schema $schema;
 
     public function __construct(
-        OpenAPIVersion $openAPIVersion,
+        public readonly OpenAPIVersion $openAPIVersion,
         Cebe\Parameter $parameter
     ) {
         $this->name = $parameter->name;

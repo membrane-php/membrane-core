@@ -10,6 +10,7 @@ use Membrane\OpenAPI\Builder\Arrays;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -62,11 +63,12 @@ class ArraysTest extends TestCase
     {
         return [
             'minimum input' => [
-                new Specification\Arrays('', new Schema(['type' => 'array'])),
+                new Specification\Arrays(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'array'])),
                 new Collection('', new BeforeSet(new IsList())),
             ],
             'detailed input' => [
                 new Specification\Arrays(
+                    OpenAPIVersion::Version_3_0,
                     '',
                     new Schema(
                         [
@@ -89,6 +91,7 @@ class ArraysTest extends TestCase
             ],
             'detailed nullable input' => [
                 new Specification\Arrays(
+                    OpenAPIVersion::Version_3_0,
                     '',
                     new Schema(
                         [

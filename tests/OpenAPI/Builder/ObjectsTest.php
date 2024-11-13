@@ -13,6 +13,7 @@ use Membrane\OpenAPI\Builder\TrueFalse;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
 use Membrane\OpenAPI\Specification;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\DefaultProcessor;
@@ -76,19 +77,20 @@ class ObjectsTest extends TestCase
     {
         return [
             'minimum input' => [
-                new Specification\Objects('', new Schema(['type' => 'object'])),
+                new Specification\Objects(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'object'])),
                 new FieldSet('', new BeforeSet(new IsArray())),
             ],
             'minProperties greater than zero' => [
-                new Specification\Objects('', new Schema(['type' => 'object', 'minProperties' => 1])),
+                new Specification\Objects(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'object', 'minProperties' => 1])),
                 new FieldSet('', new BeforeSet(new IsArray(), new Count(1))),
             ],
             'maxProperties is set' => [
-                new Specification\Objects('', new Schema(['type' => 'object', 'maxProperties' => 1])),
+                new Specification\Objects(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'object', 'maxProperties' => 1])),
                 new FieldSet('', new BeforeSet(new IsArray(), new Count(0, 1))),
             ],
             'minProperties and maxProperties is set' => [
                 new Specification\Objects(
+                    OpenAPIVersion::Version_3_0,
                     '',
                     new Schema(['type' => 'object', 'minProperties' => 1, 'maxProperties' => 1])
                 ),
@@ -96,6 +98,7 @@ class ObjectsTest extends TestCase
             ],
             'additionalProperties set to false' => [
                 new Specification\Objects(
+                    OpenAPIVersion::Version_3_0,
                     '',
                     new Schema([
                         'type' => 'object',
@@ -109,6 +112,7 @@ class ObjectsTest extends TestCase
             ],
             'complex additional properties' => [
                 new Specification\Objects(
+                    OpenAPIVersion::Version_3_0,
                     '',
                     new Schema([
                         'type' => 'object',
@@ -136,6 +140,7 @@ class ObjectsTest extends TestCase
             ],
             'detailed input' => [
                 new Specification\Objects(
+                    OpenAPIVersion::Version_3_0,
                     '',
                     new Schema(
                         [

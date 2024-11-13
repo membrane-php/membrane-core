@@ -48,7 +48,11 @@ class OpenAPIRequestBuilder implements Builder
             return new Field('requestBody', new Passes());
         }
 
-        return $this->getParameterBuilder()->fromSchema($specification->requestBodySchema, 'requestBody');
+        return $this->getParameterBuilder()->fromSchema(
+            $specification->openAPIVersion,
+            $specification->requestBodySchema,
+            'requestBody',
+        );
     }
 
     /** @return Processor[] */

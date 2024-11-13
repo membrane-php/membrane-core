@@ -10,6 +10,7 @@ use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
@@ -58,15 +59,15 @@ class StringsTest extends TestCase
     {
         return [
             'minimum input' => [
-                new Specification\Strings('', new Schema(['type' => 'string'])),
+                new Specification\Strings(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'string'])),
                 new Field('', new IsString()),
             ],
             'date input' => [
-                new Specification\Strings('', new Schema(['type' => 'string', 'format' => 'date',])),
+                new Specification\Strings(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'string', 'format' => 'date',])),
                 new Field('', new IsString(), new DateString('Y-m-d', true)),
             ],
             'date-time input' => [
-                new Specification\Strings('', new Schema(['type' => 'string', 'format' => 'date-time',])),
+                new Specification\Strings(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'string', 'format' => 'date-time',])),
                 new Field(
                     '',
                     new IsString(),
@@ -79,6 +80,7 @@ class StringsTest extends TestCase
             ],
             'detailed input' => [
                 new Specification\Strings(
+                    OpenAPIVersion::Version_3_0,
                     '',
                     new Schema(
                         [

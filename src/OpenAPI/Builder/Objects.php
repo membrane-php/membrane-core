@@ -95,6 +95,7 @@ class Objects extends APIBuilder
         foreach ($specification->properties as $key => $schema) {
             assert($schema instanceof Schema);
             $fields [] = $this->fromSchema(
+                $specification->openApiVersion,
                 $schema,
                 $key,
                 $specification->convertFromString
@@ -104,6 +105,7 @@ class Objects extends APIBuilder
         if ($specification->additionalProperties instanceof Schema) {
             $fields [] = new DefaultProcessor(
                 $this->fromSchema(
+                    $specification->openApiVersion,
                     $specification->additionalProperties,
                     '',
                     $specification->convertFromString

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Specification;
 
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
 
@@ -15,6 +16,7 @@ abstract class APISchema implements Specification
     public readonly bool $nullable;
 
     public function __construct(
+        public readonly OpenAPIVersion $openApiVersion,
         public readonly string $fieldName,
         Schema $schema
     ) {

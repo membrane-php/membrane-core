@@ -6,6 +6,7 @@ namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec as Cebe;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 
 class Objects extends APISchema
 {
@@ -20,6 +21,7 @@ class Objects extends APISchema
     public readonly int $minProperties;
 
     public function __construct(
+        OpenAPIVersion $openAPIVersion,
         string $fieldName,
         Cebe\Schema $schema,
         public readonly bool $convertFromString = false,
@@ -46,6 +48,6 @@ class Objects extends APISchema
 
         $this->minProperties = $schema->minProperties ?? 0;
 
-        parent::__construct($fieldName, $schema);
+        parent::__construct($openAPIVersion, $fieldName, $schema);
     }
 }

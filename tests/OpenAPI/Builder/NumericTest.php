@@ -12,6 +12,7 @@ use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
@@ -62,31 +63,32 @@ class NumericTest extends TestCase
     {
         return [
             'integer input to convert from string' => [
-                new Specification\Numeric('', new Schema(['type' => 'integer']), true),
+                new Specification\Numeric(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'integer']), true),
                 new Field('', new IntString(), new ToInt()),
             ],
             'strict integer input' => [
-                new Specification\Numeric('', new Schema(['type' => 'integer']), false),
+                new Specification\Numeric(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'integer']), false),
                 new Field('', new IsInt()),
             ],
             'number input to convert from string' => [
-                new Specification\Numeric('', new Schema(['type' => 'number']), true),
+                new Specification\Numeric(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'number']), true),
                 new Field('', new NumericString(), new ToNumber()),
             ],
             'strict number input' => [
-                new Specification\Numeric('', new Schema(['type' => 'number']), false),
+                new Specification\Numeric(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'number']), false),
                 new Field('', new IsNumber()),
             ],
             'float input to convert from string' => [
-                new Specification\Numeric('', new Schema(['type' => 'number', 'format' => 'float']), true),
+                new Specification\Numeric(OpenAPIVersion::Version_3_0,'', new Schema(['type' => 'number', 'format' => 'float']), true),
                 new Field('', new NumericString(), new ToFloat()),
             ],
             'strict float input' => [
-                new Specification\Numeric('', new Schema(['type' => 'number', 'format' => 'float']), false),
+                new Specification\Numeric(OpenAPIVersion::Version_3_0,'', new Schema(['type' => 'number', 'format' => 'float']), false),
                 new Field('', new IsFloat()),
             ],
             'detailed input to convert from string' => [
                 new Specification\Numeric(
+                    OpenAPIVersion::Version_3_0,
                     '',
                     new Schema(
                         [
@@ -119,6 +121,7 @@ class NumericTest extends TestCase
             ],
             'strict detailed input' => [
                 new Specification\Numeric(
+                    OpenAPIVersion::Version_3_0,
                     '',
                     new Schema(
                         [

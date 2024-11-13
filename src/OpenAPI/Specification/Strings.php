@@ -6,6 +6,7 @@ namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 
 class Strings extends APISchema
@@ -15,6 +16,7 @@ class Strings extends APISchema
     public readonly ?string $pattern;
 
     public function __construct(
+        OpenAPIVersion $openAPIVersion,
         string $fieldName,
         Schema $schema,
         public readonly bool $convertFromArray = false,
@@ -35,6 +37,6 @@ class Strings extends APISchema
         $this->minLength = $schema->minLength ?? 0;
         $this->pattern = $schema->pattern;
 
-        parent::__construct($fieldName, $schema);
+        parent::__construct($openAPIVersion, $fieldName, $schema);
     }
 }

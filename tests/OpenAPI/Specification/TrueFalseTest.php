@@ -8,6 +8,7 @@ use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\TrueFalse;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -23,7 +24,7 @@ class TrueFalseTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(TrueFalse::class, 'boolean', 'no type'));
 
-        new TrueFalse('', new Schema([]));
+        new TrueFalse(OpenAPIVersion::Version_3_0, '', new Schema([]));
     }
 
     #[Test]
@@ -31,13 +32,14 @@ class TrueFalseTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(TrueFalse::class, 'boolean', 'string'));
 
-        new TrueFalse('', new Schema(['type' => 'string']));
+        new TrueFalse(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'string']));
     }
 
     public static function dataSetsToConstruct(): array
     {
         return [
             'default values' => [
+                OpenAPIVersion::Version_3_0,
                 new Schema(['type' => 'boolean',]),
                 [
                     'enum' => null,
@@ -46,6 +48,7 @@ class TrueFalseTest extends TestCase
                 ],
             ],
             'assigned values' => [
+                OpenAPIVersion::Version_3_0,
                 new Schema([
                     'type' => 'boolean',
                     'enum' => [false, null],
@@ -63,9 +66,12 @@ class TrueFalseTest extends TestCase
 
     #[DataProvider('dataSetsToConstruct')]
     #[Test]
-    public function constructTest(Schema $schema, array $expected): void
-    {
-        $sut = new TrueFalse('', $schema);
+    public function constructTest(
+        OpenAPIVersion $openAPIVersion,
+        Schema $schema,
+        array $expected
+    ): void {
+        $sut = new TrueFalse($openAPIVersion, '', $schema);
 
         foreach ($expected as $key => $value) {
             self::assertSame($value, $sut->$key, sprintf('%s does not meet expected value', $key));

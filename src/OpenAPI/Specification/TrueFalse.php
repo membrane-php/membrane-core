@@ -6,10 +6,12 @@ namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 
 class TrueFalse extends APISchema
 {
     public function __construct(
+        OpenAPIVersion $openAPIVersion,
         string $fieldName,
         Schema $schema,
         public readonly bool $convertFromString = false,
@@ -24,6 +26,6 @@ class TrueFalse extends APISchema
             throw CannotProcessSpecification::mismatchedType(self::class, 'boolean', $schema->type);
         }
 
-        parent::__construct($fieldName, $schema);
+        parent::__construct($openAPIVersion, $fieldName, $schema);
     }
 }

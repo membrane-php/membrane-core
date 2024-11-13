@@ -8,6 +8,7 @@ use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Strings;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -23,7 +24,7 @@ class StringsTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Strings::class, 'string', 'no type'));
 
-        new Strings('', new Schema([]));
+        new Strings(OpenAPIVersion::Version_3_0, '', new Schema([]));
     }
 
     #[Test]
@@ -31,13 +32,14 @@ class StringsTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Strings::class, 'string', 'integer'));
 
-        new Strings('', new Schema(['type' => 'integer']));
+        new Strings(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'integer']));
     }
 
     public static function dataSetsToConstruct(): array
     {
         return [
             'default values' => [
+                OpenAPIVersion::Version_3_0,
                 new Schema(['type' => 'string',]),
                 [
                     'maxLength' => null,
@@ -49,6 +51,7 @@ class StringsTest extends TestCase
                 ],
             ],
             'assigned values' => [
+                OpenAPIVersion::Version_3_0,
                 new Schema([
                     'type' => 'string',
                     'maxLength' => 20,
@@ -72,9 +75,9 @@ class StringsTest extends TestCase
 
     #[DataProvider('dataSetsToConstruct')]
     #[Test]
-    public function constructTest(Schema $schema, array $expected): void
+    public function constructTest(OpenAPIVersion $openAPIVersion, Schema $schema, array $expected): void
     {
-        $sut = new Strings('', $schema);
+        $sut = new Strings($openAPIVersion, '', $schema);
 
         foreach ($expected as $key => $value) {
             self::assertSame($value, $sut->$key, sprintf('%s does not meet expected value', $key));

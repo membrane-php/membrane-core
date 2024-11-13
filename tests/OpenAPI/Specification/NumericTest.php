@@ -8,6 +8,7 @@ use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Numeric;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -25,7 +26,7 @@ class NumericTest extends TestCase
             CannotProcessSpecification::mismatchedType(Numeric::class, 'integer or number', 'no type')
         );
 
-        new Numeric('', new Schema([]));
+        new Numeric(OpenAPIVersion::Version_3_0, '', new Schema([]));
     }
 
     #[Test]
@@ -35,13 +36,14 @@ class NumericTest extends TestCase
             CannotProcessSpecification::mismatchedType(Numeric::class, 'integer or number', 'string')
         );
 
-        new Numeric('', new Schema(['type' => 'string']));
+        new Numeric(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'string']));
     }
 
     public static function dataSetsToConstruct(): array
     {
         return [
             'default values for number' => [
+                OpenAPIVersion::Version_3_0,
                 new Schema(['type' => 'number',]),
                 [
                     'type' => 'number',
@@ -55,6 +57,7 @@ class NumericTest extends TestCase
                 ],
             ],
             'default values for integer' => [
+                OpenAPIVersion::Version_3_0,
                 new Schema(['type' => 'integer',]),
                 [
                     'type' => 'integer',
@@ -68,6 +71,7 @@ class NumericTest extends TestCase
                 ],
             ],
             'assigned values for number' => [
+                OpenAPIVersion::Version_3_0,
                 new Schema([
                     'type' => 'number',
                     'maximum' => 10,
@@ -92,6 +96,7 @@ class NumericTest extends TestCase
                 ],
             ],
             'assigned values for integer' => [
+                OpenAPIVersion::Version_3_0,
                 new Schema([
                     'type' => 'integer',
                     'maximum' => 10,
@@ -120,9 +125,9 @@ class NumericTest extends TestCase
 
     #[DataProvider('dataSetsToConstruct')]
     #[Test]
-    public function constructTest(Schema $schema, array $expected): void
+    public function constructTest(OpenAPIVersion $openAPIVersion, Schema $schema, array $expected): void
     {
-        $sut = new Numeric('', $schema);
+        $sut = new Numeric($openAPIVersion, '', $schema);
 
         foreach ($expected as $key => $value) {
             self::assertSame($value, $sut->$key, sprintf('%s did not meet expected value', $key));

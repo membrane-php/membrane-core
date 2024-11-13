@@ -6,6 +6,7 @@ namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 
 class Numeric extends APISchema
 {
@@ -17,6 +18,7 @@ class Numeric extends APISchema
     public readonly string $type;
 
     public function __construct(
+        OpenAPIVersion $openAPIVersion,
         string $fieldName,
         Schema $schema,
         public readonly bool $convertFromString = false,
@@ -38,6 +40,6 @@ class Numeric extends APISchema
         $this->minimum = $schema->minimum;
         $this->multipleOf = $schema->multipleOf;
 
-        parent::__construct($fieldName, $schema);
+        parent::__construct($openAPIVersion, $fieldName, $schema);
     }
 }

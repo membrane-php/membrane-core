@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Builder;
+namespace Membrane\Tests\OpenAPI\Builder;
 
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use cebe\openapi\Reader;

@@ -8,6 +8,7 @@ use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Objects;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -23,7 +24,7 @@ class ObjectsTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Objects::class, 'object', 'no type'));
 
-        new Objects('', new Schema([]));
+        new Objects(OpenAPIVersion::Version_3_0, '', new Schema([]));
     }
 
     #[Test]
@@ -31,13 +32,14 @@ class ObjectsTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Objects::class, 'object', 'string'));
 
-        new Objects('', new Schema(['type' => 'string']));
+        new Objects(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'string']));
     }
 
     public static function dataSetsToConstruct(): array
     {
         return [
             'default values' => [
+                OpenAPIVersion::Version_3_0,
                 new Schema(['type' => 'object',]),
                 [
                     'additionalProperties' => true,
@@ -49,6 +51,7 @@ class ObjectsTest extends TestCase
                 ],
             ],
             'additionalProperties assigned false' => [
+                OpenAPIVersion::Version_3_0,
                 new Schema(['type' => 'object', 'additionalProperties' => false]),
                 [
                     'additionalProperties' => false,
@@ -60,6 +63,7 @@ class ObjectsTest extends TestCase
                 ],
             ],
             'all relevant keywords assigned values' => [
+                OpenAPIVersion::Version_3_0,
                 new Schema([
                     'type' => 'object',
                     'additionalProperties' => new Schema(['type' => 'string']),
@@ -83,9 +87,9 @@ class ObjectsTest extends TestCase
 
     #[DataProvider('dataSetsToConstruct')]
     #[Test]
-    public function constructTest(Schema $schema, array $expected): void
+    public function constructTest(OpenAPIVersion $openAPIVersion, Schema $schema, array $expected): void
     {
-        $sut = new Objects('', $schema);
+        $sut = new Objects($openAPIVersion, '', $schema);
 
         foreach ($expected as $key => $value) {
             self::assertEquals($value, $sut->$key, sprintf('%s does not meet expected value', $key));
