@@ -28,13 +28,14 @@ class ParameterTest extends TestCase
 
         self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes('application/pdf'));
 
-        new Parameter($parameter);
+        new Parameter(OpenAPIVersion::fromString($openApi->openapi), $parameter);
     }
 
     public static function provideValidParameters(): array
     {
         return [
             '"style": "matrix" in "path"' => [
+                OpenAPIVersion::Version_3_0,
                 new Cebe\Parameter([
                     'name' => 'id',
                     'in' => 'path',
@@ -52,6 +53,7 @@ class ParameterTest extends TestCase
                 ],
             ],
             '"style": "label" in "path"' => [
+                OpenAPIVersion::Version_3_0,
                 new Cebe\Parameter([
                     'name' => 'id',
                     'in' => 'path',
@@ -69,6 +71,7 @@ class ParameterTest extends TestCase
                 ],
             ],
             '"style":"form" in "query"' => [
+                OpenAPIVersion::Version_3_0,
                 new Cebe\Parameter([
                     'name' => 'id',
                     'in' => 'query',
@@ -86,6 +89,7 @@ class ParameterTest extends TestCase
                 ],
             ],
             '"style":"simple" in "path"' => [
+                OpenAPIVersion::Version_3_0,
                 new Cebe\Parameter([
                     'name' => 'id',
                     'in' => 'path',
@@ -103,6 +107,7 @@ class ParameterTest extends TestCase
                 ],
             ],
             '"style":"spaceDelimited" in "query"' => [
+                OpenAPIVersion::Version_3_0,
                 new Cebe\Parameter([
                     'name' => 'id',
                     'in' => 'query',
@@ -120,6 +125,7 @@ class ParameterTest extends TestCase
                 ],
             ],
             '"style":"pipeDelimited" in "query"' => [
+                OpenAPIVersion::Version_3_0,
                 new Cebe\Parameter([
                     'name' => 'id',
                     'in' => 'query',
@@ -137,6 +143,7 @@ class ParameterTest extends TestCase
                 ],
             ],
             '"style":"deepObject" in "query"' => [
+                OpenAPIVersion::Version_3_0,
                 new Cebe\Parameter([
                     'name' => 'id',
                     'in' => 'query',
@@ -159,10 +166,11 @@ class ParameterTest extends TestCase
     #[Test, TestDox('It will construct itself from valid Parameters')]
     #[DataProvider('provideValidParameters')]
     public function constructsAParameterSpecificationFromValidParameters(
+        OpenAPIVersion $openApiVersion,
         Cebe\Parameter $parameter,
         array $expectedProperties
     ): void {
-        $sut = new Parameter($parameter);
+        $sut = new Parameter($openApiVersion, $parameter);
 
         foreach ($expectedProperties as $key => $value) {
             self::assertEquals($value, $sut->$key, sprintf("'%s' doesn't match expected", $key));

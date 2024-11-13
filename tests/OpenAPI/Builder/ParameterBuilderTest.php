@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OpenAPI\Builder;
 
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use cebe\openapi\Reader;
 use cebe\openapi\spec as Cebe;
 use Membrane\Builder\Specification;
@@ -61,6 +62,7 @@ class ParameterBuilderTest extends TestCase
     {
         return [
             [
+                OpenAPIVersion::Version_3_0,
                 Reader::readFromJson(
                     json_encode([
                         'name' => 'id',
@@ -74,6 +76,7 @@ class ParameterBuilderTest extends TestCase
                 new Processor\Field('id', new IsInt()),
             ],
             [
+                OpenAPIVersion::Version_3_0,
                 Reader::readFromJson(
                     json_encode([
                         'name' => 'tags',
@@ -100,9 +103,15 @@ class ParameterBuilderTest extends TestCase
 
     #[Test, TestDox('It Builds a Processor that can validate against the Parameter Specification')]
     #[DataProvider('provideParameterSpecificationsToBuildFrom')]
-    public function itBuildsProcessorsForParameters(Cebe\Parameter $parameter, Processor $expectedProcessor): void
-    {
-        $actualProcessor = $this->sut->build(new OpenAPISpecification\Parameter($parameter));
+    public function itBuildsProcessorsForParameters(
+        OpenAPIVersion $openApiVersion,
+        Cebe\Parameter $parameter,
+        Processor $expectedProcessor
+    ): void {
+        $actualProcessor = $this->sut->build(new OpenAPISpecification\Parameter(
+            $openApiVersion,
+            $parameter
+        ));
 
         self::assertEquals($expectedProcessor, $actualProcessor);
     }

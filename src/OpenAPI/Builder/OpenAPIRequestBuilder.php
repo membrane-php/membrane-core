@@ -54,7 +54,10 @@ class OpenAPIRequestBuilder implements Builder
     /** @return Processor[] */
     private function fromParameters(OpenAPIRequest $specification): array
     {
-        $parameters = array_map(fn($p) => new Parameter($p), $specification->parameters);
+        $parameters = array_map(
+            fn($p) => new Parameter($specification->openAPIVersion, $p),
+            $specification->parameters
+        );
         $queryParameters = array_filter($parameters, fn($p) => $p->in === 'query');
 
         $location = fn(array $chain) => ['required' => [], 'fields' => [], 'beforeSet' => $chain];
