@@ -6,7 +6,10 @@ namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec as Cebe;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
+use Membrane\OpenAPI\TempHelpers\CreatesSchema;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 
 class Objects extends APISchema
 {
@@ -29,24 +32,26 @@ class Objects extends APISchema
         public readonly ?string $style = null,
         public readonly ?bool $explode = null,
     ) {
-        if (is_array($schema->type)) {
-            throw CannotProcessSpecification::arrayOfTypesIsUnsupported();
-        }
+        $membraneSchema = CreatesSchema::create($openAPIVersion, $fieldName, $schema);
 
-        if ($schema->type !== 'object') {
-            throw CannotProcessSpecification::mismatchedType(self::class, 'object', $schema->type);
-        }
+        ChecksOnlyTypeOrNull::check(
+            self::class,
+            Type::Object,
+            $membraneSchema->type
+        );
 
+        //@todo replace additionalProperties with membrane schema
         assert(!$schema->additionalProperties instanceof Cebe\Reference);
         $this->additionalProperties = $schema->additionalProperties;
 
+        //@todo replace properties with membrane schema array
         $this->properties = array_filter($schema->properties ?? [], fn($p) => $p instanceof Cebe\Schema);
 
-        $this->required = $schema->required;
+        $this->required = $membraneSchema->required;
 
-        $this->maxProperties = $schema->maxProperties ?? null;
+        $this->maxProperties = $membraneSchema->maxProperties;
 
-        $this->minProperties = $schema->minProperties ?? 0;
+        $this->minProperties = $membraneSchema->minProperties;
 
         parent::__construct($openAPIVersion, $fieldName, $schema);
     }

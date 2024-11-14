@@ -6,8 +6,11 @@ namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
+use Membrane\OpenAPI\TempHelpers\CreatesSchema;
+use Membrane\OpenAPIReader\Factory;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, Identifier, V30, V31};
 
 class Strings extends APISchema
 {
@@ -22,20 +25,17 @@ class Strings extends APISchema
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
     ) {
-        //@todo get openapi version
-        //@todo construct membrane schema
+        $membraneSchema = CreatesSchema::create($openAPIVersion, $fieldName, $schema);
 
-        if (is_array($schema->type)) {
-            throw CannotProcessSpecification::arrayOfTypesIsUnsupported();
-        }
+        ChecksOnlyTypeOrNull::check(
+            self::class,
+            Type::String,
+            $membraneSchema->type
+        );
 
-        if ($schema->type !== 'string') {
-            throw CannotProcessSpecification::mismatchedType(self::class, 'string', $schema->type);
-        }
-
-        $this->maxLength = $schema->maxLength;
-        $this->minLength = $schema->minLength ?? 0;
-        $this->pattern = $schema->pattern;
+        $this->maxLength = $membraneSchema->maxLength;
+        $this->minLength = $membraneSchema->minLength;
+        $this->pattern = $membraneSchema->pattern;
 
         parent::__construct($openAPIVersion, $fieldName, $schema);
     }

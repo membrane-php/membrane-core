@@ -54,6 +54,12 @@ class CannotProcessSpecification extends RuntimeException
         return new self($message, self::METHOD_NOT_SUPPORTED);
     }
 
+    public static function unspecifiedType(string $processor, string $expected): self
+    {
+        $message = sprintf('%s expects %s data types, none provided', $processor, $expected);
+        return new self($message, self::TYPE_MISMATCH);
+    }
+
     public static function mismatchedType(string $processor, string $expected, ?string $actual): self
     {
         $message = sprintf('%s expects %s data types, %s provided', $processor, $expected, $actual ?? 'no type');

@@ -6,7 +6,10 @@ namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec as Cebe;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
+use Membrane\OpenAPI\TempHelpers\CreatesSchema;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 
 class Arrays extends APISchema
 {
@@ -24,19 +27,20 @@ class Arrays extends APISchema
         public readonly ?string $style = null,
         public readonly ?bool $explode = null,
     ) {
-        if (is_array($schema->type)) {
-            throw CannotProcessSpecification::arrayOfTypesIsUnsupported();
-        }
+        $membraneSchema = CreatesSchema::create($openAPIVersion, $fieldName, $schema);
 
-        if ($schema->type !== 'array') {
-            throw CannotProcessSpecification::mismatchedType(self::class, 'array', $schema->type);
-        }
+        ChecksOnlyTypeOrNull::check(
+            self::class,
+            Type::Array,
+            $membraneSchema->type
+        );
 
         assert(!$schema->items instanceof Cebe\Reference);
+        // @todo replace items with membrane schema
         $this->items = $schema->items;
-        $this->maxItems = $schema->maxItems;
-        $this->minItems = $schema->minItems ?? 0;
-        $this->uniqueItems = $schema->uniqueItems;
+        $this->maxItems = $membraneSchema->maxItems;
+        $this->minItems = $membraneSchema->minItems;
+        $this->uniqueItems = $membraneSchema->uniqueItems;
 
         parent::__construct($openAPIVersion, $fieldName, $schema);
     }

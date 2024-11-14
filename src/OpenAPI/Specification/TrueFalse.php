@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
-use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
+use Membrane\OpenAPI\TempHelpers\CreatesSchema;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 
 class TrueFalse extends APISchema
 {
@@ -18,13 +20,13 @@ class TrueFalse extends APISchema
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
     ) {
-        if (is_array($schema->type)) {
-            throw CannotProcessSpecification::arrayOfTypesIsUnsupported();
-        }
+        $membraneSchema = CreatesSchema::create($openAPIVersion, $fieldName, $schema);
 
-        if ($schema->type !== 'boolean') {
-            throw CannotProcessSpecification::mismatchedType(self::class, 'boolean', $schema->type);
-        }
+        ChecksOnlyTypeOrNull::check(
+            self::class,
+            Type::Boolean,
+            $membraneSchema->type
+        );
 
         parent::__construct($openAPIVersion, $fieldName, $schema);
     }

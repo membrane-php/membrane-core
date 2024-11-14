@@ -6,7 +6,10 @@ namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPI\TempHelpers\ChecksTypeSupported;
+use Membrane\OpenAPI\TempHelpers\CreatesSchema;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 
 class Numeric extends APISchema
 {
@@ -25,20 +28,29 @@ class Numeric extends APISchema
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
     ) {
-        if (is_array($schema->type)) {
-            throw CannotProcessSpecification::arrayOfTypesIsUnsupported();
+        $membraneSchema = CreatesSchema::create($openAPIVersion, $fieldName, $schema);
+
+        ChecksTypeSupported::check($membraneSchema->type);
+
+        if (
+            $membraneSchema->type === null
+            || ! ($membraneSchema->canBe(Type::Number) || $membraneSchema->canBe(Type::Integer))
+        ) {
+            throw CannotProcessSpecification::mismatchedType(
+                self::class,
+                'integer or number',
+                is_array($membraneSchema->type) ?
+                    implode(',', array_map(fn($t) => $t->value, $membraneSchema->type)) :
+                    $membraneSchema->type?->value,
+            );
         }
 
-        if (!in_array($schema->type, ['number', 'integer'], true)) {
-            throw CannotProcessSpecification::mismatchedType(self::class, 'integer or number', $schema->type);
-        }
-
-        $this->type = $schema->type;
-        $this->exclusiveMaximum = $schema->exclusiveMaximum ?? false;
-        $this->exclusiveMinimum = $schema->exclusiveMinimum ?? false;
-        $this->maximum = $schema->maximum;
-        $this->minimum = $schema->minimum;
-        $this->multipleOf = $schema->multipleOf;
+        $this->type = $membraneSchema->canBe(Type::Integer) ? 'integer' : 'number';
+        $this->exclusiveMaximum = $membraneSchema->getRelevantMaximum()?->exclusive ?? false;
+        $this->exclusiveMinimum = $membraneSchema->getRelevantMinimum()?->exclusive ?? false;
+        $this->maximum = $membraneSchema->getRelevantMaximum()?->limit;
+        $this->minimum = $membraneSchema->getRelevantMinimum()?->limit;
+        $this->multipleOf = $membraneSchema->multipleOf;
 
         parent::__construct($openAPIVersion, $fieldName, $schema);
     }
