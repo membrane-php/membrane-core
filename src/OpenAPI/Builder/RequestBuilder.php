@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
+use Membrane\OpenAPIReader\Exception\CannotSupport;
 use cebe\openapi\spec as Cebe;
 use Membrane\Builder\{Builder, Specification};
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
@@ -38,7 +39,8 @@ class RequestBuilder implements Builder
             }
 
             $newSpecification = new OpenAPIRequest(
-                OpenAPIVersion::fromString($openAPI->openapi),
+                OpenAPIVersion::fromString($openAPI->openapi)
+                    ?? throw CannotSupport::unsupportedVersion($openAPI->openapi),
                 $pathMatcher,
                 $pathItem,
                 $specification->method

@@ -234,7 +234,8 @@ class CacheOpenAPIProcessors
                     $this->logger->info('Building Request processor');
                     $processors[$operation->operationId]['request'] = $this->getRequestBuilder()->build(
                         new OpenAPIRequest(
-                            OpenAPIVersion::fromString($openAPI->openapi),
+                            OpenAPIVersion::fromString($openAPI->openapi)
+                                ?? throw CannotSupport::unsupportedVersion($openAPI->openapi),
                             new PathParameterExtractor($pathUrl),
                             $path,
                             $methodObject,
@@ -253,7 +254,8 @@ class CacheOpenAPIProcessors
 
                         $processors[$operation->operationId]['response'][$code] = $this->getResponseBuilder()->build(
                             new OpenAPIResponse(
-                                OpenAPIVersion::fromString($openAPI->openapi),
+                                OpenAPIVersion::fromString($openAPI->openapi)
+                                    ?? throw CannotSupport::unsupportedVersion($openAPI->openapi),
                                 $operation->operationId,
                                 (string)$code,
                                 $response,

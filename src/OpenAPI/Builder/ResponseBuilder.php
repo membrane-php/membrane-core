@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
+use Membrane\OpenAPIReader\Exception\CannotSupport;
 use cebe\openapi\spec as Cebe;
 use Membrane\Builder\Builder;
 use Membrane\Builder\Specification;
@@ -45,7 +46,8 @@ class ResponseBuilder implements Builder
             $response = $this->getResponse($operation, $specification->statusCode);
 
             $newSpecification = new OpenAPIResponse(
-                OpenAPIVersion::fromString($openAPI->openapi),
+                OpenAPIVersion::fromString($openAPI->openapi)
+                    ?? throw CannotSupport::unsupportedVersion($openAPI->openapi),
                 $operation->operationId,
                 $specification->statusCode,
                 $response
