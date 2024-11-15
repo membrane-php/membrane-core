@@ -53,6 +53,6 @@ class Objects extends APISchema
 
         $this->minProperties = $membraneSchema->minProperties;
 
-        parent::__construct($openAPIVersion, $fieldName, $schema);
+        parent::__construct($openAPIVersion, $fieldName, $membraneSchema);
     }
 }

@@ -52,6 +52,6 @@ class Numeric extends APISchema
         $this->minimum = $membraneSchema->getRelevantMinimum()?->limit;
         $this->multipleOf = $membraneSchema->multipleOf;
 
-        parent::__construct($openAPIVersion, $fieldName, $schema);
+        parent::__construct($openAPIVersion, $fieldName, $membraneSchema);
     }
 }

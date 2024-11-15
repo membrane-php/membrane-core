@@ -37,6 +37,6 @@ class Strings extends APISchema
         $this->minLength = $membraneSchema->minLength;
         $this->pattern = $membraneSchema->pattern;
 
-        parent::__construct($openAPIVersion, $fieldName, $schema);
+        parent::__construct($openAPIVersion, $fieldName, $membraneSchema);
     }
 }

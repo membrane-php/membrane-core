@@ -42,6 +42,6 @@ class Arrays extends APISchema
         $this->minItems = $membraneSchema->minItems;
         $this->uniqueItems = $membraneSchema->uniqueItems;
 
-        parent::__construct($openAPIVersion, $fieldName, $schema);
+        parent::__construct($openAPIVersion, $fieldName, $membraneSchema);
     }
 }

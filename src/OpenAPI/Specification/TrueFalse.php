@@ -28,6 +28,6 @@ class TrueFalse extends APISchema
             $membraneSchema->type
         );
 
-        parent::__construct($openAPIVersion, $fieldName, $schema);
+        parent::__construct($openAPIVersion, $fieldName, $membraneSchema);
     }
 }

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Specification;
 
-use Membrane\OpenAPI\TempHelpers\CreatesSchema;
-use Membrane\OpenAPIReader\OpenAPIVersion;
-use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
+use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 
 abstract class APISchema implements Specification
 {
@@ -19,14 +19,12 @@ abstract class APISchema implements Specification
     public function __construct(
         public readonly OpenAPIVersion $openAPIVersion,
         public readonly string $fieldName,
-        Schema $schema
+        V30\Schema|V31\Schema $schema
     ) {
-        $membraneSchema = CreatesSchema::create($openAPIVersion, $fieldName, $schema);
-
-        $this->enum = isset($membraneSchema->enum) ?
-            array_map(fn($e) => $e->value, $membraneSchema->enum) :
+        $this->enum = isset($schema->enum) ?
+            array_map(fn($e) => $e->value, $schema->enum) :
             null;
         $this->format = $schema->format;
-        $this->nullable = $schema->nullable ?? false;
+        $this->nullable = in_array(Type::Null, $schema->getTypes());
     }
 }
