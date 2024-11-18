@@ -5,17 +5,16 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Specification;
 
 use cebe\openapi\spec as Cebe;
-use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
-use Membrane\OpenAPI\TempHelpers\CreatesSchema;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 
 class Objects extends APISchema
 {
     // @TODO support minProperties and maxProperties
-    public readonly bool | Cebe\Schema $additionalProperties;
-    /** @var Cebe\Schema[] */
+    public readonly bool |V30\Schema|V31\Schema $additionalProperties;
+    /** @var V30\Schema[]|V31\Schema[] */
     public readonly array $properties;
     /** @var string[]|null */
     public readonly ?array $required;
@@ -26,33 +25,28 @@ class Objects extends APISchema
     public function __construct(
         OpenAPIVersion $openAPIVersion,
         string $fieldName,
-        Cebe\Schema $schema,
+        V30\Schema|V31\Schema $schema,
         public readonly bool $convertFromString = false,
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
         public readonly ?bool $explode = null,
     ) {
-        $membraneSchema = CreatesSchema::create($openAPIVersion, $fieldName, $schema);
-
         ChecksOnlyTypeOrNull::check(
             self::class,
             Type::Object,
-            $membraneSchema->type
+            $schema->type,
         );
 
-        //@todo replace additionalProperties with membrane schema
-        assert(!$schema->additionalProperties instanceof Cebe\Reference);
         $this->additionalProperties = $schema->additionalProperties;
 
-        //@todo replace properties with membrane schema array
-        $this->properties = array_filter($schema->properties ?? [], fn($p) => $p instanceof Cebe\Schema);
+        $this->properties = $schema->properties;
 
-        $this->required = $membraneSchema->required;
+        $this->required = $schema->required;
 
-        $this->maxProperties = $membraneSchema->maxProperties;
+        $this->maxProperties = $schema->maxProperties;
 
-        $this->minProperties = $membraneSchema->minProperties;
+        $this->minProperties = $schema->minProperties;
 
-        parent::__construct($openAPIVersion, $fieldName, $membraneSchema);
+        parent::__construct($openAPIVersion, $fieldName, $schema);
     }
 }

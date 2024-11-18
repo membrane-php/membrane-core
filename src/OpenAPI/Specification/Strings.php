@@ -21,22 +21,20 @@ class Strings extends APISchema
     public function __construct(
         OpenAPIVersion $openAPIVersion,
         string $fieldName,
-        Schema $schema,
+        V30\Schema|V31\Schema $schema,
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
     ) {
-        $membraneSchema = CreatesSchema::create($openAPIVersion, $fieldName, $schema);
-
         ChecksOnlyTypeOrNull::check(
             self::class,
             Type::String,
-            $membraneSchema->type
+            $schema->type
         );
 
-        $this->maxLength = $membraneSchema->maxLength;
-        $this->minLength = $membraneSchema->minLength;
-        $this->pattern = $membraneSchema->pattern;
+        $this->maxLength = $schema->maxLength;
+        $this->minLength = $schema->minLength;
+        $this->pattern = $schema->pattern;
 
-        parent::__construct($openAPIVersion, $fieldName, $membraneSchema);
+        parent::__construct($openAPIVersion, $fieldName, $schema);
     }
 }

@@ -10,10 +10,11 @@ use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
 use Membrane\OpenAPI\TempHelpers\CreatesSchema;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 
 class Arrays extends APISchema
 {
-    public readonly ?Cebe\Schema $items;
+    public readonly V30\Schema|V31\Schema|null $items;
     public readonly ?int $maxItems;
     public readonly int $minItems;
     public readonly bool $uniqueItems;
@@ -21,27 +22,23 @@ class Arrays extends APISchema
     public function __construct(
         OpenAPIVersion $openAPIVersion,
         string $fieldName,
-        Cebe\Schema $schema,
+        V30\Schema|V31\Schema $schema,
         public readonly bool $convertFromString = false,
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
         public readonly ?bool $explode = null,
     ) {
-        $membraneSchema = CreatesSchema::create($openAPIVersion, $fieldName, $schema);
-
         ChecksOnlyTypeOrNull::check(
             self::class,
             Type::Array,
-            $membraneSchema->type
+            $schema->type
         );
 
-        assert(!$schema->items instanceof Cebe\Reference);
-        // @todo replace items with membrane schema
         $this->items = $schema->items;
-        $this->maxItems = $membraneSchema->maxItems;
-        $this->minItems = $membraneSchema->minItems;
-        $this->uniqueItems = $membraneSchema->uniqueItems;
+        $this->maxItems = $schema->maxItems;
+        $this->minItems = $schema->minItems;
+        $this->uniqueItems = $schema->uniqueItems;
 
-        parent::__construct($openAPIVersion, $fieldName, $membraneSchema);
+        parent::__construct($openAPIVersion, $fieldName, $schema);
     }
 }

@@ -10,6 +10,7 @@ use Membrane\OpenAPI\TempHelpers\ChecksTypeSupported;
 use Membrane\OpenAPI\TempHelpers\CreatesSchema;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 
 class Numeric extends APISchema
 {
@@ -23,35 +24,33 @@ class Numeric extends APISchema
     public function __construct(
         OpenAPIVersion $openAPIVersion,
         string $fieldName,
-        Schema $schema,
+        V30\Schema|V31\Schema $schema,
         public readonly bool $convertFromString = false,
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
     ) {
-        $membraneSchema = CreatesSchema::create($openAPIVersion, $fieldName, $schema);
-
-        ChecksTypeSupported::check($membraneSchema->type);
+        ChecksTypeSupported::check($schema->type);
 
         if (
-            $membraneSchema->type === null
-            || ! ($membraneSchema->canBe(Type::Number) || $membraneSchema->canBe(Type::Integer))
+            $schema->type === null
+            || ! ($schema->canBe(Type::Number) || $schema->canBe(Type::Integer))
         ) {
             throw CannotProcessSpecification::mismatchedType(
                 self::class,
                 'integer or number',
-                is_array($membraneSchema->type) ?
-                    implode(',', array_map(fn($t) => $t->value, $membraneSchema->type)) :
-                    $membraneSchema->type?->value,
+                is_array($schema->type) ?
+                    implode(',', array_map(fn($t) => $t->value, $schema->type)) :
+                    $schema->type?->value,
             );
         }
 
-        $this->type = $membraneSchema->canBe(Type::Integer) ? 'integer' : 'number';
-        $this->exclusiveMaximum = $membraneSchema->getRelevantMaximum()?->exclusive ?? false;
-        $this->exclusiveMinimum = $membraneSchema->getRelevantMinimum()?->exclusive ?? false;
-        $this->maximum = $membraneSchema->getRelevantMaximum()?->limit;
-        $this->minimum = $membraneSchema->getRelevantMinimum()?->limit;
-        $this->multipleOf = $membraneSchema->multipleOf;
+        $this->type = $schema->canBe(Type::Integer) ? 'integer' : 'number';
+        $this->exclusiveMaximum = $schema->getRelevantMaximum()?->exclusive ?? false;
+        $this->exclusiveMinimum = $schema->getRelevantMinimum()?->exclusive ?? false;
+        $this->maximum = $schema->getRelevantMaximum()?->limit;
+        $this->minimum = $schema->getRelevantMinimum()?->limit;
+        $this->multipleOf = $schema->multipleOf;
 
-        parent::__construct($openAPIVersion, $fieldName, $membraneSchema);
+        parent::__construct($openAPIVersion, $fieldName, $schema);
     }
 }

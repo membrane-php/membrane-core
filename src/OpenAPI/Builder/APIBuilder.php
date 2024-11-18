@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
-use cebe\openapi\spec\Reference;
-use cebe\openapi\spec\Schema;
 use Membrane\Builder\Builder;
 use Membrane\OpenAPI;
 use Membrane\OpenAPI\Processor\AllOf;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Utility;
+
 
 abstract class APIBuilder implements Builder
 {
@@ -27,7 +27,7 @@ abstract class APIBuilder implements Builder
 
     public function fromSchema(
         OpenAPIVersion $openAPIVersion,
-        Schema $schema,
+        V30\Schema|V31\Schema $schema,
         string $fieldName = '',
         bool $convertFromString = false,
         bool $convertFromArray = false,
@@ -81,7 +81,7 @@ abstract class APIBuilder implements Builder
         }
 
         return match ($schema->type) {
-            'string' => ($this->getStringBuilder())
+            Type::String => ($this->getStringBuilder())
                 ->build(new OpenAPI\Specification\Strings(
                     $openAPIVersion,
                     $fieldName,
@@ -90,7 +90,7 @@ abstract class APIBuilder implements Builder
                     $style
                 )),
 
-            'number', 'integer' => $this->getNumericBuilder()
+            Type::Integer, Type::Number => $this->getNumericBuilder()
                 ->build(new OpenAPI\Specification\Numeric(
                     $openAPIVersion,
                     $fieldName,
@@ -100,7 +100,7 @@ abstract class APIBuilder implements Builder
                     $style
                 )),
 
-            'boolean' => $this->getTrueFalseBuilder()
+            Type::Boolean => $this->getTrueFalseBuilder()
                 ->build(new OpenAPI\Specification\TrueFalse(
                     $openAPIVersion,
                     $fieldName,
@@ -110,7 +110,7 @@ abstract class APIBuilder implements Builder
                     $style,
                 )),
 
-            'array' => $this->getArrayBuilder()
+            Type::Array => $this->getArrayBuilder()
                 ->build(new OpenAPI\Specification\Arrays(
                     $openAPIVersion,
                     $fieldName,
@@ -121,7 +121,7 @@ abstract class APIBuilder implements Builder
                     $explode,
                 )),
 
-            'object' => $this->getObjectBuilder()
+            Type::Object => $this->getObjectBuilder()
                 ->build(new OpenAPI\Specification\Objects(
                     $openAPIVersion,
                     $fieldName,
@@ -147,7 +147,7 @@ abstract class APIBuilder implements Builder
 
     /**
      * @param class-string<AllOf|AnyOf|OneOf> $complexSchemaClass
-     * @param Reference[]|Schema[] $subSchemas
+     * @param non-empty-array<V30\Schema|V31\Schema> $subSchemas
      */
     private function fromComplexSchema(
         OpenAPIVersion $openAPIVersion,
@@ -160,15 +160,17 @@ abstract class APIBuilder implements Builder
         ?bool $explode,
     ): Processor {
         if (count($subSchemas) < 2) {
-            assert($subSchemas[0] instanceof Schema);
-            return $this->fromSchema($openAPIVersion, $subSchemas[0], $fieldName, $convertFromString, $convertFromArray);
+            return $this->fromSchema(
+                $openAPIVersion,
+                $subSchemas[0],
+                $fieldName,
+                $convertFromString,
+                $convertFromArray,
+            );
         }
 
         $subProcessors = [];
-
         foreach ($subSchemas as $index => $subSchema) {
-            assert($subSchema instanceof Schema);
-
             $title = null;
             if (isset($subSchema->title) && $subSchema->title !== '') {
                 $title = $subSchema->title;

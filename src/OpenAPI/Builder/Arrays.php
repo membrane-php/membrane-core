@@ -86,7 +86,6 @@ class Arrays extends APIBuilder
             return new Collection($specification->fieldName, $beforeSet);
         }
 
-        assert($specification->items instanceof Schema);
         $collection = new Collection(
             $specification->fieldName,
             $beforeSet,

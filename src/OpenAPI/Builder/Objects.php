@@ -93,7 +93,6 @@ class Objects extends APIBuilder
         $fields = [];
 
         foreach ($specification->properties as $key => $schema) {
-            assert($schema instanceof Schema);
             $fields [] = $this->fromSchema(
                 $specification->openAPIVersion,
                 $schema,
@@ -102,7 +101,7 @@ class Objects extends APIBuilder
             );
         }
 
-        if ($specification->additionalProperties instanceof Schema) {
+        if (!is_bool($specification->additionalProperties)) {
             $fields [] = new DefaultProcessor(
                 $this->fromSchema(
                     $specification->openAPIVersion,
