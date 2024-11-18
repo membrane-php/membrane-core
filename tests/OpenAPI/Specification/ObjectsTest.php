@@ -9,10 +9,13 @@ use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Objects;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Value;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 
 #[CoversClass(Objects::class)]
 #[CoversClass(APISchema::class)]
@@ -24,7 +27,7 @@ class ObjectsTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Objects::class, 'object', 'no type'));
 
-        new Objects(OpenAPIVersion::Version_3_0, '', new Schema([]));
+        new Objects(OpenAPIVersion::Version_3_0, '', new V30\Schema(new Identifier('test'), new Partial\Schema()));
     }
 
     #[Test]
@@ -32,7 +35,9 @@ class ObjectsTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Objects::class, 'object', 'string'));
 
-        new Objects(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'string']));
+        new Objects(OpenAPIVersion::Version_3_0, '', new V30\Schema(new Identifier('test'), new Partial\Schema(
+            type: 'string',
+        )));
     }
 
     public static function dataSetsToConstruct(): array
@@ -40,7 +45,7 @@ class ObjectsTest extends TestCase
         return [
             'default values' => [
                 OpenAPIVersion::Version_3_0,
-                new Schema(['type' => 'object',]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'object')),
                 [
                     'additionalProperties' => true,
                     'properties' => [],
@@ -52,7 +57,10 @@ class ObjectsTest extends TestCase
             ],
             'additionalProperties assigned false' => [
                 OpenAPIVersion::Version_3_0,
-                new Schema(['type' => 'object', 'additionalProperties' => false]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(
+                    type: 'object',
+                    additionalProperties: false,
+                )),
                 [
                     'additionalProperties' => false,
                     'properties' => [],
@@ -64,18 +72,24 @@ class ObjectsTest extends TestCase
             ],
             'all relevant keywords assigned values' => [
                 OpenAPIVersion::Version_3_0,
-                new Schema([
-                    'type' => 'object',
-                    'additionalProperties' => new Schema(['type' => 'string']),
-                    'properties' => ['id' => new Schema(['type' => 'integer'])],
-                    'required' => ['id'],
-                    'enum' => [false, null],
-                    'format' => 'you cannot say yes',
-                    'nullable' => true,
-                ]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(
+                    type: 'object',
+                    enum: [new Value(false), new Value(null)],
+                    nullable: true,
+                    required: ['id'],
+                    properties: ['id' => new Partial\Schema(type: 'integer')],
+                    additionalProperties: new Partial\Schema(type: 'string'),
+                    format: 'you cannot say yes',
+                )),
                 [
-                    'additionalProperties' => new Schema(['type' => 'string']),
-                    'properties' => ['id' => new Schema(['type' => 'integer'])],
+                    'additionalProperties' => new V30\Schema(
+                        new Identifier('test', 'additionalProperties'),
+                        new Partial\Schema(type: 'string')
+                    ),
+                    'properties' => ['id' => new V30\Schema(
+                        new Identifier('test', 'properties(id)'),
+                        new Partial\Schema(type: 'integer')
+                    )],
                     'required' => ['id'],
                     'enum' => [false, null],
                     'format' => 'you cannot say yes',
@@ -87,8 +101,11 @@ class ObjectsTest extends TestCase
 
     #[DataProvider('dataSetsToConstruct')]
     #[Test]
-    public function constructTest(OpenAPIVersion $openAPIVersion, Schema $schema, array $expected): void
-    {
+    public function constructTest(
+        OpenAPIVersion $openAPIVersion,
+        V30\Schema|V31\Schema $schema,
+        array $expected
+    ): void {
         $sut = new Objects($openAPIVersion, '', $schema);
 
         foreach ($expected as $key => $value) {

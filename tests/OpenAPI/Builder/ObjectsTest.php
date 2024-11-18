@@ -14,6 +14,7 @@ use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
 use Membrane\OpenAPI\Specification;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\DefaultProcessor;
@@ -33,6 +34,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 
 #[CoversClass(Objects::class)]
 #[CoversClass(APIBuilder::class)]
@@ -77,22 +80,38 @@ class ObjectsTest extends TestCase
     {
         return [
             'minimum input' => [
-                new Specification\Objects(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'object'])),
+                new Specification\Objects(
+                    OpenAPIVersion::Version_3_0,
+                    '',
+                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object')),
+                ),
                 new FieldSet('', new BeforeSet(new IsArray())),
             ],
             'minProperties greater than zero' => [
-                new Specification\Objects(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'object', 'minProperties' => 1])),
+                new Specification\Objects(
+                    OpenAPIVersion::Version_3_0,
+                    '',
+                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object', minProperties: 1)),
+                ),
                 new FieldSet('', new BeforeSet(new IsArray(), new Count(1))),
             ],
             'maxProperties is set' => [
-                new Specification\Objects(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'object', 'maxProperties' => 1])),
+                new Specification\Objects(
+                    OpenAPIVersion::Version_3_0,
+                    '',
+                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object', maxProperties: 1)),
+                ),
                 new FieldSet('', new BeforeSet(new IsArray(), new Count(0, 1))),
             ],
             'minProperties and maxProperties is set' => [
                 new Specification\Objects(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new Schema(['type' => 'object', 'minProperties' => 1, 'maxProperties' => 1])
+                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                        type: 'object',
+                        maxProperties: 1,
+                        minProperties: 1,
+                    )),
                 ),
                 new FieldSet('', new BeforeSet(new IsArray(), new Count(1, 1))),
             ],
@@ -100,13 +119,11 @@ class ObjectsTest extends TestCase
                 new Specification\Objects(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new Schema([
-                        'type' => 'object',
-                        'properties' => [
-                            'a' => new Schema(['type' => 'integer']),
-                        ],
-                        'additionalProperties' => false,
-                    ])
+                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                        type: 'object',
+                        properties: ['a' => new Partial\Schema(type: 'integer')],
+                        additionalProperties: false,
+                    )),
                 ),
                 new FieldSet('', new BeforeSet(new IsArray(), new FixedFields('a')), new Field('a', new IsInt())),
             ],
@@ -114,17 +131,15 @@ class ObjectsTest extends TestCase
                 new Specification\Objects(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new Schema([
-                        'type' => 'object',
-                        'minProperties' => 2,
-                        'maxProperties' => 5,
-                        'additionalProperties' => [
-                            'oneOf' => [
-                                new Schema(['type' => 'boolean']),
-                                new Schema(['type' => 'integer']),
-                            ],
-                        ],
-                    ])
+                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                        type: 'object',
+                        maxProperties: 5,
+                        minProperties: 2,
+                        additionalProperties: new Partial\Schema(oneOf: [
+                            new Partial\Schema(type: 'boolean'),
+                            new Partial\Schema(type: 'integer'),
+                        ]),
+                    )),
                 ),
                 new FieldSet(
                     '',
@@ -142,20 +157,18 @@ class ObjectsTest extends TestCase
                 new Specification\Objects(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new Schema(
-                        [
-                            'type' => 'object',
-                            'properties' => [
-                                'id' => new Schema(['type' => 'integer']),
-                                'name' => new Schema(['type' => 'string']),
-                            ],
-                            'required' => ['id', 'name'],
-                            'format' => 'pet',
-                            'enum' => [['id' => 5, 'name' => 'Blink'], null],
-                            'nullable' => true,
-                            'additionalProperties' => new Schema(['type' => 'string']),
-                        ]
-                    )
+                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                        type: 'object',
+                        enum: [new Value(['id' => 5, 'name' => 'Blink']), new Value(null)],
+                        nullable: true,
+                        required: ['id', 'name'],
+                        properties: [
+                            'id' => new Partial\Schema(type: 'integer'),
+                            'name' => new Partial\Schema(type: 'string'),
+                        ],
+                        additionalProperties: new Partial\Schema(type: 'string'),
+                        format: 'pet',
+                    )),
                 ),
                 new AnyOf(
                     '',
@@ -176,8 +189,8 @@ class ObjectsTest extends TestCase
         ];
     }
 
-    #[DataProvider('specificationsToBuild')]
     #[Test]
+    #[DataProvider('specificationsToBuild')]
     public function buildTest(Specification\Objects $specification, Processor $expected): void
     {
         $sut = new Objects();

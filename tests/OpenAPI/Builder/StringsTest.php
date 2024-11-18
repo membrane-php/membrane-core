@@ -11,6 +11,7 @@ use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
@@ -24,6 +25,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 
 #[CoversClass(Strings::class)]
 #[CoversClass(APIBuilder::class)]
@@ -59,15 +62,27 @@ class StringsTest extends TestCase
     {
         return [
             'minimum input' => [
-                new Specification\Strings(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'string'])),
+                new Specification\Strings(
+                    OpenAPIVersion::Version_3_0,
+                    '',
+                    new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')),
+                ),
                 new Field('', new IsString()),
             ],
             'date input' => [
-                new Specification\Strings(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'string', 'format' => 'date',])),
+                new Specification\Strings(
+                    OpenAPIVersion::Version_3_0,
+                    '',
+                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'string', format: 'date')),
+                ),
                 new Field('', new IsString(), new DateString('Y-m-d', true)),
             ],
             'date-time input' => [
-                new Specification\Strings(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'string', 'format' => 'date-time',])),
+                new Specification\Strings(
+                    OpenAPIVersion::Version_3_0,
+                    '',
+                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'string', format: 'date-time')),
+                ),
                 new Field(
                     '',
                     new IsString(),
@@ -82,17 +97,15 @@ class StringsTest extends TestCase
                 new Specification\Strings(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new Schema(
-                        [
-                            'type' => 'string',
-                            'maxLength' => 100,
-                            'minLength' => 0,
-                            'pattern' => '#.+',
-                            'format' => 'date',
-                            'enum' => ['1970/01/01', null],
-                            'nullable' => true,
-                        ]
-                    )
+                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                        type: 'string',
+                        enum: [new Value('1970/01/01'), new Value(null)],
+                        nullable: true,
+                        maxLength: 100,
+                        minLength: 0,
+                        pattern: '.+',
+                        format: 'date',
+                    )),
                 ),
                 new AnyOf(
                     '',
@@ -103,7 +116,7 @@ class StringsTest extends TestCase
                         new Contained(['1970/01/01', null]),
                         new DateString('Y-m-d', true),
                         new Length(0, 100),
-                        new Regex('#\#.+#u')
+                        new Regex('#.+#u'),
                     )
                 ),
             ],

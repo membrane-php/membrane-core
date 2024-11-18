@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Specification;
 
-use cebe\openapi\spec as Cebe;
 use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};

@@ -11,6 +11,7 @@ use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -26,6 +27,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 
 #[CoversClass(Arrays::class)]
 #[CoversClass(APIBuilder::class)]
@@ -63,25 +66,29 @@ class ArraysTest extends TestCase
     {
         return [
             'minimum input' => [
-                new Specification\Arrays(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'array'])),
+                new Specification\Arrays(
+                    OpenAPIVersion::Version_3_0,
+                    '',
+                    new V30\Schema(new Identifier('test'), new Partial\Schema(
+                        type: 'array',
+                    )),
+                ),
                 new Collection('', new BeforeSet(new IsList())),
             ],
             'detailed input' => [
                 new Specification\Arrays(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new Schema(
-                        [
-                            'type' => 'array',
-                            'items' => new Schema(['type' => 'integer']),
-                            'maxItems' => 3,
-                            'minItems' => 1,
-                            'uniqueItems' => true,
-                            'enum' => [[1, 2, 3], null],
-                            'format' => 'array of ints',
-                            'nullable' => false,
-                        ]
-                    )
+                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                        type: 'array',
+                        enum: [new Value([1, 2, 3]), new Value(null)],
+                        nullable: false,
+                        maxItems: 3,
+                        minItems: 1,
+                        uniqueItems: true,
+                        items: new Partial\Schema(type: 'integer'),
+                        format: 'array of ints',
+                    )),
                 ),
                 new Collection(
                     '',
@@ -93,18 +100,16 @@ class ArraysTest extends TestCase
                 new Specification\Arrays(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new Schema(
-                        [
-                            'type' => 'array',
-                            'items' => new Schema(['type' => 'integer']),
-                            'maxItems' => 3,
-                            'minItems' => 1,
-                            'uniqueItems' => true,
-                            'enum' => [[1, 2, 3], null],
-                            'format' => 'array of ints',
-                            'nullable' => true,
-                        ]
-                    )
+                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                        type: 'array',
+                        enum: [new Value([1, 2, 3]), new Value(null)],
+                        nullable: true,
+                        maxItems: 3,
+                        minItems: 1,
+                        uniqueItems: true,
+                        items: new Partial\Schema(type: 'integer'),
+                        format: 'array of ints',
+                    )),
                 ),
                 new AnyOf(
                     '',
@@ -119,8 +124,8 @@ class ArraysTest extends TestCase
         ];
     }
 
-    #[DataProvider('specificationsToBuild')]
     #[Test]
+    #[DataProvider('specificationsToBuild')]
     public function buildTest(Specification\Arrays $specification, Processor $expected): void
     {
         $sut = new Arrays();

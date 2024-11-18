@@ -13,6 +13,7 @@ use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
@@ -30,6 +31,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 
 #[CoversClass(Numeric::class)]
 #[CoversClass(APIBuilder::class)]
@@ -63,46 +66,74 @@ class NumericTest extends TestCase
     {
         return [
             'integer input to convert from string' => [
-                new Specification\Numeric(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'integer']), true),
+                new Specification\Numeric(
+                    OpenAPIVersion::Version_3_0,
+                    '',
+                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'integer')),
+                    true
+                ),
                 new Field('', new IntString(), new ToInt()),
             ],
             'strict integer input' => [
-                new Specification\Numeric(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'integer']), false),
+                new Specification\Numeric(
+                    OpenAPIVersion::Version_3_0,
+                    '',
+                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'integer')),
+                    false,
+                ),
                 new Field('', new IsInt()),
             ],
             'number input to convert from string' => [
-                new Specification\Numeric(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'number']), true),
+                new Specification\Numeric(
+                    OpenAPIVersion::Version_3_0,
+                    '',
+                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number')),
+                    true,
+                ),
                 new Field('', new NumericString(), new ToNumber()),
             ],
             'strict number input' => [
-                new Specification\Numeric(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'number']), false),
+                new Specification\Numeric(
+                    OpenAPIVersion::Version_3_0,
+                    '',
+                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number')),
+                    false,
+                ),
                 new Field('', new IsNumber()),
             ],
             'float input to convert from string' => [
-                new Specification\Numeric(OpenAPIVersion::Version_3_0,'', new Schema(['type' => 'number', 'format' => 'float']), true),
+                new Specification\Numeric(
+                    OpenAPIVersion::Version_3_0,
+                    '',
+                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number', format: 'float')),
+                    true,
+                ),
                 new Field('', new NumericString(), new ToFloat()),
             ],
             'strict float input' => [
-                new Specification\Numeric(OpenAPIVersion::Version_3_0,'', new Schema(['type' => 'number', 'format' => 'float']), false),
+                new Specification\Numeric(
+                    OpenAPIVersion::Version_3_0,
+                    '',
+                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number', format: 'float')),
+                    false,
+                ),
                 new Field('', new IsFloat()),
             ],
             'detailed input to convert from string' => [
                 new Specification\Numeric(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new Schema(
-                        [
-                            'type' => 'integer',
-                            'exclusiveMinimum' => true,
-                            'exclusiveMaximum' => true,
-                            'maximum' => 4,
-                            'minimum' => 0,
-                            'multipleOf' => 3,
-                            'enum' => [1, 2, 3, null],
-                            'format' => 'nullable int',
-                            'nullable' => true,
-                        ]
-                    ),
+                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                        type: 'integer',
+                        enum: [new Value(1), new Value(2), new Value(3), new Value(null)],
+                        nullable: true,
+                        multipleOf: 3,
+                        exclusiveMaximum: true,
+                        exclusiveMinimum: true,
+                        maximum: 4,
+                        minimum: 0,
+                        format: 'nullable int',
+                    )),
                     true
                 ),
                 new AnyOf(
@@ -123,19 +154,17 @@ class NumericTest extends TestCase
                 new Specification\Numeric(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new Schema(
-                        [
-                            'type' => 'integer',
-                            'exclusiveMinimum' => true,
-                            'exclusiveMaximum' => true,
-                            'maximum' => 4,
-                            'minimum' => 0,
-                            'multipleOf' => 3,
-                            'enum' => [1, 2, 3, null],
-                            'format' => 'nullable int',
-                            'nullable' => true,
-                        ]
-                    ),
+                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                        type: 'integer',
+                        enum: [new Value(1), new Value(2), new Value(3), new Value(null)],
+                        nullable: true,
+                        multipleOf: 3,
+                        exclusiveMaximum: true,
+                        exclusiveMinimum: true,
+                        maximum: 4,
+                        minimum: 0,
+                        format: 'nullable int',
+                    )),
                     false
                 ),
                 new AnyOf(

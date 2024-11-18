@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Specification;
 
-use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Strings;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Value;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -24,7 +26,7 @@ class StringsTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Strings::class, 'string', 'no type'));
 
-        new Strings(OpenAPIVersion::Version_3_0, '', new Schema([]));
+        new Strings(OpenAPIVersion::Version_3_0, '', new V30\Schema(new Identifier('test'), new Partial\Schema()));
     }
 
     #[Test]
@@ -32,7 +34,11 @@ class StringsTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Strings::class, 'string', 'integer'));
 
-        new Strings(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'integer']));
+        new Strings(
+            OpenAPIVersion::Version_3_0,
+            '',
+            new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'integer')),
+        );
     }
 
     public static function dataSetsToConstruct(): array
@@ -40,7 +46,7 @@ class StringsTest extends TestCase
         return [
             'default values' => [
                 OpenAPIVersion::Version_3_0,
-                new Schema(['type' => 'string',]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')),
                 [
                     'maxLength' => null,
                     'minLength' => 0,
@@ -52,19 +58,19 @@ class StringsTest extends TestCase
             ],
             'assigned values' => [
                 OpenAPIVersion::Version_3_0,
-                new Schema([
-                    'type' => 'string',
-                    'maxLength' => 20,
-                    'minLength' => 6,
-                    'pattern' => '#.+#',
-                    'enum' => ['This is a string', 'So is this'],
-                    'format' => 'arbitrary',
-                    'nullable' => true,
-                ]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(
+                    type: 'string',
+                    enum: [new Value('This is a string'), new Value('So is this')],
+                    nullable: true,
+                    maxLength: 20,
+                    minLength: 6,
+                    pattern: '.+',
+                    format: 'arbitrary',
+                )),
                 [
                     'maxLength' => 20,
                     'minLength' => 6,
-                    'pattern' => '#.+#',
+                    'pattern' => '.+',
                     'enum' => ['This is a string', 'So is this'],
                     'format' => 'arbitrary',
                     'nullable' => true,
@@ -75,7 +81,7 @@ class StringsTest extends TestCase
 
     #[DataProvider('dataSetsToConstruct')]
     #[Test]
-    public function constructTest(OpenAPIVersion $openAPIVersion, Schema $schema, array $expected): void
+    public function constructTest(OpenAPIVersion $openAPIVersion, V30\Schema|V31\Schema $schema, array $expected): void
     {
         $sut = new Strings($openAPIVersion, '', $schema);
 

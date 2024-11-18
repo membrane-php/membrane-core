@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Builder;
 
-use cebe\openapi\spec\Schema;
 use Membrane\Filter\Type\ToBool;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\TrueFalse;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\Tests\Fixtures\Helper\PartialHelper;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
+use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
@@ -55,7 +58,10 @@ class TrueFalseTest extends TestCase
             'input to convert from string' => [
                 new Specification\TrueFalse(OpenAPIVersion::Version_3_0,
                     '',
-                    new Schema(['type' => 'boolean']),
+                    new V30\Schema(
+                        new Identifier('test'),
+                        new Partial\Schema(type: 'boolean')
+                    ),
                     true,
                 ),
                 new Field('', new BoolString(), new ToBool()),
@@ -64,7 +70,10 @@ class TrueFalseTest extends TestCase
                 new Specification\TrueFalse(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new Schema(['type' => 'boolean']),
+                    new V30\Schema(
+                        new Identifier('test'),
+                        new Partial\Schema(type: 'boolean')
+                    ),
                     false,
                 ),
                 new Field('', new IsBool()),
@@ -73,13 +82,14 @@ class TrueFalseTest extends TestCase
                 new Specification\TrueFalse(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new Schema(
-                        [
-                            'type' => 'boolean',
-                            'enum' => [true, null],
-                            'format' => 'rather pointless boolean',
-                            'nullable' => true,
-                        ]
+                    new V30\Schema(
+                        new Identifier('test'),
+                        new Partial\Schema(
+                            type: 'boolean',
+                            enum: [new Value(true), new Value(null)],
+                            nullable: true,
+                            format: 'rather pointless boolean',
+                        )
                     ),
                     true
                 ),
@@ -93,13 +103,14 @@ class TrueFalseTest extends TestCase
                 new Specification\TrueFalse(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new Schema(
-                        [
-                            'type' => 'boolean',
-                            'enum' => [true, null],
-                            'format' => 'rather pointless boolean',
-                            'nullable' => true,
-                        ]
+                    new V30\Schema(
+                        new Identifier('test'),
+                        new Partial\Schema(
+                            type: 'boolean',
+                            enum: [new Value(true), new Value(null)],
+                            nullable: true,
+                            format: 'rather pointless boolean',
+                        )
                     ),
                     false
                 ),
@@ -112,8 +123,8 @@ class TrueFalseTest extends TestCase
         ];
     }
 
-    #[DataProvider('specificationsToBuild')]
     #[Test]
+    #[DataProvider('specificationsToBuild')]
     public function buildTest(Specification\TrueFalse $specification, Processor $expected): void
     {
         $sut = new TrueFalse();

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Specification;
 
-use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\TrueFalse;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Value;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -24,7 +26,7 @@ class TrueFalseTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(TrueFalse::class, 'boolean', 'no type'));
 
-        new TrueFalse(OpenAPIVersion::Version_3_0, '', new Schema([]));
+        new TrueFalse(OpenAPIVersion::Version_3_0, '', new V30\Schema(new Identifier('test'), new Partial\Schema()));
     }
 
     #[Test]
@@ -32,7 +34,11 @@ class TrueFalseTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(TrueFalse::class, 'boolean', 'string'));
 
-        new TrueFalse(OpenAPIVersion::Version_3_0, '', new Schema(['type' => 'string']));
+        new TrueFalse(
+            OpenAPIVersion::Version_3_0,
+            '',
+            new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string'))
+        );
     }
 
     public static function dataSetsToConstruct(): array
@@ -40,7 +46,7 @@ class TrueFalseTest extends TestCase
         return [
             'default values' => [
                 OpenAPIVersion::Version_3_0,
-                new Schema(['type' => 'boolean',]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'boolean')),
                 [
                     'enum' => null,
                     'format' => null,
@@ -49,12 +55,12 @@ class TrueFalseTest extends TestCase
             ],
             'assigned values' => [
                 OpenAPIVersion::Version_3_0,
-                new Schema([
-                    'type' => 'boolean',
-                    'enum' => [false, null],
-                    'format' => 'you cannot say yes',
-                    'nullable' => true,
-                ]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(
+                    type: 'boolean',
+                    nullable: true,
+                    enum: [new Value(false), new Value(null)],
+                    format: 'you cannot say yes',
+                )),
                 [
                     'enum' => [false, null],
                     'format' => 'you cannot say yes',
@@ -68,7 +74,7 @@ class TrueFalseTest extends TestCase
     #[Test]
     public function constructTest(
         OpenAPIVersion $openAPIVersion,
-        Schema $schema,
+        V30\Schema | V31\Schema $schema,
         array $expected
     ): void {
         $sut = new TrueFalse($openAPIVersion, '', $schema);
