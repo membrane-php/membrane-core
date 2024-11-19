@@ -6,7 +6,6 @@ namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Specification\Parameter;
-use Membrane\OpenAPI\TempHelpers\CreatesSchema;
 use Membrane\Processor;
 
 class ParameterBuilder extends APIBuilder
@@ -28,15 +27,9 @@ class ParameterBuilder extends APIBuilder
         bool $convertFromString = false,
         bool $convertFromArray = false,
     ): Processor {
-        $schema = CreatesSchema::create(
-            $specification->openAPIVersion,
-            $specification->name,
-            $specification->schema,
-        );
-
         $schemaProcessor = $this->fromSchema(
             $specification->openAPIVersion,
-            $schema,
+            $specification->schema,
             $specification->name,
             $convertFromString,
             $convertFromArray,

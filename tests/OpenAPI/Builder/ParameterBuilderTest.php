@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Membrane\Tests\OpenAPI\Builder;
 
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Valid\Identifier;
 use cebe\openapi\Reader;
 use cebe\openapi\spec as Cebe;
 use Membrane\Builder\Specification;
@@ -12,6 +13,8 @@ use Membrane\Filter\String\Explode;
 use Membrane\OpenAPI\Builder as OpenAPIBuilder;
 use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
 use Membrane\OpenAPI\Specification as OpenAPISpecification;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\Processor;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
@@ -63,35 +66,26 @@ class ParameterBuilderTest extends TestCase
         return [
             [
                 OpenAPIVersion::Version_3_0,
-                Reader::readFromJson(
-                    json_encode([
-                        'name' => 'id',
-                        'in' => 'path',
-                        'schema' => [
-                            'type' => 'integer',
-                        ],
-                    ]),
-                    Cebe\Parameter::class
-                ),
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'path',
+                    required: true,
+                    schema: new Partial\Schema(type: 'integer'),
+                )),
                 new Processor\Field('id', new IsInt()),
             ],
             [
                 OpenAPIVersion::Version_3_0,
-                Reader::readFromJson(
-                    json_encode([
-                        'name' => 'tags',
-                        'in' => 'query',
-                        'style' => 'spaceDelimited',
-                        'explode' => false,
-                        'schema' => [
-                            'type' => 'array',
-                            'items' => [
-                                'type' => 'string',
-                            ],
-                        ],
-                    ]),
-                    Cebe\Parameter::class
-                ),
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'tags',
+                    in: 'query',
+                    style: 'spaceDelimited',
+                    explode: false,
+                    schema: new Partial\Schema(
+                        type: 'array',
+                        items: new Partial\Schema(type: 'string'),
+                    ),
+                )),
                 new Processor\Collection(
                     'tags',
                     new Processor\BeforeSet(new SpaceDelimited(), new IsList()),
@@ -105,7 +99,7 @@ class ParameterBuilderTest extends TestCase
     #[DataProvider('provideParameterSpecificationsToBuildFrom')]
     public function itBuildsProcessorsForParameters(
         OpenAPIVersion $openApiVersion,
-        Cebe\Parameter $parameter,
+        V30\Parameter|V31\Parameter $parameter,
         Processor $expectedProcessor
     ): void {
         $actualProcessor = $this->sut->build(new OpenAPISpecification\Parameter(
