@@ -9,7 +9,7 @@ use Membrane\OpenAPI;
 use Membrane\OpenAPI\Processor\AllOf;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
-use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30};
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\Processor;
 use Membrane\Processor\Field;
@@ -27,7 +27,7 @@ abstract class APIBuilder implements Builder
 
     public function fromSchema(
         OpenAPIVersion $openAPIVersion,
-        V30\Schema|V31\Schema $schema,
+        V30\Schema $schema,
         string $fieldName = '',
         bool $convertFromString = false,
         bool $convertFromArray = false,
@@ -147,7 +147,7 @@ abstract class APIBuilder implements Builder
 
     /**
      * @param class-string<AllOf|AnyOf|OneOf> $complexSchemaClass
-     * @param non-empty-array<V30\Schema|V31\Schema> $subSchemas
+     * @param non-empty-array<V30\Schema> $subSchemas
      */
     private function fromComplexSchema(
         OpenAPIVersion $openAPIVersion,

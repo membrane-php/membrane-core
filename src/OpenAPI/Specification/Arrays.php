@@ -6,12 +6,12 @@ namespace Membrane\OpenAPI\Specification;
 
 use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Valid\V30;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 
 class Arrays extends APISchema
 {
-    public readonly V30\Schema|V31\Schema|null $items;
+    public readonly V30\Schema|null $items;
     public readonly ?int $maxItems;
     public readonly int $minItems;
     public readonly bool $uniqueItems;
@@ -19,7 +19,7 @@ class Arrays extends APISchema
     public function __construct(
         OpenAPIVersion $openAPIVersion,
         string $fieldName,
-        V30\Schema|V31\Schema $schema,
+        V30\Schema $schema,
         public readonly bool $convertFromString = false,
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,

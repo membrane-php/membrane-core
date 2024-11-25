@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Specification;
 
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
-use Membrane\OpenAPI\TempHelpers\ChecksTypeSupported;
+use Membrane\OpenAPI\TempHelpers\ChecksNumericTypeOrNull;
+use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
+use Membrane\OpenAPIReader\ValueObject\Valid\V30;
 
 class Numeric extends APISchema
 {
@@ -22,27 +23,30 @@ class Numeric extends APISchema
     public function __construct(
         OpenAPIVersion $openAPIVersion,
         string $fieldName,
-        V30\Schema|V31\Schema $schema,
+        V30\Schema $schema,
         public readonly bool $convertFromString = false,
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
     ) {
-        ChecksTypeSupported::check($schema->type);
+        ChecksNumericTypeOrNull::check(
+            self::class,
+            $schema->type
+        );
 
-        if (
-            $schema->type === null
-            || ! ($schema->canBe(Type::Number) || $schema->canBe(Type::Integer))
-        ) {
+        $types = $schema->getTypes();
+
+        if (in_array(Type::Integer, $types)) {
+            $this->type = Type::Integer->value;
+        } elseif (in_array(Type::Number, $types)) {
+            $this->type = Type::Number->value;
+        } else {
             throw CannotProcessSpecification::mismatchedType(
                 self::class,
                 'integer or number',
-                is_array($schema->type) ?
-                    implode(',', array_map(fn($t) => $t->value, $schema->type)) :
-                    $schema->type?->value,
+                implode(',', array_map(fn($t) => $t->value, $types)),
             );
         }
 
-        $this->type = $schema->canBe(Type::Integer) ? 'integer' : 'number';
         $this->exclusiveMaximum = $schema->getRelevantMaximum()?->exclusive ?? false;
         $this->exclusiveMinimum = $schema->getRelevantMinimum()?->exclusive ?? false;
         $this->maximum = $schema->getRelevantMaximum()?->limit;

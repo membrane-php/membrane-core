@@ -7,7 +7,7 @@ namespace Membrane\OpenAPI\Specification;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Valid\V30;
 
 class Parameter implements Specification
 {
@@ -16,11 +16,11 @@ class Parameter implements Specification
     public readonly bool $required;
     public readonly string $style;
     public readonly bool $explode;
-    public readonly V30\Schema|V31\Schema $schema;
+    public readonly V30\Schema $schema;
 
     public function __construct(
         public readonly OpenAPIVersion $openAPIVersion,
-        V30\Parameter|V31\Parameter $parameter,
+        V30\Parameter $parameter,
     ) {
         $this->name = $parameter->name;
         $this->in = $parameter->in->value;

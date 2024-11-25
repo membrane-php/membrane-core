@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
-use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
 use Membrane\Filter;
 use Membrane\OpenAPI\Filter\FormatStyle\DeepObject;

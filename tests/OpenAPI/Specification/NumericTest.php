@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Membrane\OpenAPIReader\ValueObject\Partial;
-use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
 
 #[CoversClass(Numeric::class)]
 #[CoversClass(APISchema::class)]
@@ -134,7 +134,7 @@ class NumericTest extends TestCase
     #[Test]
     public function constructTest(
         OpenAPIVersion $openAPIVersion,
-        V30\Schema|V31\Schema $schema,
+        V30\Schema $schema,
         array $expected
     ): void {
         $sut = new Numeric($openAPIVersion, '', $schema);

@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\TempHelpers;
 
-use cebe\openapi\spec as Cebe;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPIReader\Factory;
-use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
-use Membrane\OpenAPIReader\ValueObject\Valid\Identifier;
-use RuntimeException;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type};
 
 final class ChecksOnlyTypeOrNull
 {

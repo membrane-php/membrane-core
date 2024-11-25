@@ -7,7 +7,7 @@ namespace Membrane\OpenAPI\Specification;
 use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
 use Membrane\OpenAPIReader\Factory;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30};
 
 class Strings extends APISchema
 {
@@ -18,7 +18,7 @@ class Strings extends APISchema
     public function __construct(
         OpenAPIVersion $openAPIVersion,
         string $fieldName,
-        V30\Schema|V31\Schema $schema,
+        V30\Schema $schema,
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
     ) {

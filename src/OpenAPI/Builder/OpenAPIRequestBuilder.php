@@ -79,10 +79,7 @@ class OpenAPIRequestBuilder implements Builder
             'query' => $location([new Filter\QueryStringToArray(array_combine(
                 array_map(fn($p) => $p->name, $queryParameters),
                 array_map(
-                    fn($p) => [
-                        'style' => $p->style,
-                        'explode' => $p->explode
-                    ],
+                    fn($p) => ['style' => $p->style, 'explode' => $p->explode],
                     $queryParameters,
                 )
             ))]),

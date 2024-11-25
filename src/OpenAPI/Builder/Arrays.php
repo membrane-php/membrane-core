@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
-use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
-use Membrane\Exception\InvalidProcessorArguments;
 use Membrane\Filter;
-use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPI\Filter\FormatStyle\PipeDelimited;
 use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
-use Membrane\OpenAPIReader\Exception\InvalidOpenAPI;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
