@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
-use Membrane\OpenAPIReader\Exception\CannotSupport;
-use cebe\openapi\spec as Cebe;
 use Membrane\Builder\Builder;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessResponse;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
-use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
+use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\Reader;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\V30;
 use Membrane\Processor;
 
-//TODO replace Reader with Membrane Reader
 class ResponseBuilder implements Builder
 {
     private OpenAPIResponseBuilder $responseBuilder;
@@ -32,11 +30,14 @@ class ResponseBuilder implements Builder
     {
         assert($specification instanceof Response);
 
-        $openAPI = (new Reader([OpenAPIVersion::Version_3_0, OpenAPIVersion::Version_3_1]))
-            ->readFromAbsoluteFilePath($specification->absoluteFilePath);
+        $openAPI = (new MembraneReader([
+            OpenAPIVersion::Version_3_0,
+            //TODO support 3.1
+            //OpenAPIVersion::Version_3_1
+        ]))->readFromAbsoluteFilePath($specification->absoluteFilePath);
 
         $serverUrl = $this->matchServer($openAPI, $specification->url);
-        foreach ($openAPI->paths->getPaths() as $path => $pathItem) {
+        foreach ($openAPI->paths as $path => $pathItem) {
             $pathMatcher = new PathMatcher($serverUrl, $path);
             if (!$pathMatcher->matches($specification->url)) {
                 continue;
@@ -47,8 +48,7 @@ class ResponseBuilder implements Builder
             $response = $this->getResponse($operation, $specification->statusCode);
 
             $newSpecification = new OpenAPIResponse(
-                OpenAPIVersion::fromString($openAPI->openapi)
-                    ?? throw CannotSupport::unsupportedVersion($openAPI->openapi),
+                OpenAPIVersion::Version_3_0, //TODO change to a conditional when supporting 3.1
                 $operation->operationId,
                 $specification->statusCode,
                 $response
@@ -73,24 +73,20 @@ class ResponseBuilder implements Builder
     }
 
 
-    private function getOperation(Cebe\PathItem $pathItem, Method $method): Cebe\Operation
+    private function getOperation(V30\PathItem $pathItem, Method $method): V30\Operation
     {
         return $pathItem->getOperations()[$method->value]
-            ??
-            throw CannotProcessSpecification::methodNotFound($method->value);
+            ?? throw CannotProcessSpecification::methodNotFound($method->value);
     }
 
-    private function getResponse(Cebe\Operation $operation, string $httpStatus): Cebe\Response
+    private function getResponse(V30\Operation $operation, string $httpStatus): V30\Response
     {
-        $response = $operation->responses?->getResponse($httpStatus) ??
-            $operation->responses?->getResponse('default');
-
-        assert(!$response instanceof Cebe\Reference);
-
-        return $response ?? throw CannotProcessResponse::codeNotFound($httpStatus);
+        return $operation->responses[$httpStatus]
+            ?? $operation->responses['default']
+            ?? throw CannotProcessResponse::codeNotFound($httpStatus);
     }
 
-    private function matchServer(Cebe\OpenApi $openAPI, string $url): string
+    private function matchServer(V30\OpenAPI $openAPI, string $url): string
     {
         $servers = $openAPI->servers;
         uasort($servers, fn($a, $b) => strlen($b->url) <=> strlen($a->url));

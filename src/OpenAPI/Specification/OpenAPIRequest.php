@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Specification;
 
-use cebe\openapi\spec as Cebe;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
@@ -12,18 +11,19 @@ use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\ExtractsPathParameters;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\V30;
 
 class OpenAPIRequest implements Specification
 {
-    /** @var array<string, Cebe\Parameter> */
+    /** @var array<string, V30\Parameter> */
     public readonly array $parameters;
     public readonly string $operationId;
-    public readonly ?Cebe\Schema $requestBodySchema;
+    public readonly ?V30\Schema $requestBodySchema;
 
     public function __construct(
         public readonly OpenAPIVersion $openAPIVersion,
         public readonly ExtractsPathParameters $pathParameterExtractor,
-        private readonly Cebe\PathItem $path,
+        private readonly V30\PathItem $path,
         public readonly Method $method,
     ) {
         $operation = $this->getOperation($this->path, $this->method);
@@ -33,15 +33,14 @@ class OpenAPIRequest implements Specification
         assert(isset($operation->operationId));
         $this->operationId = $operation->operationId;
 
-        assert(!$operation->requestBody instanceof Cebe\Reference);
         $this->requestBodySchema = $operation->requestBody === null ?
             null
             :
             $this->getRequestBodySchema($operation->requestBody->content);
     }
 
-    /** @param Cebe\MediaType[] $content */
-    private function getRequestBodySchema(array $content): ?Cebe\Schema
+    /** @param V30\MediaType[] $content */
+    private function getRequestBodySchema(array $content): ?V30\Schema
     {
         if ($content === []) {
             return null;
@@ -50,7 +49,7 @@ class OpenAPIRequest implements Specification
         foreach ($content as $contentType => $mediaType) {
             if (
                 ContentType::fromContentTypeHeader($contentType) !== ContentType::Unmatched &&
-                $mediaType->schema instanceof Cebe\Schema
+                $mediaType->schema instanceof V30\Schema
             ) {
                 return $mediaType->schema;
             }
@@ -59,19 +58,19 @@ class OpenAPIRequest implements Specification
         throw CannotProcessOpenAPI::unsupportedMediaTypes(...array_keys($content));
     }
 
-    private function getOperation(Cebe\PathItem $pathItem, Method $method): Cebe\Operation
+    private function getOperation(V30\PathItem $pathItem, Method $method): V30\Operation
     {
         return $pathItem->getOperations()[$method->value]
             ??
             throw CannotProcessSpecification::methodNotFound($method->value);
     }
 
-    /** @return array<string,Cebe\Parameter> */
-    private function getParameters(Cebe\PathItem $path, Cebe\Operation $operation): array
+    /** @return array<string,V30\Parameter> */
+    private function getParameters(V30\PathItem $path, V30\Operation $operation): array
     {
         $parameters = array_filter(
             array_merge($path->parameters, $operation->parameters),
-            fn($p) => $p instanceof Cebe\Parameter
+            fn($p) => $p instanceof V30\Parameter
         );
 
         $parameters = array_combine(array_map(fn($p) => $p->name, $parameters), $parameters);

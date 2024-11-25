@@ -4,26 +4,26 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Specification;
 
-use cebe\openapi\spec as Cebe;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Valid\V30;
 
 class OpenAPIResponse implements Specification
 {
-    public readonly ?Cebe\Schema $schema;
+    public readonly V30\Schema|null $schema;
 
     public function __construct(
         public readonly OpenAPIVersion $openAPIVersion,
         public readonly string $operationId,
         public readonly string $statusCode,
-        Cebe\Response $response
+        V30\Response $response
     ) {
         $this->schema = $this->getSchema($response->content);
     }
 
-    /** @param Cebe\MediaType[] $content */
-    private function getSchema(array $content): ?Cebe\Schema
+    /** @param array<string, V30\MediaType> $content */
+    private function getSchema(array $content): V30\Schema|null
     {
         if ($content === []) {
             return null;
@@ -33,7 +33,6 @@ class OpenAPIResponse implements Specification
             ??
             throw CannotProcessOpenAPI::unsupportedMediaTypes(...array_keys($content));
 
-        assert($schema instanceof Cebe\Schema);
         return $schema;
     }
 }

@@ -6,7 +6,6 @@ namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
-use Membrane\OpenAPI\TempHelpers\CreatesSchema;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Utility\Passes;
@@ -31,8 +30,6 @@ class OpenAPIResponseBuilder extends APIBuilder
             return new Field('', new Passes());
         }
 
-        $schema = CreatesSchema::create($response->openAPIVersion, '', $response->schema);
-
-        return $this->fromSchema($response->openAPIVersion, $schema);
+        return $this->fromSchema($response->openAPIVersion, $response->schema);
     }
 }

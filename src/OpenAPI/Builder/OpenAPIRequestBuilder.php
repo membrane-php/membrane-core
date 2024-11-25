@@ -10,8 +10,6 @@ use Membrane\OpenAPI\Filter;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Parameter;
-use Membrane\OpenAPI\TempHelpers\CreatesParameters;
-use Membrane\OpenAPI\TempHelpers\CreatesSchema;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\In;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
@@ -50,15 +48,9 @@ class OpenAPIRequestBuilder implements Builder
             return new Field('requestBody', new Passes());
         }
 
-        $schema = CreatesSchema::create(
-            $specification->openAPIVersion,
-            'requestBody',
-            $specification->requestBodySchema,
-        );
-
         return $this->getParameterBuilder()->fromSchema(
             $specification->openAPIVersion,
-            $schema,
+            $specification->requestBodySchema,
             'requestBody',
         );
     }
@@ -68,7 +60,7 @@ class OpenAPIRequestBuilder implements Builder
     {
         $parameters = array_map(
             fn($p) => new Parameter($specification->openAPIVersion, $p),
-            CreatesParameters::create($specification->openAPIVersion, $specification->parameters),
+            $specification->parameters,
         );
 
         $queryParameters = array_filter($parameters, fn($p) => $p->in === 'query');

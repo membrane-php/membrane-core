@@ -4,23 +4,22 @@ declare(strict_types=1);
 
 namespace Membrane\Console\Service;
 
-use cebe\openapi\spec as Cebe;
 use Membrane\Console\Template;
 use Membrane\Filter\String\AlphaNumeric;
 use Membrane\Filter\String\ToPascalCase;
 use Membrane\OpenAPI\Builder\{OpenAPIRequestBuilder, OpenAPIResponseBuilder};
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
-use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPI\Specification\{OpenAPIRequest, OpenAPIResponse};
 use Membrane\OpenAPIReader\Exception\CannotRead;
 use Membrane\OpenAPIReader\Exception\CannotSupport;
 use Membrane\OpenAPIReader\Exception\InvalidOpenAPI;
+use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\Reader;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
+use Membrane\OpenAPIReader\ValueObject\Valid\V30;
 use Membrane\Processor;
 use Psr\Log\LoggerInterface;
 
-//TODO replace Reader with MembraneReader once out of builders
 class CacheOpenAPIProcessors
 {
     private OpenAPIRequestBuilder $requestBuilder;
@@ -43,8 +42,10 @@ class CacheOpenAPIProcessors
     ): bool {
         $this->logger->info("Reading OpenAPI from $openAPIFilePath");
         try {
-            $openAPI = (new Reader([OpenAPIVersion::Version_3_0, OpenAPIVersion::Version_3_1]))
-                ->readFromAbsoluteFilePath($openAPIFilePath);
+            $openAPI = (new MembraneReader([
+                OpenAPIVersion::Version_3_0,
+                //OpenAPIVersion::Version_3_1, //TODO support 3.1
+            ]))->readFromAbsoluteFilePath($openAPIFilePath);
         } catch (CannotRead | CannotSupport | InvalidOpenAPI $e) {
             $this->logger->error($e->getMessage());
             return false;
@@ -219,8 +220,10 @@ class CacheOpenAPIProcessors
      *              'response'?: array<string,Processor>
      *          }>
      */
-    private function buildProcessors(Cebe\OpenApi $openAPI, bool $buildRequests, bool $buildResponses): array
+    private function buildProcessors(V30\OpenAPI $openAPI, bool $buildRequests, bool $buildResponses): array
     {
+        $version = OpenAPIVersion::Version_3_0; // TODO replace with conditional once supporting 3.1
+
         $processors = [];
         foreach ($openAPI->paths as $pathUrl => $path) {
             $this->logger->info("Building Processors for $pathUrl");
@@ -235,8 +238,7 @@ class CacheOpenAPIProcessors
                     $this->logger->info('Building Request processor');
                     $processors[$operation->operationId]['request'] = $this->getRequestBuilder()->build(
                         new OpenAPIRequest(
-                            OpenAPIVersion::fromString($openAPI->openapi)
-                                ?? throw CannotSupport::unsupportedVersion($openAPI->openapi),
+                            $version,
                             new PathParameterExtractor($pathUrl),
                             $path,
                             $methodObject,
@@ -247,16 +249,12 @@ class CacheOpenAPIProcessors
                 if ($buildResponses) {
                     assert(!is_null($operation->responses));
                     $processors[$operation->operationId]['response'] = [];
-                    foreach ($operation->responses->getResponses() as $code => $response) {
+                    foreach ($operation->responses as $code => $response) {
                         $this->logger->info("Building $code Response Processor");
-                        if (!$response instanceof Cebe\Response) {
-                            continue;
-                        }
 
                         $processors[$operation->operationId]['response'][$code] = $this->getResponseBuilder()->build(
                             new OpenAPIResponse(
-                                OpenAPIVersion::fromString($openAPI->openapi)
-                                    ?? throw CannotSupport::unsupportedVersion($openAPI->openapi),
+                                $version,
                                 $operation->operationId,
                                 (string)$code,
                                 $response,
