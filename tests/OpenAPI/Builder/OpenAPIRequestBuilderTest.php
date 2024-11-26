@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Builder;
 
-use cebe\openapi\spec as Cebe;
 use Generator;
 use GuzzleHttp\Psr7\ServerRequest;
-use Membrane\Builder\Specification;
 use Membrane\Filter\Shape\KeyValueSplit;
 use Membrane\Filter\String\Explode;
 use Membrane\Filter\String\Implode;
@@ -34,7 +32,6 @@ use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPI\Filter\FormatStyle\PipeDelimited;
 use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
-use Membrane\OpenAPI\Filter\HTTPParameters;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Filter\QueryStringToArray;
 use Membrane\OpenAPI\Processor\AllOf;
@@ -46,14 +43,12 @@ use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPI\Specification\TrueFalse;
-use Membrane\OpenAPIReader\FileFormat;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\Reader;
+use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
-use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\OpenAPIReader\ValueObject\Valid\Identifier;
-use Membrane\Processor;
+use Membrane\OpenAPIReader\ValueObject\Valid\V30;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
 use Membrane\Processor\DefaultProcessor;
@@ -64,8 +59,6 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use Membrane\Tests\Fixtures\OpenAPI\MakesOperation;
-use Membrane\Tests\Fixtures\OpenAPI\MakesPathItem;
 use Membrane\Tests\MembraneTestCase;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Numeric\Maximum;
@@ -84,8 +77,6 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\UsesClass;
 use Psr\Http\Message\ServerRequestInterface;
-use Membrane\OpenAPIReader\ValueObject\Partial;
-use Membrane\OpenAPIReader\ValueObject\Valid\V30;
 
 #[CoversClass(OpenAPIRequestBuilder::class)]
 #[CoversClass(ParameterBuilder::class)]

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\Console\Template;
 
-use cebe\openapi\Reader;
 use Membrane\Console\Template;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPIReader\MembraneReader;

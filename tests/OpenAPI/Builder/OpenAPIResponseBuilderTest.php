@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Builder;
 
-use cebe\openapi\Reader;
 use Generator;
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\ToUpperCase;

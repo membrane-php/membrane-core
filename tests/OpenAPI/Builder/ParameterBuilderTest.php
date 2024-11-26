@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Builder;
 
-use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\ValueObject\Valid\Identifier;
-use cebe\openapi\Reader;
-use cebe\openapi\spec as Cebe;
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\Explode;
 use Membrane\OpenAPI\Builder as OpenAPIBuilder;
 use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
 use Membrane\OpenAPI\Specification as OpenAPISpecification;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
-use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30};
+use Membrane\OpenAPIReader\ValueObject\Valid\Identifier;
 use Membrane\Processor;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
