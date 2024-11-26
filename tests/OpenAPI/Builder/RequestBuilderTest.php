@@ -28,6 +28,7 @@ use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
+use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
@@ -378,7 +379,10 @@ class RequestBuilderTest extends MembraneTestCase
                             new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form' , 'explode' => true]])),
                             new Field('id', new Form('integer', false), new IntString(), new ToInt())
                         ),
-                        'header' => new FieldSet('header'),
+                        'header' => new FieldSet(
+                            'header',
+                            new Field('id', new Implode(','), new IntString(), new ToInt())
+                        ),
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new Passes()),
                     ]

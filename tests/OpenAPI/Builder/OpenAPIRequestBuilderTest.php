@@ -47,10 +47,12 @@ use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPI\Specification\TrueFalse;
 use Membrane\OpenAPIReader\FileFormat;
+use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
+use Membrane\OpenAPIReader\ValueObject\Valid\Identifier;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -82,6 +84,8 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\UsesClass;
 use Psr\Http\Message\ServerRequestInterface;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\V30;
 
 #[CoversClass(OpenAPIRequestBuilder::class)]
 #[CoversClass(ParameterBuilder::class)]
@@ -173,18 +177,19 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
     #[Test, TestDox('It currently only supports application/json content')]
     public function throwsExceptionIfParameterHasContentThatIsNotJson(): void
     {
-        $openApi = (new Reader([OpenAPIVersion::Version_3_0]))
-            ->readFromAbsoluteFilePath(self::FIXTURES . 'noReferences.json');
+        $openAPI = (new MembraneReader([OpenAPIVersion::Version_3_0]))
+            ->readFromAbsoluteFilePath((self::FIXTURES . 'noReferences.json'));
 
         $specification = new OpenAPIRequest(
             OpenAPIVersion::Version_3_0,
             new PathParameterExtractor('/requestpathexceptions'),
-            $openApi->paths->getPath('/requestpathexceptions'),
+            $openAPI->paths['/requestpathexceptions'],
             Method::POST
         );
+
         $sut = new OpenAPIRequestBuilder();
 
-        $mediaTypes = array_keys($openApi->paths->getPath('/requestpathexceptions')->post->parameters[0]->content);
+        $mediaTypes = array_keys($openAPI->paths['/requestpathexceptions']->post->parameters[0]->content);
 
         self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes(...$mediaTypes));
 
@@ -223,522 +228,519 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         self::assertSame($expected->value, $actual->value);
     }
 
-    public static function dataSetsForBuild(): Generator
-    {
-        $noRefAPI = (new Reader([OpenAPIVersion::Version_3_0]))
-            ->readFromAbsoluteFilePath(__DIR__ . '/../../fixtures/OpenAPI/noReferences.json');
-
-        yield 'Request: no path params, no operation params, no requestBody' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/path'),
-                $noRefAPI->paths->getPath('/path'),
-                Method::GET
-            ),
-            new RequestProcessor(
-                '',
-                'path-get',
-                Method::GET,
-                [
-                    'path' => new FieldSet(
-                        'path',
-                        new BeforeSet(
-                            new PathMatcher(new PathParameterExtractor('/path'))
-                        )
-                    ),
-                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-                    'header' => new FieldSet('header'),
-                    'cookie' => new FieldSet('cookie'),
-                    'body' => new Field('requestBody', new Passes()),
-                ]
-            ),
-        ];
-        yield 'Patch Request: no path params, no operation params, no requestBody' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/path'),
-                $noRefAPI->paths->getPath('/path'),
-                Method::PATCH
-            ),
-            new RequestProcessor(
-                '',
-                'path-patch',
-                Method::PATCH,
-                [
-                    'path' => new FieldSet(
-                        'path',
-                        new BeforeSet(
-                            new PathMatcher(new PathParameterExtractor('/path'))
-                        )
-                    ),
-                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-                    'header' => new FieldSet('header'),
-                    'cookie' => new FieldSet('cookie'),
-                    'body' => new Field('requestBody', new Passes()),
-                ]
-            ),
-        ];
-        yield 'Request: path param in path, no operation params, no requestBody' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/requestpathone/{id}'),
-                $noRefAPI->paths->getPath('/requestpathone/{id}'),
-                Method::GET
-            ),
-            new RequestProcessor(
-                '',
-                'requestpathone-get',
-                Method::GET,
-                [
-                    'path' => new FieldSet(
-                        'path',
-                        new BeforeSet(
-                            new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
-                            new RequiredFields('id')
-                        ),
-                        new Field('id', new IntString(), new ToInt())
-                    ),
-                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-                    'header' => new FieldSet('header'),
-                    'cookie' => new FieldSet('cookie'),
-                    'body' => new Field('requestBody', new Passes()),
-                ]
-            ),
-        ];
-        yield 'Request: path param in path, operation param in query not required, no requestBody' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/requestpathone/{id}'),
-                $noRefAPI->paths->getPath('/requestpathone/{id}'),
-                Method::POST
-            ),
-            new RequestProcessor(
-                '',
-                'requestpathone-post',
-                Method::POST,
-                [
-                    'path' => new FieldSet(
-                        'path',
-                        new BeforeSet(
-                            new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
-                            new RequiredFields('id')
-                        ),
-                        new Field('id', new IntString(), new ToInt())
-                    ),
-                    'query' => new FieldSet(
-                        'query',
-                        new BeforeSet(new QueryStringToArray(['age' => ['style' => 'form', 'explode' => true]])),
-                        new Field('age', new Form('integer', false), new IntString(), new ToInt())
-                    ),
-                    'header' => new FieldSet('header'),
-                    'cookie' => new FieldSet('cookie'),
-                    'body' => new Field('requestBody', new Passes()),
-                ]
-            ),
-        ];
-        yield 'Request: path param in path, operation param in query required, no requestBody' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/requestpathone/{id}'),
-                new Cebe\PathItem([
-                    'parameters' => [
-                        new Cebe\Parameter([
-                            'name' => 'id',
-                            'in' => 'path',
-                            'required' => true,
-                            'schema' => new Cebe\Schema(['type' => 'integer']),
-                        ]),
-                    ],
-                    'put' => new Cebe\Operation([
-                        'operationId' => 'requestpathone-post',
-                        'parameters' => [
-                            new Cebe\Parameter(
-                                [
-                                    'name' => 'name',
-                                    'in' => 'query',
-                                    'required' => true,
-                                    'schema' => new Cebe\Schema(['type' => 'string']),
-                                ]
-                            ),
-                        ],
-                    ]),
-                ]),
-                Method::PUT
-            ),
-            new RequestProcessor(
-                '',
-                'requestpathone-post',
-                Method::PUT,
-                [
-                    'path' => new FieldSet(
-                        'path',
-                        new BeforeSet(
-                            new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
-                            new RequiredFields('id')
-                        ),
-                        new Field('id', new IntString(), new ToInt())
-                    ),
-                    'query' => new FieldSet(
-                        'query',
-                        new BeforeSet(
-                            new QueryStringToArray(
-                                ['name' => ['style' => 'form', 'explode' => true]]
-                            ),
-                            new RequiredFields('name')
-                        ),
-                        new Field('name', new Form('string', false), new IsString())
-                    ),
-                    'header' => new FieldSet('header'),
-                    'cookie' => new FieldSet('cookie'),
-                    'body' => new Field('requestBody', new Passes()),
-                ]
-            ),
-        ];
-        yield 'Request: path param in path, operation param in query with json content, required, no requestBody' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/requestpathone/{id}'),
-                $noRefAPI->paths->getPath('/requestpathone/{id}'),
-                Method::DELETE
-            ),
-            new RequestProcessor(
-                '',
-                'requestpathone-delete',
-                Method::DELETE,
-                [
-                    'path' => new FieldSet(
-                        'path',
-                        new BeforeSet(
-                            new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
-                            new RequiredFields('id')
-                        ),
-                        new Field('id', new IntString(), new ToInt())
-                    ),
-                    'query' => new FieldSet(
-                        'query',
-                        new BeforeSet(
-                            new QueryStringToArray(
-                                ['name' => ['style' => 'form', 'explode' => true]]
-                            ),
-                            new RequiredFields('name')
-                        ),
-                        new Field('name', new Form('string', false), new IsString())
-                    ),
-                    'header' => new FieldSet('header'),
-                    'cookie' => new FieldSet('cookie'),
-                    'body' => new Field('requestBody', new Passes()),
-                ]
-            ),
-        ];
-        yield 'Request: path param in header, no requestBody' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/requestpathtwo'),
-                $noRefAPI->paths->getPath('/requestpathtwo'),
-                Method::GET
-            ),
-            new RequestProcessor(
-                '',
-                'requestpathtwo-get',
-                Method::GET,
-                [
-                    'path' => new FieldSet(
-                        'path',
-                        new BeforeSet(
-                            new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
-                        )
-                    ),
-                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
-                    'cookie' => new FieldSet('cookie'),
-                    'body' => new Field('requestBody', new Passes()),
-                ]
-            ),
-        ];
-        yield 'Request: path param in header, operation param in cookie, no requestBody' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/requestpathtwo'),
-                $noRefAPI->paths->getPath('/requestpathtwo'),
-                Method::POST
-            ),
-            new RequestProcessor(
-                '',
-                'requestpathtwo-post',
-                Method::POST,
-                [
-                    'path' => new FieldSet(
-                        'path',
-                        new BeforeSet(
-                            new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
-                        )
-                    ),
-                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
-                    'cookie' => new FieldSet('cookie', new Field('name', new Form('string', false), new IsString())),
-                    'body' => new Field('requestBody', new Passes()),
-                ]
-            ),
-        ];
-
-        yield 'Request: identical param in header and query, no requestBody' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/requestpathtwo'),
-                $noRefAPI->paths->getPath('/requestpathtwo'),
-                Method::PUT
-            ),
-            new RequestProcessor(
-                '',
-                'requestpathtwo-put',
-                Method::PUT,
-                [
-                    'path' => new FieldSet(
-                        'path',
-                        new BeforeSet(
-                            new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
-                        )
-                    ),
-                    'query' => new FieldSet(
-                        'query',
-                        new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form', 'explode' => true]])),
-                        new Field('id', new Form('integer', false), new IntString(), new ToInt())
-                    ),
-                    'header' => new FieldSet('header'),
-                    'cookie' => new FieldSet('cookie'),
-                    'body' => new Field('requestBody', new Passes()),
-                ]
-            ),
-        ];
-
-        yield 'Request: same param in path and operation with different types, no requestBody' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/requestpathtwo'),
-                $noRefAPI->paths->getPath('/requestpathtwo'),
-                Method::DELETE
-            ),
-            new RequestProcessor(
-                '',
-                'requestpathtwo-delete',
-                Method::DELETE,
-                [
-                    'path' => new FieldSet(
-                        'path',
-                        new BeforeSet(
-                            new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
-                        )
-                    ),
-                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IsString())),
-                    'cookie' => new FieldSet('cookie'),
-                    'body' => new Field('requestBody', new Passes()),
-                ]
-            ),
-        ];
-
-        yield 'Request: requestBody param' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/requestbodypath'),
-                $noRefAPI->paths->getPath('/requestbodypath'),
-                Method::GET
-            ),
-            new RequestProcessor(
-                '',
-                'requestbodypath-get',
-                Method::GET,
-                [
-                    'path' => new FieldSet(
-                        'path',
-                        new BeforeSet(
-                            new PathMatcher(new PathParameterExtractor('/requestbodypath'))
-                        )
-                    ),
-                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-                    'header' => new FieldSet('header'),
-                    'cookie' => new FieldSet('cookie'),
-                    'body' => new Field('requestBody', new IsInt()),
-                ]
-            ),
-        ];
-
-        yield 'Request: operation param in query, requestBody param' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/requestbodypath'),
-                $noRefAPI->paths->getPath('/requestbodypath'),
-                Method::POST
-            ),
-            new RequestProcessor(
-                '',
-                'requestbodypath-post',
-                Method::POST,
-                [
-                    'path' => new FieldSet(
-                        'path',
-                        new BeforeSet(
-                            new PathMatcher(new PathParameterExtractor('/requestbodypath'))
-                        )
-                    ),
-                    'query' => new FieldSet(
-                        'query',
-                        new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form', 'explode' => true]])),
-                        new Field('id', new Form('string', false), new IsString())
-                    ),
-                    'header' => new FieldSet('header'),
-                    'cookie' => new FieldSet('cookie'),
-                    'body' => new Field('requestBody', new IsInt()),
-                ]
-            ),
-        ];
-
-        yield 'Request: path param in path, operation param in query, header, cookie, requestBody param' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/requestbodypath/{id}'),
-                $noRefAPI->paths->getPath('/requestbodypath/{id}'),
-                Method::GET
-            ),
-            new RequestProcessor(
-                '',
-                'requestbodypath-id-get',
-                Method::GET,
-                [
-                    'path' => new FieldSet(
-                        'path',
-                        new BeforeSet(
-                            new PathMatcher(new PathParameterExtractor('/requestbodypath/{id}')),
-                            new RequiredFields('id')
-                        ),
-                        new Field('id', new IntString(), new ToInt())
-                    ),
-                    'query' => new FieldSet(
-                        'query',
-                        new BeforeSet(new QueryStringToArray(['name' => ['style' => 'form', 'explode' => true]])),
-                        new Field('name', new Form('string', false), new IsString())
-                    ),
-                    'header' => new FieldSet('header', new Field('species', new Implode(','), new IsString())),
-                    'cookie' => new FieldSet('cookie', new Field('subspecies', new Form('string', false), new IsString())),
-                    'body' => new Field('requestBody', new IsFloat()),
-                ]
-            ),
-        ];
-
-        $complexQueryAPI = fn(string $xOf) => (new Reader([OpenAPIVersion::Version_3_0]))->readFromString(
-            json_encode([
-                'openapi' => '3.0.3',
-                'info' => ['title' => 'Complex Query Parameter', 'version' => '1.0'],
-                'paths' => [
-                    '/path' => [
-                        'get' => [
-                            'operationId' => 'getPath',
-                            'parameters' => [
-                                [
-                                    'name' => 'complexity',
-                                    'in' => 'query',
-                                    'schema' => [
-                                        $xOf => [
-                                            [
-                                                'title' => 'Uno',
-                                                'type' => 'boolean',
-                                            ],
-                                            [
-                                                'type' => 'integer',
-                                            ],
-                                        ],
-                                    ],
-                                ],
-                            ],
-                            'responses' => ['200' => ['description' => 'Successful Response']],
-                        ],
-                    ],
-                ],
-            ]),
-            FileFormat::Json
-        );
-
-        $complexProcessor = fn($processor, $queryParameters = []) => new RequestProcessor(
-            '',
-            'getPath',
-            Method::GET,
-            [
-                'path' => new FieldSet(
-                    'path',
-                    new BeforeSet(new PathMatcher(new PathParameterExtractor('/path')))
-                ),
-                'query' => new FieldSet(
-                    'query',
-                    new BeforeSet(new QueryStringToArray($queryParameters)),
-                    $processor
-                ),
-                'header' => new FieldSet('header'),
-                'cookie' => new FieldSet('cookie'),
-                'body' => new Field('requestBody', new Passes()),
-            ]
-        );
-
-        yield 'query parameter with oneOf' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/path'),
-                $complexQueryAPI('oneOf')->paths->getPath('/path'),
-                Method::GET
-            ),
-            $complexProcessor(
-                new OneOf(
-                    'complexity',
-                    new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
-                    new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
-                ),
-                ['complexity' => ['style' => 'form', 'explode' => true]]
-            ),
-        ];
-
-        yield 'query parameter with anyOf' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/path'),
-                $complexQueryAPI('anyOf')->paths->getPath('/path'),
-                Method::GET
-            ),
-            $complexProcessor(
-                new AnyOf(
-                    'complexity',
-                    new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
-                    new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
-                ),
-                ['complexity' => ['style' => 'form', 'explode' => true]]
-            ),
-        ];
-
-        yield 'query parameter with allOf' => [
-            new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
-                new PathParameterExtractor('/path'),
-                $complexQueryAPI('allOf')->paths->getPath('/path'),
-                Method::GET
-            ),
-            $complexProcessor(
-                new AllOf(
-                    'complexity',
-                    new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
-                    new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
-                ),
-                ['complexity' => ['style' => 'form', 'explode' => true]]
-            ),
-        ];
-    }
-
-
-
+    //public static function dataSetsForBuild(): Generator
+    //{
+    //    $noRefAPI = (new Reader([OpenAPIVersion::Version_3_0]))
+    //        ->readFromAbsoluteFilePath(__DIR__ . '/../../fixtures/OpenAPI/noReferences.json');
+    //
+    //    yield 'Request: no path params, no operation params, no requestBody' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/path'),
+    //            $noRefAPI->paths['/path'],
+    //            Method::GET
+    //        ),
+    //        new RequestProcessor(
+    //            '',
+    //            'path-get',
+    //            Method::GET,
+    //            [
+    //                'path' => new FieldSet(
+    //                    'path',
+    //                    new BeforeSet(
+    //                        new PathMatcher(new PathParameterExtractor('/path'))
+    //                    )
+    //                ),
+    //                'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+    //                'header' => new FieldSet('header'),
+    //                'cookie' => new FieldSet('cookie'),
+    //                'body' => new Field('requestBody', new Passes()),
+    //            ]
+    //        ),
+    //    ];
+    //    yield 'Patch Request: no path params, no operation params, no requestBody' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/path'),
+    //            $noRefAPI->paths['/path'],
+    //            Method::PATCH
+    //        ),
+    //        new RequestProcessor(
+    //            '',
+    //            'path-patch',
+    //            Method::PATCH,
+    //            [
+    //                'path' => new FieldSet(
+    //                    'path',
+    //                    new BeforeSet(
+    //                        new PathMatcher(new PathParameterExtractor('/path'))
+    //                    )
+    //                ),
+    //                'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+    //                'header' => new FieldSet('header'),
+    //                'cookie' => new FieldSet('cookie'),
+    //                'body' => new Field('requestBody', new Passes()),
+    //            ]
+    //        ),
+    //    ];
+    //    yield 'Request: path param in path, no operation params, no requestBody' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/requestpathone/{id}'),
+    //            $noRefAPI->paths['/requestpathone/{id}'],
+    //            Method::GET
+    //        ),
+    //        new RequestProcessor(
+    //            '',
+    //            'requestpathone-get',
+    //            Method::GET,
+    //            [
+    //                'path' => new FieldSet(
+    //                    'path',
+    //                    new BeforeSet(
+    //                        new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
+    //                        new RequiredFields('id')
+    //                    ),
+    //                    new Field('id', new IntString(), new ToInt())
+    //                ),
+    //                'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+    //                'header' => new FieldSet('header'),
+    //                'cookie' => new FieldSet('cookie'),
+    //                'body' => new Field('requestBody', new Passes()),
+    //            ]
+    //        ),
+    //    ];
+    //    yield 'Request: path param in path, operation param in query not required, no requestBody' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/requestpathone/{id}'),
+    //            $noRefAPI->paths['/requestpathone/{id}'],
+    //            Method::POST
+    //        ),
+    //        new RequestProcessor(
+    //            '',
+    //            'requestpathone-post',
+    //            Method::POST,
+    //            [
+    //                'path' => new FieldSet(
+    //                    'path',
+    //                    new BeforeSet(
+    //                        new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
+    //                        new RequiredFields('id')
+    //                    ),
+    //                    new Field('id', new IntString(), new ToInt())
+    //                ),
+    //                'query' => new FieldSet(
+    //                    'query',
+    //                    new BeforeSet(new QueryStringToArray(['age' => ['style' => 'form', 'explode' => true]])),
+    //                    new Field('age', new Form('integer', false), new IntString(), new ToInt())
+    //                ),
+    //                'header' => new FieldSet('header'),
+    //                'cookie' => new FieldSet('cookie'),
+    //                'body' => new Field('requestBody', new Passes()),
+    //            ]
+    //        ),
+    //    ];
+    //    yield 'Request: path param in path, operation param in query required, no requestBody' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/requestpathone/{id}'),
+    //            new Cebe\PathItem([
+    //                'parameters' => [
+    //                    new Cebe\Parameter([
+    //                        'name' => 'id',
+    //                        'in' => 'path',
+    //                        'required' => true,
+    //                        'schema' => new Cebe\Schema(['type' => 'integer']),
+    //                    ]),
+    //                ],
+    //                'put' => new Cebe\Operation([
+    //                    'operationId' => 'requestpathone-post',
+    //                    'parameters' => [
+    //                        new Cebe\Parameter(
+    //                            [
+    //                                'name' => 'name',
+    //                                'in' => 'query',
+    //                                'required' => true,
+    //                                'schema' => new Cebe\Schema(['type' => 'string']),
+    //                            ]
+    //                        ),
+    //                    ],
+    //                ]),
+    //            ]),
+    //            Method::PUT
+    //        ),
+    //        new RequestProcessor(
+    //            '',
+    //            'requestpathone-post',
+    //            Method::PUT,
+    //            [
+    //                'path' => new FieldSet(
+    //                    'path',
+    //                    new BeforeSet(
+    //                        new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
+    //                        new RequiredFields('id')
+    //                    ),
+    //                    new Field('id', new IntString(), new ToInt())
+    //                ),
+    //                'query' => new FieldSet(
+    //                    'query',
+    //                    new BeforeSet(
+    //                        new QueryStringToArray(
+    //                            ['name' => ['style' => 'form', 'explode' => true]]
+    //                        ),
+    //                        new RequiredFields('name')
+    //                    ),
+    //                    new Field('name', new Form('string', false), new IsString())
+    //                ),
+    //                'header' => new FieldSet('header'),
+    //                'cookie' => new FieldSet('cookie'),
+    //                'body' => new Field('requestBody', new Passes()),
+    //            ]
+    //        ),
+    //    ];
+    //    yield 'Request: path param in path, operation param in query with json content, required, no requestBody' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/requestpathone/{id}'),
+    //            $noRefAPI->paths['/requestpathone/{id}'],
+    //            Method::DELETE
+    //        ),
+    //        new RequestProcessor(
+    //            '',
+    //            'requestpathone-delete',
+    //            Method::DELETE,
+    //            [
+    //                'path' => new FieldSet(
+    //                    'path',
+    //                    new BeforeSet(
+    //                        new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
+    //                        new RequiredFields('id')
+    //                    ),
+    //                    new Field('id', new IntString(), new ToInt())
+    //                ),
+    //                'query' => new FieldSet(
+    //                    'query',
+    //                    new BeforeSet(
+    //                        new QueryStringToArray(
+    //                            ['name' => ['style' => 'form', 'explode' => true]]
+    //                        ),
+    //                        new RequiredFields('name')
+    //                    ),
+    //                    new Field('name', new Form('string', false), new IsString())
+    //                ),
+    //                'header' => new FieldSet('header'),
+    //                'cookie' => new FieldSet('cookie'),
+    //                'body' => new Field('requestBody', new Passes()),
+    //            ]
+    //        ),
+    //    ];
+    //    yield 'Request: path param in header, no requestBody' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/requestpathtwo'),
+    //            $noRefAPI->paths['/requestpathtwo'],
+    //            Method::GET
+    //        ),
+    //        new RequestProcessor(
+    //            '',
+    //            'requestpathtwo-get',
+    //            Method::GET,
+    //            [
+    //                'path' => new FieldSet(
+    //                    'path',
+    //                    new BeforeSet(
+    //                        new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
+    //                    )
+    //                ),
+    //                'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+    //                'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
+    //                'cookie' => new FieldSet('cookie'),
+    //                'body' => new Field('requestBody', new Passes()),
+    //            ]
+    //        ),
+    //    ];
+    //    yield 'Request: path param in header, operation param in cookie, no requestBody' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/requestpathtwo'),
+    //            $noRefAPI->paths['/requestpathtwo'],
+    //            Method::POST
+    //        ),
+    //        new RequestProcessor(
+    //            '',
+    //            'requestpathtwo-post',
+    //            Method::POST,
+    //            [
+    //                'path' => new FieldSet(
+    //                    'path',
+    //                    new BeforeSet(
+    //                        new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
+    //                    )
+    //                ),
+    //                'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+    //                'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
+    //                'cookie' => new FieldSet('cookie', new Field('name', new Form('string', false), new IsString())),
+    //                'body' => new Field('requestBody', new Passes()),
+    //            ]
+    //        ),
+    //    ];
+    //
+    //    yield 'Request: identical param in header and query, no requestBody' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/requestpathtwo'),
+    //            $noRefAPI->paths['/requestpathtwo'],
+    //            Method::PUT
+    //        ),
+    //        new RequestProcessor(
+    //            '',
+    //            'requestpathtwo-put',
+    //            Method::PUT,
+    //            [
+    //                'path' => new FieldSet(
+    //                    'path',
+    //                    new BeforeSet(
+    //                        new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
+    //                    )
+    //                ),
+    //                'query' => new FieldSet(
+    //                    'query',
+    //                    new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form', 'explode' => true]])),
+    //                    new Field('id', new Form('integer', false), new IntString(), new ToInt())
+    //                ),
+    //                'header' => new FieldSet('header'),
+    //                'cookie' => new FieldSet('cookie'),
+    //                'body' => new Field('requestBody', new Passes()),
+    //            ]
+    //        ),
+    //    ];
+    //
+    //    yield 'Request: same param in path and operation with different types, no requestBody' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/requestpathtwo'),
+    //            $noRefAPI->paths['/requestpathtwo'],
+    //            Method::DELETE
+    //        ),
+    //        new RequestProcessor(
+    //            '',
+    //            'requestpathtwo-delete',
+    //            Method::DELETE,
+    //            [
+    //                'path' => new FieldSet(
+    //                    'path',
+    //                    new BeforeSet(
+    //                        new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
+    //                    )
+    //                ),
+    //                'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+    //                'header' => new FieldSet('header', new Field('id', new Implode(','), new IsString())),
+    //                'cookie' => new FieldSet('cookie'),
+    //                'body' => new Field('requestBody', new Passes()),
+    //            ]
+    //        ),
+    //    ];
+    //
+    //    yield 'Request: requestBody param' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/requestbodypath'),
+    //            $noRefAPI->paths['/requestbodypath'],
+    //            Method::GET
+    //        ),
+    //        new RequestProcessor(
+    //            '',
+    //            'requestbodypath-get',
+    //            Method::GET,
+    //            [
+    //                'path' => new FieldSet(
+    //                    'path',
+    //                    new BeforeSet(
+    //                        new PathMatcher(new PathParameterExtractor('/requestbodypath'))
+    //                    )
+    //                ),
+    //                'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+    //                'header' => new FieldSet('header'),
+    //                'cookie' => new FieldSet('cookie'),
+    //                'body' => new Field('requestBody', new IsInt()),
+    //            ]
+    //        ),
+    //    ];
+    //
+    //    yield 'Request: operation param in query, requestBody param' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/requestbodypath'),
+    //            $noRefAPI->paths['/requestbodypath'],
+    //            Method::POST
+    //        ),
+    //        new RequestProcessor(
+    //            '',
+    //            'requestbodypath-post',
+    //            Method::POST,
+    //            [
+    //                'path' => new FieldSet(
+    //                    'path',
+    //                    new BeforeSet(
+    //                        new PathMatcher(new PathParameterExtractor('/requestbodypath'))
+    //                    )
+    //                ),
+    //                'query' => new FieldSet(
+    //                    'query',
+    //                    new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form', 'explode' => true]])),
+    //                    new Field('id', new Form('string', false), new IsString())
+    //                ),
+    //                'header' => new FieldSet('header'),
+    //                'cookie' => new FieldSet('cookie'),
+    //                'body' => new Field('requestBody', new IsInt()),
+    //            ]
+    //        ),
+    //    ];
+    //
+    //    yield 'Request: path param in path, operation param in query, header, cookie, requestBody param' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/requestbodypath/{id}'),
+    //            $noRefAPI->paths['/requestbodypath/{id}'],
+    //            Method::GET
+    //        ),
+    //        new RequestProcessor(
+    //            '',
+    //            'requestbodypath-id-get',
+    //            Method::GET,
+    //            [
+    //                'path' => new FieldSet(
+    //                    'path',
+    //                    new BeforeSet(
+    //                        new PathMatcher(new PathParameterExtractor('/requestbodypath/{id}')),
+    //                        new RequiredFields('id')
+    //                    ),
+    //                    new Field('id', new IntString(), new ToInt())
+    //                ),
+    //                'query' => new FieldSet(
+    //                    'query',
+    //                    new BeforeSet(new QueryStringToArray(['name' => ['style' => 'form', 'explode' => true]])),
+    //                    new Field('name', new Form('string', false), new IsString())
+    //                ),
+    //                'header' => new FieldSet('header', new Field('species', new Implode(','), new IsString())),
+    //                'cookie' => new FieldSet('cookie', new Field('subspecies', new Form('string', false), new IsString())),
+    //                'body' => new Field('requestBody', new IsFloat()),
+    //            ]
+    //        ),
+    //    ];
+    //
+    //    $complexQueryAPI = fn(string $xOf) => (new Reader([OpenAPIVersion::Version_3_0]))->readFromString(
+    //        json_encode([
+    //            'openapi' => '3.0.3',
+    //            'info' => ['title' => 'Complex Query Parameter', 'version' => '1.0'],
+    //            'paths' => [
+    //                '/path' => [
+    //                    'get' => [
+    //                        'operationId' => 'getPath',
+    //                        'parameters' => [
+    //                            [
+    //                                'name' => 'complexity',
+    //                                'in' => 'query',
+    //                                'schema' => [
+    //                                    $xOf => [
+    //                                        [
+    //                                            'title' => 'Uno',
+    //                                            'type' => 'boolean',
+    //                                        ],
+    //                                        [
+    //                                            'type' => 'integer',
+    //                                        ],
+    //                                    ],
+    //                                ],
+    //                            ],
+    //                        ],
+    //                        'responses' => ['200' => ['description' => 'Successful Response']],
+    //                    ],
+    //                ],
+    //            ],
+    //        ]),
+    //        FileFormat::Json
+    //    );
+    //
+    //    $complexProcessor = fn($processor, $queryParameters = []) => new RequestProcessor(
+    //        '',
+    //        'getPath',
+    //        Method::GET,
+    //        [
+    //            'path' => new FieldSet(
+    //                'path',
+    //                new BeforeSet(new PathMatcher(new PathParameterExtractor('/path')))
+    //            ),
+    //            'query' => new FieldSet(
+    //                'query',
+    //                new BeforeSet(new QueryStringToArray($queryParameters)),
+    //                $processor
+    //            ),
+    //            'header' => new FieldSet('header'),
+    //            'cookie' => new FieldSet('cookie'),
+    //            'body' => new Field('requestBody', new Passes()),
+    //        ]
+    //    );
+    //
+    //    yield 'query parameter with oneOf' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/path'),
+    //            $complexQueryAPI('oneOf')->paths['/path'],
+    //            Method::GET
+    //        ),
+    //        $complexProcessor(
+    //            new OneOf(
+    //                'complexity',
+    //                new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
+    //                new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
+    //            ),
+    //            ['complexity' => ['style' => 'form', 'explode' => true]]
+    //        ),
+    //    ];
+    //
+    //    yield 'query parameter with anyOf' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/path'),
+    //            $complexQueryAPI('anyOf')->paths['/path'],
+    //            Method::GET
+    //        ),
+    //        $complexProcessor(
+    //            new AnyOf(
+    //                'complexity',
+    //                new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
+    //                new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
+    //            ),
+    //            ['complexity' => ['style' => 'form', 'explode' => true]]
+    //        ),
+    //    ];
+    //
+    //    yield 'query parameter with allOf' => [
+    //        new OpenAPIRequest(
+    //            OpenAPIVersion::Version_3_0,
+    //            new PathParameterExtractor('/path'),
+    //            $complexQueryAPI('allOf')->paths['/path'],
+    //            Method::GET
+    //        ),
+    //        $complexProcessor(
+    //            new AllOf(
+    //                'complexity',
+    //                new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
+    //                new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
+    //            ),
+    //            ['complexity' => ['style' => 'form', 'explode' => true]]
+    //        ),
+    //    ];
+    //}
 
     public static function dataSetsForDocExamples(): array
     {
-        $petstoreApi = (new Reader([OpenAPIVersion::Version_3_0]))
+        $petstoreApi = (new MembraneReader([OpenAPIVersion::Version_3_0]))
             ->readFromAbsoluteFilePath(self::FIXTURES . '/docs/petstore.yaml');
 
-        $petstoreExpandedApi = (new Reader([OpenAPIVersion::Version_3_0]))
+        $petstoreExpandedApi = (new MembraneReader([OpenAPIVersion::Version_3_0]))
             ->readFromAbsoluteFilePath(self::FIXTURES . '/docs/petstore-expanded.json');
 
         return [
@@ -746,7 +748,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                 new OpenAPIRequest(
                     OpenAPIVersion::Version_3_0,
                     new PathParameterExtractor('/pets'),
-                    $petstoreApi->paths->getPath('/pets'),
+                    $petstoreApi->paths['/pets'],
                     Method::GET
                 ),
                 new ServerRequest('get', 'http://petstore.swagger.io/v1/pets'),
@@ -765,7 +767,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                 new OpenAPIRequest(
                     OpenAPIVersion::Version_3_0,
                     new PathParameterExtractor('/pets/{petId}'),
-                    $petstoreApi->paths->getPath('/pets/{petId}'),
+                    $petstoreApi->paths['/pets/{petId}'],
                     Method::GET
                 ),
                 new ServerRequest('get', 'http://petstore.swagger.io/v1/pets/Harley'),
@@ -784,7 +786,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                 new OpenAPIRequest(
                     OpenAPIVersion::Version_3_0,
                     new PathParameterExtractor('/pets'),
-                    $petstoreExpandedApi->paths->getPath('/pets'),
+                    $petstoreExpandedApi->paths['/pets'],
                     Method::GET
                 ),
                 new ServerRequest('get', 'http://petstore.swagger.io/api/pets?limit=five'),
@@ -807,7 +809,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
                 new OpenAPIRequest(
                     OpenAPIVersion::Version_3_0,
                     new PathParameterExtractor('/pets'),
-                    $petstoreExpandedApi->paths->getPath('/pets'),
+                    $petstoreExpandedApi->paths['/pets'],
                     Method::GET
                 ),
                 new ServerRequest('get', 'http://petstore.swagger.io/api/pets?limit=5&tags=cat,tabby'),
@@ -834,7 +836,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
     public static function provideAPIWithPathParameters(): Generator
     {
         $dataSet = fn(
-            MakesOperation $operation,
+            Partial\Operation $operation,
             string $path,
             string $input,
             array $output,
@@ -842,26 +844,35 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
             new OpenAPIRequest(
                 OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor($path),
-                (new MakesPathItem($operation))->asCebeObject(),
+                V30\PathItem::fromPartial(
+                    new Identifier('test-path'),
+                    [],
+                    new Partial\PathItem(path: '/path', get: $operation),
+                ),
                 Method::GET
             ),
             new ServerRequest('get', $input),
             Result::valid([
-                'request' => ['method' => 'get', 'operationId' => 'test'],
+                'request' => ['method' => 'get', 'operationId' => 'test-op'],
                 'path' => $output,
                 'query' => [],
                 'header' => [],
                 'cookie' => [],
                 'body' => '',
-            ])
+            ]),
         ];
 
         yield 'bool path parameter (style:simple, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Simple,
-                false,
-                ['type' => 'boolean'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'simple',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'boolean'),
+                )]
             ),
             '/path/{colour}',
             '/path/true',
@@ -869,11 +880,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'boolean path parameter (style:simple, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Simple,
-                true,
-                ['type' => 'boolean'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'simple',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'boolean'),
+                )]
             ),
             '/path/{colour}',
             '/path/false',
@@ -881,11 +897,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'boolean path parameter (style:matrix, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Matrix,
-                false,
-                ['type' => 'boolean'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'boolean'),
+                )]
             ),
             '/path/{colour}',
             '/path/;colour=true',
@@ -893,11 +914,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'boolean path parameter (style:matrix, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Matrix,
-                true,
-                ['type' => 'boolean'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'boolean'),
+                )]
             ),
             '/path/{colour}',
             '/path/;colour=false',
@@ -905,11 +931,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'boolean path parameter (style:label, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Label,
-                false,
-                ['type' => 'boolean'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'boolean'),
+                )]
             ),
             '/path/{colour}',
             '/path/.true',
@@ -917,11 +948,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'boolean path parameter (style:label, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Label,
-                true,
-                ['type' => 'boolean'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'boolean'),
+                )]
             ),
             '/path/{colour}',
             '/path/.false',
@@ -929,11 +965,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'string path parameter (style:simple, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Simple,
-                false,
-                ['type' => 'string'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'simple',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'string'),
+                )]
             ),
             '/path/{colour}',
             '/path/blue',
@@ -941,11 +982,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'string path parameter (style:simple, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Simple,
-                true,
-                ['type' => 'string'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'simple',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'string'),
+                )]
             ),
             '/path/{colour}',
             '/path/blue',
@@ -953,11 +999,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'string path parameter (style:matrix, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Matrix,
-                false,
-                ['type' => 'string'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'string'),
+                )]
             ),
             '/path/{colour}',
             '/path/;colour=blue',
@@ -965,11 +1016,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'string path parameter (style:matrix, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Matrix,
-                true,
-                ['type' => 'string'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'string'),
+                )]
             ),
             '/path/{colour}',
             '/path/;colour=blue',
@@ -977,11 +1033,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'string path parameter (style:label, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Label,
-                false,
-                ['type' => 'string'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'string'),
+                )]
             ),
             '/path/{colour}',
             '/path/.blue',
@@ -989,11 +1050,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'string path parameter (style:label, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Label,
-                true,
-                ['type' => 'string'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'string'),
+                )]
             ),
             '/path/{colour}',
             '/path/.blue',
@@ -1001,11 +1067,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'int path parameter (style:simple, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Simple,
-                false,
-                ['type' => 'integer'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'simple',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'integer'),
+                )]
             ),
             '/path/{colour}',
             '/path/255',
@@ -1013,11 +1084,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'int path parameter (style:simple, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Simple,
-                true,
-                ['type' => 'integer'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'simple',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'integer'),
+                )]
             ),
             '/path/{colour}',
             '/path/255',
@@ -1025,11 +1101,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'int path parameter (style:matrix, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Matrix,
-                false,
-                ['type' => 'integer'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'integer'),
+                )]
             ),
             '/path/{colour}',
             '/path/;colour=255',
@@ -1037,11 +1118,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'int path parameter (style:matrix, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Matrix,
-                true,
-                ['type' => 'integer'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'integer'),
+                )]
             ),
             '/path/{colour}',
             '/path/;colour=255',
@@ -1049,11 +1135,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'int path parameter (style:label, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Label,
-                false,
-                ['type' => 'integer'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'integer'),
+                )]
             ),
             '/path/{colour}',
             '/path/.255',
@@ -1061,11 +1152,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'int path parameter (style:label, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Label,
-                true,
-                ['type' => 'integer'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'integer'),
+                )]
             ),
             '/path/{colour}',
             '/path/.255',
@@ -1073,11 +1169,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'number path parameter (style:simple, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Simple,
-                false,
-                ['type' => 'number'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'simple',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'number'),
+                )]
             ),
             '/path/{colour}',
             '/path/255',
@@ -1085,11 +1186,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'number path parameter (style:simple, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Simple,
-                true,
-                ['type' => 'number'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'simple',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'number'),
+                )]
             ),
             '/path/{colour}',
             '/path/255',
@@ -1097,11 +1203,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'number path parameter (style:matrix, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Matrix,
-                false,
-                ['type' => 'number'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'number'),
+                )]
             ),
             '/path/{colour}',
             '/path/;colour=255',
@@ -1109,11 +1220,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'number path parameter (style:matrix, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Matrix,
-                true,
-                ['type' => 'number'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'number'),
+                )]
             ),
             '/path/{colour}',
             '/path/;colour=255',
@@ -1121,11 +1237,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'number path parameter (style:label, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Label,
-                false,
-                ['type' => 'number'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'number'),
+                )]
             ),
             '/path/{colour}',
             '/path/.255',
@@ -1133,11 +1254,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'number path parameter (style:label, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Label,
-                true,
-                ['type' => 'number'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'number'),
+                )]
             ),
             '/path/{colour}',
             '/path/.255',
@@ -1145,11 +1271,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'array path parameter with int items (style:simple, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Simple,
-                false,
-                ['type' => 'array', 'items' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'simple',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'integer')),
+                )]
             ),
             '/path/{colour}',
             '/path/100,200,150',
@@ -1157,11 +1288,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'array path parameter with int items (style:simple, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Simple,
-                true,
-                ['type' => 'array', 'items' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'simple',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'integer')),
+                )]
             ),
             '/path/{colour}',
             '/path/100,200,150',
@@ -1169,11 +1305,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'array path parameter with int items (style:matrix, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Matrix,
-                false,
-                ['type' => 'array', 'items' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'integer')),
+                )]
             ),
             '/path/{colour}',
             '/path/;color=100,200,150',
@@ -1181,11 +1322,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'array path parameter with int items (style:matrix, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Matrix,
-                true,
-                ['type' => 'array', 'items' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'integer')),
+                )]
             ),
             '/path/{colour}',
             '/path/;color=100;color=200;color=150',
@@ -1193,11 +1339,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'array path parameter with int items (style:label, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Label,
-                false,
-                ['type' => 'array', 'items' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'integer')),
+                )]
             ),
             '/path/{colour}',
             '/path/.100,200,150',
@@ -1205,11 +1356,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'array path parameter with int items (style:label, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Label,
-                true,
-                ['type' => 'array', 'items' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'integer')),
+                )]
             ),
             '/path/{colour}',
             '/path/.100.200.150',
@@ -1217,11 +1373,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'array path parameter with string items (style:matrix, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Matrix,
-                false,
-                ['type' => 'array', 'items' => ['type' => 'string']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'string')),
+                )]
             ),
             '/path/{colour}',
             '/path/;color=blue,black,brown',
@@ -1229,11 +1390,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'array path parameter with string items (style:matrix, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Matrix,
-                true,
-                ['type' => 'array', 'items' => ['type' => 'string']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'string')),
+                )]
             ),
             '/path/{colour}',
             '/path/;color=blue;color=black;color=brown',
@@ -1241,11 +1407,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'array path parameter with string items (style:label, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Label,
-                false,
-                ['type' => 'array', 'items' => ['type' => 'string']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'string')),
+                )]
             ),
             '/path/{colour}',
             '/path/.blue,black,brown',
@@ -1253,25 +1424,33 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'array path parameter with string items (style:label, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Label,
-                true,
-                ['type' => 'array', 'items' => ['type' => 'string']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'string')),
+                )]
             ),
             '/path/{colour}',
             '/path/.blue.black.brown',
             ['colour' => ['blue', 'black', 'brown']]
         );
 
-
-
         yield 'object path parameter with int additionalProperties (style:simple, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Simple,
-                false,
-                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'simple',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'object', additionalProperties: new Partial\Schema(type: 'integer')),
+                )]
             ),
             '/path/{colour}',
             '/path/R,100,G,200,B,150',
@@ -1279,11 +1458,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'object path parameter with int additionalProperties (style:simple, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Simple,
-                true,
-                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'simple',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'object', additionalProperties: new Partial\Schema(type: 'integer')),
+                )]
             ),
             '/path/{colour}',
             '/path/R=100,G=200,B=150',
@@ -1291,11 +1475,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'object path parameter with int additionalProperties (style:matrix, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Matrix,
-                false,
-                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'object', additionalProperties: new Partial\Schema(type: 'integer')),
+                )]
             ),
             '/path/{colour}',
             '/path/;color=R,100,G,200,B,150',
@@ -1303,11 +1492,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'object path parameter with int additionalProperties (style:matrix, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Matrix,
-                true,
-                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'object', additionalProperties: new Partial\Schema(type: 'integer')),
+                )]
             ),
             '/path/{colour}',
             '/path/;R=100;G=200;B=150',
@@ -1315,11 +1509,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'object path parameter with int additionalProperties (style:label, explode:false)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Label,
-                false,
-                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'object', additionalProperties: new Partial\Schema(type: 'integer')),
+                )]
             ),
             '/path/{colour}',
             '/path/.R,100,G,200,B,150',
@@ -1327,11 +1526,16 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         );
 
         yield 'object path parameter with int additionalProperties (style:label, explode:true)' => $dataSet(
-            MakesOperation::withPathParameter(
-                'colour',
-                Style::Label,
-                true,
-                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'object', additionalProperties: new Partial\Schema(type: 'integer')),
+                )]
             ),
             '/path/{colour}',
             '/path/.R=100.G=200.B=150',
@@ -1348,202 +1552,269 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
     public static function provideAPIWithQueryParameters(): Generator
     {
         $dataSet = fn(
-            MakesOperation $operation,
+            Partial\Operation $operation,
             string $input,
             array $output,
         ) => [
             new OpenAPIRequest(
                 OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/pets'),
-                (new MakesPathItem($operation))->asCebeObject(),
+                V30\PathItem::fromPartial(
+                    new Identifier('test-path'),
+                    [],
+                    new Partial\PathItem(path: '/path', get: $operation),
+                ),
                 Method::GET
             ),
             new ServerRequest('get', '/pets?' . $input),
             Result::valid([
-                'request' => ['method' => 'get', 'operationId' => 'test'],
+                'request' => ['method' => 'get', 'operationId' => 'test-op'],
                 'path' => [],
                 'query' => $output,
                 'header' => [],
                 'cookie' => [],
                 'body' => '',
-            ])
+            ]),
         ];
 
         yield 'type:string, style:form, explode:false' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'colour',
-                true,
-                Style::Form->value,
-                false,
-                ['type' => 'string'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'query',
+                    required: true,
+                    style: 'form',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'string'),
+                )]
             ),
             'colour=blue',
             ['colour' => 'blue'],
         );
 
         yield 'type:string, style:form, explode:true' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'colour',
-                true,
-                Style::Form->value,
-                true,
-                ['type' => 'string'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'query',
+                    required: true,
+                    style: 'form',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'string'),
+                )]
             ),
             'colour=blue',
             ['colour' => 'blue'],
         );
 
         yield 'type:boolean, style:form, explode:false' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'colour',
-                true,
-                Style::Form->value,
-                false,
-                ['type' => 'boolean'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'query',
+                    required: true,
+                    style: 'form',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'boolean'),
+                )]
             ),
             'colour=true',
             ['colour' => true],
         );
 
         yield 'type:boolean, style:form, explode:true' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'colour',
-                true,
-                Style::Form->value,
-                true,
-                ['type' => 'boolean'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'query',
+                    required: true,
+                    style: 'form',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'boolean'),
+                )]
             ),
             'colour=true',
             ['colour' => true],
         );
 
         yield 'type:integer, style:form, explode:false' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'id',
-                true,
-                Style::Form->value,
-                false,
-                ['type' => 'integer'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'id',
+                    in: 'query',
+                    required: true,
+                    style: 'form',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'integer'),
+                )]
             ),
             'id=5',
             ['id' => 5],
         );
 
         yield 'type:integer, style:form, explode:true' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'id',
-                true,
-                Style::Form->value,
-                true,
-                ['type' => 'integer'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'id',
+                    in: 'query',
+                    required: true,
+                    style: 'form',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'integer'),
+                )]
             ),
             'id=5',
             ['id' => 5],
         );
 
         yield 'type:array, style:form, explode:false' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'colour',
-                true,
-                Style::Form->value,
-                false,
-                ['type' => 'array', 'items' => ['type' => 'string']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'query',
+                    required: true,
+                    style: 'form',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'string')),
+                )]
             ),
             'colour=blue,black,brown',
             ['colour' => ['blue', 'black', 'brown']],
         );
 
         yield 'type:array, style:form, explode:true' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'colour',
-                true,
-                Style::Form->value,
-                true,
-                ['type' => 'array', 'items' => ['type' => 'string']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'query',
+                    required: true,
+                    style: 'form',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'string')),
+                )]
             ),
             'colour=blue&colour=black&colour=brown',
             ['colour' => ['blue', 'black', 'brown']],
         );
 
         yield 'type:object, style:form, explode:false' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'colour',
-                true,
-                Style::Form->value,
-                false,
-                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'query',
+                    required: true,
+                    style: 'form',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'object', additionalProperties: new Partial\Schema(type: 'integer')),
+                )]
             ),
             'colour=R,100,G,200,B,150',
             ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
         );
 
         yield 'type:object, style:form, explode:true' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'colour',
-                true,
-                Style::Form->value,
-                true,
-                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'query',
+                    required: true,
+                    style: 'form',
+                    explode: true,
+                    schema: new Partial\Schema(
+                        type: 'object',
+                        additionalProperties:  new Partial\Schema(type: 'integer'),
+                    ),
+                )]
             ),
             'R=100&G=200&B=150',
             ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
         );
 
         yield 'type:array, style:spaceDelimited, explode:false' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'colour',
-                true,
-                Style::SpaceDelimited->value,
-                false,
-                ['type' => 'array', 'items' => ['type' => 'string']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'query',
+                    required: true,
+                    style: 'spaceDelimited',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'string')),
+                )]
             ),
             'colour=blue%20black%20brown',
             ['colour' => ['blue', 'black', 'brown']],
         );
 
         yield 'type:object, style:spaceDelimited, explode:false' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'colour',
-                true,
-                Style::SpaceDelimited->value,
-                false,
-                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'query',
+                    required: true,
+                    style: 'spaceDelimited',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'object', additionalProperties: new Partial\Schema(type: 'integer')),
+                )]
             ),
             'colour=R%20100%20G%20200%20B%20150',
             ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
         );
 
         yield 'type:array, style:pipeDelimited, explode:false' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'colour',
-                true,
-                Style::PipeDelimited->value,
-                false,
-                ['type' => 'array', 'items' => ['type' => 'string']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'query',
+                    required: true,
+                    style: 'pipeDelimited',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'string')),
+                )]
             ),
             'colour=blue|black|brown',
             ['colour' => ['blue', 'black', 'brown']],
         );
 
         yield 'type:object, style:pipeDelimited, explode:false' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'colour',
-                true,
-                Style::PipeDelimited->value,
-                false,
-                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'query',
+                    required: true,
+                    style: 'pipeDelimited',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'object', additionalProperties: new Partial\Schema(type: 'integer')),
+                )]
             ),
             'colour=R|100|G|200|B|150',
             ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
         );
 
         yield 'type:object, style:deepObject, explode:true' => $dataSet(
-            MakesOperation::withQueryParameter(
-                'colour',
-                true,
-                Style::DeepObject->value,
-                true,
-                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'query',
+                    required: true,
+                    style: 'deepObject',
+                    explode: true,
+                    schema: new Partial\Schema(type: 'object', additionalProperties: new Partial\Schema(type: 'integer')),
+                )]
             ),
             'colour[R]=100&colour[G]=200&colour[B]=150',
             ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
@@ -1559,157 +1830,210 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
     public static function provideAPIWithHeaderParameters(): Generator
     {
         $dataSet = fn(
-            MakesOperation $operation,
+            Partial\Operation $operation,
             array $requestHeaders,
             array $resultHeaders
         ) => [
             new OpenAPIRequest(
                 OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/path'),
-                (new MakesPathItem($operation))->asCebeObject(),
+                V30\PathItem::fromPartial(
+                    new Identifier('test-path'),
+                    [],
+                    new Partial\PathItem(path: '/path', get: $operation)
+                ),
                 Method::GET
             ),
             new ServerRequest('get', '/path', $requestHeaders),
             Result::valid([
-                'request' => ['method' => 'get', 'operationId' => 'test'],
+                'request' => ['method' => 'get', 'operationId' => 'test-op'],
                 'path' => [],
                 'query' => [],
                 'header' => $resultHeaders,
                 'cookie' => [],
                 'body' => '',
-            ])
+            ]),
         ];
 
         yield 'string header (explode:false)' => $dataSet(
-            MakesOperation::withHeaderParameter(
-                'colour',
-                true,
-                false,
-                ['type' => 'string'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'header',
+                    required: true,
+                    explode: false,
+                    schema: new Partial\Schema(type: 'string'),
+                )]
             ),
             ['colour' => 'blue'],
             ['colour' => 'blue'],
         );
 
         yield 'string header (explode:true)' => $dataSet(
-            MakesOperation::withHeaderParameter(
-                'colour',
-                true,
-                true,
-                ['type' => 'string'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'header',
+                    required: true,
+                    explode: true,
+                    schema: new Partial\Schema(type: 'string'),
+                )]
             ),
             ['colour' => 'blue'],
             ['colour' => 'blue'],
         );
 
         yield 'integer header (explode:false)' => $dataSet(
-            MakesOperation::withHeaderParameter(
-                'colour',
-                true,
-                false,
-                ['type' => 'integer'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'header',
+                    required: true,
+                    explode: false,
+                    schema: new Partial\Schema(type: 'integer'),
+                )]
             ),
             ['colour' => '255'],
             ['colour' => 255],
         );
 
         yield 'integer header (explode:true)' => $dataSet(
-            MakesOperation::withHeaderParameter(
-                'colour',
-                true,
-                true,
-                ['type' => 'integer'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'header',
+                    required: true,
+                    explode: true,
+                    schema: new Partial\Schema(type: 'integer'),
+                )]
             ),
             ['colour' => '255'],
             ['colour' => 255],
         );
 
         yield 'boolean header (explode:false)' => $dataSet(
-            MakesOperation::withHeaderParameter(
-                'colour',
-                true,
-                false,
-                ['type' => 'boolean'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'header',
+                    required: true,
+                    explode: false,
+                    schema: new Partial\Schema(type: 'boolean'),
+                )]
             ),
             ['colour' => 'true'],
             ['colour' => true],
         );
 
         yield 'boolean header (explode:true)' => $dataSet(
-            MakesOperation::withHeaderParameter(
-                'colour',
-                true,
-                true,
-                ['type' => 'boolean'],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'header',
+                    required: true,
+                    explode: true,
+                    schema: new Partial\Schema(type: 'boolean'),
+                )]
             ),
             ['colour' => 'true'],
             ['colour' => true],
         );
 
         yield 'string array header (explode:false)' => $dataSet(
-            MakesOperation::withHeaderParameter(
-                'colour',
-                true,
-                false,
-                ['type' => 'array', 'items' => ['type' => 'string']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'header',
+                    required: true,
+                    explode: false,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'string')),
+                )]
             ),
             ['colour' => 'blue,black,brown'],
             ['colour' => ['blue', 'black', 'brown']],
         );
 
         yield 'string array header (explode:true)' => $dataSet(
-            MakesOperation::withHeaderParameter(
-                'colour',
-                true,
-                true,
-                ['type' => 'array', 'items' => ['type' => 'string']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'header',
+                    required: true,
+                    explode: true,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'string')),
+                )]
             ),
             ['colour' => 'blue,black,brown'],
             ['colour' => ['blue', 'black', 'brown']],
         );
 
         yield 'int array header (explode:false)' => $dataSet(
-            MakesOperation::withHeaderParameter(
-                'colour',
-                true,
-                false,
-                ['type' => 'array', 'items' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'header',
+                    required: true,
+                    explode: false,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'integer')),
+                )]
             ),
             ['colour' => '100,200,150'],
             ['colour' => [100, 200, 150]],
         );
 
         yield 'int array header (explode:true)' => $dataSet(
-            MakesOperation::withHeaderParameter(
-                'colour',
-                true,
-                true,
-                ['type' => 'array', 'items' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'header',
+                    required: true,
+                    explode: true,
+                    schema: new Partial\Schema(type: 'array', items: new Partial\Schema(type: 'integer')),
+                )]
             ),
             ['colour' => '100,200,150'],
             ['colour' => [100, 200, 150]],
         );
 
         yield 'object header with additional int properties (explode:false)' => $dataSet(
-            MakesOperation::withHeaderParameter(
-                'colour',
-                true,
-                false,
-                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'header',
+                    required: true,
+                    explode: false,
+                    schema: new Partial\Schema(type: 'object', additionalProperties: new Partial\Schema(type: 'integer')),
+                )]
             ),
             ['colour' => 'R,100,G,200,B,150'],
             ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
         );
 
         yield 'object header additional int properties (explode:true)' => $dataSet(
-            MakesOperation::withHeaderParameter(
-                'colour',
-                true,
-                true,
-                ['type' => 'object', 'additionalProperties' => ['type' => 'integer']],
+            new Partial\Operation(
+                operationId: 'test-op',
+                parameters: [new Partial\Parameter(
+                    name: 'colour',
+                    in: 'header',
+                    required: true,
+                    explode: true,
+                    schema: new Partial\Schema(type: 'object', additionalProperties: new Partial\Schema(type: 'integer')),
+                )]
             ),
             ['colour' => 'R=100,G=200,B=150'],
             ['colour' => ['R' => 100, 'G' => 200, 'B' => 150]],
         );
     }
+
 }

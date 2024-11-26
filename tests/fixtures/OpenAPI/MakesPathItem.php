@@ -4,19 +4,28 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\Fixtures\OpenAPI;
 
-use cebe\openapi\spec\PathItem;
-use JsonSerializable;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\Identifier;
+use Membrane\OpenAPIReader\ValueObject\Valid\V30;
 
-final class MakesPathItem implements JsonSerializable
+final class MakesPathItem implements \JsonSerializable
 {
     public function __construct(
         private readonly ?MakesOperation $get = null,
     ) {
     }
 
-    public function asCebeObject(): PathItem
+    public function asCebeObject(): V30\PathItem
     {
-        return new PathItem($this->jsonSerialize());
+        $getData = $this->get->jsonSerialize();
+
+        return V30\PathItem::fromPartial(
+            new Identifier('test'),
+            [],
+            new Partial\PathItem(
+                path: '/path',
+            )
+        );
     }
 
     public function jsonSerialize(): mixed
