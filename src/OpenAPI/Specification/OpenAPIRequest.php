@@ -15,7 +15,7 @@ use Membrane\OpenAPIReader\ValueObject\Valid\V30;
 
 class OpenAPIRequest implements Specification
 {
-    /** @var array<string, V30\Parameter> */
+    /** @var V30\Parameter[] */
     public readonly array $parameters;
     public readonly string $operationId;
     public readonly ?V30\Schema $requestBodySchema;
@@ -28,7 +28,7 @@ class OpenAPIRequest implements Specification
     ) {
         $operation = $this->getOperation($this->path, $this->method);
 
-        $this->parameters = $this->getParameters($this->path, $operation);
+        $this->parameters = $operation->parameters;
 
         assert(isset($operation->operationId));
         $this->operationId = $operation->operationId;
@@ -63,18 +63,5 @@ class OpenAPIRequest implements Specification
         return $pathItem->getOperations()[$method->value]
             ??
             throw CannotProcessSpecification::methodNotFound($method->value);
-    }
-
-    /** @return array<string,V30\Parameter> */
-    private function getParameters(V30\PathItem $path, V30\Operation $operation): array
-    {
-        $parameters = array_filter(
-            array_merge($path->parameters, $operation->parameters),
-            fn($p) => $p instanceof V30\Parameter
-        );
-
-        $parameters = array_combine(array_map(fn($p) => $p->name, $parameters), $parameters);
-
-        return $parameters;
     }
 }

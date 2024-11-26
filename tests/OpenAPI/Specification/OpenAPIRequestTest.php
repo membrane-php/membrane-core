@@ -64,8 +64,7 @@ class OpenAPIRequestTest extends TestCase
     #[Test, TestDox('$parameters will contain an array of parameters with their names as keys')]
     public function parameterswillContainRelevantParameters(): void
     {
-        $parameters = $this->openApi->paths['/pets']->get->parameters;
-        $expected = array_combine(array_map(fn($p) => $p->name, $parameters), $parameters);
+        $expected = $this->openApi->paths['/pets']->get->parameters;
 
         $sut = new OpenAPIRequest(OpenAPIVersion::Version_3_0, $this->pathParameterExtractor, $this->openApi->paths['/pets'], Method::GET);
         self::assertEquals($expected, $sut->parameters);
