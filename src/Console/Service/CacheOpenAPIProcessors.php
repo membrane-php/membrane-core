@@ -247,7 +247,6 @@ class CacheOpenAPIProcessors
                 }
 
                 if ($buildResponses) {
-                    assert(!is_null($operation->responses));
                     $processors[$operation->operationId]['response'] = [];
                     foreach ($operation->responses as $code => $response) {
                         $this->logger->info("Building $code Response Processor");
