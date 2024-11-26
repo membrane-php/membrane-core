@@ -26,7 +26,8 @@ final class ChecksNumericTypeOrNull
             );
         }
 
-        if (count($type) > 2 || (count($type) === 2 && ! in_array(Type::Null, $type))
+        if (
+            count($type) > 2 || (count($type) === 2 && ! in_array(Type::Null, $type))
         ) {
             throw CannotProcessSpecification::arrayOfTypesIsUnsupported();
         }

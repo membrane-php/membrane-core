@@ -16,7 +16,6 @@ use Membrane\Processor\Field;
 use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Utility;
 
-
 abstract class APIBuilder implements Builder
 {
     private Arrays $arrayBuilder;
