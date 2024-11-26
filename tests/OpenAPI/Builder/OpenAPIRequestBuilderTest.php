@@ -6,6 +6,7 @@ namespace Membrane\Tests\OpenAPI\Builder;
 
 use Generator;
 use GuzzleHttp\Psr7\ServerRequest;
+use Membrane\Builder\Specification;
 use Membrane\Filter\Shape\KeyValueSplit;
 use Membrane\Filter\String\Explode;
 use Membrane\Filter\String\Implode;
@@ -43,12 +44,14 @@ use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPI\Specification\TrueFalse;
+use Membrane\OpenAPIReader\FileFormat;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\ValueObject\Valid\Identifier;
 use Membrane\OpenAPIReader\ValueObject\Valid\V30;
+use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
 use Membrane\Processor\DefaultProcessor;
@@ -187,17 +190,17 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         $sut->build($specification);
     }
 
-    //#[Test]
-    //#[TestDox('Builds a Processor for the Operation Object (specified by the PathItem and method provided')]
-    //#[DataProvider('dataSetsForBuild')]
-    //public function buildTest(Specification $spec, Processor $expected): void
-    //{
-    //    $sut = new OpenAPIRequestBuilder();
-    //
-    //    $actual = $sut->build($spec);
-    //
-    //    self::assertProcessorEquals($expected, $actual);
-    //}
+    #[Test]
+    #[TestDox('Builds a Processor for the Operation Object (specified by the PathItem and method provided')]
+    #[DataProvider('dataSetsForBuild')]
+    public function buildTest(Specification $spec, Processor $expected): void
+    {
+        $sut = new OpenAPIRequestBuilder();
+
+        $actual = $sut->build($spec);
+
+        self::assertProcessorEquals($expected, $actual);
+    }
 
     #[Test]
     #[DataProvider('dataSetsForDocExamples')]
@@ -219,512 +222,478 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         self::assertSame($expected->value, $actual->value);
     }
 
-    //public static function dataSetsForBuild(): Generator
-    //{
-    //    $noRefAPI = (new Reader([OpenAPIVersion::Version_3_0]))
-    //        ->readFromAbsoluteFilePath(__DIR__ . '/../../fixtures/OpenAPI/noReferences.json');
-    //
-    //    yield 'Request: no path params, no operation params, no requestBody' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/path'),
-    //            $noRefAPI->paths['/path'],
-    //            Method::GET
-    //        ),
-    //        new RequestProcessor(
-    //            '',
-    //            'path-get',
-    //            Method::GET,
-    //            [
-    //                'path' => new FieldSet(
-    //                    'path',
-    //                    new BeforeSet(
-    //                        new PathMatcher(new PathParameterExtractor('/path'))
-    //                    )
-    //                ),
-    //                'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-    //                'header' => new FieldSet('header'),
-    //                'cookie' => new FieldSet('cookie'),
-    //                'body' => new Field('requestBody', new Passes()),
-    //            ]
-    //        ),
-    //    ];
-    //    yield 'Patch Request: no path params, no operation params, no requestBody' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/path'),
-    //            $noRefAPI->paths['/path'],
-    //            Method::PATCH
-    //        ),
-    //        new RequestProcessor(
-    //            '',
-    //            'path-patch',
-    //            Method::PATCH,
-    //            [
-    //                'path' => new FieldSet(
-    //                    'path',
-    //                    new BeforeSet(
-    //                        new PathMatcher(new PathParameterExtractor('/path'))
-    //                    )
-    //                ),
-    //                'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-    //                'header' => new FieldSet('header'),
-    //                'cookie' => new FieldSet('cookie'),
-    //                'body' => new Field('requestBody', new Passes()),
-    //            ]
-    //        ),
-    //    ];
-    //    yield 'Request: path param in path, no operation params, no requestBody' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/requestpathone/{id}'),
-    //            $noRefAPI->paths['/requestpathone/{id}'],
-    //            Method::GET
-    //        ),
-    //        new RequestProcessor(
-    //            '',
-    //            'requestpathone-get',
-    //            Method::GET,
-    //            [
-    //                'path' => new FieldSet(
-    //                    'path',
-    //                    new BeforeSet(
-    //                        new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
-    //                        new RequiredFields('id')
-    //                    ),
-    //                    new Field('id', new IntString(), new ToInt())
-    //                ),
-    //                'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-    //                'header' => new FieldSet('header'),
-    //                'cookie' => new FieldSet('cookie'),
-    //                'body' => new Field('requestBody', new Passes()),
-    //            ]
-    //        ),
-    //    ];
-    //    yield 'Request: path param in path, operation param in query not required, no requestBody' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/requestpathone/{id}'),
-    //            $noRefAPI->paths['/requestpathone/{id}'],
-    //            Method::POST
-    //        ),
-    //        new RequestProcessor(
-    //            '',
-    //            'requestpathone-post',
-    //            Method::POST,
-    //            [
-    //                'path' => new FieldSet(
-    //                    'path',
-    //                    new BeforeSet(
-    //                        new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
-    //                        new RequiredFields('id')
-    //                    ),
-    //                    new Field('id', new IntString(), new ToInt())
-    //                ),
-    //                'query' => new FieldSet(
-    //                    'query',
-    //                    new BeforeSet(new QueryStringToArray(['age' => ['style' => 'form', 'explode' => true]])),
-    //                    new Field('age', new Form('integer', false), new IntString(), new ToInt())
-    //                ),
-    //                'header' => new FieldSet('header'),
-    //                'cookie' => new FieldSet('cookie'),
-    //                'body' => new Field('requestBody', new Passes()),
-    //            ]
-    //        ),
-    //    ];
-    //    yield 'Request: path param in path, operation param in query required, no requestBody' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/requestpathone/{id}'),
-    //            new Cebe\PathItem([
-    //                'parameters' => [
-    //                    new Cebe\Parameter([
-    //                        'name' => 'id',
-    //                        'in' => 'path',
-    //                        'required' => true,
-    //                        'schema' => new Cebe\Schema(['type' => 'integer']),
-    //                    ]),
-    //                ],
-    //                'put' => new Cebe\Operation([
-    //                    'operationId' => 'requestpathone-post',
-    //                    'parameters' => [
-    //                        new Cebe\Parameter(
-    //                            [
-    //                                'name' => 'name',
-    //                                'in' => 'query',
-    //                                'required' => true,
-    //                                'schema' => new Cebe\Schema(['type' => 'string']),
-    //                            ]
-    //                        ),
-    //                    ],
-    //                ]),
-    //            ]),
-    //            Method::PUT
-    //        ),
-    //        new RequestProcessor(
-    //            '',
-    //            'requestpathone-post',
-    //            Method::PUT,
-    //            [
-    //                'path' => new FieldSet(
-    //                    'path',
-    //                    new BeforeSet(
-    //                        new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
-    //                        new RequiredFields('id')
-    //                    ),
-    //                    new Field('id', new IntString(), new ToInt())
-    //                ),
-    //                'query' => new FieldSet(
-    //                    'query',
-    //                    new BeforeSet(
-    //                        new QueryStringToArray(
-    //                            ['name' => ['style' => 'form', 'explode' => true]]
-    //                        ),
-    //                        new RequiredFields('name')
-    //                    ),
-    //                    new Field('name', new Form('string', false), new IsString())
-    //                ),
-    //                'header' => new FieldSet('header'),
-    //                'cookie' => new FieldSet('cookie'),
-    //                'body' => new Field('requestBody', new Passes()),
-    //            ]
-    //        ),
-    //    ];
-    //    yield 'Request: path param in path, operation param in query with json content, required, no requestBody' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/requestpathone/{id}'),
-    //            $noRefAPI->paths['/requestpathone/{id}'],
-    //            Method::DELETE
-    //        ),
-    //        new RequestProcessor(
-    //            '',
-    //            'requestpathone-delete',
-    //            Method::DELETE,
-    //            [
-    //                'path' => new FieldSet(
-    //                    'path',
-    //                    new BeforeSet(
-    //                        new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
-    //                        new RequiredFields('id')
-    //                    ),
-    //                    new Field('id', new IntString(), new ToInt())
-    //                ),
-    //                'query' => new FieldSet(
-    //                    'query',
-    //                    new BeforeSet(
-    //                        new QueryStringToArray(
-    //                            ['name' => ['style' => 'form', 'explode' => true]]
-    //                        ),
-    //                        new RequiredFields('name')
-    //                    ),
-    //                    new Field('name', new Form('string', false), new IsString())
-    //                ),
-    //                'header' => new FieldSet('header'),
-    //                'cookie' => new FieldSet('cookie'),
-    //                'body' => new Field('requestBody', new Passes()),
-    //            ]
-    //        ),
-    //    ];
-    //    yield 'Request: path param in header, no requestBody' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/requestpathtwo'),
-    //            $noRefAPI->paths['/requestpathtwo'],
-    //            Method::GET
-    //        ),
-    //        new RequestProcessor(
-    //            '',
-    //            'requestpathtwo-get',
-    //            Method::GET,
-    //            [
-    //                'path' => new FieldSet(
-    //                    'path',
-    //                    new BeforeSet(
-    //                        new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
-    //                    )
-    //                ),
-    //                'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-    //                'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
-    //                'cookie' => new FieldSet('cookie'),
-    //                'body' => new Field('requestBody', new Passes()),
-    //            ]
-    //        ),
-    //    ];
-    //    yield 'Request: path param in header, operation param in cookie, no requestBody' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/requestpathtwo'),
-    //            $noRefAPI->paths['/requestpathtwo'],
-    //            Method::POST
-    //        ),
-    //        new RequestProcessor(
-    //            '',
-    //            'requestpathtwo-post',
-    //            Method::POST,
-    //            [
-    //                'path' => new FieldSet(
-    //                    'path',
-    //                    new BeforeSet(
-    //                        new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
-    //                    )
-    //                ),
-    //                'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-    //                'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
-    //                'cookie' => new FieldSet('cookie', new Field('name', new Form('string', false), new IsString())),
-    //                'body' => new Field('requestBody', new Passes()),
-    //            ]
-    //        ),
-    //    ];
-    //
-    //    yield 'Request: identical param in header and query, no requestBody' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/requestpathtwo'),
-    //            $noRefAPI->paths['/requestpathtwo'],
-    //            Method::PUT
-    //        ),
-    //        new RequestProcessor(
-    //            '',
-    //            'requestpathtwo-put',
-    //            Method::PUT,
-    //            [
-    //                'path' => new FieldSet(
-    //                    'path',
-    //                    new BeforeSet(
-    //                        new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
-    //                    )
-    //                ),
-    //                'query' => new FieldSet(
-    //                    'query',
-    //                    new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form', 'explode' => true]])),
-    //                    new Field('id', new Form('integer', false), new IntString(), new ToInt())
-    //                ),
-    //                'header' => new FieldSet('header'),
-    //                'cookie' => new FieldSet('cookie'),
-    //                'body' => new Field('requestBody', new Passes()),
-    //            ]
-    //        ),
-    //    ];
-    //
-    //    yield 'Request: same param in path and operation with different types, no requestBody' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/requestpathtwo'),
-    //            $noRefAPI->paths['/requestpathtwo'],
-    //            Method::DELETE
-    //        ),
-    //        new RequestProcessor(
-    //            '',
-    //            'requestpathtwo-delete',
-    //            Method::DELETE,
-    //            [
-    //                'path' => new FieldSet(
-    //                    'path',
-    //                    new BeforeSet(
-    //                        new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
-    //                    )
-    //                ),
-    //                'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-    //                'header' => new FieldSet('header', new Field('id', new Implode(','), new IsString())),
-    //                'cookie' => new FieldSet('cookie'),
-    //                'body' => new Field('requestBody', new Passes()),
-    //            ]
-    //        ),
-    //    ];
-    //
-    //    yield 'Request: requestBody param' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/requestbodypath'),
-    //            $noRefAPI->paths['/requestbodypath'],
-    //            Method::GET
-    //        ),
-    //        new RequestProcessor(
-    //            '',
-    //            'requestbodypath-get',
-    //            Method::GET,
-    //            [
-    //                'path' => new FieldSet(
-    //                    'path',
-    //                    new BeforeSet(
-    //                        new PathMatcher(new PathParameterExtractor('/requestbodypath'))
-    //                    )
-    //                ),
-    //                'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-    //                'header' => new FieldSet('header'),
-    //                'cookie' => new FieldSet('cookie'),
-    //                'body' => new Field('requestBody', new IsInt()),
-    //            ]
-    //        ),
-    //    ];
-    //
-    //    yield 'Request: operation param in query, requestBody param' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/requestbodypath'),
-    //            $noRefAPI->paths['/requestbodypath'],
-    //            Method::POST
-    //        ),
-    //        new RequestProcessor(
-    //            '',
-    //            'requestbodypath-post',
-    //            Method::POST,
-    //            [
-    //                'path' => new FieldSet(
-    //                    'path',
-    //                    new BeforeSet(
-    //                        new PathMatcher(new PathParameterExtractor('/requestbodypath'))
-    //                    )
-    //                ),
-    //                'query' => new FieldSet(
-    //                    'query',
-    //                    new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form', 'explode' => true]])),
-    //                    new Field('id', new Form('string', false), new IsString())
-    //                ),
-    //                'header' => new FieldSet('header'),
-    //                'cookie' => new FieldSet('cookie'),
-    //                'body' => new Field('requestBody', new IsInt()),
-    //            ]
-    //        ),
-    //    ];
-    //
-    //    yield 'Request: path param in path, operation param in query, header, cookie, requestBody param' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/requestbodypath/{id}'),
-    //            $noRefAPI->paths['/requestbodypath/{id}'],
-    //            Method::GET
-    //        ),
-    //        new RequestProcessor(
-    //            '',
-    //            'requestbodypath-id-get',
-    //            Method::GET,
-    //            [
-    //                'path' => new FieldSet(
-    //                    'path',
-    //                    new BeforeSet(
-    //                        new PathMatcher(new PathParameterExtractor('/requestbodypath/{id}')),
-    //                        new RequiredFields('id')
-    //                    ),
-    //                    new Field('id', new IntString(), new ToInt())
-    //                ),
-    //                'query' => new FieldSet(
-    //                    'query',
-    //                    new BeforeSet(new QueryStringToArray(['name' => ['style' => 'form', 'explode' => true]])),
-    //                    new Field('name', new Form('string', false), new IsString())
-    //                ),
-    //                'header' => new FieldSet('header', new Field('species', new Implode(','), new IsString())),
-    //                'cookie' => new FieldSet('cookie', new Field('subspecies', new Form('string', false), new IsString())),
-    //                'body' => new Field('requestBody', new IsFloat()),
-    //            ]
-    //        ),
-    //    ];
-    //
-    //    $complexQueryAPI = fn(string $xOf) => (new Reader([OpenAPIVersion::Version_3_0]))->readFromString(
-    //        json_encode([
-    //            'openapi' => '3.0.3',
-    //            'info' => ['title' => 'Complex Query Parameter', 'version' => '1.0'],
-    //            'paths' => [
-    //                '/path' => [
-    //                    'get' => [
-    //                        'operationId' => 'getPath',
-    //                        'parameters' => [
-    //                            [
-    //                                'name' => 'complexity',
-    //                                'in' => 'query',
-    //                                'schema' => [
-    //                                    $xOf => [
-    //                                        [
-    //                                            'title' => 'Uno',
-    //                                            'type' => 'boolean',
-    //                                        ],
-    //                                        [
-    //                                            'type' => 'integer',
-    //                                        ],
-    //                                    ],
-    //                                ],
-    //                            ],
-    //                        ],
-    //                        'responses' => ['200' => ['description' => 'Successful Response']],
-    //                    ],
-    //                ],
-    //            ],
-    //        ]),
-    //        FileFormat::Json
-    //    );
-    //
-    //    $complexProcessor = fn($processor, $queryParameters = []) => new RequestProcessor(
-    //        '',
-    //        'getPath',
-    //        Method::GET,
-    //        [
-    //            'path' => new FieldSet(
-    //                'path',
-    //                new BeforeSet(new PathMatcher(new PathParameterExtractor('/path')))
-    //            ),
-    //            'query' => new FieldSet(
-    //                'query',
-    //                new BeforeSet(new QueryStringToArray($queryParameters)),
-    //                $processor
-    //            ),
-    //            'header' => new FieldSet('header'),
-    //            'cookie' => new FieldSet('cookie'),
-    //            'body' => new Field('requestBody', new Passes()),
-    //        ]
-    //    );
-    //
-    //    yield 'query parameter with oneOf' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/path'),
-    //            $complexQueryAPI('oneOf')->paths['/path'],
-    //            Method::GET
-    //        ),
-    //        $complexProcessor(
-    //            new OneOf(
-    //                'complexity',
-    //                new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
-    //                new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
-    //            ),
-    //            ['complexity' => ['style' => 'form', 'explode' => true]]
-    //        ),
-    //    ];
-    //
-    //    yield 'query parameter with anyOf' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/path'),
-    //            $complexQueryAPI('anyOf')->paths['/path'],
-    //            Method::GET
-    //        ),
-    //        $complexProcessor(
-    //            new AnyOf(
-    //                'complexity',
-    //                new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
-    //                new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
-    //            ),
-    //            ['complexity' => ['style' => 'form', 'explode' => true]]
-    //        ),
-    //    ];
-    //
-    //    yield 'query parameter with allOf' => [
-    //        new OpenAPIRequest(
-    //            OpenAPIVersion::Version_3_0,
-    //            new PathParameterExtractor('/path'),
-    //            $complexQueryAPI('allOf')->paths['/path'],
-    //            Method::GET
-    //        ),
-    //        $complexProcessor(
-    //            new AllOf(
-    //                'complexity',
-    //                new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
-    //                new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
-    //            ),
-    //            ['complexity' => ['style' => 'form', 'explode' => true]]
-    //        ),
-    //    ];
-    //}
+    public static function dataSetsForBuild(): Generator
+    {
+        $reader = new MembraneReader([OpenAPIVersion::Version_3_0]);
+        $noRefAPI = $reader
+            ->readFromAbsoluteFilePath(__DIR__ . '/../../fixtures/OpenAPI/noReferences.json');
+
+        yield 'Request: no path params, no operation params, no requestBody' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/path'),
+                $noRefAPI->paths['/path'],
+                Method::GET
+            ),
+            new RequestProcessor(
+                '',
+                'path-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/path'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+        yield 'Patch Request: no path params, no operation params, no requestBody' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/path'),
+                $noRefAPI->paths['/path'],
+                Method::PATCH
+            ),
+            new RequestProcessor(
+                '',
+                'path-patch',
+                Method::PATCH,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/path'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+        yield 'Request: path param in path, no operation params, no requestBody' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/requestpathone/{id}'),
+                $noRefAPI->paths['/requestpathone/{id}'],
+                Method::GET
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathone-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
+                            new RequiredFields('id')
+                        ),
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+        yield 'Request: path param in path, operation param in query not required, no requestBody' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/requestpathone/{id}'),
+                $noRefAPI->paths['/requestpathone/{id}'],
+                Method::POST
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathone-post',
+                Method::POST,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
+                            new RequiredFields('id')
+                        ),
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new QueryStringToArray(['age' => ['style' => 'form', 'explode' => true]])),
+                        new Field('age', new Form('integer', false), new IntString(), new ToInt())
+                    ),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+        yield 'Request: path param in path, operation param in query required, no requestBody' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/requestpathone/{id}'),
+                $noRefAPI->paths['/requestpathone/{id}'],
+                Method::PUT,
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathone-put',
+                Method::PUT,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
+                            new RequiredFields('id')
+                        ),
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(
+                            new QueryStringToArray(
+                                ['name' => ['style' => 'form', 'explode' => true]]
+                            ),
+                            new RequiredFields('name')
+                        ),
+                        new Field('name', new Form('string', false), new IsString())
+                    ),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+        yield 'Request: path param in path, operation param in query with json content, required, no requestBody' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/requestpathone/{id}'),
+                $noRefAPI->paths['/requestpathone/{id}'],
+                Method::DELETE
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathone-delete',
+                Method::DELETE,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathone/{id}')),
+                            new RequiredFields('id')
+                        ),
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(
+                            new QueryStringToArray(
+                                ['name' => ['style' => 'form', 'explode' => true]]
+                            ),
+                            new RequiredFields('name')
+                        ),
+                        new Field('name', new Form('string', false), new IsString())
+                    ),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+        yield 'Request: path param in header, no requestBody' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/requestpathtwo'),
+                $noRefAPI->paths['/requestpathtwo'],
+                Method::GET
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathtwo-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+        yield 'Request: path param in header, operation param in cookie, no requestBody' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/requestpathtwo'),
+                $noRefAPI->paths['/requestpathtwo'],
+                Method::POST
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathtwo-post',
+                Method::POST,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
+                    'cookie' => new FieldSet('cookie', new Field('name', new Form('string', false), new IsString())),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+
+        yield 'Request: identical param in header and query, no requestBody' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/requestpathtwo'),
+                $noRefAPI->paths['/requestpathtwo'],
+                Method::PUT
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathtwo-put',
+                Method::PUT,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
+                        )
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form', 'explode' => true]])),
+                        new Field('id', new Form('integer', false), new IntString(), new ToInt())
+                    ),
+                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IntString(), new ToInt())),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+
+        yield 'Request: same param in path and operation with different types, no requestBody' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/requestpathtwo'),
+                $noRefAPI->paths['/requestpathtwo'],
+                Method::DELETE
+            ),
+            new RequestProcessor(
+                '',
+                'requestpathtwo-delete',
+                Method::DELETE,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestpathtwo'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+                    'header' => new FieldSet('header', new Field('id', new Implode(','), new IsString())),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new Passes()),
+                ]
+            ),
+        ];
+
+        yield 'Request: requestBody param' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/requestbodypath'),
+                $noRefAPI->paths['/requestbodypath'],
+                Method::GET
+            ),
+            new RequestProcessor(
+                '',
+                'requestbodypath-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestbodypath'))
+                        )
+                    ),
+                    'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new IsInt()),
+                ]
+            ),
+        ];
+
+        yield 'Request: operation param in query, requestBody param' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/requestbodypath'),
+                $noRefAPI->paths['/requestbodypath'],
+                Method::POST
+            ),
+            new RequestProcessor(
+                '',
+                'requestbodypath-post',
+                Method::POST,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestbodypath'))
+                        )
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form', 'explode' => true]])),
+                        new Field('id', new Form('string', false), new IsString())
+                    ),
+                    'header' => new FieldSet('header'),
+                    'cookie' => new FieldSet('cookie'),
+                    'body' => new Field('requestBody', new IsInt()),
+                ]
+            ),
+        ];
+
+        yield 'Request: path param in path, operation param in query, header, cookie, requestBody param' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/requestbodypath/{id}'),
+                $noRefAPI->paths['/requestbodypath/{id}'],
+                Method::GET
+            ),
+            new RequestProcessor(
+                '',
+                'requestbodypath-id-get',
+                Method::GET,
+                [
+                    'path' => new FieldSet(
+                        'path',
+                        new BeforeSet(
+                            new PathMatcher(new PathParameterExtractor('/requestbodypath/{id}')),
+                            new RequiredFields('id')
+                        ),
+                        new Field('id', new IntString(), new ToInt())
+                    ),
+                    'query' => new FieldSet(
+                        'query',
+                        new BeforeSet(new QueryStringToArray(['name' => ['style' => 'form', 'explode' => true]])),
+                        new Field('name', new Form('string', false), new IsString())
+                    ),
+                    'header' => new FieldSet('header', new Field('species', new Implode(','), new IsString())),
+                    'cookie' => new FieldSet('cookie', new Field('subspecies', new Form('string', false), new IsString())),
+                    'body' => new Field('requestBody', new IsFloat()),
+                ]
+            ),
+        ];
+
+        $complexQueryAPI = fn(string $xOf) => $reader->readFromString(
+            json_encode([
+                'openapi' => '3.0.3',
+                'info' => ['title' => 'Complex Query Parameter', 'version' => '1.0'],
+                'paths' => ['/path' => ['get' => [
+                    'operationId' => 'getPath',
+                    'parameters' => [[
+                        'name' => 'complexity',
+                        'in' => 'query',
+                        'schema' => [$xOf => [
+                            ['title' => 'Uno', 'type' => 'boolean',],
+                            ['type' => 'integer'],
+                        ]],
+                    ]],
+                    'responses' => ['200' => ['description' => 'Successful Response']],
+                ]]],
+            ]),
+            FileFormat::Json
+        );
+
+        $complexProcessor = fn($processor, $queryParameters = []) => new RequestProcessor(
+            '',
+            'getPath',
+            Method::GET,
+            [
+                'path' => new FieldSet(
+                    'path',
+                    new BeforeSet(new PathMatcher(new PathParameterExtractor('/path')))
+                ),
+                'query' => new FieldSet(
+                    'query',
+                    new BeforeSet(new QueryStringToArray($queryParameters)),
+                    $processor
+                ),
+                'header' => new FieldSet('header'),
+                'cookie' => new FieldSet('cookie'),
+                'body' => new Field('requestBody', new Passes()),
+            ]
+        );
+
+        yield 'query parameter with oneOf' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/path'),
+                $complexQueryAPI('oneOf')->paths['/path'],
+                Method::GET
+            ),
+            $complexProcessor(
+                new OneOf(
+                    'complexity',
+                    new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
+                    new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
+                ),
+                ['complexity' => ['style' => 'form', 'explode' => true]]
+            ),
+        ];
+
+        yield 'query parameter with anyOf' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/path'),
+                $complexQueryAPI('anyOf')->paths['/path'],
+                Method::GET
+            ),
+            $complexProcessor(
+                new AnyOf(
+                    'complexity',
+                    new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
+                    new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
+                ),
+                ['complexity' => ['style' => 'form', 'explode' => true]]
+            ),
+        ];
+
+        yield 'query parameter with allOf' => [
+            new OpenAPIRequest(
+                OpenAPIVersion::Version_3_0,
+                new PathParameterExtractor('/path'),
+                $complexQueryAPI('allOf')->paths['/path'],
+                Method::GET
+            ),
+            $complexProcessor(
+                new AllOf(
+                    'complexity',
+                    new Field('Uno', new Form('boolean', false), new BoolString(), new ToBool()),
+                    new Field('Branch-2', new Form('integer', false), new IntString(), new ToInt())
+                ),
+                ['complexity' => ['style' => 'form', 'explode' => true]]
+            ),
+        ];
+    }
 
     public static function dataSetsForDocExamples(): array
     {
