@@ -87,17 +87,12 @@ class TrueFalseTest extends TestCase
                         new Partial\Schema(
                             type: 'boolean',
                             enum: [new Value(true), new Value(null)],
-                            nullable: true,
                             format: 'rather pointless boolean',
                         )
                     ),
                     true
                 ),
-                new AnyOf(
-                    '',
-                    new Field('', new IsNull()),
-                    new Field('', new BoolString(), new ToBool(), new Contained([true, null]))
-                ),
+                new Field('', new BoolString(), new ToBool(), new Contained([true, null])),
             ],
             'strict detailed input' => [
                 new Specification\TrueFalse(
@@ -108,17 +103,12 @@ class TrueFalseTest extends TestCase
                         new Partial\Schema(
                             type: 'boolean',
                             enum: [new Value(true), new Value(null)],
-                            nullable: true,
                             format: 'rather pointless boolean',
                         )
                     ),
                     false
                 ),
-                new AnyOf(
-                    '',
-                    new Field('', new IsNull()),
-                    new Field('', new IsBool(), new Contained([true, null]))
-                ),
+                new Field('', new IsBool(), new Contained([true, null])),
             ],
         ];
     }

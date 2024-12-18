@@ -68,10 +68,6 @@ class Numeric extends APIBuilder
 
         $chain = array_merge($chain, $this->handleNumericConstraints($specification));
 
-        if ($specification->nullable) {
-            return $this->handleNullable($specification->fieldName, new Field($specification->fieldName, ...$chain));
-        }
-
         return new Field($specification->fieldName, ...$chain);
     }
 

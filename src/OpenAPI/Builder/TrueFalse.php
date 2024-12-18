@@ -56,10 +56,6 @@ class TrueFalse extends APIBuilder
             $chain[] = new Contained($specification->enum);
         }
 
-        if ($specification->nullable) {
-            return $this->handleNullable($specification->fieldName, new Field($specification->fieldName, ...$chain));
-        }
-
         return new Field($specification->fieldName, ...$chain);
     }
 }

@@ -15,7 +15,6 @@ abstract class APISchema implements Specification
     /** @var mixed[] | null */
     public readonly ?array $enum;
     public readonly string $format;
-    public readonly bool $nullable;
 
     public function __construct(
         public readonly OpenAPIVersion $openAPIVersion,
@@ -30,6 +29,5 @@ abstract class APISchema implements Specification
             array_map(fn($e) => $e->value, $schema->value->enum) :
             null;
         $this->format = $schema->value->format;
-        $this->nullable = in_array(Type::Null, $schema->value->types);
     }
 }

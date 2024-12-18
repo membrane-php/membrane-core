@@ -56,7 +56,6 @@ class ArraysTest extends TestCase
                     'uniqueItems' => false,
                     'enum' => null,
                     'format' => '',
-                    'nullable' => false,
                 ],
             ],
             'assigned values' => [
@@ -64,7 +63,6 @@ class ArraysTest extends TestCase
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'array',
                     enum: [new Value([1, 2, 3]), new Value([5, 6, 7])],
-                    nullable: true,
                     maxItems: 5,
                     minItems: 2,
                     uniqueItems: true,
@@ -81,7 +79,6 @@ class ArraysTest extends TestCase
                     'uniqueItems' => true,
                     'enum' => [[1, 2, 3], [5, 6, 7]],
                     'format' => 'array of ints',
-                    'nullable' => true,
                 ],
             ],
         ];

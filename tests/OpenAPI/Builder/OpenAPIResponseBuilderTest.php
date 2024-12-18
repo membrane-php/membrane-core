@@ -184,7 +184,7 @@ class OpenAPIResponseBuilderTest extends TestCase
                     '201',
                     $noReferences->paths['/responsepath']->get->responses['201']
                 ),
-                new AnyOf('', new Field('', new IsNull()), new Field('', new IsInt())),
+                new AnyOf('', new Field('', new IsInt()), new Field('', new IsNull())),
             ],
             'int, inclusive min' => [
                 new OpenAPIResponse(
@@ -249,7 +249,6 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new Field('', new IsNull()),
                     new Field(
                         '',
                         new IsInt(),
@@ -257,7 +256,8 @@ class OpenAPIResponseBuilderTest extends TestCase
                         new Maximum(100),
                         new Minimum(0, true),
                         new MultipleOf(3)
-                    )
+                    ),
+                    new Field('', new IsNull())
                 ),
             ],
             'number' => [
@@ -276,7 +276,7 @@ class OpenAPIResponseBuilderTest extends TestCase
                     '211',
                     $noReferences->paths['/responsepath']->get->responses['211']
                 ),
-                new AnyOf('', new Field('', new IsNull()), new Field('', new IsNumber())),
+                new AnyOf('', new Field('', new IsNumber()), new Field('', new IsNull())),
             ],
             'number, enum' => [
                 new OpenAPIResponse(
@@ -303,7 +303,7 @@ class OpenAPIResponseBuilderTest extends TestCase
                     '214',
                     $noReferences->paths['/responsepath']->get->responses['214']
                 ),
-                new AnyOf('', new Field('', new IsNull()), new Field('', new IsFloat())),
+                new AnyOf('', new Field('', new IsFloat()), new Field('', new IsNull())),
             ],
             'number, double format' => [
                 new OpenAPIResponse(
@@ -323,7 +323,6 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new Field('', new IsNull()),
                     new Field(
                         '',
                         new IsNumber(),
@@ -331,7 +330,8 @@ class OpenAPIResponseBuilderTest extends TestCase
                         new Maximum(99.99, true),
                         new Minimum(6.66),
                         new MultipleOf(3.33)
-                    )
+                    ),
+                    new Field('', new IsNull())
                 ),
             ],
             'string' => [
@@ -350,7 +350,7 @@ class OpenAPIResponseBuilderTest extends TestCase
                     '221',
                     $noReferences->paths['/responsepath']->get->responses['221']
                 ),
-                new AnyOf('', new Field('', new IsNull()), new Field('', new IsString())),
+                new AnyOf('', new Field('', new IsString()), new Field('', new IsNull())),
             ],
             'string, enum' => [
                 new OpenAPIResponse(
@@ -423,14 +423,14 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new Field('', new IsNull()),
                     new Field(
                         '',
                         new IsString(),
                         new Contained(['a', 'b', 'c']),
                         new Length(5, 10),
                         new Regex('#[A-Za-z]+#u')
-                    )
+                    ),
+                    new Field('', new IsNull())
                 ),
             ],
             'bool' => [
@@ -449,7 +449,7 @@ class OpenAPIResponseBuilderTest extends TestCase
                     '231',
                     $noReferences->paths['/responsepath']->get->responses['231']
                 ),
-                new AnyOf('', new Field('', new IsNull()), new Field('', new IsBool())),
+                new AnyOf('', new Field('', new IsBool()), new Field('', new IsNull())),
             ],
             'bool, enum' => [
                 new OpenAPIResponse(
@@ -469,8 +469,8 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new Field('', new IsNull()),
-                    new Field('', new IsBool(), new Contained([true, null]))
+                    new Field('', new IsBool(), new Contained([true, null])),
+                    new Field('', new IsNull())
                 ),
             ],
             'array of ints' => [
@@ -504,8 +504,8 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new Field('', new IsNull()),
-                    new Collection('', new BeforeSet(new IsList()), new Field('', new IsString()))
+                    new Collection('', new BeforeSet(new IsList()), new Field('', new IsString())),
+                    new Field('', new IsNull())
                 ),
             ],
             'array of booleans, minItems' => [
@@ -544,7 +544,6 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new Field('', new IsNull()),
                     new Collection(
                         '',
                         new BeforeSet(
@@ -553,8 +552,9 @@ class OpenAPIResponseBuilderTest extends TestCase
                             new Count(2, 5),
                             new Unique()
                         ),
-                        new AnyOf('', new Field('', new IsNull()), new Field('', new IsNumber()))
-                    )
+                        new AnyOf('', new Field('', new IsNumber()), new Field('', new IsNull()))
+                    ),
+                    new Field('', new IsNull())
                 ),
             ],
             'object with (string) name' => [
@@ -592,8 +592,8 @@ class OpenAPIResponseBuilderTest extends TestCase
                 ),
                 new AnyOf(
                     '',
-                    new Field('', new IsNull()),
-                    new FieldSet('', new BeforeSet(new IsArray()), new Field('price', new IsFloat()))
+                    new FieldSet('', new BeforeSet(new IsArray()), new Field('price', new IsFloat())),
+                    new Field('', new IsNull())
                 ),
             ],
             'object with (string) name, (int) id, (bool) status' => [

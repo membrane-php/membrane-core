@@ -96,29 +96,24 @@ class ArraysTest extends TestCase
                     new Field('', new IsInt())
                 ),
             ],
-            'detailed nullable input' => [
+            'detailed nullable items' => [
                 new Specification\Arrays(
                     OpenAPIVersion::Version_3_0,
                     '',
                     new V30\Schema(new Identifier(''), new Partial\Schema(
                         type: 'array',
                         enum: [new Value([1, 2, 3]), new Value(null)],
-                        nullable: true,
                         maxItems: 3,
                         minItems: 1,
                         uniqueItems: true,
-                        items: new Partial\Schema(type: 'integer'),
+                        items: new Partial\Schema(type: 'integer', nullable: true),
                         format: 'array of ints',
                     )),
                 ),
-                new AnyOf(
+                new Collection(
                     '',
-                    new Field('', new IsNull()),
-                    new Collection(
-                        '',
-                        new BeforeSet(new IsList(), new Contained([[1, 2, 3], null]), new Count(1, 3), new Unique()),
-                        new Field('', new IsInt())
-                    )
+                    new BeforeSet(new IsList(), new Contained([[1, 2, 3], null]), new Count(1, 3), new Unique()),
+                    new AnyOf('', new Field('', new IsInt()), new Field('', new IsNull())),
                 ),
             ],
         ];

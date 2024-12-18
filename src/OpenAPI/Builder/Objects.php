@@ -113,10 +113,6 @@ class Objects extends APIBuilder
 
         $processor = new FieldSet($specification->fieldName, $beforeSet, ...$fields);
 
-        if ($specification->nullable) {
-            return $this->handleNullable($specification->fieldName, $processor);
-        }
-
         return $processor;
     }
 }

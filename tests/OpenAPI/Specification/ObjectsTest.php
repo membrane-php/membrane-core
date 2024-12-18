@@ -9,7 +9,7 @@ use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Objects;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
-use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Value;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -54,7 +54,6 @@ class ObjectsTest extends TestCase
                     'required' => [],
                     'enum' => null,
                     'format' => '',
-                    'nullable' => false,
                 ],
             ],
             'additionalProperties assigned false' => [
@@ -72,15 +71,13 @@ class ObjectsTest extends TestCase
                     'required' => [],
                     'enum' => null,
                     'format' => '',
-                    'nullable' => false,
                 ],
             ],
             'all relevant keywords assigned values' => [
                 OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'object',
-                    enum: [new Value(false), new Value(null)],
-                    nullable: true,
+                    enum: [new Value(['id' => 5]), new Value(['id' => 10])],
                     required: ['id'],
                     properties: ['id' => new Partial\Schema(type: 'integer')],
                     additionalProperties: new Partial\Schema(type: 'string'),
@@ -96,9 +93,8 @@ class ObjectsTest extends TestCase
                         new Partial\Schema(type: 'integer')
                     )],
                     'required' => ['id'],
-                    'enum' => [false, null],
+                    'enum' => [['id' => 5], ['id' => 10]],
                     'format' => 'you cannot say yes',
-                    'nullable' => true,
                 ],
             ],
         ];
@@ -108,7 +104,7 @@ class ObjectsTest extends TestCase
     #[Test]
     public function constructTest(
         OpenAPIVersion $openAPIVersion,
-        V30\Schema|V31\Schema $schema,
+        V30\Schema | V31\Schema $schema,
         array $expected
     ): void {
         $sut = new Objects($openAPIVersion, '', $schema);

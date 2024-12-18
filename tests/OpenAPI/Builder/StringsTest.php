@@ -99,25 +99,20 @@ class StringsTest extends TestCase
                     new V30\Schema(new Identifier(''), new Partial\Schema(
                         type: 'string',
                         enum: [new Value('1970/01/01'), new Value(null)],
-                        nullable: true,
                         maxLength: 100,
                         minLength: 0,
                         pattern: '.+',
                         format: 'date',
                     )),
                 ),
-                new AnyOf(
+                new Field(
                     '',
-                    new Field('', new IsNull()),
-                    new Field(
-                        '',
-                        new IsString(),
-                        new Contained(['1970/01/01', null]),
-                        new DateString('Y-m-d', true),
-                        new Length(0, 100),
-                        new Regex('#.+#u'),
-                    )
-                ),
+                    new IsString(),
+                    new Contained(['1970/01/01', null]),
+                    new DateString('Y-m-d', true),
+                    new Length(0, 100),
+                    new Regex('#.+#u'),
+                )
             ],
         ];
     }

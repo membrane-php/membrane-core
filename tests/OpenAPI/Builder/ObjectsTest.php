@@ -159,7 +159,6 @@ class ObjectsTest extends TestCase
                     new V30\Schema(new Identifier(''), new Partial\Schema(
                         type: 'object',
                         enum: [new Value(['id' => 5, 'name' => 'Blink']), new Value(null)],
-                        nullable: true,
                         required: ['id', 'name'],
                         properties: [
                             'id' => new Partial\Schema(type: 'integer'),
@@ -169,21 +168,17 @@ class ObjectsTest extends TestCase
                         format: 'pet',
                     )),
                 ),
-                new AnyOf(
+                new FieldSet(
                     '',
-                    new Field('', new IsNull()),
-                    new FieldSet(
-                        '',
-                        new BeforeSet(
-                            new IsArray(),
-                            new Contained([['id' => 5, 'name' => 'Blink'], null]),
-                            new RequiredFields('id', 'name')
-                        ),
-                        DefaultProcessor::fromFiltersAndValidators(new IsString()),
-                        new Field('id', new IsInt()),
-                        new Field('name', new IsString())
-                    )
-                ),
+                    new BeforeSet(
+                        new IsArray(),
+                        new Contained([['id' => 5, 'name' => 'Blink'], null]),
+                        new RequiredFields('id', 'name')
+                    ),
+                    DefaultProcessor::fromFiltersAndValidators(new IsString()),
+                    new Field('id', new IsInt()),
+                    new Field('name', new IsString())
+                )
             ],
         ];
     }

@@ -83,82 +83,71 @@ abstract class APIBuilder implements Builder
             );
         }
 
-        $types = $schema->value->types;
-        if (count($types) > 2) {
-            throw new RuntimeException('temporarily unable to handle multiple types');
-        }
+        $typeSpecificProcessors = array_map(
+            fn ($t) => match ($t) {
+                Type::Array => $this->getArrayBuilder()
+                    ->build(new OpenAPI\Specification\Arrays(
+                        $openAPIVersion,
+                        $fieldName,
+                        $schema,
+                        $convertFromString,
+                        $convertFromArray,
+                        $style,
+                        $explode,
+                    )),
 
-        $typeToProcess = null;
-        foreach ($types as $type) {
-            if ($type !== Type::Null) {
-                $typeToProcess = $type;
-                break;
-            }
-        }
+                Type::Boolean => $this->getTrueFalseBuilder()
+                    ->build(new OpenAPI\Specification\TrueFalse(
+                        $openAPIVersion,
+                        $fieldName,
+                        $schema,
+                        $convertFromString,
+                        $convertFromArray,
+                        $style,
+                    )),
 
-        return match ($typeToProcess) {
-            Type::String => ($this->getStringBuilder())
-                ->build(new OpenAPI\Specification\Strings(
-                    $openAPIVersion,
-                    $fieldName,
-                    $schema,
-                    $convertFromArray,
-                    $style
-                )),
+                Type::Integer, Type::Number => $this->getNumericBuilder()
+                    ->build(new OpenAPI\Specification\Numeric(
+                        $openAPIVersion,
+                        $fieldName,
+                        $schema,
+                        $convertFromString,
+                        $convertFromArray,
+                        $style
+                    )),
 
-            Type::Integer, Type::Number => $this->getNumericBuilder()
-                ->build(new OpenAPI\Specification\Numeric(
-                    $openAPIVersion,
-                    $fieldName,
-                    $schema,
-                    $convertFromString,
-                    $convertFromArray,
-                    $style
-                )),
+                Type::String => ($this->getStringBuilder())
+                    ->build(new OpenAPI\Specification\Strings(
+                        $openAPIVersion,
+                        $fieldName,
+                        $schema,
+                        $convertFromArray,
+                        $style
+                    )),
 
-            Type::Boolean => $this->getTrueFalseBuilder()
-                ->build(new OpenAPI\Specification\TrueFalse(
-                    $openAPIVersion,
-                    $fieldName,
-                    $schema,
-                    $convertFromString,
-                    $convertFromArray,
-                    $style,
-                )),
+                Type::Object => $this->getObjectBuilder()
+                    ->build(new OpenAPI\Specification\Objects(
+                        $openAPIVersion,
+                        $fieldName,
+                        $schema,
+                        $convertFromString,
+                        $convertFromArray,
+                        $style,
+                        $explode,
+                    )),
 
-            Type::Array => $this->getArrayBuilder()
-                ->build(new OpenAPI\Specification\Arrays(
-                    $openAPIVersion,
-                    $fieldName,
-                    $schema,
-                    $convertFromString,
-                    $convertFromArray,
-                    $style,
-                    $explode,
-                )),
-
-            Type::Object => $this->getObjectBuilder()
-                ->build(new OpenAPI\Specification\Objects(
-                    $openAPIVersion,
-                    $fieldName,
-                    $schema,
-                    $convertFromString,
-                    $convertFromArray,
-                    $style,
-                    $explode,
-                )),
-
-            default => new Field('', new Utility\Passes()),
-        };
-    }
-
-    protected function handleNullable(string $fieldName, Processor $processor): AnyOf
-    {
-        return new AnyOf(
-            $fieldName,
-            new Field($fieldName, new IsNull()),
-            $processor
+                Type::Null => new Field($fieldName, new IsNull()),
+            },
+            $schema->value->types,
         );
+
+        if (count($typeSpecificProcessors) >= 2) {
+            return new AnyOf($fieldName, ...$typeSpecificProcessors);
+        } elseif (count($typeSpecificProcessors) === 1) {
+            return $typeSpecificProcessors[0];
+        } else {
+            return new Field($fieldName, new Utility\Passes());
+        }
     }
 
     /**

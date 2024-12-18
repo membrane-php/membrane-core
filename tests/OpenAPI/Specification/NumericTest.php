@@ -59,7 +59,6 @@ class NumericTest extends TestCase
                     'exclusiveMinimum' => false,
                     'multipleOf' => null,
                     'enum' => null,
-                    'nullable' => false,
                 ],
             ],
             'default values for integer' => [
@@ -73,7 +72,6 @@ class NumericTest extends TestCase
                     'exclusiveMinimum' => false,
                     'multipleOf' => null,
                     'enum' => null,
-                    'nullable' => false,
                 ],
             ],
             'assigned values for number' => [
@@ -81,7 +79,6 @@ class NumericTest extends TestCase
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'number',
                     enum: [new Value(3), new Value(9)],
-                    nullable: true,
                     multipleOf: 3,
                     exclusiveMaximum: true,
                     exclusiveMinimum: true,
@@ -98,7 +95,6 @@ class NumericTest extends TestCase
                     'multipleOf' => 3,
                     'enum' => [3, 9],
                     'format' => 'float',
-                    'nullable' => true,
                 ],
             ],
             'assigned values for integer' => [
@@ -106,7 +102,6 @@ class NumericTest extends TestCase
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'integer',
                     enum: [new Value(9)],
-                    nullable: true,
                     multipleOf: 3,
                     exclusiveMaximum: true,
                     exclusiveMinimum: true,
@@ -123,7 +118,6 @@ class NumericTest extends TestCase
                     'multipleOf' => 3,
                     'enum' => [9],
                     'format' => 'square of 3',
-                    'nullable' => true,
                 ],
             ],
         ];

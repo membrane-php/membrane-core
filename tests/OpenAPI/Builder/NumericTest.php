@@ -125,29 +125,24 @@ class NumericTest extends TestCase
                     new V30\Schema(new Identifier(''), new Partial\Schema(
                         type: 'integer',
                         enum: [new Value(1), new Value(2), new Value(3), new Value(null)],
-                        nullable: true,
                         multipleOf: 3,
                         exclusiveMaximum: true,
                         exclusiveMinimum: true,
                         maximum: 4,
                         minimum: 0,
-                        format: 'nullable int',
+                        format: 'int',
                     )),
                     true
                 ),
-                new AnyOf(
+                new Field(
                     '',
-                    new Field('', new IsNull()),
-                    new Field(
-                        '',
-                        new IntString(),
-                        new ToInt(),
-                        new Contained([1, 2, 3, null]),
-                        new Maximum(4, true),
-                        new Minimum(0, true),
-                        new MultipleOf(3)
-                    )
-                ),
+                    new IntString(),
+                    new ToInt(),
+                    new Contained([1, 2, 3, null]),
+                    new Maximum(4, true),
+                    new Minimum(0, true),
+                    new MultipleOf(3)
+                )
             ],
             'strict detailed input' => [
                 new Specification\Numeric(
@@ -156,28 +151,23 @@ class NumericTest extends TestCase
                     new V30\Schema(new Identifier(''), new Partial\Schema(
                         type: 'integer',
                         enum: [new Value(1), new Value(2), new Value(3), new Value(null)],
-                        nullable: true,
                         multipleOf: 3,
                         exclusiveMaximum: true,
                         exclusiveMinimum: true,
                         maximum: 4,
                         minimum: 0,
-                        format: 'nullable int',
+                        format: 'int',
                     )),
                     false
                 ),
-                new AnyOf(
+                new Field(
                     '',
-                    new Field('', new IsNull()),
-                    new Field(
-                        '',
-                        new IsInt(),
-                        new Contained([1, 2, 3, null]),
-                        new Maximum(4, true),
-                        new Minimum(0, true),
-                        new MultipleOf(3)
-                    )
-                ),
+                    new IsInt(),
+                    new Contained([1, 2, 3, null]),
+                    new Maximum(4, true),
+                    new Minimum(0, true),
+                    new MultipleOf(3)
+                )
             ],
         ];
     }

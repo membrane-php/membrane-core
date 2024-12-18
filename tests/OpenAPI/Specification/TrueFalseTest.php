@@ -50,21 +50,18 @@ class TrueFalseTest extends TestCase
                 [
                     'enum' => null,
                     'format' => '',
-                    'nullable' => false,
                 ],
             ],
             'assigned values' => [
                 OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'boolean',
-                    nullable: true,
                     enum: [new Value(false), new Value(null)],
                     format: 'you cannot say yes',
                 )),
                 [
                     'enum' => [false, null],
                     'format' => 'you cannot say yes',
-                    'nullable' => true,
                 ],
             ],
         ];

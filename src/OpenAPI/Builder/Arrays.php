@@ -89,10 +89,6 @@ class Arrays extends APIBuilder
             )
         );
 
-        if ($specification->nullable) {
-            return $this->handleNullable($specification->fieldName, $collection);
-        }
-
         return $collection;
     }
 }
