@@ -42,7 +42,7 @@ abstract class APIBuilder implements Builder
             return new Field($fieldName, new Utility\Fails());
         }
 
-        if ($schema->value->not !== null) {
+        if ($schema->value->not->value !== false) {
             throw OpenAPI\Exception\CannotProcessOpenAPI::unsupportedKeyword('not');
         }
 
