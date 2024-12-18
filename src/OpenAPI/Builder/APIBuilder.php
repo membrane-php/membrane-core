@@ -34,12 +34,10 @@ abstract class APIBuilder implements Builder
         ?string $style = null,
         ?bool $explode = null,
     ): Processor {
-        if ($schema->value === true) {
-            return new Field($fieldName, new Utility\Passes());
-        }
-
-        if ($schema->value === false) {
-            return new Field($fieldName, new Utility\Fails());
+        if (is_bool($schema->value)) {
+            return new Field($fieldName, $schema->value ?
+                new Utility\Passes() :
+                new Utility\Fails());
         }
 
         if ($schema->value->not->value !== false) {
