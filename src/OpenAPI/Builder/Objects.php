@@ -75,7 +75,7 @@ class Objects extends APIBuilder
             $beforeChain[] = new Contained($specification->enum);
         }
 
-        if ($specification->required !== null) {
+        if (!empty($specification->required)) {
             $beforeChain[] = new RequiredFields(...$specification->required);
         }
 
