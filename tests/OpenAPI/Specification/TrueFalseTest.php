@@ -49,7 +49,7 @@ class TrueFalseTest extends TestCase
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'boolean')),
                 [
                     'enum' => null,
-                    'format' => null,
+                    'format' => '',
                     'nullable' => false,
                 ],
             ],

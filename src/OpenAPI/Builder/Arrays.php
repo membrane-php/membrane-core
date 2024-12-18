@@ -78,10 +78,6 @@ class Arrays extends APIBuilder
 
         $beforeSet = new BeforeSet(...$beforeChain);
 
-        if ($specification->items === null) {
-            return new Collection($specification->fieldName, $beforeSet);
-        }
-
         $collection = new Collection(
             $specification->fieldName,
             $beforeSet,

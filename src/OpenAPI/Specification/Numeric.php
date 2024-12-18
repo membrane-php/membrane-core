@@ -9,7 +9,8 @@ use Membrane\OpenAPI\TempHelpers\ChecksNumericTypeOrNull;
 use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
-use Membrane\OpenAPIReader\ValueObject\Valid\V30;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
+use RuntimeException;
 
 class Numeric extends APISchema
 {
@@ -23,17 +24,21 @@ class Numeric extends APISchema
     public function __construct(
         OpenAPIVersion $openAPIVersion,
         string $fieldName,
-        V30\Schema $schema,
+        V30\Schema | V31\Schema $schema,
         public readonly bool $convertFromString = false,
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
     ) {
+        if (is_bool($schema->value)) {
+            throw new RuntimeException('Any boolean schema should be dealt with before this point');
+        }
+
         ChecksNumericTypeOrNull::check(
             self::class,
-            $schema->type
+            $schema->value->types
         );
 
-        $types = $schema->getTypes();
+        $types = $schema->value->types;
 
         if (in_array(Type::Integer, $types)) {
             $this->type = Type::Integer->value;
@@ -47,11 +52,11 @@ class Numeric extends APISchema
             );
         }
 
-        $this->exclusiveMaximum = $schema->getRelevantMaximum()?->exclusive ?? false;
-        $this->exclusiveMinimum = $schema->getRelevantMinimum()?->exclusive ?? false;
-        $this->maximum = $schema->getRelevantMaximum()?->limit;
-        $this->minimum = $schema->getRelevantMinimum()?->limit;
-        $this->multipleOf = $schema->multipleOf;
+        $this->exclusiveMaximum = $schema->value->maximum?->exclusive ?? false;
+        $this->exclusiveMinimum = $schema->value->minimum?->exclusive ?? false;
+        $this->maximum = $schema->value->maximum?->limit;
+        $this->minimum = $schema->value->minimum?->limit;
+        $this->multipleOf = $schema->value->multipleOf;
 
         parent::__construct($openAPIVersion, $fieldName, $schema);
     }

@@ -14,7 +14,7 @@ use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
-use Membrane\OpenAPIReader\ValueObject\Valid\V30;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\Processor;
 
 class ResponseBuilder implements Builder
@@ -32,8 +32,7 @@ class ResponseBuilder implements Builder
 
         $openAPI = (new MembraneReader([
             OpenAPIVersion::Version_3_0,
-            //TODO support 3.1
-            //OpenAPIVersion::Version_3_1
+            OpenAPIVersion::Version_3_1
         ]))->readFromAbsoluteFilePath($specification->absoluteFilePath);
 
         $serverUrl = $this->matchServer($openAPI, $specification->url);
@@ -48,7 +47,10 @@ class ResponseBuilder implements Builder
             $response = $this->getResponse($operation, $specification->statusCode);
 
             $newSpecification = new OpenAPIResponse(
-                OpenAPIVersion::Version_3_0, //TODO change to a conditional when supporting 3.1
+                match ($openAPI::class) {
+                    V30\OpenAPI::class => OpenAPIVersion::Version_3_0,
+                    V31\OpenAPI::class => OpenAPIVersion::Version_3_1,
+                },
                 $operation->operationId,
                 $specification->statusCode,
                 $response
@@ -73,21 +75,27 @@ class ResponseBuilder implements Builder
     }
 
 
-    private function getOperation(V30\PathItem $pathItem, Method $method): V30\Operation
-    {
+    private function getOperation(
+        V30\PathItem | V31\PathItem $pathItem,
+        Method $method
+    ): V30\Operation | V31\Operation {
         return $pathItem->getOperations()[$method->value]
             ?? throw CannotProcessSpecification::methodNotFound($method->value);
     }
 
-    private function getResponse(V30\Operation $operation, string $httpStatus): V30\Response
-    {
+    private function getResponse(
+        V30\Operation | V31\Operation $operation,
+        string $httpStatus
+    ): V30\Response | V31\Response {
         return $operation->responses[$httpStatus]
             ?? $operation->responses['default']
             ?? throw CannotProcessResponse::codeNotFound($httpStatus);
     }
 
-    private function matchServer(V30\OpenAPI $openAPI, string $url): string
-    {
+    private function matchServer(
+        V30\OpenAPI | V31\OpenAPI $openAPI,
+        string $url
+    ): string {
         $servers = $openAPI->servers;
         uasort($servers, fn($a, $b) => strlen($b->url) <=> strlen($a->url));
 

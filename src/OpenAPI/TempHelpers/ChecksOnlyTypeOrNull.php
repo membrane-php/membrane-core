@@ -10,35 +10,38 @@ use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type};
 
 final class ChecksOnlyTypeOrNull
 {
-    /** @param Type[]|Type|null $types */
+    /** @param Type[] $types */
     public static function check(
         string $className,
         Type $typeItShouldBe,
-        array|Type|null $types
+        array $types
     ): void {
-        if (!is_array($types)) {
-            if ($types !== $typeItShouldBe) {
-                throw CannotProcessSpecification::mismatchedType(
-                    $className,
-                    $typeItShouldBe->value,
-                    $types?->value,
-                );
-            }
-        } elseif (
-            count($types) === 1
-            && $types !== [$typeItShouldBe]
-        ) {
-            throw CannotProcessSpecification::mismatchedType(
-                $className,
-                $typeItShouldBe->value,
-                $types[0]->value,
-            );
-        } elseif (
-            count($types) === 2
-            && in_array(Type::Null, $types)
-            && in_array($typeItShouldBe, $types)
-        ) {
-            throw CannotProcessSpecification::arrayOfTypesIsUnsupported();
+        switch (count($types)) {
+            case 0:
+                throw CannotProcessSpecification::unspecifiedType('', '');
+            case 1:
+                if (!in_array($typeItShouldBe, $types)) {
+                    throw CannotProcessSpecification::mismatchedType(
+                        $className,
+                        $typeItShouldBe->value,
+                        $types[0]->value,
+                    );
+                }
+                break;
+            case 2:
+                if (!in_array($typeItShouldBe, $types)) {
+                    throw CannotProcessSpecification::mismatchedType(
+                        $className,
+                        $typeItShouldBe->value,
+                        $types[0]->value,
+                    );
+                }
+                if (!in_array(Type::Null, $types)) {
+                    throw CannotProcessSpecification::arrayOfTypesIsUnsupported();
+                }
+                break;
+            default:
+                throw CannotProcessSpecification::arrayOfTypesIsUnsupported();
         }
     }
 }

@@ -16,7 +16,7 @@ use Membrane\OpenAPIReader\Exception\InvalidOpenAPI;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
-use Membrane\OpenAPIReader\ValueObject\Valid\V30;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\Processor;
 use Psr\Log\LoggerInterface;
 
@@ -220,9 +220,15 @@ class CacheOpenAPIProcessors
      *              'response'?: array<string,Processor>
      *          }>
      */
-    private function buildProcessors(V30\OpenAPI $openAPI, bool $buildRequests, bool $buildResponses): array
-    {
-        $version = OpenAPIVersion::Version_3_0; // TODO replace with conditional once supporting 3.1
+    private function buildProcessors(
+        V30\OpenAPI | V31\OpenAPI $openAPI,
+        bool $buildRequests,
+        bool $buildResponses,
+    ): array {
+        $version = match ($openAPI::class) {
+            V30\OpenAPI::class => OpenAPIVersion::Version_3_0,
+            V31\OpenAPI::class => OpenAPIVersion::Version_3_1,
+        };
 
         $processors = [];
         foreach ($openAPI->paths as $pathUrl => $path) {

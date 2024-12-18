@@ -7,7 +7,8 @@ namespace Membrane\OpenAPI\Specification;
 use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
 use Membrane\OpenAPIReader\Factory;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30};
+use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
+use RuntimeException;
 
 class Strings extends APISchema
 {
@@ -18,19 +19,23 @@ class Strings extends APISchema
     public function __construct(
         OpenAPIVersion $openAPIVersion,
         string $fieldName,
-        V30\Schema $schema,
+        V30\Schema | V31\Schema $schema,
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
     ) {
+        if (is_bool($schema->value)) {
+            throw new RuntimeException('Any boolean schema should be dealt with before this point');
+        }
+
         ChecksOnlyTypeOrNull::check(
             self::class,
             Type::String,
-            $schema->type
+            $schema->value->types
         );
 
-        $this->maxLength = $schema->maxLength;
-        $this->minLength = $schema->minLength;
-        $this->pattern = $schema->pattern;
+        $this->maxLength = $schema->value->maxLength;
+        $this->minLength = $schema->value->minLength;
+        $this->pattern = $schema->value->pattern;
 
         parent::__construct($openAPIVersion, $fieldName, $schema);
     }

@@ -11,7 +11,7 @@ use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\ValueObject\Valid\V30;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\Processor;
 
 class RequestBuilder implements Builder
@@ -29,7 +29,7 @@ class RequestBuilder implements Builder
 
         $openAPI = (new MembraneReader([
             OpenAPIVersion::Version_3_0,
-            //OpenAPIVersion::Version_3_1, //TODO support 3.1
+            OpenAPIVersion::Version_3_1,
             ]))->readFromAbsoluteFilePath($specification->absoluteFilePath);
 
         $serverUrl = $this->matchServer($openAPI, $specification->url);
@@ -40,7 +40,10 @@ class RequestBuilder implements Builder
             }
 
             $newSpecification = new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0, //TODO change to conditional when supporting 3.1
+                match ($openAPI::class) {
+                    V30\OpenAPI::class => OpenAPIVersion::Version_3_0,
+                    V31\OpenAPI::class => OpenAPIVersion::Version_3_1,
+                },
                 $pathMatcher,
                 $pathItem,
                 $specification->method
@@ -64,8 +67,10 @@ class RequestBuilder implements Builder
         return $this->requestBuilder;
     }
 
-    private function matchServer(V30\OpenAPI $openAPI, string $url): string
-    {
+    private function matchServer(
+        V30\OpenAPI | V31\OpenAPI $openAPI,
+        string $url
+    ): string {
         $servers = $openAPI->servers;
         uasort($servers, fn($a, $b) => strlen($b->url) <=> strlen($a->url));
 

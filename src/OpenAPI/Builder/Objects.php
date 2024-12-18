@@ -79,7 +79,7 @@ class Objects extends APIBuilder
             $beforeChain[] = new RequiredFields(...$specification->required);
         }
 
-        if ($specification->additionalProperties === false) {
+        if ($specification->additionalProperties->value === false) {
             $beforeChain[] = new FixedFields(...array_keys($specification->properties));
         }
 
@@ -100,7 +100,7 @@ class Objects extends APIBuilder
             );
         }
 
-        if (!is_bool($specification->additionalProperties)) {
+        if (!is_bool($specification->additionalProperties->value)) {
             $fields [] = new DefaultProcessor(
                 $this->fromSchema(
                     $specification->openAPIVersion,

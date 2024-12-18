@@ -6,25 +6,30 @@ namespace Membrane\OpenAPI\Specification;
 
 use Membrane\Builder\Specification;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\ValueObject\Valid\V30;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
+use RuntimeException;
 
 abstract class APISchema implements Specification
 {
-    /** @var mixed[] */
+    /** @var mixed[] | null */
     public readonly ?array $enum;
-    public readonly ?string $format;
+    public readonly string $format;
     public readonly bool $nullable;
 
     public function __construct(
         public readonly OpenAPIVersion $openAPIVersion,
         public readonly string $fieldName,
-        V30\Schema $schema
+        V30\Schema | V31\Schema $schema
     ) {
-        $this->enum = isset($schema->enum) ?
-            array_map(fn($e) => $e->value, $schema->enum) :
+        if (is_bool($schema->value)) {
+            throw new RuntimeException('Any boolean schema should be dealt with before this point');
+        }
+
+        $this->enum = isset($schema->value->enum) ?
+            array_map(fn($e) => $e->value, $schema->value->enum) :
             null;
-        $this->format = $schema->format;
-        $this->nullable = in_array(Type::Null, $schema->getTypes());
+        $this->format = $schema->value->format;
+        $this->nullable = in_array(Type::Null, $schema->value->types);
     }
 }
