@@ -9,7 +9,7 @@ use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Arrays;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
-use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Value;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -47,12 +47,15 @@ class ArraysTest extends TestCase
                 OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'array')),
                 [
-                    'items' => null,
+                    'items' => new V30\Schema(
+                        new Identifier('test', 'items'),
+                        true
+                    ),
                     'maxItems' => null,
                     'minItems' => 0,
                     'uniqueItems' => false,
                     'enum' => null,
-                    'format' => null,
+                    'format' => '',
                     'nullable' => false,
                 ],
             ],
@@ -62,10 +65,10 @@ class ArraysTest extends TestCase
                     type: 'array',
                     enum: [new Value([1, 2, 3]), new Value([5, 6, 7])],
                     nullable: true,
-                    items: new Partial\Schema(type: 'integer'),
                     maxItems: 5,
                     minItems: 2,
                     uniqueItems: true,
+                    items: new Partial\Schema(type: 'integer'),
                     format: 'array of ints',
                 )),
                 [
@@ -88,7 +91,7 @@ class ArraysTest extends TestCase
     #[DataProvider('dataSetsToConstruct')]
     public function constructTest(
         OpenAPIVersion $openAPIVersion,
-        V30\Schema|V31\Schema $schema,
+        V30\Schema | V31\Schema $schema,
         array $expected
     ): void {
         $sut = new Arrays($openAPIVersion, '', $schema);

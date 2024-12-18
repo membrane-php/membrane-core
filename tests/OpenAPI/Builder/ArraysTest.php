@@ -23,6 +23,7 @@ use Membrane\Validator\Collection\Unique;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
 use Membrane\Validator\Type\IsNull;
+use Membrane\Validator\Utility\Passes;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -72,7 +73,7 @@ class ArraysTest extends TestCase
                         type: 'array',
                     )),
                 ),
-                new Collection('', new BeforeSet(new IsList())),
+                new Collection('', new BeforeSet(new IsList()), new Field('', new Passes())),
             ],
             'detailed input' => [
                 new Specification\Arrays(

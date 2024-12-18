@@ -18,13 +18,13 @@ final class ChecksOnlyTypeOrNull
     ): void {
         switch (count($types)) {
             case 0:
-                throw CannotProcessSpecification::unspecifiedType('', '');
+                throw CannotProcessSpecification::unspecifiedType($className, $typeItShouldBe->value);
             case 1:
                 if (!in_array($typeItShouldBe, $types)) {
                     throw CannotProcessSpecification::mismatchedType(
                         $className,
                         $typeItShouldBe->value,
-                        $types[0]->value,
+                        implode(', ', array_map(fn($t) => $t->value, $types)),
                     );
                 }
                 break;
@@ -33,7 +33,7 @@ final class ChecksOnlyTypeOrNull
                     throw CannotProcessSpecification::mismatchedType(
                         $className,
                         $typeItShouldBe->value,
-                        $types[0]->value,
+                        implode(', ', array_map(fn($t) => $t->value, $types)),
                     );
                 }
                 if (!in_array(Type::Null, $types)) {

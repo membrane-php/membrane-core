@@ -24,7 +24,7 @@ class ObjectsTest extends TestCase
     #[Test]
     public function throwsExceptionForMissingType(): void
     {
-        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Objects::class, 'object', 'no type'));
+        self::expectExceptionObject(CannotProcessSpecification::unspecifiedType(Objects::class, 'object'));
 
         new Objects(OpenAPIVersion::Version_3_0, '', new V30\Schema(new Identifier('test'), new Partial\Schema()));
     }
@@ -46,11 +46,14 @@ class ObjectsTest extends TestCase
                 OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'object')),
                 [
-                    'additionalProperties' => true,
+                    'additionalProperties' => new V30\Schema(
+                        new Identifier('test', 'additionalProperties'),
+                        true,
+                    ),
                     'properties' => [],
-                    'required' => null,
+                    'required' => [],
                     'enum' => null,
-                    'format' => null,
+                    'format' => '',
                     'nullable' => false,
                 ],
             ],

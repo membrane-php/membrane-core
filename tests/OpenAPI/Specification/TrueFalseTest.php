@@ -24,7 +24,7 @@ class TrueFalseTest extends TestCase
     #[Test]
     public function throwsExceptionForMissingType(): void
     {
-        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(TrueFalse::class, 'boolean', 'no type'));
+        self::expectExceptionObject(CannotProcessSpecification::unspecifiedType(TrueFalse::class, 'boolean'));
 
         new TrueFalse(OpenAPIVersion::Version_3_0, '', new V30\Schema(new Identifier('test'), new Partial\Schema()));
     }

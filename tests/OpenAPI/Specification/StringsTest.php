@@ -24,7 +24,7 @@ class StringsTest extends TestCase
     #[Test]
     public function throwsExceptionForMissingType(): void
     {
-        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Strings::class, 'string', 'no type'));
+        self::expectExceptionObject(CannotProcessSpecification::unspecifiedType(Strings::class, 'string'));
 
         new Strings(OpenAPIVersion::Version_3_0, '', new V30\Schema(new Identifier('test'), new Partial\Schema()));
     }
@@ -52,7 +52,7 @@ class StringsTest extends TestCase
                     'minLength' => 0,
                     'pattern' => null,
                     'enum' => null,
-                    'format' => null,
+                    'format' => '',
                     'nullable' => false,
                 ],
             ],

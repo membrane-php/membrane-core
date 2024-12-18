@@ -25,7 +25,7 @@ class NumericTest extends TestCase
     public function throwsExceptionForMissingType(): void
     {
         self::expectExceptionObject(
-            CannotProcessSpecification::mismatchedType(Numeric::class, 'integer or number', 'no type')
+            CannotProcessSpecification::unspecifiedType(Numeric::class, 'integer or number'),
         );
 
         new Numeric(OpenAPIVersion::Version_3_0, '', new V30\Schema(new Identifier('test'), new Partial\Schema()));
