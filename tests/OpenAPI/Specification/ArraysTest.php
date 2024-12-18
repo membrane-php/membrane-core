@@ -24,7 +24,7 @@ class ArraysTest extends TestCase
     #[Test]
     public function throwsExceptionForMissingType(): void
     {
-        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Arrays::class, 'array', 'no type'));
+        self::expectExceptionObject(CannotProcessSpecification::unspecifiedType(Arrays::class, 'array'));
 
         new Arrays(OpenAPIVersion::Version_3_0, '', new V30\Schema(new Identifier('test'), new Partial\Schema()));
     }

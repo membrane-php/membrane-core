@@ -64,11 +64,14 @@ class ObjectsTest extends TestCase
                     additionalProperties: false,
                 )),
                 [
-                    'additionalProperties' => false,
+                    'additionalProperties' => new V30\Schema(
+                        new Identifier('test', 'additionalProperties'),
+                        false,
+                    ),
                     'properties' => [],
-                    'required' => null,
+                    'required' => [],
                     'enum' => null,
-                    'format' => null,
+                    'format' => '',
                     'nullable' => false,
                 ],
             ],
