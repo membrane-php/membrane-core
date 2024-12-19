@@ -1,5 +1,6 @@
-vendor
-.idea
+generated/
+vendor/
+.idea/
 composer.lock
 composer.phar
 .phpunit.cache
