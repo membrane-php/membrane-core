@@ -39,12 +39,14 @@ abstract class APIBuilder implements Builder
                 new Utility\Fails());
         }
 
+        $result = [];
+
         if ($schema->value->not->value !== false) {
             throw OpenAPI\Exception\CannotProcessOpenAPI::unsupportedKeyword('not');
         }
 
         if (!empty($schema->value->allOf)) {
-            return $this->fromComplexSchema(
+            $result[] = $this->fromComplexSchema(
                 $openAPIVersion,
                 AllOf::class,
                 $fieldName,
@@ -57,7 +59,7 @@ abstract class APIBuilder implements Builder
         }
 
         if (!empty($schema->value->anyOf)) {
-            return $this->fromComplexSchema(
+            $result[] = $this->fromComplexSchema(
                 $openAPIVersion,
                 AnyOf::class,
                 $fieldName,
@@ -70,7 +72,7 @@ abstract class APIBuilder implements Builder
         }
 
         if (!empty($schema->value->oneOf)) {
-            return $this->fromComplexSchema(
+            $result[] = $this->fromComplexSchema(
                 $openAPIVersion,
                 OneOf::class,
                 $fieldName,
@@ -141,9 +143,15 @@ abstract class APIBuilder implements Builder
         );
 
         if (count($typeSpecificProcessors) >= 2) {
-            return new AnyOf($fieldName, ...$typeSpecificProcessors);
+            $result[] = new AnyOf($fieldName, ...$typeSpecificProcessors);
         } elseif (count($typeSpecificProcessors) === 1) {
-            return $typeSpecificProcessors[0];
+            $result[] = $typeSpecificProcessors[0];
+        }
+
+        if (count($result) >= 2) {
+            return new AllOf($fieldName, ...$result);
+        } elseif (count($result) === 1) {
+            return $result[0];
         } else {
             return new Field($fieldName, new Utility\Passes());
         }

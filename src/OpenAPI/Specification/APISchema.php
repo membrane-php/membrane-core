@@ -7,7 +7,6 @@ namespace Membrane\OpenAPI\Specification;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
-use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 use RuntimeException;
 
 abstract class APISchema implements Specification
