@@ -10,7 +10,7 @@ use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type};
 
 final class ChecksNumericTypeOrNull
 {
-    /** @param Type[] $type */
+    /** @param Type[] $types */
     public static function check(
         string $className,
         array $types
