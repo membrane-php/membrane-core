@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Specification;
 
-use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use RuntimeException;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
+use RuntimeException;
 
 class Objects extends APISchema
 {
@@ -35,11 +35,12 @@ class Objects extends APISchema
             throw new RuntimeException('Any boolean schema should be dealt with before this point');
         }
 
-        ChecksOnlyTypeOrNull::check(
-            self::class,
-            Type::Object,
-            $schema->value->types,
-        );
+        if (!in_array(Type::Object, $schema->value->types)) {
+            throw CannotProcessSpecification::mismatchedType(
+                ['object'],
+                array_map(fn($t) => $t->value, $schema->value->types),
+            );
+        }
 
         $this->additionalProperties = $schema->value->additionalProperties;
         $this->properties = $schema->value->properties;

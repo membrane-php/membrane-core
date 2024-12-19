@@ -60,17 +60,19 @@ class CannotProcessSpecification extends RuntimeException
         return new self($message, self::TYPE_MISMATCH);
     }
 
-    public static function mismatchedType(string $processor, string $expected, ?string $actual): self
-    {
-        $message = sprintf('%s expects %s data types, %s provided', $processor, $expected, $actual ?? 'no type');
-        return new self($message, self::TYPE_MISMATCH);
-    }
-
-    public static function arrayOfTypesIsUnsupported(): self
-    {
-        return new self(
-            'providing "type" as an array of values is exclusive to OpenAPI 3.1, which is currently unsupported',
-            self::TYPE_MISMATCH
+    /**
+     * @param non-empty-list<string> $expected
+     * @param list<string> $given
+     */
+    public static function mismatchedType(
+        array $expected,
+        array $given,
+    ): self {
+        $message = sprintf(
+            'expected %s; %s given',
+            implode(', ', $expected),
+            empty($given) ? 'no types' : implode(', ', $given),
         );
+        return new self($message, self::TYPE_MISMATCH);
     }
 }

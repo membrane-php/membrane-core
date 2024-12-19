@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Specification;
 
-use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPIReader\Factory;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
@@ -27,11 +27,12 @@ class Strings extends APISchema
             throw new RuntimeException('Any boolean schema should be dealt with before this point');
         }
 
-        ChecksOnlyTypeOrNull::check(
-            self::class,
-            Type::String,
-            $schema->value->types
-        );
+        if (!in_array(Type::String, $schema->value->types)) {
+            throw CannotProcessSpecification::mismatchedType(
+                ['string'],
+                array_map(fn($t) => $t->value, $schema->value->types),
+            );
+        }
 
         $this->maxLength = $schema->value->maxLength;
         $this->minLength = $schema->value->minLength;

@@ -9,13 +9,12 @@ use Membrane\OpenAPI;
 use Membrane\OpenAPI\Processor\AllOf;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
-use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Utility;
-use RuntimeException;
 
 abstract class APIBuilder implements Builder
 {

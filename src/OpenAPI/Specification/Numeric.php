@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Specification;
 
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
-use Membrane\OpenAPI\TempHelpers\ChecksNumericTypeOrNull;
-use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 use RuntimeException;
 
 class Numeric extends APISchema
@@ -33,22 +31,15 @@ class Numeric extends APISchema
             throw new RuntimeException('Any boolean schema should be dealt with before this point');
         }
 
-        ChecksNumericTypeOrNull::check(
-            self::class,
-            $schema->value->types
-        );
-
         $types = $schema->value->types;
-
         if (in_array(Type::Integer, $types)) {
             $this->type = Type::Integer->value;
         } elseif (in_array(Type::Number, $types)) {
             $this->type = Type::Number->value;
         } else {
             throw CannotProcessSpecification::mismatchedType(
-                self::class,
-                'integer or number',
-                implode(',', array_map(fn($t) => $t->value, $types)),
+                ['integer', 'number'],
+                array_map(fn($t) => $t->value, $types),
             );
         }
 

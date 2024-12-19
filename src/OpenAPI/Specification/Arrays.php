@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Specification;
 
-use Membrane\OpenAPI\TempHelpers\ChecksOnlyTypeOrNull;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use RuntimeException;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
+use RuntimeException;
 
 class Arrays extends APISchema
 {
@@ -30,11 +30,12 @@ class Arrays extends APISchema
             throw new RuntimeException('Any boolean schema should be dealt with before this point');
         }
 
-        ChecksOnlyTypeOrNull::check(
-            self::class,
-            Type::Array,
-            $schema->value->types
-        );
+        if (!in_array(Type::Array, $schema->value->types)) {
+            throw CannotProcessSpecification::mismatchedType(
+                ['array'],
+                array_map(fn($t) => $t->value, $schema->value->types),
+            );
+        }
 
         $this->items = $schema->value->items;
         $this->maxItems = $schema->value->maxItems;
