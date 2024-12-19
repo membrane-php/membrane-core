@@ -152,6 +152,68 @@ class CacheOpenAPIProcessorsTest extends TestCase
         self::assertEquals($expectedFindHats1, $actualFindHats1->processor);
     }
 
+    #[Test, TestDox('It caches Requests and Responses for the OpenAPI example: petstore-expanded.json')]
+    #[DataProvider('provideCasesOfCachedRequestsFromPetstoreExpanded')]
+    #[DataProvider('provideCasesOfCachedResponsesFromPetstoreExpanded')]
+    public function cachesProcessorsFromPetStoreExpanded(
+        string $openAPIFilePath,
+        string $relativeDestination,
+        string $namespace,
+        string $className,
+        Processor $expectedProcessor
+    ): void {
+        $cacheDir = $this->root->url() . '/cache';
+
+        $this->sut->cache($openAPIFilePath, $cacheDir, $namespace);
+
+        $fullClassName = sprintf('\\%s\\%s', $namespace, $className);
+
+        eval('//' . file_get_contents("$cacheDir/$relativeDestination"));
+        $cachedClass = eval(sprintf('return new %s();', $fullClassName));
+
+        self::assertEquals($expectedProcessor, $cachedClass->processor);
+    }
+
+    #[Test, TestDox('It only caches Requests when build responses is false')]
+    public function cacheOnlyRequestProcessors(): void
+    {
+        $cacheDir = $this->root->url() . '/cache';
+
+        $this->sut->cache(
+            __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json',
+            $cacheDir,
+            'ServiceTest\\Petstore\\RequestsOnly',
+            true,
+            false
+        );
+
+        self::assertDirectoryDoesNotExist("$cacheDir/Response");
+        self::assertFileDoesNotExist("$cacheDir/CachedResponseBuilder.php");
+
+        self::assertDirectoryExists("$cacheDir/Request");
+        self::assertFileExists("$cacheDir/CachedRequestBuilder.php");
+    }
+
+    #[Test, TestDox('It only caches Requests when build responses is false')]
+    public function cacheOnlyResponseProcessors(): void
+    {
+        $cacheDir = $this->root->url() . '/cache';
+
+        $this->sut->cache(
+            __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json',
+            $cacheDir,
+            'ServiceTest\\Petstore\\ResponsesOnly',
+            false,
+            true
+        );
+
+        self::assertDirectoryExists("$cacheDir/Response");
+        self::assertFileExists("$cacheDir/CachedResponseBuilder.php");
+
+        self::assertDirectoryDoesNotExist("$cacheDir/Request");
+        self::assertFileDoesNotExist("$cacheDir/CachedRequestBuilder.php");
+    }
+
     public static function provideCasesOfCachedRequestsFromPetstoreExpanded(): array
     {
         $requestBuilder = new OpenAPIRequestBuilder();
@@ -162,7 +224,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
         return [
             'findPets : Request' => [
                 $petstoreExpandedFilePath,
-                'cache/Request/FindPets.php',
+                'Request/FindPets.php',
                 'ServiceTest\\PetstoreA',
                 'Request\\FindPets',
                 $requestBuilder->build(
@@ -175,7 +237,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
             ],
             'addPet : Request' => [
                 $petstoreExpandedFilePath,
-                'cache/Request/AddPet.php',
+                'Request/AddPet.php',
                 'ServiceTest\\PetstoreD',
                 'Request\\AddPet',
                 $requestBuilder->build(
@@ -188,7 +250,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
             ],
             'find pet by id : Request' => [
                 $petstoreExpandedFilePath,
-                'cache/Request/FindPetById.php',
+                'Request/FindPetById.php',
                 'ServiceTest\\PetstoreE',
                 'Request\\FindPetById',
                 $requestBuilder->build(
@@ -201,7 +263,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
             ],
             'deletePet : Request' => [
                 $petstoreExpandedFilePath,
-                'cache/Request/DeletePet.php',
+                'Request/DeletePet.php',
                 'ServiceTest\\PetstoreH',
                 'Request\\DeletePet',
                 $requestBuilder->build(
@@ -225,7 +287,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
         return [
             'findPets : 200 Response' => [
                 $petstoreExpandedFilePath,
-                'cache/Response/Code200/FindPets.php',
+                'Response/Code200/FindPets.php',
                 'ServiceTest\\PetstoreB',
                 'Response\\Code200\\FindPets',
                 $responseBuilder->build(
@@ -238,7 +300,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
             ],
             'findPets : default Response' => [
                 $petstoreExpandedFilePath,
-                'cache/Response/CodeDefault/FindPets.php',
+                'Response/CodeDefault/FindPets.php',
                 'ServiceTest\\PetstoreC',
                 'Response\\CodeDefault\\FindPets',
                 $responseBuilder->build(
@@ -251,7 +313,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
             ],
             'addPet : 200 Response' => [
                 $petstoreExpandedFilePath,
-                'cache/Response/Code200/AddPet.php',
+                'Response/Code200/AddPet.php',
                 'ServiceTest\\PetstoreE',
                 'Response\\Code200\\AddPet',
                 $responseBuilder->build(
@@ -264,7 +326,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
             ],
             'addPet : default Response' => [
                 $petstoreExpandedFilePath,
-                'cache/Response/CodeDefault/AddPet.php',
+                'Response/CodeDefault/AddPet.php',
                 'ServiceTest\\PetstoreF',
                 'Response\\CodeDefault\\AddPet',
                 $responseBuilder->build(
@@ -277,7 +339,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
             ],
             'find pet by id : 200 Response' => [
                 $petstoreExpandedFilePath,
-                'cache/Response/Code200/FindPetById.php',
+                'Response/Code200/FindPetById.php',
                 'ServiceTest\\PetstoreF',
                 'Response\\Code200\\FindPetById',
                 $responseBuilder->build(
@@ -290,7 +352,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
             ],
             'find pet by id : default Response' => [
                 $petstoreExpandedFilePath,
-                'cache/Response/CodeDefault/FindPetById.php',
+                'Response/CodeDefault/FindPetById.php',
                 'ServiceTest\\PetstoreG',
                 'Response\\CodeDefault\\FindPetById',
                 $responseBuilder->build(
@@ -303,7 +365,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
             ],
             'deletePet : 204 Response' => [
                 $petstoreExpandedFilePath,
-                'cache/Response/Code204/DeletePet.php',
+                'Response/Code204/DeletePet.php',
                 'ServiceTest\\PetstoreI',
                 'Response\\Code204\\DeletePet',
                 $responseBuilder->build(
@@ -315,59 +377,5 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 ),
             ],
         ];
-    }
-
-    #[Test, TestDox('It caches Requests and Responses for the OpenAPI example: petstore-expanded.json')]
-    #[DataProvider('provideCasesOfCachedRequestsFromPetstoreExpanded')]
-    #[DataProvider('provideCasesOfCachedResponsesFromPetstoreExpanded')]
-    public function cachesProcessorsFromPetStoreExpanded(
-        string $openAPIFilePath,
-        string $relativeDestination,
-        string $namespace,
-        string $className,
-        Processor $expectedProcessor
-    ): void {
-        $this->sut->cache($openAPIFilePath, $this->root->url() . '/cache', $namespace);
-
-        $fullClassName = sprintf('\\%s\\%s', $namespace, $className);
-
-        eval('//' . file_get_contents($this->root->getChild($relativeDestination)->url()));
-        $cachedClass = eval(sprintf('return new %s();', $fullClassName));
-
-        self::assertEquals($expectedProcessor, $cachedClass->processor);
-    }
-
-    #[Test, TestDox('It only caches Requests when build responses is false')]
-    public function cacheOnlyRequestProcessors(): void
-    {
-        $this->sut->cache(
-            __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json',
-            $this->root->url() . '/cache',
-            'ServiceTest\\Petstore\\RequestsOnly',
-            true,
-            false
-        );
-
-        self::assertDirectoryDoesNotExist($this->root->url() . '/cache/Response');
-        self::assertFileDoesNotExist($this->root->url() . '/cache/CachedResponseBuilder.php');
-        self::assertDirectoryExists($this->root->url() . '/cache/Request');
-        self::assertFileExists($this->root->url() . '/cache/CachedRequestBuilder.php');
-    }
-
-    #[Test, TestDox('It only caches Requests when build responses is false')]
-    public function cacheOnlyResponseProcessors(): void
-    {
-        $this->sut->cache(
-            __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json',
-            $this->root->url() . '/cache',
-            'ServiceTest\\Petstore\\ResponsesOnly',
-            false,
-            true
-        );
-
-        self::assertDirectoryDoesNotExist($this->root->url() . '/cache/Request');
-        self::assertFileDoesNotExist($this->root->url() . '/cache/CachedRequestBuilder.php');
-        self::assertFileExists($this->root->url() . '/cache/CachedResponseBuilder.php');
-        self::assertDirectoryExists($this->root->url() . '/cache/Response');
     }
 }

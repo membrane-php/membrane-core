@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Membrane\Console\Template;
 
-
 use Atto\CodegenTools\ClassDefinition\PHPClassDefinition;
 
 class ResponseBuilder implements PHPClassDefinition
