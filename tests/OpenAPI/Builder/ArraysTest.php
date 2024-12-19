@@ -90,7 +90,7 @@ class ArraysTest extends TestCase
                 ),
                 new Collection('', new BeforeSet(new IsList()), new Field('', new Passes())),
             ],
-            '3.0 string|integer items' => [
+            '3.0 array<string|integer>' => [
                 new Specification\Arrays(
                     OpenAPIVersion::Version_3_0,
                     '',
@@ -112,7 +112,7 @@ class ArraysTest extends TestCase
                     new AnyOf('', new Field('Branch-1', new IsString()), new Field('Branch-2', new IsInt())),
                 ),
             ],
-            '3.1 string|integer items' => [
+            '3.1 array<string|integer>' => [
                 new Specification\Arrays(
                     OpenAPIVersion::Version_3_1,
                     '',
