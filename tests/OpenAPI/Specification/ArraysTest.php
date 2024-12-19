@@ -26,7 +26,11 @@ class ArraysTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['array'], []));
 
-        new Arrays(OpenAPIVersion::Version_3_0, '', new V30\Schema(new Identifier('test'), new Partial\Schema()));
+        new Arrays(
+            OpenAPIVersion::Version_3_0,
+            '',
+            (new V30\Schema(new Identifier('test'), new Partial\Schema()))->value
+        );
     }
 
     #[Test]
@@ -34,9 +38,10 @@ class ArraysTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['array'], ['string']));
 
-        new Arrays(OpenAPIVersion::Version_3_0,
+        new Arrays(
+            OpenAPIVersion::Version_3_0,
             '',
-            new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string'))
+            (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')))->value
         );
     }
 
@@ -91,7 +96,7 @@ class ArraysTest extends TestCase
         V30\Schema | V31\Schema $schema,
         array $expected
     ): void {
-        $sut = new Arrays($openAPIVersion, '', $schema);
+        $sut = new Arrays($openAPIVersion, '', $schema->value);
 
         foreach ($expected as $key => $value) {
             if ($key === 'items') {

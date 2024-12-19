@@ -90,7 +90,7 @@ abstract class APIBuilder implements Builder
                     ->build(new OpenAPI\Specification\Arrays(
                         $openAPIVersion,
                         $fieldName,
-                        $schema,
+                        $schema->value,
                         $convertFromString,
                         $convertFromArray,
                         $style,
@@ -101,7 +101,7 @@ abstract class APIBuilder implements Builder
                     ->build(new OpenAPI\Specification\TrueFalse(
                         $openAPIVersion,
                         $fieldName,
-                        $schema,
+                        $schema->value,
                         $convertFromString,
                         $convertFromArray,
                         $style,
@@ -111,7 +111,7 @@ abstract class APIBuilder implements Builder
                     ->build(new OpenAPI\Specification\Numeric(
                         $openAPIVersion,
                         $fieldName,
-                        $schema,
+                        $schema->value,
                         $convertFromString,
                         $convertFromArray,
                         $style
@@ -121,7 +121,7 @@ abstract class APIBuilder implements Builder
                     ->build(new OpenAPI\Specification\Strings(
                         $openAPIVersion,
                         $fieldName,
-                        $schema,
+                        $schema->value,
                         $convertFromArray,
                         $style
                     )),
@@ -130,7 +130,7 @@ abstract class APIBuilder implements Builder
                     ->build(new OpenAPI\Specification\Objects(
                         $openAPIVersion,
                         $fieldName,
-                        $schema,
+                        $schema->value,
                         $convertFromString,
                         $convertFromArray,
                         $style,

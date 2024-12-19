@@ -7,7 +7,6 @@ namespace Membrane\OpenAPI\Specification;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
-use RuntimeException;
 
 abstract class APISchema implements Specification
 {
@@ -18,15 +17,11 @@ abstract class APISchema implements Specification
     public function __construct(
         public readonly OpenAPIVersion $openAPIVersion,
         public readonly string $fieldName,
-        V30\Schema | V31\Schema $schema
+        V30\Keywords | V31\Keywords $keywords
     ) {
-        if (is_bool($schema->value)) {
-            throw new RuntimeException('Any boolean schema should be dealt with before this point');
-        }
-
-        $this->enum = isset($schema->value->enum) ?
-            array_map(fn($e) => $e->value, $schema->value->enum) :
+        $this->enum = isset($keywords->enum) ?
+            array_map(fn($e) => $e->value, $keywords->enum) :
             null;
-        $this->format = $schema->value->format;
+        $this->format = $keywords->format;
     }
 }

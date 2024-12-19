@@ -64,7 +64,7 @@ class StringsTest extends TestCase
                 new Specification\Strings(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')),
+                    (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')))->value,
                 ),
                 new Field('', new IsString()),
             ],
@@ -72,7 +72,7 @@ class StringsTest extends TestCase
                 new Specification\Strings(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'string', format: 'date')),
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'string', format: 'date')))->value,
                 ),
                 new Field('', new IsString(), new DateString('Y-m-d', true)),
             ],
@@ -80,7 +80,7 @@ class StringsTest extends TestCase
                 new Specification\Strings(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'string', format: 'date-time')),
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'string', format: 'date-time')))->value,
                 ),
                 new Field(
                     '',
@@ -96,14 +96,16 @@ class StringsTest extends TestCase
                 new Specification\Strings(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                    (new V30\Schema(
+                        new Identifier(''), new Partial\Schema(
                         type: 'string',
                         enum: [new Value('1970/01/01'), new Value(null)],
                         maxLength: 100,
                         minLength: 0,
                         pattern: '.+',
                         format: 'date',
-                    )),
+                    )
+                    ))->value,
                 ),
                 new Field(
                     '',

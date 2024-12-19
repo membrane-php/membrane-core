@@ -8,7 +8,6 @@ use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
-use RuntimeException;
 
 class Objects extends APISchema
 {
@@ -25,29 +24,25 @@ class Objects extends APISchema
     public function __construct(
         OpenAPIVersion $openAPIVersion,
         string $fieldName,
-        V30\Schema | V31\Schema $schema,
+        V30\Keywords | V31\Keywords $keywords,
         public readonly bool $convertFromString = false,
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
         public readonly ?bool $explode = null,
     ) {
-        if (is_bool($schema->value)) {
-            throw new RuntimeException('Any boolean schema should be dealt with before this point');
-        }
-
-        if (!in_array(Type::Object, $schema->value->types)) {
+        if (!in_array(Type::Object, $keywords->types)) {
             throw CannotProcessSpecification::mismatchedType(
                 ['object'],
-                array_map(fn($t) => $t->value, $schema->value->types),
+                array_map(fn($t) => $t->value, $keywords->types),
             );
         }
 
-        $this->additionalProperties = $schema->value->additionalProperties;
-        $this->properties = $schema->value->properties;
-        $this->required = $schema->value->required;
-        $this->maxProperties = $schema->value->maxProperties;
-        $this->minProperties = $schema->value->minProperties;
+        $this->additionalProperties = $keywords->additionalProperties;
+        $this->properties = $keywords->properties;
+        $this->required = $keywords->required;
+        $this->maxProperties = $keywords->maxProperties;
+        $this->minProperties = $keywords->minProperties;
 
-        parent::__construct($openAPIVersion, $fieldName, $schema);
+        parent::__construct($openAPIVersion, $fieldName, $keywords);
     }
 }

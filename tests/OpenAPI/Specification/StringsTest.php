@@ -26,7 +26,11 @@ class StringsTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['string'], []));
 
-        new Strings(OpenAPIVersion::Version_3_0, '', new V30\Schema(new Identifier('test'), new Partial\Schema()));
+        new Strings(
+            OpenAPIVersion::Version_3_0,
+            '',
+            (new V30\Schema(new Identifier('test'), new Partial\Schema()))->value,
+        );
     }
 
     #[Test]
@@ -37,7 +41,7 @@ class StringsTest extends TestCase
         new Strings(
             OpenAPIVersion::Version_3_0,
             '',
-            new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'integer')),
+            (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'integer')))->value,
         );
     }
 
@@ -80,7 +84,7 @@ class StringsTest extends TestCase
     #[Test]
     public function constructTest(OpenAPIVersion $openAPIVersion, V30\Schema|V31\Schema $schema, array $expected): void
     {
-        $sut = new Strings($openAPIVersion, '', $schema);
+        $sut = new Strings($openAPIVersion, '', $schema->value);
 
         foreach ($expected as $key => $value) {
             self::assertSame($value, $sut->$key, sprintf('%s does not meet expected value', $key));

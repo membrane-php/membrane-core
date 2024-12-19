@@ -68,7 +68,7 @@ class NumericTest extends TestCase
                 new Specification\Numeric(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'integer')),
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'integer')))->value,
                     true
                 ),
                 new Field('', new IntString(), new ToInt()),
@@ -77,7 +77,7 @@ class NumericTest extends TestCase
                 new Specification\Numeric(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'integer')),
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'integer')))->value,
                     false,
                 ),
                 new Field('', new IsInt()),
@@ -86,7 +86,7 @@ class NumericTest extends TestCase
                 new Specification\Numeric(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number')),
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number')))->value,
                     true,
                 ),
                 new Field('', new NumericString(), new ToNumber()),
@@ -95,7 +95,7 @@ class NumericTest extends TestCase
                 new Specification\Numeric(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number')),
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number')))->value,
                     false,
                 ),
                 new Field('', new IsNumber()),
@@ -104,7 +104,7 @@ class NumericTest extends TestCase
                 new Specification\Numeric(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number', format: 'float')),
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number', format: 'float')))->value,
                     true,
                 ),
                 new Field('', new NumericString(), new ToFloat()),
@@ -113,7 +113,7 @@ class NumericTest extends TestCase
                 new Specification\Numeric(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number', format: 'float')),
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number', format: 'float')))->value,
                     false,
                 ),
                 new Field('', new IsFloat()),
@@ -122,7 +122,7 @@ class NumericTest extends TestCase
                 new Specification\Numeric(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(
                         type: 'integer',
                         enum: [new Value(1), new Value(2), new Value(3), new Value(null)],
                         multipleOf: 3,
@@ -131,7 +131,7 @@ class NumericTest extends TestCase
                         maximum: 4,
                         minimum: 0,
                         format: 'int',
-                    )),
+                    )))->value,
                     true
                 ),
                 new Field(
@@ -148,7 +148,7 @@ class NumericTest extends TestCase
                 new Specification\Numeric(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(
                         type: 'integer',
                         enum: [new Value(1), new Value(2), new Value(3), new Value(null)],
                         multipleOf: 3,
@@ -157,7 +157,7 @@ class NumericTest extends TestCase
                         maximum: 4,
                         minimum: 0,
                         format: 'int',
-                    )),
+                    )))->value,
                     false
                 ),
                 new Field(

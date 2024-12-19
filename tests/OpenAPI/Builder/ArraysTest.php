@@ -70,9 +70,11 @@ class ArraysTest extends TestCase
                 new Specification\Arrays(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier('test'), new Partial\Schema(
+                    (new V30\Schema(
+                        new Identifier('test'), new Partial\Schema(
                         type: 'array',
-                    )),
+                    )
+                    ))->value,
                 ),
                 new Collection('', new BeforeSet(new IsList()), new Field('', new Passes())),
             ],
@@ -80,9 +82,11 @@ class ArraysTest extends TestCase
                 new Specification\Arrays(
                     OpenAPIVersion::Version_3_1,
                     '',
-                    new V31\Schema(new Identifier('test'), new Partial\Schema(
+                    (new V31\Schema(
+                        new Identifier('test'), new Partial\Schema(
                         type: 'array',
-                    )),
+                    )
+                    ))->value,
                 ),
                 new Collection('', new BeforeSet(new IsList()), new Field('', new Passes())),
             ],
@@ -90,7 +94,8 @@ class ArraysTest extends TestCase
                 new Specification\Arrays(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier('test'), new Partial\Schema(
+                    (new V30\Schema(
+                        new Identifier('test'), new Partial\Schema(
                         type: 'array',
                         items: new Partial\Schema(
                             anyOf: [
@@ -98,7 +103,8 @@ class ArraysTest extends TestCase
                                 new Partial\Schema(type: 'integer'),
                             ]
                         )
-                    )),
+                    )
+                    ))->value,
                 ),
                 new Collection(
                     '',
@@ -110,10 +116,12 @@ class ArraysTest extends TestCase
                 new Specification\Arrays(
                     OpenAPIVersion::Version_3_1,
                     '',
-                    new V31\Schema(new Identifier('test'), new Partial\Schema(
+                    (new V31\Schema(
+                        new Identifier('test'), new Partial\Schema(
                         type: 'array',
                         items: new Partial\Schema(type: ['string', 'integer']),
-                    )),
+                    )
+                    ))->value,
                 ),
                 new Collection(
                     '',
@@ -125,7 +133,8 @@ class ArraysTest extends TestCase
                 new Specification\Arrays(
                     OpenAPIVersion::Version_3_1,
                     '',
-                    new V31\Schema(new Identifier(''), new Partial\Schema(
+                    (new V31\Schema(
+                        new Identifier(''), new Partial\Schema(
                         type: 'array',
                         enum: [new Value([1, 2, 3]), new Value(null)],
                         nullable: false,
@@ -134,7 +143,8 @@ class ArraysTest extends TestCase
                         uniqueItems: true,
                         items: new Partial\Schema(type: 'integer'),
                         format: 'array of ints',
-                    )),
+                    )
+                    ))->value,
                 ),
                 new Collection(
                     '',
@@ -146,7 +156,8 @@ class ArraysTest extends TestCase
                 new Specification\Arrays(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                    (new V30\Schema(
+                        new Identifier(''), new Partial\Schema(
                         type: 'array',
                         enum: [new Value([1, 2, 3]), new Value(null)],
                         maxItems: 3,
@@ -154,7 +165,8 @@ class ArraysTest extends TestCase
                         uniqueItems: true,
                         items: new Partial\Schema(type: 'integer', nullable: true),
                         format: 'array of ints',
-                    )),
+                    )
+                    ))->value,
                 ),
                 new Collection(
                     '',
@@ -166,7 +178,8 @@ class ArraysTest extends TestCase
                 new Specification\Arrays(
                     OpenAPIVersion::Version_3_1,
                     '',
-                    new V31\Schema(new Identifier(''), new Partial\Schema(
+                    (new V31\Schema(
+                        new Identifier(''), new Partial\Schema(
                         type: 'array',
                         enum: [new Value([1, 2, 3]), new Value(null)],
                         maxItems: 3,
@@ -174,7 +187,8 @@ class ArraysTest extends TestCase
                         uniqueItems: true,
                         items: new Partial\Schema(type: ['integer', 'null']),
                         format: 'array of ints',
-                    )),
+                    )
+                    ))->value,
                 ),
                 new Collection(
                     '',

@@ -58,10 +58,10 @@ class TrueFalseTest extends TestCase
             'input to convert from string' => [
                 new Specification\TrueFalse(OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(
+                    (new V30\Schema(
                         new Identifier('test'),
                         new Partial\Schema(type: 'boolean')
-                    ),
+                    ))->value,
                     true,
                 ),
                 new Field('', new BoolString(), new ToBool()),
@@ -70,10 +70,10 @@ class TrueFalseTest extends TestCase
                 new Specification\TrueFalse(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(
+                    (new V30\Schema(
                         new Identifier('test'),
                         new Partial\Schema(type: 'boolean')
-                    ),
+                    ))->value,
                     false,
                 ),
                 new Field('', new IsBool()),
@@ -82,14 +82,14 @@ class TrueFalseTest extends TestCase
                 new Specification\TrueFalse(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(
+                    (new V30\Schema(
                         new Identifier('test'),
                         new Partial\Schema(
                             type: 'boolean',
                             enum: [new Value(true), new Value(null)],
                             format: 'rather pointless boolean',
                         )
-                    ),
+                    ))->value,
                     true
                 ),
                 new Field('', new BoolString(), new ToBool(), new Contained([true, null])),
@@ -98,14 +98,14 @@ class TrueFalseTest extends TestCase
                 new Specification\TrueFalse(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(
+                    (new V30\Schema(
                         new Identifier('test'),
                         new Partial\Schema(
                             type: 'boolean',
                             enum: [new Value(true), new Value(null)],
                             format: 'rather pointless boolean',
                         )
-                    ),
+                    ))->value,
                     false
                 ),
                 new Field('', new IsBool(), new Contained([true, null])),

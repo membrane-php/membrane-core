@@ -82,7 +82,7 @@ class ObjectsTest extends TestCase
                 new Specification\Objects(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object')),
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object')))->value,
                 ),
                 new FieldSet('', new BeforeSet(new IsArray())),
             ],
@@ -90,7 +90,7 @@ class ObjectsTest extends TestCase
                 new Specification\Objects(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object', minProperties: 1)),
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object', minProperties: 1)))->value,
                 ),
                 new FieldSet('', new BeforeSet(new IsArray(), new Count(1))),
             ],
@@ -98,7 +98,7 @@ class ObjectsTest extends TestCase
                 new Specification\Objects(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object', maxProperties: 1)),
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object', maxProperties: 1)))->value,
                 ),
                 new FieldSet('', new BeforeSet(new IsArray(), new Count(0, 1))),
             ],
@@ -106,11 +106,13 @@ class ObjectsTest extends TestCase
                 new Specification\Objects(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                    (new V30\Schema(
+                        new Identifier(''), new Partial\Schema(
                         type: 'object',
                         maxProperties: 1,
                         minProperties: 1,
-                    )),
+                    )
+                    ))->value,
                 ),
                 new FieldSet('', new BeforeSet(new IsArray(), new Count(1, 1))),
             ],
@@ -118,11 +120,13 @@ class ObjectsTest extends TestCase
                 new Specification\Objects(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                    (new V30\Schema(
+                        new Identifier(''), new Partial\Schema(
                         type: 'object',
                         properties: ['a' => new Partial\Schema(type: 'integer')],
                         additionalProperties: false,
-                    )),
+                    )
+                    ))->value,
                 ),
                 new FieldSet('', new BeforeSet(new IsArray(), new FixedFields('a')), new Field('a', new IsInt())),
             ],
@@ -130,7 +134,8 @@ class ObjectsTest extends TestCase
                 new Specification\Objects(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                    (new V30\Schema(
+                        new Identifier(''), new Partial\Schema(
                         type: 'object',
                         maxProperties: 5,
                         minProperties: 2,
@@ -138,7 +143,8 @@ class ObjectsTest extends TestCase
                             new Partial\Schema(type: 'boolean'),
                             new Partial\Schema(type: 'integer'),
                         ]),
-                    )),
+                    )
+                    ))->value,
                 ),
                 new FieldSet(
                     '',
@@ -156,7 +162,8 @@ class ObjectsTest extends TestCase
                 new Specification\Objects(
                     OpenAPIVersion::Version_3_0,
                     '',
-                    new V30\Schema(new Identifier(''), new Partial\Schema(
+                    (new V30\Schema(
+                        new Identifier(''), new Partial\Schema(
                         type: 'object',
                         enum: [new Value(['id' => 5, 'name' => 'Blink']), new Value(null)],
                         required: ['id', 'name'],
@@ -166,7 +173,8 @@ class ObjectsTest extends TestCase
                         ],
                         additionalProperties: new Partial\Schema(type: 'string'),
                         format: 'pet',
-                    )),
+                    )
+                    ))->value,
                 ),
                 new FieldSet(
                     '',

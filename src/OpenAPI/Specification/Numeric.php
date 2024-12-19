@@ -8,7 +8,6 @@ use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
-use RuntimeException;
 
 class Numeric extends APISchema
 {
@@ -22,16 +21,12 @@ class Numeric extends APISchema
     public function __construct(
         OpenAPIVersion $openAPIVersion,
         string $fieldName,
-        V30\Schema | V31\Schema $schema,
+        V30\Keywords | V31\Keywords $keywords,
         public readonly bool $convertFromString = false,
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
     ) {
-        if (is_bool($schema->value)) {
-            throw new RuntimeException('Any boolean schema should be dealt with before this point');
-        }
-
-        $types = $schema->value->types;
+        $types = $keywords->types;
         if (in_array(Type::Integer, $types)) {
             $this->type = Type::Integer->value;
         } elseif (in_array(Type::Number, $types)) {
@@ -43,12 +38,12 @@ class Numeric extends APISchema
             );
         }
 
-        $this->exclusiveMaximum = $schema->value->maximum?->exclusive ?? false;
-        $this->exclusiveMinimum = $schema->value->minimum?->exclusive ?? false;
-        $this->maximum = $schema->value->maximum?->limit;
-        $this->minimum = $schema->value->minimum?->limit;
-        $this->multipleOf = $schema->value->multipleOf;
+        $this->exclusiveMaximum = $keywords->maximum?->exclusive ?? false;
+        $this->exclusiveMinimum = $keywords->minimum?->exclusive ?? false;
+        $this->maximum = $keywords->maximum?->limit;
+        $this->minimum = $keywords->minimum?->limit;
+        $this->multipleOf = $keywords->multipleOf;
 
-        parent::__construct($openAPIVersion, $fieldName, $schema);
+        parent::__construct($openAPIVersion, $fieldName, $keywords);
     }
 }

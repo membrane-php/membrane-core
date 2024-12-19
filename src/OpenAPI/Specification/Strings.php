@@ -8,7 +8,6 @@ use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPIReader\Factory;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
-use RuntimeException;
 
 class Strings extends APISchema
 {
@@ -19,25 +18,21 @@ class Strings extends APISchema
     public function __construct(
         OpenAPIVersion $openAPIVersion,
         string $fieldName,
-        V30\Schema | V31\Schema $schema,
+        V30\Keywords | V31\Keywords $keywords,
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
     ) {
-        if (is_bool($schema->value)) {
-            throw new RuntimeException('Any boolean schema should be dealt with before this point');
-        }
-
-        if (!in_array(Type::String, $schema->value->types)) {
+        if (!in_array(Type::String, $keywords->types)) {
             throw CannotProcessSpecification::mismatchedType(
                 ['string'],
-                array_map(fn($t) => $t->value, $schema->value->types),
+                array_map(fn($t) => $t->value, $keywords->types),
             );
         }
 
-        $this->maxLength = $schema->value->maxLength;
-        $this->minLength = $schema->value->minLength;
-        $this->pattern = $schema->value->pattern;
+        $this->maxLength = $keywords->maxLength;
+        $this->minLength = $keywords->minLength;
+        $this->pattern = $keywords->pattern;
 
-        parent::__construct($openAPIVersion, $fieldName, $schema);
+        parent::__construct($openAPIVersion, $fieldName, $keywords);
     }
 }

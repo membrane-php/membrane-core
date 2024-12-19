@@ -8,7 +8,6 @@ use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
-use RuntimeException;
 
 class Arrays extends APISchema
 {
@@ -20,28 +19,24 @@ class Arrays extends APISchema
     public function __construct(
         OpenAPIVersion $openAPIVersion,
         string $fieldName,
-        V30\Schema | V31\Schema $schema,
+        V30\Keywords | V31\Keywords $keywords,
         public readonly bool $convertFromString = false,
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
         public readonly ?bool $explode = null,
     ) {
-        if (is_bool($schema->value)) {
-            throw new RuntimeException('Any boolean schema should be dealt with before this point');
-        }
-
-        if (!in_array(Type::Array, $schema->value->types)) {
+        if (!in_array(Type::Array, $keywords->types)) {
             throw CannotProcessSpecification::mismatchedType(
                 ['array'],
-                array_map(fn($t) => $t->value, $schema->value->types),
+                array_map(fn($t) => $t->value, $keywords->types),
             );
         }
 
-        $this->items = $schema->value->items;
-        $this->maxItems = $schema->value->maxItems;
-        $this->minItems = $schema->value->minItems;
-        $this->uniqueItems = $schema->value->uniqueItems;
+        $this->items = $keywords->items;
+        $this->maxItems = $keywords->maxItems;
+        $this->minItems = $keywords->minItems;
+        $this->uniqueItems = $keywords->uniqueItems;
 
-        parent::__construct($openAPIVersion, $fieldName, $schema);
+        parent::__construct($openAPIVersion, $fieldName, $keywords);
     }
 }

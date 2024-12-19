@@ -28,7 +28,11 @@ class NumericTest extends TestCase
             CannotProcessSpecification::mismatchedType(['integer', 'number'], []),
         );
 
-        new Numeric(OpenAPIVersion::Version_3_0, '', new V30\Schema(new Identifier('test'), new Partial\Schema()));
+        new Numeric(
+            OpenAPIVersion::Version_3_0,
+            '',
+            (new V30\Schema(new Identifier('test'), new Partial\Schema()))->value,
+        );
     }
 
     #[Test]
@@ -41,7 +45,7 @@ class NumericTest extends TestCase
         new Numeric(
             OpenAPIVersion::Version_3_0,
             '',
-            new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')),
+            (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')))->value,
         );
     }
 
@@ -130,7 +134,7 @@ class NumericTest extends TestCase
         V30\Schema $schema,
         array $expected
     ): void {
-        $sut = new Numeric($openAPIVersion, '', $schema);
+        $sut = new Numeric($openAPIVersion, '', $schema->value);
 
         foreach ($expected as $key => $value) {
             self::assertSame($value, $sut->$key, sprintf('%s did not meet expected value', $key));

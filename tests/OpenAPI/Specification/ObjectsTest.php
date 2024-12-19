@@ -26,7 +26,11 @@ class ObjectsTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['object'], []));
 
-        new Objects(OpenAPIVersion::Version_3_0, '', new V30\Schema(new Identifier('test'), new Partial\Schema()));
+        new Objects(
+            OpenAPIVersion::Version_3_0,
+            '',
+            (new V30\Schema(new Identifier('test'), new Partial\Schema()))->value
+        );
     }
 
     #[Test]
@@ -34,9 +38,11 @@ class ObjectsTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['object'], ['string']));
 
-        new Objects(OpenAPIVersion::Version_3_0, '', new V30\Schema(new Identifier('test'), new Partial\Schema(
-            type: 'string',
-        )));
+        new Objects(
+            OpenAPIVersion::Version_3_0,
+            '',
+            (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')))->value,
+        );
     }
 
     public static function dataSetsToConstruct(): array
@@ -107,7 +113,7 @@ class ObjectsTest extends TestCase
         V30\Schema | V31\Schema $schema,
         array $expected
     ): void {
-        $sut = new Objects($openAPIVersion, '', $schema);
+        $sut = new Objects($openAPIVersion, '', $schema->value);
 
         foreach ($expected as $key => $value) {
             self::assertEquals($value, $sut->$key, sprintf('%s does not meet expected value', $key));
