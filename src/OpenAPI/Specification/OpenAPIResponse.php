@@ -6,7 +6,6 @@ namespace Membrane\OpenAPI\Specification;
 
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 
 class OpenAPIResponse implements Specification
@@ -14,7 +13,6 @@ class OpenAPIResponse implements Specification
     public readonly V30\Schema | V31\Schema | null $schema;
 
     public function __construct(
-        public readonly OpenAPIVersion $openAPIVersion,
         public readonly string $operationId,
         public readonly string $statusCode,
         V30\Response | V31\Response $response

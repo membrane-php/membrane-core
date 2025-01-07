@@ -175,7 +175,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
             ->readFromAbsoluteFilePath((self::FIXTURES . 'noReferences.json'));
 
         $specification = new OpenAPIRequest(
-            OpenAPIVersion::Version_3_0,
             new PathParameterExtractor('/requestpathexceptions'),
             $openAPI->paths['/requestpathexceptions'],
             Method::POST
@@ -230,7 +229,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
 
         yield 'Request: no path params, no operation params, no requestBody' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/path'),
                 $noRefAPI->paths['/path'],
                 Method::GET
@@ -255,7 +253,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         ];
         yield 'Patch Request: no path params, no operation params, no requestBody' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/path'),
                 $noRefAPI->paths['/path'],
                 Method::PATCH
@@ -280,7 +277,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         ];
         yield 'Request: path param in path, no operation params, no requestBody' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/requestpathone/{id}'),
                 $noRefAPI->paths['/requestpathone/{id}'],
                 Method::GET
@@ -307,7 +303,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         ];
         yield 'Request: path param in path, operation param in query not required, no requestBody' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/requestpathone/{id}'),
                 $noRefAPI->paths['/requestpathone/{id}'],
                 Method::POST
@@ -338,7 +333,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         ];
         yield 'Request: path param in path, operation param in query required, no requestBody' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/requestpathone/{id}'),
                 $noRefAPI->paths['/requestpathone/{id}'],
                 Method::PUT,
@@ -374,7 +368,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         ];
         yield 'Request: path param in path, operation param in query with json content, required, no requestBody' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/requestpathone/{id}'),
                 $noRefAPI->paths['/requestpathone/{id}'],
                 Method::DELETE
@@ -410,7 +403,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         ];
         yield 'Request: path param in header, no requestBody' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/requestpathtwo'),
                 $noRefAPI->paths['/requestpathtwo'],
                 Method::GET
@@ -435,7 +427,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         ];
         yield 'Request: path param in header, operation param in cookie, no requestBody' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/requestpathtwo'),
                 $noRefAPI->paths['/requestpathtwo'],
                 Method::POST
@@ -461,7 +452,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
 
         yield 'Request: identical param in header and query, no requestBody' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/requestpathtwo'),
                 $noRefAPI->paths['/requestpathtwo'],
                 Method::PUT
@@ -491,7 +481,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
 
         yield 'Request: same param in path and operation with different types, no requestBody' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/requestpathtwo'),
                 $noRefAPI->paths['/requestpathtwo'],
                 Method::DELETE
@@ -517,7 +506,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
 
         yield 'Request: requestBody param' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/requestbodypath'),
                 $noRefAPI->paths['/requestbodypath'],
                 Method::GET
@@ -543,7 +531,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
 
         yield 'Request: operation param in query, requestBody param' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/requestbodypath'),
                 $noRefAPI->paths['/requestbodypath'],
                 Method::POST
@@ -573,7 +560,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
 
         yield 'Request: path param in path, operation param in query, header, cookie, requestBody param' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/requestbodypath/{id}'),
                 $noRefAPI->paths['/requestbodypath/{id}'],
                 Method::GET
@@ -645,7 +631,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
 
         yield 'query parameter with oneOf' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/path'),
                 $complexQueryAPI('oneOf')->paths['/path'],
                 Method::GET
@@ -662,7 +647,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
 
         yield 'query parameter with anyOf' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/path'),
                 $complexQueryAPI('anyOf')->paths['/path'],
                 Method::GET
@@ -679,7 +663,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
 
         yield 'query parameter with allOf' => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/path'),
                 $complexQueryAPI('allOf')->paths['/path'],
                 Method::GET
@@ -706,7 +689,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         return [
             'petstore /pets get, minimal (valid)' => [
                 new OpenAPIRequest(
-                    OpenAPIVersion::Version_3_0,
                     new PathParameterExtractor('/pets'),
                     $petstoreApi->paths['/pets'],
                     Method::GET
@@ -725,7 +707,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
             ],
             'petstore /pets/{petid} get, minimal (valid)' => [
                 new OpenAPIRequest(
-                    OpenAPIVersion::Version_3_0,
                     new PathParameterExtractor('/pets/{petId}'),
                     $petstoreApi->paths['/pets/{petId}'],
                     Method::GET
@@ -744,7 +725,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
             ],
             'petstore expanded /pets get (invalid)' => [
                 new OpenAPIRequest(
-                    OpenAPIVersion::Version_3_0,
                     new PathParameterExtractor('/pets'),
                     $petstoreExpandedApi->paths['/pets'],
                     Method::GET
@@ -767,7 +747,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
             ],
             'petstore expanded /pets get, minimal (valid)' => [
                 new OpenAPIRequest(
-                    OpenAPIVersion::Version_3_0,
                     new PathParameterExtractor('/pets'),
                     $petstoreExpandedApi->paths['/pets'],
                     Method::GET
@@ -802,7 +781,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
             array $output,
         ) => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor($path),
                 V30\PathItem::fromPartial(
                     new Identifier('test-path'),
@@ -1517,7 +1495,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
             array $output,
         ) => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/pets'),
                 V30\PathItem::fromPartial(
                     new Identifier('test-path'),
@@ -1795,7 +1772,6 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
             array $resultHeaders
         ) => [
             new OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/path'),
                 V30\PathItem::fromPartial(
                     new Identifier('test-path'),

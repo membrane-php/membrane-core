@@ -143,7 +143,6 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'Request\\FindPets',
                 $requestBuilder->build(
                     new Specification\OpenAPIRequest(
-                        OpenAPIVersion::Version_3_0,
                         new PathParameterExtractor('/pets'),
                         $petstoreExpandedOpenApi->paths['/pets'],
                         Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method::GET
@@ -157,7 +156,6 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'Response\\Code200\\FindPets',
                 $responseBuilder->build(
                     new Specification\OpenAPIResponse(
-                        OpenAPIVersion::Version_3_0,
                         'findPets',
                         '200',
                         $petstoreExpandedOpenApi->paths['/pets']->get->responses['200']
@@ -171,7 +169,6 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'Response\\CodeDefault\\FindPets',
                 $responseBuilder->build(
                     new Specification\OpenAPIResponse(
-                        OpenAPIVersion::Version_3_0,
                         'findPets',
                         'default',
                         $petstoreExpandedOpenApi->paths['/pets']->get->responses['default']
@@ -185,7 +182,6 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'Request\\AddPet',
                 $requestBuilder->build(
                     new Specification\OpenAPIRequest(
-                        OpenAPIVersion::Version_3_0,
                         new PathParameterExtractor('/pets'),
                         $petstoreExpandedOpenApi->paths['/pets'],
                         Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method::POST
@@ -199,7 +195,6 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'Response\\Code200\\AddPet',
                 $responseBuilder->build(
                     new Specification\OpenAPIResponse(
-                        OpenAPIVersion::Version_3_0,
                         'addPet',
                         '200',
                         $petstoreExpandedOpenApi->paths['/pets']->post->responses['200']
@@ -213,7 +208,6 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'Response\\CodeDefault\\AddPet',
                 $responseBuilder->build(
                     new Specification\OpenAPIResponse(
-                        OpenAPIVersion::Version_3_0,
                         'addPet',
                         'default',
                         $petstoreExpandedOpenApi->paths['/pets']->post->responses['default']
@@ -227,7 +221,6 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'Request\\FindPetById',
                 $requestBuilder->build(
                     new Specification\OpenAPIRequest(
-                        OpenAPIVersion::Version_3_0,
                         new PathParameterExtractor('/pets/{id}'),
                         $petstoreExpandedOpenApi->paths['/pets/{id}'],
                         Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method::GET
@@ -241,7 +234,6 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'Response\\Code200\\FindPetById',
                 $responseBuilder->build(
                     new Specification\OpenAPIResponse(
-                        OpenAPIVersion::Version_3_0,
                         'find pet by id',
                         '200',
                         $petstoreExpandedOpenApi->paths['/pets/{id}']->get->responses['200']
@@ -255,7 +247,6 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'Response\\CodeDefault\\FindPetById',
                 $responseBuilder->build(
                     new Specification\OpenAPIResponse(
-                        OpenAPIVersion::Version_3_0,
                         'find pet by id',
                         'default',
                         $petstoreExpandedOpenApi->paths['/pets/{id}']->get->responses['default']
@@ -269,7 +260,6 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'Request\\DeletePet',
                 $requestBuilder->build(
                     new Specification\OpenAPIRequest(
-                        OpenAPIVersion::Version_3_0,
                         new PathParameterExtractor('/pets/{id}'),
                         $petstoreExpandedOpenApi->paths['/pets/{id}'],
                         Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method::DELETE
@@ -283,7 +273,6 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'Response\\Code204\\DeletePet',
                 $responseBuilder->build(
                     new Specification\OpenAPIResponse(
-                        OpenAPIVersion::Version_3_0,
                         'deletePet',
                         '204',
                         $petstoreExpandedOpenApi->paths['/pets/{id}']->delete->responses['204']
@@ -327,7 +316,6 @@ class CacheOpenAPIProcessorsTest extends TestCase
         $requestBuilder = new Builder\OpenAPIRequestBuilder();
         $expectedFindHats = $requestBuilder->build(
             new Specification\OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/hats'),
                 $hatstoreAPI->paths['/hats'],
                 Method::GET
@@ -335,7 +323,6 @@ class CacheOpenAPIProcessorsTest extends TestCase
         );
         $expectedFindHats1 = $requestBuilder->build(
             new Specification\OpenAPIRequest(
-                OpenAPIVersion::Version_3_0,
                 new PathParameterExtractor('/hats/{id}'),
                 $hatstoreAPI->paths['/hats/{id}'],
                 Method::GET

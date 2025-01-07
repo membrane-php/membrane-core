@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Specification;
 
 use Membrane\Builder\Specification;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 
 abstract class APISchema implements Specification
@@ -15,7 +14,6 @@ abstract class APISchema implements Specification
     public readonly string $format;
 
     public function __construct(
-        public readonly OpenAPIVersion $openAPIVersion,
         public readonly string $fieldName,
         V30\Keywords | V31\Keywords $keywords
     ) {

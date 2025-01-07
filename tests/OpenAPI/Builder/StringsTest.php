@@ -9,7 +9,6 @@ use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -19,7 +18,6 @@ use Membrane\Validator\Collection\Contained;
 use Membrane\Validator\String\DateString;
 use Membrane\Validator\String\Length;
 use Membrane\Validator\String\Regex;
-use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Type\IsString;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -62,7 +60,6 @@ class StringsTest extends TestCase
         return [
             'minimum input' => [
                 new Specification\Strings(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')))->value,
                 ),
@@ -70,7 +67,6 @@ class StringsTest extends TestCase
             ],
             'date input' => [
                 new Specification\Strings(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'string', format: 'date')))->value,
                 ),
@@ -78,7 +74,6 @@ class StringsTest extends TestCase
             ],
             'date-time input' => [
                 new Specification\Strings(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'string', format: 'date-time')))->value,
                 ),
@@ -94,7 +89,6 @@ class StringsTest extends TestCase
             ],
             'detailed input' => [
                 new Specification\Strings(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(
                         new Identifier(''), new Partial\Schema(

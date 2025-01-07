@@ -9,7 +9,6 @@ use Membrane\Filter\String\Explode;
 use Membrane\OpenAPI\Builder as OpenAPIBuilder;
 use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
 use Membrane\OpenAPI\Specification as OpenAPISpecification;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30};
 use Membrane\OpenAPIReader\ValueObject\Valid\Identifier;
@@ -63,17 +62,15 @@ class ParameterBuilderTest extends TestCase
     {
         return [
             [
-                OpenAPIVersion::Version_3_0,
                 new V30\Parameter(new Identifier('test'), new Partial\Parameter(
                     name: 'id',
                     in: 'path',
                     required: true,
                     schema: new Partial\Schema(type: 'integer'),
                 )),
-                new Processor\Field('id', new IsInt()),
+                new Processor\Field('id', new IsInt())
             ],
             [
-                OpenAPIVersion::Version_3_0,
                 new V30\Parameter(new Identifier('test'), new Partial\Parameter(
                     name: 'tags',
                     in: 'query',
@@ -96,14 +93,11 @@ class ParameterBuilderTest extends TestCase
     #[Test, TestDox('It Builds a Processor that can validate against the Parameter Specification')]
     #[DataProvider('provideParameterSpecificationsToBuildFrom')]
     public function itBuildsProcessorsForParameters(
-        OpenAPIVersion $openApiVersion,
         V30\Parameter|V31\Parameter $parameter,
         Processor $expectedProcessor
     ): void {
-        $actualProcessor = $this->sut->build(new OpenAPISpecification\Parameter(
-            $openApiVersion,
-            $parameter
-        ));
+        $actualProcessor = $this->sut
+            ->build(new OpenAPISpecification\Parameter($parameter));
 
         self::assertEquals($expectedProcessor, $actualProcessor);
     }

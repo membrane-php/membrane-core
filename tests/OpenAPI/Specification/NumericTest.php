@@ -7,7 +7,6 @@ namespace Membrane\Tests\OpenAPI\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Numeric;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -29,7 +28,6 @@ class NumericTest extends TestCase
         );
 
         new Numeric(
-            OpenAPIVersion::Version_3_0,
             '',
             (new V30\Schema(new Identifier('test'), new Partial\Schema()))->value,
         );
@@ -43,7 +41,6 @@ class NumericTest extends TestCase
         );
 
         new Numeric(
-            OpenAPIVersion::Version_3_0,
             '',
             (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')))->value,
         );
@@ -53,7 +50,6 @@ class NumericTest extends TestCase
     {
         return [
             'default values for number' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'number')),
                 [
                     'type' => 'number',
@@ -66,7 +62,6 @@ class NumericTest extends TestCase
                 ],
             ],
             'default values for integer' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'integer')),
                 [
                     'type' => 'integer',
@@ -79,7 +74,6 @@ class NumericTest extends TestCase
                 ],
             ],
             'assigned values for number' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'number',
                     enum: [new Value(3), new Value(9)],
@@ -102,7 +96,6 @@ class NumericTest extends TestCase
                 ],
             ],
             'assigned values for integer' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'integer',
                     enum: [new Value(9)],
@@ -130,11 +123,10 @@ class NumericTest extends TestCase
     #[DataProvider('dataSetsToConstruct')]
     #[Test]
     public function constructTest(
-        OpenAPIVersion $openAPIVersion,
         V30\Schema $schema,
         array $expected
     ): void {
-        $sut = new Numeric($openAPIVersion, '', $schema->value);
+        $sut = new Numeric('', $schema->value);
 
         foreach ($expected as $key => $value) {
             self::assertSame($value, $sut->$key, sprintf('%s did not meet expected value', $key));

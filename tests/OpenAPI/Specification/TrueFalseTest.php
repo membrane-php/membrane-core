@@ -7,7 +7,6 @@ namespace Membrane\Tests\OpenAPI\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\TrueFalse;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -27,7 +26,6 @@ class TrueFalseTest extends TestCase
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['boolean'], []));
 
         new TrueFalse(
-            OpenAPIVersion::Version_3_0,
             '',
             (new V30\Schema(new Identifier('test'), new Partial\Schema()))->value
         );
@@ -39,7 +37,6 @@ class TrueFalseTest extends TestCase
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['boolean'], ['string']));
 
         new TrueFalse(
-            OpenAPIVersion::Version_3_0,
             '',
             (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')))->value
         );
@@ -49,7 +46,6 @@ class TrueFalseTest extends TestCase
     {
         return [
             'default values' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'boolean')),
                 [
                     'enum' => null,
@@ -57,7 +53,6 @@ class TrueFalseTest extends TestCase
                 ],
             ],
             'assigned values' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'boolean',
                     enum: [new Value(false), new Value(null)],
@@ -74,11 +69,10 @@ class TrueFalseTest extends TestCase
     #[DataProvider('dataSetsToConstruct')]
     #[Test]
     public function constructTest(
-        OpenAPIVersion $openAPIVersion,
         V30\Schema | V31\Schema $schema,
         array $expected
     ): void {
-        $sut = new TrueFalse($openAPIVersion, '', $schema->value);
+        $sut = new TrueFalse('', $schema->value);
 
         foreach ($expected as $key => $value) {
             self::assertSame($value, $sut->$key, sprintf('%s does not meet expected value', $key));

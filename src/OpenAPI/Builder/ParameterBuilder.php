@@ -28,7 +28,6 @@ class ParameterBuilder extends APIBuilder
         bool $convertFromArray = false,
     ): Processor {
         $schemaProcessor = $this->fromSchema(
-            $specification->openAPIVersion,
             $specification->schema,
             $specification->name,
             $convertFromString,

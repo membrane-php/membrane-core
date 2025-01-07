@@ -12,7 +12,6 @@ use Membrane\OpenAPI\Builder\TrueFalse;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
 use Membrane\OpenAPI\Specification;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -28,7 +27,6 @@ use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Type\IsArray;
 use Membrane\Validator\Type\IsBool;
 use Membrane\Validator\Type\IsInt;
-use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Type\IsString;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -80,7 +78,6 @@ class ObjectsTest extends TestCase
         return [
             '3.0 minimum input' => [
                 new Specification\Objects(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object')))->value,
                 ),
@@ -88,7 +85,6 @@ class ObjectsTest extends TestCase
             ],
             '3.0 minProperties greater than zero' => [
                 new Specification\Objects(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object', minProperties: 1)))->value,
                 ),
@@ -96,7 +92,6 @@ class ObjectsTest extends TestCase
             ],
             '3.0 maxProperties' => [
                 new Specification\Objects(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object', maxProperties: 1)))->value,
                 ),
@@ -104,7 +99,6 @@ class ObjectsTest extends TestCase
             ],
             '3.0 minProperties and maxProperties' => [
                 new Specification\Objects(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(
                         new Identifier(''), new Partial\Schema(
@@ -118,7 +112,6 @@ class ObjectsTest extends TestCase
             ],
             '3.0 integer property' => [
                 new Specification\Objects(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(
                         new Identifier(''), new Partial\Schema(
@@ -131,7 +124,6 @@ class ObjectsTest extends TestCase
             ],
             '3.0 additionalProperties:false' => [
                 new Specification\Objects(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(
                         new Identifier(''), new Partial\Schema(
@@ -145,7 +137,6 @@ class ObjectsTest extends TestCase
             ],
             '3.0 property of string|integer' => [
                 new Specification\Objects(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(
                         new Identifier(''), new Partial\Schema(
@@ -165,7 +156,6 @@ class ObjectsTest extends TestCase
             ],
             '3.1 property of string|integer' => [
                 new Specification\Objects(
-                    OpenAPIVersion::Version_3_1,
                     '',
                     (new V31\Schema(
                         new Identifier(''), new Partial\Schema(
@@ -182,7 +172,6 @@ class ObjectsTest extends TestCase
             ],
             'complex additional properties' => [
                 new Specification\Objects(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(
                         new Identifier(''), new Partial\Schema(
@@ -210,7 +199,6 @@ class ObjectsTest extends TestCase
             ],
             'detailed input' => [
                 new Specification\Objects(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(
                         new Identifier(''), new Partial\Schema(

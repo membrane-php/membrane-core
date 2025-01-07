@@ -9,8 +9,6 @@ use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\TrueFalse;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
-use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\Tests\Fixtures\Helper\PartialHelper;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -19,7 +17,6 @@ use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
 use Membrane\Validator\String\BoolString;
 use Membrane\Validator\Type\IsBool;
-use Membrane\Validator\Type\IsNull;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -56,7 +53,7 @@ class TrueFalseTest extends TestCase
     {
         return [
             'input to convert from string' => [
-                new Specification\TrueFalse(OpenAPIVersion::Version_3_0,
+                new Specification\TrueFalse(
                     '',
                     (new V30\Schema(
                         new Identifier('test'),
@@ -68,7 +65,6 @@ class TrueFalseTest extends TestCase
             ],
             'strict input' => [
                 new Specification\TrueFalse(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(
                         new Identifier('test'),
@@ -80,7 +76,6 @@ class TrueFalseTest extends TestCase
             ],
             'detailed input to convert from string' => [
                 new Specification\TrueFalse(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(
                         new Identifier('test'),
@@ -96,7 +91,6 @@ class TrueFalseTest extends TestCase
             ],
             'strict detailed input' => [
                 new Specification\TrueFalse(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(
                         new Identifier('test'),

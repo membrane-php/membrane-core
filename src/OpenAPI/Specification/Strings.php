@@ -6,7 +6,6 @@ namespace Membrane\OpenAPI\Specification;
 
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPIReader\Factory;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
 
 class Strings extends APISchema
@@ -16,7 +15,6 @@ class Strings extends APISchema
     public readonly ?string $pattern;
 
     public function __construct(
-        OpenAPIVersion $openAPIVersion,
         string $fieldName,
         V30\Keywords | V31\Keywords $keywords,
         public readonly bool $convertFromArray = false,
@@ -33,6 +31,6 @@ class Strings extends APISchema
         $this->minLength = $keywords->minLength;
         $this->pattern = $keywords->pattern;
 
-        parent::__construct($openAPIVersion, $fieldName, $keywords);
+        parent::__construct($fieldName, $keywords);
     }
 }

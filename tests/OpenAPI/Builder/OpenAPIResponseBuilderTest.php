@@ -120,7 +120,6 @@ class OpenAPIResponseBuilderTest extends TestCase
 
         $sut = new OpenAPIResponseBuilder();
         $response = new OpenAPIResponse(
-            OpenAPIVersion::Version_3_0,
             $operation->operationId,
             '360',
             $operation->responses['360'],
@@ -161,7 +160,6 @@ class OpenAPIResponseBuilderTest extends TestCase
         return [
             'no properties' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/path']->get->operationId,
                     '200',
                     $noReferences->paths['/path']->get->responses['200']
@@ -170,7 +168,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'int' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '200',
                     $noReferences->paths['/responsepath']->get->responses['200']
@@ -179,7 +176,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'nullable int' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '201',
                     $noReferences->paths['/responsepath']->get->responses['201']
@@ -188,7 +184,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'int, inclusive min' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '202',
                     $noReferences->paths['/responsepath']->get->responses['202']
@@ -197,7 +192,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'int, exclusive min' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '203',
                     $noReferences->paths['/responsepath']->get->responses['203']
@@ -206,7 +200,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'int, inclusive max' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '204',
                     $noReferences->paths['/responsepath']->get->responses['204']
@@ -215,7 +208,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'int, exclusive max' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '205',
                     $noReferences->paths['/responsepath']->get->responses['205']
@@ -224,7 +216,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'int, multipleOf' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '206',
                     $noReferences->paths['/responsepath']->get->responses['206']
@@ -233,7 +224,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'int, enum' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '207',
                     $noReferences->paths['/responsepath']->get->responses['207']
@@ -242,7 +232,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'nullable int, enum, exclusive min, inclusive max, multipleOf' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '209',
                     $noReferences->paths['/responsepath']->get->responses['209']
@@ -262,7 +251,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'number' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '210',
                     $noReferences->paths['/responsepath']->get->responses['210']
@@ -271,7 +259,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'nullable number' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '211',
                     $noReferences->paths['/responsepath']->get->responses['211']
@@ -280,7 +267,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'number, enum' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '212',
                     $noReferences->paths['/responsepath']->get->responses['212']
@@ -289,7 +275,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'number, float format' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '213',
                     $noReferences->paths['/responsepath']->get->responses['213']
@@ -298,7 +283,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'nullable number, float format' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '214',
                     $noReferences->paths['/responsepath']->get->responses['214']
@@ -307,7 +291,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'number, double format' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '215',
                     $noReferences->paths['/responsepath']->get->responses['215']
@@ -316,7 +299,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'nullable number, enum, inclusive min, exclusive max, multipleOf' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '219',
                     $noReferences->paths['/responsepath']->get->responses['219']
@@ -336,7 +318,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'string' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '220',
                     $noReferences->paths['/responsepath']->get->responses['220']
@@ -345,7 +326,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'nullable string' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '221',
                     $noReferences->paths['/responsepath']->get->responses['221']
@@ -354,7 +334,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'string, enum' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '222',
                     $noReferences->paths['/responsepath']->get->responses['222']
@@ -363,7 +342,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'string, date format' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '223',
                     $noReferences->paths['/responsepath']->get->responses['223']
@@ -372,7 +350,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'string, date-time format' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '224',
                     $noReferences->paths['/responsepath']->get->responses['224']
@@ -389,7 +366,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'string, minLength' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '225',
                     $noReferences->paths['/responsepath']->get->responses['225']
@@ -398,7 +374,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'string, maxLength' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '226',
                     $noReferences->paths['/responsepath']->get->responses['226']
@@ -407,7 +382,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'string, pattern' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '227',
                     $noReferences->paths['/responsepath']->get->responses['227']
@@ -416,7 +390,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'nullable string, enum, minLength, maxLength, pattern' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '229',
                     $noReferences->paths['/responsepath']->get->responses['229']
@@ -435,7 +408,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'bool' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '230',
                     $noReferences->paths['/responsepath']->get->responses['230']
@@ -444,7 +416,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'nullable bool' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '231',
                     $noReferences->paths['/responsepath']->get->responses['231']
@@ -453,7 +424,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'bool, enum' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '232',
                     $noReferences->paths['/responsepath']->get->responses['232']
@@ -462,7 +432,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'nullable bool, enum' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '239',
                     $noReferences->paths['/responsepath']->get->responses['239']
@@ -475,7 +444,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'array of ints' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '240',
                     $noReferences->paths['/responsepath']->get->responses['240']
@@ -484,7 +452,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'array of strings, enum' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '241',
                     $noReferences->paths['/responsepath']->get->responses['241']
@@ -497,7 +464,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'nullable array of strings' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '242',
                     $noReferences->paths['/responsepath']->get->responses['242']
@@ -510,7 +476,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'array of booleans, minItems' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '243',
                     $noReferences->paths['/responsepath']->get->responses['243']
@@ -519,7 +484,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'array of floats, maxItems' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '244',
                     $noReferences->paths['/responsepath']->get->responses['244']
@@ -528,7 +492,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'array of numbers, uniqueItems' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '245',
                     $noReferences->paths['/responsepath']->get->responses['245']
@@ -537,7 +500,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'nullable array of nullable numbers, enum, minItems, maxItems, uniqueItems' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '269',
                     $noReferences->paths['/responsepath']->get->responses['269']
@@ -559,7 +521,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'object with (string) name' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '270',
                     $noReferences->paths['/responsepath']->get->responses['270']
@@ -572,7 +533,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'object with (int) id, enum' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '271',
                     $noReferences->paths['/responsepath']->get->responses['271']
@@ -585,7 +545,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'nullable object with (float) price' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '272',
                     $noReferences->paths['/responsepath']->get->responses['272']
@@ -598,7 +557,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'object with (string) name, (int) id, (bool) status' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '273',
                     $noReferences->paths['/responsepath']->get->responses['273']
@@ -613,7 +571,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'object with (string) name, (int) id, (bool) status, required' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '274',
                     $noReferences->paths['/responsepath']->get->responses['274']
@@ -628,7 +585,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'nullable object with (string) name, (int) id, (bool) status, enum, required' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '299',
                     $noReferences->paths['/responsepath']->get->responses['299']
@@ -652,7 +608,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'allOf, one object (should act like normal object)' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '300',
                     $noReferences->paths['/responsepath']->get->responses['300']
@@ -661,7 +616,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'allOf, two objects, one identical parameter' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '301',
                     $noReferences->paths['/responsepath']->get->responses['301']
@@ -674,7 +628,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'allOf, two objects, one unique parameters' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '302',
                     $noReferences->paths['/responsepath']->get->responses['302']
@@ -687,7 +640,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'allOf, two objects, conflicting parameter' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '303',
                     $noReferences->paths['/responsepath']->get->responses['303']
@@ -700,7 +652,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'allOf, two objects, unique parameters, one requiredField' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '304',
                     $noReferences->paths['/responsepath']->get->responses['304']
@@ -717,7 +668,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'allOf, two objects, unique parameters, two requiredField' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '305',
                     $noReferences->paths['/responsepath']->get->responses['305']
@@ -738,7 +688,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'allOf, two objects, unique parameters, two requiredFields requiring the other schemas property' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '306',
                     $noReferences->paths['/responsepath']->get->responses['306']
@@ -759,7 +708,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'anyOf, one object (should act like normal object)' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '320',
                     $noReferences->paths['/responsepath']->get->responses['320']
@@ -768,7 +716,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'anyOf, two objects, one identical parameter' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '321',
                     $noReferences->paths['/responsepath']->get->responses['321']
@@ -781,7 +728,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'anyOf, two objects, one unique parameters' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '322',
                     $noReferences->paths['/responsepath']->get->responses['322']
@@ -794,7 +740,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'anyOf, two objects, conflicting parameter' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '323',
                     $noReferences->paths['/responsepath']->get->responses['323']
@@ -807,7 +752,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'anyOf, two objects, unique parameters, one requiredField' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '324',
                     $noReferences->paths['/responsepath']->get->responses['324']
@@ -824,7 +768,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'anyOf, two objects, unique parameters, two requiredField' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '325',
                     $noReferences->paths['/responsepath']->get->responses['325']
@@ -845,7 +788,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'anyOf, two objects, unique parameters, two requiredFields requiring the other schemas property' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '326',
                     $noReferences->paths['/responsepath']->get->responses['326']
@@ -866,7 +808,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'oneOf, one object (should act like normal object)' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '340',
                     $noReferences->paths['/responsepath']->get->responses['340']
@@ -875,7 +816,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'oneOf, two objects, one identical parameter' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '341',
                     $noReferences->paths['/responsepath']->get->responses['341']
@@ -888,7 +828,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'oneOf, two objects, one unique parameters' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '342',
                     $noReferences->paths['/responsepath']->get->responses['342']
@@ -901,7 +840,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'oneOf, two objects, conflicting parameter' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '343',
                     $noReferences->paths['/responsepath']->get->responses['343']
@@ -914,7 +852,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'oneOf, two objects, unique parameters, one requiredField' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '344',
                     $noReferences->paths['/responsepath']->get->responses['344']
@@ -931,7 +868,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'oneOf, two objects, unique parameters, two requiredField' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '345',
                     $noReferences->paths['/responsepath']->get->responses['345']
@@ -952,7 +888,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'oneOf, two objects, unique parameters, two requiredFields requiring the other schemas property' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '346',
                     $noReferences->paths['/responsepath']->get->responses['346']
@@ -973,7 +908,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'schema with no specified type' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '404',
                     $noReferences->paths['/responsepath']->get->responses['404']
@@ -982,7 +916,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'schema with empty content' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '405',
                     $noReferences->paths['/responsepath']->get->responses['405']
@@ -991,7 +924,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'schema with no content' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $noReferences->paths['/responsepath']->get->operationId,
                     '406',
                     $noReferences->paths['/responsepath']->get->responses['406']
@@ -1000,7 +932,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ],
             'petstore.yaml: /pets path -> get operation -> 200 response' => [
                 new OpenAPIResponse(
-                    OpenAPIVersion::Version_3_0,
                     $petstore->paths['/pets']->get->operationId,
                     '200',
                     $petstore->paths['/pets']->get->responses['200']
@@ -1037,7 +968,6 @@ class OpenAPIResponseBuilderTest extends TestCase
             ->readFromAbsoluteFilePath(self::DIR . 'docs/petstore.yaml');
 
         $petsGet200Response = new OpenAPIResponse(
-            OpenAPIVersion::Version_3_0,
             $petstore->paths['/pets']->get->operationId,
             '200',
             $petstore->paths['/pets']->get->responses['200']
@@ -1116,7 +1046,6 @@ class OpenAPIResponseBuilderTest extends TestCase
         ]))->readFromAbsoluteFilePath(self::DIR . 'noReferences.json');
 
         $specification = new OpenAPIResponse(
-            OpenAPIVersion::Version_3_0,
             $noReferences->paths['/responsepath']->get->operationId,
             '224',
             $noReferences->paths['/responsepath']->get->responses['224']

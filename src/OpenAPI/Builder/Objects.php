@@ -93,7 +93,6 @@ class Objects extends APIBuilder
 
         foreach ($specification->properties as $key => $schema) {
             $fields [] = $this->fromSchema(
-                $specification->openAPIVersion,
                 $schema,
                 $key,
                 $specification->convertFromString
@@ -103,7 +102,6 @@ class Objects extends APIBuilder
         if (!is_bool($specification->additionalProperties->value)) {
             $fields [] = new DefaultProcessor(
                 $this->fromSchema(
-                    $specification->openAPIVersion,
                     $specification->additionalProperties,
                     '',
                     $specification->convertFromString

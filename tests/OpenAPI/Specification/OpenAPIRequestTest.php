@@ -41,7 +41,7 @@ class OpenAPIRequestTest extends TestCase
     {
         self::expectExceptionObject(CannotProcessSpecification::methodNotFound(Method::DELETE->value));
 
-        new OpenAPIRequest(OpenAPIVersion::Version_3_0, $this->pathParameterExtractor, $this->openApi->paths['/pets'], Method::DELETE);
+        new OpenAPIRequest($this->pathParameterExtractor, $this->openApi->paths['/pets'], Method::DELETE);
     }
 
     #[Test, TestDox('Throws an exception if the request body contains content that is not supported')]
@@ -57,7 +57,7 @@ class OpenAPIRequestTest extends TestCase
             CannotProcessOpenAPI::unsupportedMediaTypes(...array_keys($pathItem->put->requestBody->content))
         );
 
-        new OpenAPIRequest(OpenAPIVersion::Version_3_0, $pathParameterExtractor, $pathItem, Method::PUT);
+        new OpenAPIRequest($pathParameterExtractor, $pathItem, Method::PUT);
     }
 
     #[Test, TestDox('$parameters will contain an array of parameters with their names as keys')]
@@ -65,14 +65,14 @@ class OpenAPIRequestTest extends TestCase
     {
         $expected = $this->openApi->paths['/pets']->get->parameters;
 
-        $sut = new OpenAPIRequest(OpenAPIVersion::Version_3_0, $this->pathParameterExtractor, $this->openApi->paths['/pets'], Method::GET);
+        $sut = new OpenAPIRequest($this->pathParameterExtractor, $this->openApi->paths['/pets'], Method::GET);
         self::assertEquals($expected, $sut->parameters);
     }
 
     #[Test, TestDox('$requestBodySchema will be null if request body has no content')]
     public function requestBodySchemaIsNullIfRequestBodyHasNoContent(): void
     {
-        $sut = new OpenAPIRequest(OpenAPIVersion::Version_3_0, $this->pathParameterExtractor, $this->openApi->paths['/pets'], Method::GET);
+        $sut = new OpenAPIRequest($this->pathParameterExtractor, $this->openApi->paths['/pets'], Method::GET);
 
         self::assertNull($sut->requestBodySchema);
     }
@@ -81,7 +81,7 @@ class OpenAPIRequestTest extends TestCase
     public function requestBodySchemaWillContainRelevantRequestBodyContent(): void
     {
         $expected = $this->openApi->paths['/pets']->post->requestBody->content['application/json']->schema;
-        $sut = new OpenAPIRequest(OpenAPIVersion::Version_3_0, $this->pathParameterExtractor, $this->openApi->paths['/pets'], Method::POST);
+        $sut = new OpenAPIRequest($this->pathParameterExtractor, $this->openApi->paths['/pets'], Method::POST);
 
         self::assertEquals($expected, $sut->requestBodySchema);
     }
@@ -89,7 +89,7 @@ class OpenAPIRequestTest extends TestCase
     #[Test, TestDox('$operationId contains operationId for matching Operation Object')]
     public function operationIdContainsRelevantOperationId(): void
     {
-        $sut = new OpenAPIRequest(OpenAPIVersion::Version_3_0, $this->pathParameterExtractor, $this->openApi->paths['/pets'], Method::GET);
+        $sut = new OpenAPIRequest($this->pathParameterExtractor, $this->openApi->paths['/pets'], Method::GET);
 
         self::assertEquals('findPets', $sut->operationId);
     }

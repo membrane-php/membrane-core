@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Specification;
 
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 
@@ -19,7 +18,6 @@ class Numeric extends APISchema
     public readonly string $type;
 
     public function __construct(
-        OpenAPIVersion $openAPIVersion,
         string $fieldName,
         V30\Keywords | V31\Keywords $keywords,
         public readonly bool $convertFromString = false,
@@ -44,6 +42,6 @@ class Numeric extends APISchema
         $this->minimum = $keywords->minimum?->limit;
         $this->multipleOf = $keywords->multipleOf;
 
-        parent::__construct($openAPIVersion, $fieldName, $keywords);
+        parent::__construct($fieldName, $keywords);
     }
 }

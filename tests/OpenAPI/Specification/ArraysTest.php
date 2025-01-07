@@ -7,7 +7,6 @@ namespace Membrane\Tests\OpenAPI\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Arrays;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -27,7 +26,6 @@ class ArraysTest extends TestCase
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['array'], []));
 
         new Arrays(
-            OpenAPIVersion::Version_3_0,
             '',
             (new V30\Schema(new Identifier('test'), new Partial\Schema()))->value
         );
@@ -39,7 +37,6 @@ class ArraysTest extends TestCase
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['array'], ['string']));
 
         new Arrays(
-            OpenAPIVersion::Version_3_0,
             '',
             (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')))->value
         );
@@ -49,7 +46,6 @@ class ArraysTest extends TestCase
     {
         return [
             'default values' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'array')),
                 [
                     'items' => new V30\Schema(
@@ -64,7 +60,6 @@ class ArraysTest extends TestCase
                 ],
             ],
             'assigned values' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'array',
                     enum: [new Value([1, 2, 3]), new Value([5, 6, 7])],
@@ -92,11 +87,10 @@ class ArraysTest extends TestCase
     #[Test]
     #[DataProvider('dataSetsToConstruct')]
     public function constructTest(
-        OpenAPIVersion $openAPIVersion,
         V30\Schema | V31\Schema $schema,
         array $expected
     ): void {
-        $sut = new Arrays($openAPIVersion, '', $schema->value);
+        $sut = new Arrays('', $schema->value);
 
         foreach ($expected as $key => $value) {
             if ($key === 'items') {

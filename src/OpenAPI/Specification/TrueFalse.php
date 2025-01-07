@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Specification;
 
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 
 class TrueFalse extends APISchema
 {
     public function __construct(
-        OpenAPIVersion $openAPIVersion,
         string $fieldName,
         V30\Keywords | V31\Keywords $keywords,
         public readonly bool $convertFromString = false,
@@ -26,6 +24,6 @@ class TrueFalse extends APISchema
             );
         }
 
-        parent::__construct($openAPIVersion, $fieldName, $keywords);
+        parent::__construct($fieldName, $keywords);
     }
 }

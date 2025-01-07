@@ -47,10 +47,6 @@ class ResponseBuilder implements Builder
             $response = $this->getResponse($operation, $specification->statusCode);
 
             $newSpecification = new OpenAPIResponse(
-                match ($openAPI::class) {
-                    V30\OpenAPI::class => OpenAPIVersion::Version_3_0,
-                    V31\OpenAPI::class => OpenAPIVersion::Version_3_1,
-                },
                 $operation->operationId,
                 $specification->statusCode,
                 $response

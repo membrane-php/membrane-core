@@ -30,6 +30,6 @@ class OpenAPIResponseBuilder extends APIBuilder
             return new Field('', new Passes());
         }
 
-        return $this->fromSchema($response->openAPIVersion, $response->schema);
+        return $this->fromSchema($response->schema);
     }
 }

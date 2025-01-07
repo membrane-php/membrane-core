@@ -6,7 +6,6 @@ namespace Membrane\Tests\OpenAPI\Specification;
 
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Specification\Parameter;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -30,14 +29,13 @@ class ParameterTest extends TestCase
 
         self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes('application/pdf'));
 
-        new Parameter(OpenAPIVersion::Version_3_0, $parameter);
+        new Parameter($parameter);
     }
 
     public static function provideValidParameters(): array
     {
         return [
             '"style": "matrix" in "path"' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Parameter(new Identifier('test'), new Partial\Parameter(
                     name: 'id',
                     in: 'path',
@@ -58,7 +56,6 @@ class ParameterTest extends TestCase
                 ],
             ],
             '"style": "label" in "path"' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Parameter(new Identifier('test'), new Partial\Parameter(
                     name: 'id',
                     in: 'path',
@@ -79,7 +76,6 @@ class ParameterTest extends TestCase
                 ],
             ],
             '"style":"form" in "query"' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Parameter(new Identifier('test'), new Partial\Parameter(
                     name: 'id',
                     in: 'query',
@@ -100,7 +96,6 @@ class ParameterTest extends TestCase
                 ],
             ],
             '"style":"simple" in "path"' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Parameter(new Identifier('test'), new Partial\Parameter(
                     name: 'id',
                     in: 'path',
@@ -121,7 +116,6 @@ class ParameterTest extends TestCase
                 ],
             ],
             '"style":"spaceDelimited" in "query"' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Parameter(new Identifier('test'), new Partial\Parameter(
                     name: 'id',
                     in: 'query',
@@ -142,7 +136,6 @@ class ParameterTest extends TestCase
                 ],
             ],
             '"style":"pipeDelimited" in "query"' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Parameter(new Identifier('test'), new Partial\Parameter(
                     name: 'id',
                     in: 'query',
@@ -163,7 +156,6 @@ class ParameterTest extends TestCase
                 ],
             ],
             '"style":"deepObject" in "query"' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Parameter(new Identifier('test'), new Partial\Parameter(
                     name: 'id',
                     in: 'query',
@@ -191,11 +183,10 @@ class ParameterTest extends TestCase
     #[TestDox('It will construct itself from valid Parameters')]
     #[DataProvider('provideValidParameters')]
     public function itConstructsFromValidParameters(
-        OpenAPIVersion $openApiVersion,
         V30\Parameter|V31\Parameter $parameter,
         array $expectedProperties
     ): void {
-        $sut = new Parameter($openApiVersion, $parameter);
+        $sut = new Parameter($parameter);
 
         foreach ($expectedProperties as $key => $value) {
             self::assertEquals($value, $sut->$key, sprintf("'%s' doesn't match expected", $key));

@@ -7,7 +7,6 @@ namespace Membrane\Tests\OpenAPI\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Objects;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -27,7 +26,6 @@ class ObjectsTest extends TestCase
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['object'], []));
 
         new Objects(
-            OpenAPIVersion::Version_3_0,
             '',
             (new V30\Schema(new Identifier('test'), new Partial\Schema()))->value
         );
@@ -39,7 +37,6 @@ class ObjectsTest extends TestCase
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['object'], ['string']));
 
         new Objects(
-            OpenAPIVersion::Version_3_0,
             '',
             (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')))->value,
         );
@@ -49,7 +46,6 @@ class ObjectsTest extends TestCase
     {
         return [
             'default values' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'object')),
                 [
                     'additionalProperties' => new V30\Schema(
@@ -63,7 +59,6 @@ class ObjectsTest extends TestCase
                 ],
             ],
             'additionalProperties assigned false' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'object',
                     additionalProperties: false,
@@ -80,7 +75,6 @@ class ObjectsTest extends TestCase
                 ],
             ],
             'all relevant keywords assigned values' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'object',
                     enum: [new Value(['id' => 5]), new Value(['id' => 10])],
@@ -109,11 +103,10 @@ class ObjectsTest extends TestCase
     #[DataProvider('dataSetsToConstruct')]
     #[Test]
     public function constructTest(
-        OpenAPIVersion $openAPIVersion,
         V30\Schema | V31\Schema $schema,
         array $expected
     ): void {
-        $sut = new Objects($openAPIVersion, '', $schema->value);
+        $sut = new Objects('', $schema->value);
 
         foreach ($expected as $key => $value) {
             self::assertEquals($value, $sut->$key, sprintf('%s does not meet expected value', $key));

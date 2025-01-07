@@ -9,7 +9,6 @@ use Membrane\OpenAPI\Builder\Arrays;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -68,7 +67,6 @@ class ArraysTest extends TestCase
         return [
             '3.0 minimum input' => [
                 new Specification\Arrays(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(
                         new Identifier('test'), new Partial\Schema(
@@ -80,7 +78,6 @@ class ArraysTest extends TestCase
             ],
             '3.1 minimum input' => [
                 new Specification\Arrays(
-                    OpenAPIVersion::Version_3_1,
                     '',
                     (new V31\Schema(
                         new Identifier('test'), new Partial\Schema(
@@ -92,7 +89,6 @@ class ArraysTest extends TestCase
             ],
             '3.0 array<string|integer>' => [
                 new Specification\Arrays(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(
                         new Identifier('test'), new Partial\Schema(
@@ -114,7 +110,6 @@ class ArraysTest extends TestCase
             ],
             '3.1 array<string|integer>' => [
                 new Specification\Arrays(
-                    OpenAPIVersion::Version_3_1,
                     '',
                     (new V31\Schema(
                         new Identifier('test'), new Partial\Schema(
@@ -131,7 +126,6 @@ class ArraysTest extends TestCase
             ],
             '3.1 detailed input' => [
                 new Specification\Arrays(
-                    OpenAPIVersion::Version_3_1,
                     '',
                     (new V31\Schema(
                         new Identifier(''), new Partial\Schema(
@@ -154,7 +148,6 @@ class ArraysTest extends TestCase
             ],
             '3.0 nullable items' => [
                 new Specification\Arrays(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(
                         new Identifier(''), new Partial\Schema(
@@ -176,7 +169,6 @@ class ArraysTest extends TestCase
             ],
             '3.1 nullable items' => [
                 new Specification\Arrays(
-                    OpenAPIVersion::Version_3_1,
                     '',
                     (new V31\Schema(
                         new Identifier(''), new Partial\Schema(

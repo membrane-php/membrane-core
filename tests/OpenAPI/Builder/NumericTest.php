@@ -11,7 +11,6 @@ use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -25,7 +24,6 @@ use Membrane\Validator\String\IntString;
 use Membrane\Validator\String\NumericString;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
-use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Type\IsNumber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -66,7 +64,6 @@ class NumericTest extends TestCase
         return [
             'integer input to convert from string' => [
                 new Specification\Numeric(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'integer')))->value,
                     true
@@ -75,7 +72,6 @@ class NumericTest extends TestCase
             ],
             'strict integer input' => [
                 new Specification\Numeric(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'integer')))->value,
                     false,
@@ -84,7 +80,6 @@ class NumericTest extends TestCase
             ],
             'number input to convert from string' => [
                 new Specification\Numeric(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number')))->value,
                     true,
@@ -93,7 +88,6 @@ class NumericTest extends TestCase
             ],
             'strict number input' => [
                 new Specification\Numeric(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number')))->value,
                     false,
@@ -102,7 +96,6 @@ class NumericTest extends TestCase
             ],
             'float input to convert from string' => [
                 new Specification\Numeric(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number', format: 'float')))->value,
                     true,
@@ -111,7 +104,6 @@ class NumericTest extends TestCase
             ],
             'strict float input' => [
                 new Specification\Numeric(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number', format: 'float')))->value,
                     false,
@@ -120,7 +112,6 @@ class NumericTest extends TestCase
             ],
             'detailed input to convert from string' => [
                 new Specification\Numeric(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(new Identifier(''), new Partial\Schema(
                         type: 'integer',
@@ -146,7 +137,6 @@ class NumericTest extends TestCase
             ],
             'strict detailed input' => [
                 new Specification\Numeric(
-                    OpenAPIVersion::Version_3_0,
                     '',
                     (new V30\Schema(new Identifier(''), new Partial\Schema(
                         type: 'integer',

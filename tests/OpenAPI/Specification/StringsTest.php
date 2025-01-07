@@ -7,7 +7,6 @@ namespace Membrane\Tests\OpenAPI\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Strings;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -27,7 +26,6 @@ class StringsTest extends TestCase
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['string'], []));
 
         new Strings(
-            OpenAPIVersion::Version_3_0,
             '',
             (new V30\Schema(new Identifier('test'), new Partial\Schema()))->value,
         );
@@ -39,7 +37,6 @@ class StringsTest extends TestCase
         self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['string'], ['integer']));
 
         new Strings(
-            OpenAPIVersion::Version_3_0,
             '',
             (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'integer')))->value,
         );
@@ -49,7 +46,6 @@ class StringsTest extends TestCase
     {
         return [
             'default values' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')),
                 [
                     'maxLength' => null,
@@ -60,7 +56,6 @@ class StringsTest extends TestCase
                 ],
             ],
             'assigned values' => [
-                OpenAPIVersion::Version_3_0,
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'string',
                     enum: [new Value('This is a string'), new Value('So is this')],
@@ -82,9 +77,9 @@ class StringsTest extends TestCase
 
     #[DataProvider('dataSetsToConstruct')]
     #[Test]
-    public function constructTest(OpenAPIVersion $openAPIVersion, V30\Schema|V31\Schema $schema, array $expected): void
+    public function constructTest(V30\Schema|V31\Schema $schema, array $expected): void
     {
-        $sut = new Strings($openAPIVersion, '', $schema->value);
+        $sut = new Strings('', $schema->value);
 
         foreach ($expected as $key => $value) {
             self::assertSame($value, $sut->$key, sprintf('%s does not meet expected value', $key));

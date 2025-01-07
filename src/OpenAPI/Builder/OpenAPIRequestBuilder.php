@@ -49,7 +49,6 @@ class OpenAPIRequestBuilder implements Builder
         }
 
         return $this->getParameterBuilder()->fromSchema(
-            $specification->openAPIVersion,
             $specification->requestBodySchema,
             'requestBody',
         );
@@ -59,7 +58,7 @@ class OpenAPIRequestBuilder implements Builder
     private function fromParameters(OpenAPIRequest $specification): array
     {
         $parameters = array_map(
-            fn($p) => new Parameter($specification->openAPIVersion, $p),
+            fn($p) => new Parameter($p),
             $specification->parameters,
         );
 

@@ -33,7 +33,7 @@ class OpenAPIResponseTest extends TestCase
 
         self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes(...array_keys($response->content)));
 
-        new OpenAPIResponse(OpenAPIVersion::Version_3_0, 'testOperation', '200', $response);
+        new OpenAPIResponse('testOperation', '200', $response);
     }
 
     #[Test, TestDox('$schema contains a Schema Object if the response has empty content')]
@@ -45,7 +45,7 @@ class OpenAPIResponseTest extends TestCase
             content: []
         ));
 
-        $sut = new OpenAPIResponse(OpenAPIVersion::Version_3_0, 'testOperation', '200', $response);
+        $sut = new OpenAPIResponse('testOperation', '200', $response);
 
         self::assertNull($sut->schema);
     }
@@ -67,7 +67,7 @@ class OpenAPIResponseTest extends TestCase
             )]
         ));
 
-        $sut = new OpenAPIResponse(OpenAPIVersion::Version_3_0, 'testOperation', '200', $response);
+        $sut = new OpenAPIResponse('testOperation', '200', $response);
 
         self::assertEquals($expected, $sut->schema);
     }
