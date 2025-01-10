@@ -7,9 +7,8 @@ namespace Membrane\Tests\Console\Template;
 use Membrane\Console\Template;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPIReader\MembraneReader;
-use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\Reader;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\OpenAPIRouter\RouteCollection;
 use Membrane\OpenAPIRouter\RouteCollector;
 use Membrane\OpenAPIRouter\Router;
@@ -55,13 +54,13 @@ class RequestBuilderTest extends TestCase
         $routeCollection = (new RouteCollector())
             ->collect($openAPI);
         $createdBuilder = eval(
-        sprintf(
-            'return new \\%s\\CachedRequestBuilder(new %s(new %s(%s)));',
-            $namespace,
-            Router::class,
-            RouteCollection::class,
-            var_export($routeCollection->routes, true)
-        )
+            sprintf(
+                'return new \\%s\\CachedRequestBuilder(new %s(new %s(%s)));',
+                $namespace,
+                Router::class,
+                RouteCollection::class,
+                var_export($routeCollection->routes, true)
+            )
         );
 
         self::assertInstanceOf('\RequestBuilderTemplateTest\Petstore\CachedRequestBuilder', $createdBuilder);
@@ -92,7 +91,7 @@ class RequestBuilderTest extends TestCase
         Request $requestSpecification
     ): void {
         eval(
-        '
+            '
 namespace RequestBuilderTemplateTest\Petstore\Request;
 
 use Membrane;

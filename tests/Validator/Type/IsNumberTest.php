@@ -92,8 +92,10 @@ class IsNumberTest extends TestCase
             ],
             'invalidates array' => [
                 [1, 2, 3],
-                Result::invalid([1, 2, 3],
-                    new MessageSet(null, new Message('Value must be a number, %s passed', ['array']))),
+                Result::invalid(
+                    [1, 2, 3],
+                    new MessageSet(null, new Message('Value must be a number, %s passed', ['array']))
+                ),
             ],
             'invalidates object' => [
                 $class,
@@ -115,5 +117,4 @@ class IsNumberTest extends TestCase
 
         self::assertEquals($expected, $actual);
     }
-
 }

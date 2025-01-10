@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace OpenAPI\Specification;
+namespace Membrane\Tests\OpenAPI\Specification;
 
-use cebe\openapi\spec as Cebe;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Specification\Parameter;
-use Membrane\OpenAPIReader\OpenAPIVersion;
-use Membrane\OpenAPIReader\Reader;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,9 +21,11 @@ class ParameterTest extends TestCase
     #[Test, TestDox('Exceptions will be thrown for parameters with unsupported content types')]
     public function throwsExceptionForUnsupportedContentTypes(): void
     {
-        $openAPIFilePath = __DIR__ . '/../../fixtures/OpenAPI/noReferences.json';
-        $openApi = (new Reader([OpenAPIVersion::Version_3_0]))->readFromAbsoluteFilePath($openAPIFilePath);
-        $parameter = $openApi->paths->getPath('/requestpathexceptions')->post->parameters[0];
+        $parameter = new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+            name: 'test-param',
+            in: 'query',
+            content: [new Partial\MediaType(contentType: 'application/pdf', schema: new Partial\Schema())],
+        ));
 
         self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes('application/pdf'));
 
@@ -35,131 +36,154 @@ class ParameterTest extends TestCase
     {
         return [
             '"style": "matrix" in "path"' => [
-                new Cebe\Parameter([
-                    'name' => 'id',
-                    'in' => 'path',
-                    'required' => true,
-                    'style' => 'matrix',
-                    'schema' => new Cebe\Schema(['type' => 'integer']),
-                ]),
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    schema: new Partial\Schema(type: 'integer'),
+                )),
                 [
                     'name' => 'id',
                     'in' => 'path',
                     'required' => true,
                     'style' => 'matrix',
                     'explode' => false,
-                    'schema' => new Cebe\Schema(['type' => 'integer']),
+                    'schema' => new V30\Schema(
+                        new Identifier('test', 'id(path)', 'schema'),
+                        new Partial\Schema(type: 'integer'),
+                    ),
                 ],
             ],
             '"style": "label" in "path"' => [
-                new Cebe\Parameter([
-                    'name' => 'id',
-                    'in' => 'path',
-                    'required' => true,
-                    'style' => 'label',
-                    'schema' => new Cebe\Schema(['type' => 'integer']),
-                ]),
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    schema: new Partial\Schema(type: 'integer'),
+                )),
                 [
                     'name' => 'id',
                     'in' => 'path',
                     'required' => true,
                     'style' => 'label',
                     'explode' => false,
-                    'schema' => new Cebe\Schema(['type' => 'integer']),
+                    'schema' => new V30\Schema(
+                        new Identifier('test', 'id(path)', 'schema'),
+                        new Partial\Schema(type: 'integer'),
+                    ),
                 ],
             ],
             '"style":"form" in "query"' => [
-                new Cebe\Parameter([
-                    'name' => 'id',
-                    'in' => 'query',
-                    'required' => false,
-                    'style' => 'form',
-                    'schema' => new Cebe\Schema(['type' => 'integer']),
-                ]),
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'query',
+                    required: false,
+                    style: 'form',
+                    schema: new Partial\Schema(type: 'integer'),
+                )),
                 [
                     'name' => 'id',
                     'in' => 'query',
                     'required' => false,
                     'style' => 'form',
                     'explode' => true,
-                    'schema' => new Cebe\Schema(['type' => 'integer']),
+                    'schema' => new V30\Schema(
+                        new Identifier('test', 'id(query)', 'schema'),
+                        new Partial\Schema(type: 'integer'),
+                    ),
                 ],
             ],
             '"style":"simple" in "path"' => [
-                new Cebe\Parameter([
-                    'name' => 'id',
-                    'in' => 'path',
-                    'required' => true,
-                    'style' => 'simple',
-                    'schema' => new Cebe\Schema(['type' => 'integer']),
-                ]),
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'path',
+                    required: true,
+                    style: 'simple',
+                    schema: new Partial\Schema(type: 'integer'),
+                )),
                 [
                     'name' => 'id',
                     'in' => 'path',
                     'required' => true,
                     'style' => 'simple',
                     'explode' => false,
-                    'schema' => new Cebe\Schema(['type' => 'integer']),
+                    'schema' => new V30\Schema(
+                        new Identifier('test', 'id(path)', 'schema'),
+                        new Partial\Schema(type: 'integer'),
+                    ),
                 ],
             ],
             '"style":"spaceDelimited" in "query"' => [
-                new Cebe\Parameter([
-                    'name' => 'id',
-                    'in' => 'query',
-                    'required' => false,
-                    'style' => 'spaceDelimited',
-                    'schema' => new Cebe\Schema(['type' => 'integer']),
-                ]),
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'query',
+                    required: false,
+                    style: 'spaceDelimited',
+                    schema: new Partial\Schema(type: 'integer'),
+                )),
                 [
                     'name' => 'id',
                     'in' => 'query',
                     'required' => false,
                     'style' => 'spaceDelimited',
                     'explode' => false,
-                    'schema' => new Cebe\Schema(['type' => 'integer']),
+                    'schema' => new V30\Schema(
+                        new Identifier('test', 'id(query)', 'schema'),
+                        new Partial\Schema(type: 'integer'),
+                    ),
                 ],
             ],
             '"style":"pipeDelimited" in "query"' => [
-                new Cebe\Parameter([
-                    'name' => 'id',
-                    'in' => 'query',
-                    'required' => false,
-                    'style' => 'pipeDelimited',
-                    'schema' => new Cebe\Schema(['type' => 'integer']),
-                ]),
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'query',
+                    required: false,
+                    style: 'pipeDelimited',
+                    schema: new Partial\Schema(type: 'integer'),
+                )),
                 [
                     'name' => 'id',
                     'in' => 'query',
                     'required' => false,
                     'style' => 'pipeDelimited',
                     'explode' => false,
-                    'schema' => new Cebe\Schema(['type' => 'integer']),
+                    'schema' => new V30\Schema(
+                        new Identifier('test', 'id(query)', 'schema'),
+                        new Partial\Schema(type: 'integer'),
+                    ),
                 ],
             ],
             '"style":"deepObject" in "query"' => [
-                new Cebe\Parameter([
-                    'name' => 'id',
-                    'in' => 'query',
-                    'required' => false,
-                    'style' => 'deepObject',
-                    'schema' => new Cebe\Schema(['type' => 'integer']),
-                ]),
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'query',
+                    required: false,
+                    style: 'deepObject',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'object'),
+                )),
                 [
                     'name' => 'id',
                     'in' => 'query',
                     'required' => false,
                     'style' => 'deepObject',
                     'explode' => false,
-                    'schema' => new Cebe\Schema(['type' => 'integer']),
+                    'schema' => new V30\Schema(
+                        new Identifier('test', 'id(query)', 'schema'),
+                        new Partial\Schema(type: 'object'),
+                    ),
                 ],
             ],
         ];
     }
 
-    #[Test, TestDox('It will construct itself from valid Parameters')]
+    #[Test]
+    #[TestDox('It will construct itself from valid Parameters')]
     #[DataProvider('provideValidParameters')]
-    public function constructsAParameterSpecificationFromValidParameters(
-        Cebe\Parameter $parameter,
+    public function itConstructsFromValidParameters(
+        V30\Parameter|V31\Parameter $parameter,
         array $expectedProperties
     ): void {
         $sut = new Parameter($parameter);

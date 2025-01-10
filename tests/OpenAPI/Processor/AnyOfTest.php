@@ -183,7 +183,8 @@ class AnyOfTest extends TestCase
                 ],
                 new FieldName(''),
                 ['id' => 'Ben', 'name' => 5],
-                Result::invalid(['id' => 'Ben', 'name' => 5],
+                Result::invalid(
+                    ['id' => 'Ben', 'name' => 5],
                     new MessageSet(
                         new FieldName('id', '', ''),
                         new Message('IsInt validator expects integer value, %s passed instead', ['string'])
@@ -228,12 +229,14 @@ class AnyOfTest extends TestCase
                 ],
                 new FieldName(''),
                 ['id' => 'Blink'],
-                Result::invalid(['id' => 'Blink'],
+                Result::invalid(
+                    ['id' => 'Blink'],
                     new MessageSet(
                         new FieldName('id', '', ''),
                         new Message('IsInt validator expects integer value, %s passed instead', ['string'])
                     ),
-                    new MessageSet(new FieldName('', '', ''), new Message('%s is a required field', ['name']))),
+                    new MessageSet(new FieldName('', '', ''), new Message('%s is a required field', ['name']))
+                ),
             ],
         ];
     }

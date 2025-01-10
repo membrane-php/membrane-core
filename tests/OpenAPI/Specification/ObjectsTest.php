@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Specification;
 
-use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Objects;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Value;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -21,61 +23,78 @@ class ObjectsTest extends TestCase
     #[Test]
     public function throwsExceptionForMissingType(): void
     {
-        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Objects::class, 'object', 'no type'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['object'], []));
 
-        new Objects('', new Schema([]));
+        new Objects(
+            '',
+            (new V30\Schema(new Identifier('test'), new Partial\Schema()))->value
+        );
     }
 
     #[Test]
     public function throwsExceptionForIncorrectType(): void
     {
-        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Objects::class, 'object', 'string'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['object'], ['string']));
 
-        new Objects('', new Schema(['type' => 'string']));
+        new Objects(
+            '',
+            (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')))->value,
+        );
     }
 
     public static function dataSetsToConstruct(): array
     {
         return [
             'default values' => [
-                new Schema(['type' => 'object',]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'object')),
                 [
-                    'additionalProperties' => true,
+                    'additionalProperties' => new V30\Schema(
+                        new Identifier('test', 'additionalProperties'),
+                        true,
+                    ),
                     'properties' => [],
-                    'required' => null,
+                    'required' => [],
                     'enum' => null,
-                    'format' => null,
-                    'nullable' => false,
+                    'format' => '',
                 ],
             ],
             'additionalProperties assigned false' => [
-                new Schema(['type' => 'object', 'additionalProperties' => false]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(
+                    type: 'object',
+                    additionalProperties: false,
+                )),
                 [
-                    'additionalProperties' => false,
+                    'additionalProperties' => new V30\Schema(
+                        new Identifier('test', 'additionalProperties'),
+                        false,
+                    ),
                     'properties' => [],
-                    'required' => null,
+                    'required' => [],
                     'enum' => null,
-                    'format' => null,
-                    'nullable' => false,
+                    'format' => '',
                 ],
             ],
             'all relevant keywords assigned values' => [
-                new Schema([
-                    'type' => 'object',
-                    'additionalProperties' => new Schema(['type' => 'string']),
-                    'properties' => ['id' => new Schema(['type' => 'integer'])],
-                    'required' => ['id'],
-                    'enum' => [false, null],
-                    'format' => 'you cannot say yes',
-                    'nullable' => true,
-                ]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(
+                    type: 'object',
+                    enum: [new Value(['id' => 5]), new Value(['id' => 10])],
+                    required: ['id'],
+                    properties: ['id' => new Partial\Schema(type: 'integer')],
+                    additionalProperties: new Partial\Schema(type: 'string'),
+                    format: 'you cannot say yes',
+                )),
                 [
-                    'additionalProperties' => new Schema(['type' => 'string']),
-                    'properties' => ['id' => new Schema(['type' => 'integer'])],
+                    'additionalProperties' => new V30\Schema(
+                        new Identifier('test', 'additionalProperties'),
+                        new Partial\Schema(type: 'string')
+                    ),
+                    'properties' => ['id' => new V30\Schema(
+                        new Identifier('test', 'properties(id)'),
+                        new Partial\Schema(type: 'integer')
+                    )],
                     'required' => ['id'],
-                    'enum' => [false, null],
+                    'enum' => [['id' => 5], ['id' => 10]],
                     'format' => 'you cannot say yes',
-                    'nullable' => true,
                 ],
             ],
         ];
@@ -83,9 +102,11 @@ class ObjectsTest extends TestCase
 
     #[DataProvider('dataSetsToConstruct')]
     #[Test]
-    public function constructTest(Schema $schema, array $expected): void
-    {
-        $sut = new Objects('', $schema);
+    public function constructTest(
+        V30\Schema | V31\Schema $schema,
+        array $expected
+    ): void {
+        $sut = new Objects('', $schema->value);
 
         foreach ($expected as $key => $value) {
             self::assertEquals($value, $sut->$key, sprintf('%s does not meet expected value', $key));

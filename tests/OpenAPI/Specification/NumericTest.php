@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Specification;
 
-use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Numeric;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
+use Membrane\OpenAPIReader\ValueObject\Value;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,27 +24,33 @@ class NumericTest extends TestCase
     public function throwsExceptionForMissingType(): void
     {
         self::expectExceptionObject(
-            CannotProcessSpecification::mismatchedType(Numeric::class, 'integer or number', 'no type')
+            CannotProcessSpecification::mismatchedType(['integer', 'number'], []),
         );
 
-        new Numeric('', new Schema([]));
+        new Numeric(
+            '',
+            (new V30\Schema(new Identifier('test'), new Partial\Schema()))->value,
+        );
     }
 
     #[Test]
     public function throwsExceptionForInvalidType(): void
     {
         self::expectExceptionObject(
-            CannotProcessSpecification::mismatchedType(Numeric::class, 'integer or number', 'string')
+            CannotProcessSpecification::mismatchedType(['integer', 'number'], ['string']),
         );
 
-        new Numeric('', new Schema(['type' => 'string']));
+        new Numeric(
+            '',
+            (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')))->value,
+        );
     }
 
     public static function dataSetsToConstruct(): array
     {
         return [
             'default values for number' => [
-                new Schema(['type' => 'number',]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'number')),
                 [
                     'type' => 'number',
                     'maximum' => null,
@@ -51,11 +59,10 @@ class NumericTest extends TestCase
                     'exclusiveMinimum' => false,
                     'multipleOf' => null,
                     'enum' => null,
-                    'nullable' => false,
                 ],
             ],
             'default values for integer' => [
-                new Schema(['type' => 'integer',]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'integer')),
                 [
                     'type' => 'integer',
                     'maximum' => null,
@@ -64,21 +71,19 @@ class NumericTest extends TestCase
                     'exclusiveMinimum' => false,
                     'multipleOf' => null,
                     'enum' => null,
-                    'nullable' => false,
                 ],
             ],
             'assigned values for number' => [
-                new Schema([
-                    'type' => 'number',
-                    'maximum' => 10,
-                    'minimum' => 1,
-                    'exclusiveMaximum' => true,
-                    'exclusiveMinimum' => true,
-                    'multipleOf' => 3,
-                    'enum' => [3, 9],
-                    'format' => 'float',
-                    'nullable' => true,
-                ]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(
+                    type: 'number',
+                    enum: [new Value(3), new Value(9)],
+                    multipleOf: 3,
+                    exclusiveMaximum: true,
+                    exclusiveMinimum: true,
+                    maximum: 10,
+                    minimum: 1,
+                    format: 'float',
+                )),
                 [
                     'type' => 'number',
                     'maximum' => 10,
@@ -88,21 +93,19 @@ class NumericTest extends TestCase
                     'multipleOf' => 3,
                     'enum' => [3, 9],
                     'format' => 'float',
-                    'nullable' => true,
                 ],
             ],
             'assigned values for integer' => [
-                new Schema([
-                    'type' => 'integer',
-                    'maximum' => 10,
-                    'minimum' => 1,
-                    'exclusiveMaximum' => true,
-                    'exclusiveMinimum' => true,
-                    'multipleOf' => 3,
-                    'enum' => [3, 9],
-                    'format' => 'square numbers',
-                    'nullable' => true,
-                ]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(
+                    type: 'integer',
+                    enum: [new Value(9)],
+                    multipleOf: 3,
+                    exclusiveMaximum: true,
+                    exclusiveMinimum: true,
+                    maximum: 10,
+                    minimum: 1,
+                    format: 'square of 3',
+                )),
                 [
                     'type' => 'integer',
                     'maximum' => 10,
@@ -110,9 +113,8 @@ class NumericTest extends TestCase
                     'exclusiveMaximum' => true,
                     'exclusiveMinimum' => true,
                     'multipleOf' => 3,
-                    'enum' => [3, 9],
-                    'format' => 'square numbers',
-                    'nullable' => true,
+                    'enum' => [9],
+                    'format' => 'square of 3',
                 ],
             ],
         ];
@@ -120,9 +122,11 @@ class NumericTest extends TestCase
 
     #[DataProvider('dataSetsToConstruct')]
     #[Test]
-    public function constructTest(Schema $schema, array $expected): void
-    {
-        $sut = new Numeric('', $schema);
+    public function constructTest(
+        V30\Schema $schema,
+        array $expected
+    ): void {
+        $sut = new Numeric('', $schema->value);
 
         foreach ($expected as $key => $value) {
             self::assertSame($value, $sut->$key, sprintf('%s did not meet expected value', $key));

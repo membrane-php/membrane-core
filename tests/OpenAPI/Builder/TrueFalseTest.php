@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Builder;
 
-
-use cebe\openapi\spec\Schema;
 use Membrane\Filter\Type\ToBool;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\TrueFalse;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
+use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
 use Membrane\Validator\String\BoolString;
 use Membrane\Validator\Type\IsBool;
-use Membrane\Validator\Type\IsNull;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -53,56 +53,62 @@ class TrueFalseTest extends TestCase
     {
         return [
             'input to convert from string' => [
-                new Specification\TrueFalse('', new Schema(['type' => 'boolean']), true),
+                new Specification\TrueFalse(
+                    '',
+                    (new V30\Schema(
+                        new Identifier('test'),
+                        new Partial\Schema(type: 'boolean')
+                    ))->value,
+                    true,
+                ),
                 new Field('', new BoolString(), new ToBool()),
             ],
             'strict input' => [
-                new Specification\TrueFalse('', new Schema(['type' => 'boolean']), false),
+                new Specification\TrueFalse(
+                    '',
+                    (new V30\Schema(
+                        new Identifier('test'),
+                        new Partial\Schema(type: 'boolean')
+                    ))->value,
+                    false,
+                ),
                 new Field('', new IsBool()),
             ],
             'detailed input to convert from string' => [
                 new Specification\TrueFalse(
                     '',
-                    new Schema(
-                        [
-                            'type' => 'boolean',
-                            'enum' => [true, null],
-                            'format' => 'rather pointless boolean',
-                            'nullable' => true,
-                        ]
-                    ),
+                    (new V30\Schema(
+                        new Identifier('test'),
+                        new Partial\Schema(
+                            type: 'boolean',
+                            enum: [new Value(true), new Value(null)],
+                            format: 'rather pointless boolean',
+                        )
+                    ))->value,
                     true
                 ),
-                new AnyOf(
-                    '',
-                    new Field('', new IsNull()),
-                    new Field('', new BoolString(), new ToBool(), new Contained([true, null]))
-                ),
+                new Field('', new BoolString(), new ToBool(), new Contained([true, null])),
             ],
             'strict detailed input' => [
                 new Specification\TrueFalse(
                     '',
-                    new Schema(
-                        [
-                            'type' => 'boolean',
-                            'enum' => [true, null],
-                            'format' => 'rather pointless boolean',
-                            'nullable' => true,
-                        ]
-                    ),
+                    (new V30\Schema(
+                        new Identifier('test'),
+                        new Partial\Schema(
+                            type: 'boolean',
+                            enum: [new Value(true), new Value(null)],
+                            format: 'rather pointless boolean',
+                        )
+                    ))->value,
                     false
                 ),
-                new AnyOf(
-                    '',
-                    new Field('', new IsNull()),
-                    new Field('', new IsBool(), new Contained([true, null]))
-                ),
+                new Field('', new IsBool(), new Contained([true, null])),
             ],
         ];
     }
 
-    #[DataProvider('specificationsToBuild')]
     #[Test]
+    #[DataProvider('specificationsToBuild')]
     public function buildTest(Specification\TrueFalse $specification, Processor $expected): void
     {
         $sut = new TrueFalse();

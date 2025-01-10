@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Specification;
 
-use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 
 abstract class APISchema implements Specification
 {
-    /** @var mixed[] */
+    /** @var mixed[] | null */
     public readonly ?array $enum;
-    public readonly ?string $format;
-    public readonly bool $nullable;
+    public readonly string $format;
 
     public function __construct(
         public readonly string $fieldName,
-        Schema $schema
+        V30\Keywords | V31\Keywords $keywords
     ) {
-        $this->enum = $schema->enum;
-        $this->format = $schema->format;
-        $this->nullable = $schema->nullable ?? false;
+        $this->enum = isset($keywords->enum) ?
+            array_map(fn($e) => $e->value, $keywords->enum) :
+            null;
+        $this->format = $keywords->format;
     }
 }

@@ -14,7 +14,6 @@ use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\String\Length;
 use Membrane\Validator\String\Regex;
 
-
 #[SetFilterOrValidator(new RequiredFields('title', 'body'), Placement::BEFORE)]
 class BlogPostRegexAndMaxLength
 {

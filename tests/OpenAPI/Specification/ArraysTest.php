@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Specification;
 
-use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Arrays;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Value;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -21,63 +23,74 @@ class ArraysTest extends TestCase
     #[Test]
     public function throwsExceptionForMissingType(): void
     {
-        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Arrays::class, 'array', 'no type'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['array'], []));
 
-        new Arrays('', new Schema([]));
+        new Arrays(
+            '',
+            (new V30\Schema(new Identifier('test'), new Partial\Schema()))->value
+        );
     }
 
     #[Test]
     public function throwsExceptionForInvalidType(): void
     {
-        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(Arrays::class, 'array', 'string'));
+        self::expectExceptionObject(CannotProcessSpecification::mismatchedType(['array'], ['string']));
 
-        new Arrays('', new Schema(['type' => 'string']));
+        new Arrays(
+            '',
+            (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')))->value
+        );
     }
 
     public static function dataSetsToConstruct(): array
     {
         return [
             'default values' => [
-                new Schema(['type' => 'array',]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'array')),
                 [
-                    'items' => null,
+                    'items' => new V30\Schema(
+                        new Identifier('test', 'items'),
+                        true
+                    ),
                     'maxItems' => null,
                     'minItems' => 0,
                     'uniqueItems' => false,
                     'enum' => null,
-                    'format' => null,
-                    'nullable' => false,
+                    'format' => '',
                 ],
             ],
             'assigned values' => [
-                new Schema([
-                    'type' => 'array',
-                    'items' => new Schema(['type' => 'integer']),
-                    'maxItems' => 5,
-                    'minItems' => 2,
-                    'uniqueItems' => true,
-                    'enum' => [[1, 2, 3], [5, 6, 7]],
-                    'format' => 'array of ints',
-                    'nullable' => true,
-                ]),
+                new V30\Schema(new Identifier('test'), new Partial\Schema(
+                    type: 'array',
+                    enum: [new Value([1, 2, 3]), new Value([5, 6, 7])],
+                    maxItems: 5,
+                    minItems: 2,
+                    uniqueItems: true,
+                    items: new Partial\Schema(type: 'integer'),
+                    format: 'array of ints',
+                )),
                 [
-                    'items' => new Schema(['type' => 'integer']),
+                    'items' => new V30\Schema(
+                        new Identifier('test', 'items'),
+                        new Partial\Schema(type: 'integer'),
+                    ),
                     'maxItems' => 5,
                     'minItems' => 2,
                     'uniqueItems' => true,
                     'enum' => [[1, 2, 3], [5, 6, 7]],
                     'format' => 'array of ints',
-                    'nullable' => true,
                 ],
             ],
         ];
     }
 
-    #[DataProvider('dataSetsToConstruct')]
     #[Test]
-    public function constructTest(Schema $schema, array $expected): void
-    {
-        $sut = new Arrays('', $schema);
+    #[DataProvider('dataSetsToConstruct')]
+    public function constructTest(
+        V30\Schema | V31\Schema $schema,
+        array $expected
+    ): void {
+        $sut = new Arrays('', $schema->value);
 
         foreach ($expected as $key => $value) {
             if ($key === 'items') {

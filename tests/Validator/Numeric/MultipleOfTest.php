@@ -152,6 +152,4 @@ class MultipleOfTest extends TestCase
 
         self::assertEquals($expected, $actual);
     }
-
-
 }

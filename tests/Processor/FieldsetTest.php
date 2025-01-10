@@ -312,11 +312,13 @@ class FieldsetTest extends TestCase
             ],
             'Return invalid result' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
-                Result::invalid(['a' => 1, 'b' => 2, 'c' => 3],
+                Result::invalid(
+                    ['a' => 1, 'b' => 2, 'c' => 3],
                     new MessageSet(
                         new FieldName('c', 'parent field', 'field to process'),
                         new Message('I always fail', [])
-                    )),
+                    )
+                ),
                 new Field('c', new Fails()),
             ],
             'Field only performs processes on defined processes field' => [

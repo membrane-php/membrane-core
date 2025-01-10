@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
-use cebe\openapi\spec\Reference;
-use cebe\openapi\spec\Schema;
 use Membrane\Builder\Builder;
 use Membrane\OpenAPI;
 use Membrane\OpenAPI\Processor\AllOf;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Type\IsNull;
@@ -25,23 +24,30 @@ abstract class APIBuilder implements Builder
     private Strings $stringBuilder;
 
     public function fromSchema(
-        Schema $schema,
+        V30\Schema|V31\Schema $schema,
         string $fieldName = '',
         bool $convertFromString = false,
         bool $convertFromArray = false,
         ?string $style = null,
         ?bool $explode = null,
     ): Processor {
-        if ($schema->not !== null) {
+        if (is_bool($schema->value)) {
+            return new Field($fieldName, $schema->value ?
+                new Utility\Passes() :
+                new Utility\Fails());
+        }
+
+        $result = [];
+
+        if ($schema->value->not->value !== false) {
             throw OpenAPI\Exception\CannotProcessOpenAPI::unsupportedKeyword('not');
         }
 
-        if ($schema->allOf !== null) {
-            assert(!empty($schema->allOf));
-            return $this->fromComplexSchema(
+        if (!empty($schema->value->allOf)) {
+            $result[] = $this->fromComplexSchema(
                 AllOf::class,
                 $fieldName,
-                $schema->allOf,
+                $schema->value->allOf,
                 $convertFromString,
                 $convertFromArray,
                 $style,
@@ -49,12 +55,11 @@ abstract class APIBuilder implements Builder
             );
         }
 
-        if ($schema->anyOf !== null) {
-            assert(!empty($schema->anyOf));
-            return $this->fromComplexSchema(
+        if (!empty($schema->value->anyOf)) {
+            $result[] = $this->fromComplexSchema(
                 AnyOf::class,
                 $fieldName,
-                $schema->anyOf,
+                $schema->value->anyOf,
                 $convertFromString,
                 $convertFromArray,
                 $style,
@@ -62,12 +67,11 @@ abstract class APIBuilder implements Builder
             );
         }
 
-        if ($schema->oneOf !== null) {
-            assert(!empty($schema->oneOf));
-            return $this->fromComplexSchema(
+        if (!empty($schema->value->oneOf)) {
+            $result[] = $this->fromComplexSchema(
                 OneOf::class,
                 $fieldName,
-                $schema->oneOf,
+                $schema->value->oneOf,
                 $convertFromString,
                 $convertFromArray,
                 $style,
@@ -75,69 +79,77 @@ abstract class APIBuilder implements Builder
             );
         }
 
-        return match ($schema->type) {
-            'string' => ($this->getStringBuilder())
-                ->build(new OpenAPI\Specification\Strings(
-                    $fieldName,
-                    $schema,
-                    $convertFromArray,
-                    $style
-                )),
+        $typeSpecificProcessors = array_map(
+            fn ($t) => match ($t) {
+                Type::Array => $this->getArrayBuilder()
+                    ->build(new OpenAPI\Specification\Arrays(
+                        $fieldName,
+                        $schema->value,
+                        $convertFromString,
+                        $convertFromArray,
+                        $style,
+                        $explode,
+                    )),
 
-            'number', 'integer' => $this->getNumericBuilder()
-                ->build(new OpenAPI\Specification\Numeric(
-                    $fieldName,
-                    $schema,
-                    $convertFromString,
-                    $convertFromArray,
-                    $style
-                )),
+                Type::Boolean => $this->getTrueFalseBuilder()
+                    ->build(new OpenAPI\Specification\TrueFalse(
+                        $fieldName,
+                        $schema->value,
+                        $convertFromString,
+                        $convertFromArray,
+                        $style,
+                    )),
 
-            'boolean' => $this->getTrueFalseBuilder()
-                ->build(new OpenAPI\Specification\TrueFalse(
-                    $fieldName,
-                    $schema,
-                    $convertFromString,
-                    $convertFromArray,
-                    $style,
-                )),
+                Type::Integer, Type::Number => $this->getNumericBuilder()
+                    ->build(new OpenAPI\Specification\Numeric(
+                        $fieldName,
+                        $schema->value,
+                        $convertFromString,
+                        $convertFromArray,
+                        $style
+                    )),
 
-            'array' => $this->getArrayBuilder()
-                ->build(new OpenAPI\Specification\Arrays(
-                    $fieldName,
-                    $schema,
-                    $convertFromString,
-                    $convertFromArray,
-                    $style,
-                    $explode,
-                )),
+                Type::String => ($this->getStringBuilder())
+                    ->build(new OpenAPI\Specification\Strings(
+                        $fieldName,
+                        $schema->value,
+                        $convertFromArray,
+                        $style
+                    )),
 
-            'object' => $this->getObjectBuilder()
-                ->build(new OpenAPI\Specification\Objects(
-                    $fieldName,
-                    $schema,
-                    $convertFromString,
-                    $convertFromArray,
-                    $style,
-                    $explode,
-                )),
+                Type::Object => $this->getObjectBuilder()
+                    ->build(new OpenAPI\Specification\Objects(
+                        $fieldName,
+                        $schema->value,
+                        $convertFromString,
+                        $convertFromArray,
+                        $style,
+                        $explode,
+                    )),
 
-            default => new Field('', new Utility\Passes()),
-        };
-    }
-
-    protected function handleNullable(string $fieldName, Processor $processor): AnyOf
-    {
-        return new AnyOf(
-            $fieldName,
-            new Field($fieldName, new IsNull()),
-            $processor
+                Type::Null => new Field($fieldName, new IsNull()),
+            },
+            $schema->value->types,
         );
+
+        if (count($typeSpecificProcessors) >= 2) {
+            $result[] = new AnyOf($fieldName, ...$typeSpecificProcessors);
+        } elseif (count($typeSpecificProcessors) === 1) {
+            $result[] = $typeSpecificProcessors[0];
+        }
+
+        if (count($result) >= 2) {
+            return new AllOf($fieldName, ...$result);
+        } elseif (count($result) === 1) {
+            return $result[0];
+        } else {
+            return new Field($fieldName, new Utility\Passes());
+        }
     }
 
     /**
      * @param class-string<AllOf|AnyOf|OneOf> $complexSchemaClass
-     * @param Reference[]|Schema[] $subSchemas
+     * @param non-empty-list<V30\Schema|V31\Schema> $subSchemas
      */
     private function fromComplexSchema(
         string $complexSchemaClass,
@@ -149,18 +161,19 @@ abstract class APIBuilder implements Builder
         ?bool $explode,
     ): Processor {
         if (count($subSchemas) < 2) {
-            assert($subSchemas[0] instanceof Schema);
-            return $this->fromSchema($subSchemas[0], $fieldName, $convertFromString, $convertFromArray);
+            return $this->fromSchema(
+                $subSchemas[0],
+                $fieldName,
+                $convertFromString,
+                $convertFromArray,
+            );
         }
 
         $subProcessors = [];
-
         foreach ($subSchemas as $index => $subSchema) {
-            assert($subSchema instanceof Schema);
-
             $title = null;
-            if (isset($subSchema->title) && $subSchema->title !== '') {
-                $title = $subSchema->title;
+            if (isset($subSchema->value->title) && $subSchema->value->title !== '') {
+                $title = $subSchema->value->title;
             }
 
             $subProcessors[] = $this->fromSchema(

@@ -144,7 +144,9 @@ class RequestBuilderTest extends MembraneTestCase
         self::expectExceptionObject(CannotProcessSpecification::pathNotFound('noReferences.json', '/nonexistentpath'));
 
         $specification = new Request(
-            self::DIR . 'noReferences.json', 'http://www.test.com/nonexistentpath', Method::GET
+            self::DIR . 'noReferences.json',
+            'http://www.test.com/nonexistentpath',
+            Method::GET
         );
 
         (new RequestBuilder())->build($specification);
@@ -175,7 +177,6 @@ class RequestBuilderTest extends MembraneTestCase
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new Passes()),
                     ]
-
                 ),
             ],
             'Request: path param in path, no operation params, no requestBody' => [
@@ -202,7 +203,6 @@ class RequestBuilderTest extends MembraneTestCase
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new Passes()),
                     ]
-
                 ),
             ],
             'Request: path param in path, operation param in query not required, no requestBody' => [
@@ -258,7 +258,8 @@ class RequestBuilderTest extends MembraneTestCase
                             'query',
                             new BeforeSet(
                                 new QueryStringToArray(
-                                ['name' => ['style' => 'form' , 'explode' => true]]),
+                                    ['name' => ['style' => 'form' , 'explode' => true]]
+                                ),
                                 new RequiredFields('name')
                             ),
                             new Field('name', new Form('string', false), new IsString())
@@ -267,7 +268,6 @@ class RequestBuilderTest extends MembraneTestCase
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new Passes()),
                     ]
-
                 ),
             ],
             'Request: path param in path, operation param in query with json content, required, no requestBody' => [
@@ -321,7 +321,8 @@ class RequestBuilderTest extends MembraneTestCase
                             )
                         ),
                         'query' => new FieldSet('query', new BeforeSet(new QueryStringToArray([]))),
-                        'header' => new FieldSet('header', new Field('id',
+                        'header' => new FieldSet('header', new Field(
+                            'id',
                             new Implode(','),
                             new IntString(),
                             new ToInt()
@@ -329,7 +330,6 @@ class RequestBuilderTest extends MembraneTestCase
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new Passes()),
                     ]
-
                 ),
             ],
             'Request: path param in header, operation param in cookie, no requestBody' => [
@@ -354,7 +354,6 @@ class RequestBuilderTest extends MembraneTestCase
                         )),
                         'body' => new Field('requestBody', new Passes()),
                     ]
-
                 ),
             ],
             'Request: identical param in header and query, no requestBody' => [
@@ -379,11 +378,13 @@ class RequestBuilderTest extends MembraneTestCase
                             new BeforeSet(new QueryStringToArray(['id' => ['style' => 'form' , 'explode' => true]])),
                             new Field('id', new Form('integer', false), new IntString(), new ToInt())
                         ),
-                        'header' => new FieldSet('header'),
+                        'header' => new FieldSet(
+                            'header',
+                            new Field('id', new Implode(','), new IntString(), new ToInt())
+                        ),
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new Passes()),
                     ]
-
                 ),
             ],
             'Request: same param in path and operation with different types, no requestBody' => [
@@ -408,7 +409,6 @@ class RequestBuilderTest extends MembraneTestCase
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new Passes()),
                     ]
-
                 ),
             ],
             'Request: requestBody param' => [
@@ -433,7 +433,6 @@ class RequestBuilderTest extends MembraneTestCase
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new IsInt()),
                     ]
-
                 ),
             ],
             'Request: operation param in query, requestBody param' => [
@@ -462,7 +461,6 @@ class RequestBuilderTest extends MembraneTestCase
                         'cookie' => new FieldSet('cookie'),
                         'body' => new Field('requestBody', new IsInt()),
                     ]
-
                 ),
             ],
             'Request: path param in path, operation param in query, header, cookie, requestBody param' => [

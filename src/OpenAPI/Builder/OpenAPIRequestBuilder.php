@@ -48,13 +48,20 @@ class OpenAPIRequestBuilder implements Builder
             return new Field('requestBody', new Passes());
         }
 
-        return $this->getParameterBuilder()->fromSchema($specification->requestBodySchema, 'requestBody');
+        return $this->getParameterBuilder()->fromSchema(
+            $specification->requestBodySchema,
+            'requestBody',
+        );
     }
 
     /** @return Processor[] */
     private function fromParameters(OpenAPIRequest $specification): array
     {
-        $parameters = array_map(fn($p) => new Parameter($p), $specification->parameters);
+        $parameters = array_map(
+            fn($p) => new Parameter($p),
+            $specification->parameters,
+        );
+
         $queryParameters = array_filter($parameters, fn($p) => $p->in === 'query');
 
         $location = fn(array $chain) => ['required' => [], 'fields' => [], 'beforeSet' => $chain];
@@ -63,10 +70,7 @@ class OpenAPIRequestBuilder implements Builder
             'query' => $location([new Filter\QueryStringToArray(array_combine(
                 array_map(fn($p) => $p->name, $queryParameters),
                 array_map(
-                    fn($p) => [
-                        'style' => $p->style,
-                        'explode' => $p->explode
-                    ],
+                    fn($p) => ['style' => $p->style, 'explode' => $p->explode],
                     $queryParameters,
                 )
             ))]),

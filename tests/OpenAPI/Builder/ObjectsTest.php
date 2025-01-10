@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Builder;
 
-use cebe\openapi\spec\Schema;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\Objects;
@@ -13,6 +12,9 @@ use Membrane\OpenAPI\Builder\TrueFalse;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Processor\OneOf;
 use Membrane\OpenAPI\Specification;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\DefaultProcessor;
@@ -25,7 +27,6 @@ use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Type\IsArray;
 use Membrane\Validator\Type\IsBool;
 use Membrane\Validator\Type\IsInt;
-use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Type\IsString;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -75,51 +76,114 @@ class ObjectsTest extends TestCase
     public static function specificationsToBuild(): array
     {
         return [
-            'minimum input' => [
-                new Specification\Objects('', new Schema(['type' => 'object'])),
-                new FieldSet('', new BeforeSet(new IsArray())),
-            ],
-            'minProperties greater than zero' => [
-                new Specification\Objects('', new Schema(['type' => 'object', 'minProperties' => 1])),
-                new FieldSet('', new BeforeSet(new IsArray(), new Count(1))),
-            ],
-            'maxProperties is set' => [
-                new Specification\Objects('', new Schema(['type' => 'object', 'maxProperties' => 1])),
-                new FieldSet('', new BeforeSet(new IsArray(), new Count(0, 1))),
-            ],
-            'minProperties and maxProperties is set' => [
+            '3.0 minimum input' => [
                 new Specification\Objects(
                     '',
-                    new Schema(['type' => 'object', 'minProperties' => 1, 'maxProperties' => 1])
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object')))->value,
+                ),
+                new FieldSet('', new BeforeSet(new IsArray())),
+            ],
+            '3.0 minProperties greater than zero' => [
+                new Specification\Objects(
+                    '',
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object', minProperties: 1)))->value,
+                ),
+                new FieldSet('', new BeforeSet(new IsArray(), new Count(1))),
+            ],
+            '3.0 maxProperties' => [
+                new Specification\Objects(
+                    '',
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'object', maxProperties: 1)))->value,
+                ),
+                new FieldSet('', new BeforeSet(new IsArray(), new Count(0, 1))),
+            ],
+            '3.0 minProperties and maxProperties' => [
+                new Specification\Objects(
+                    '',
+                    (new V30\Schema(
+                        new Identifier(''), new Partial\Schema(
+                        type: 'object',
+                        maxProperties: 1,
+                        minProperties: 1,
+                    )
+                    ))->value,
                 ),
                 new FieldSet('', new BeforeSet(new IsArray(), new Count(1, 1))),
             ],
-            'additionalProperties set to false' => [
+            '3.0 integer property' => [
                 new Specification\Objects(
-                    '', new Schema([
-                        'type' => 'object',
-                        'properties' => [
-                            'a' => new Schema(['type' => 'integer']),
-                        ],
-                        'additionalProperties' => false,
-                    ])
+                    '',
+                    (new V30\Schema(
+                        new Identifier(''), new Partial\Schema(
+                            type: 'object',
+                            properties: ['a' => new Partial\Schema(type: 'integer')],
+                        )
+                    ))->value,
+                ),
+                new FieldSet('', new BeforeSet(new IsArray()), new Field('a', new IsInt())),
+            ],
+            '3.0 additionalProperties:false' => [
+                new Specification\Objects(
+                    '',
+                    (new V30\Schema(
+                        new Identifier(''), new Partial\Schema(
+                        type: 'object',
+                        properties: ['a' => new Partial\Schema(type: 'integer')],
+                        additionalProperties: false,
+                    )
+                    ))->value,
                 ),
                 new FieldSet('', new BeforeSet(new IsArray(), new FixedFields('a')), new Field('a', new IsInt())),
+            ],
+            '3.0 property of string|integer' => [
+                new Specification\Objects(
+                    '',
+                    (new V30\Schema(
+                        new Identifier(''), new Partial\Schema(
+                            type: 'object',
+                            properties: ['a' => new Partial\Schema(anyOf: [
+                                new Partial\Schema(type: 'string'),
+                                new Partial\Schema(type: 'integer'),
+                            ])],
+                        )
+                    ))->value,
+                ),
+                new FieldSet(
+                    '',
+                    new BeforeSet(new IsArray()),
+                    new AnyOf('a', new Field('Branch-1', new IsString()), new Field('Branch-2', new IsInt())),
+                ),
+            ],
+            '3.1 property of string|integer' => [
+                new Specification\Objects(
+                    '',
+                    (new V31\Schema(
+                        new Identifier(''), new Partial\Schema(
+                            type: 'object',
+                            properties: ['a' => new Partial\Schema(type: ['string', 'integer'])],
+                        )
+                    ))->value,
+                ),
+                new FieldSet(
+                    '',
+                    new BeforeSet(new IsArray()),
+                    new AnyOf('a', new Field('a', new IsString()), new Field('a', new IsInt())),
+                ),
             ],
             'complex additional properties' => [
                 new Specification\Objects(
                     '',
-                    new Schema([
-                        'type' => 'object',
-                        'minProperties' => 2,
-                        'maxProperties' => 5,
-                        'additionalProperties' => [
-                            'oneOf' => [
-                                new Schema(['type' => 'boolean']),
-                                new Schema(['type' => 'integer']),
-                            ],
-                        ],
-                    ])
+                    (new V30\Schema(
+                        new Identifier(''), new Partial\Schema(
+                        type: 'object',
+                        maxProperties: 5,
+                        minProperties: 2,
+                        additionalProperties: new Partial\Schema(oneOf: [
+                            new Partial\Schema(type: 'boolean'),
+                            new Partial\Schema(type: 'integer'),
+                        ]),
+                    )
+                    ))->value,
                 ),
                 new FieldSet(
                     '',
@@ -136,42 +200,37 @@ class ObjectsTest extends TestCase
             'detailed input' => [
                 new Specification\Objects(
                     '',
-                    new Schema(
-                        [
-                            'type' => 'object',
-                            'properties' => [
-                                'id' => new Schema(['type' => 'integer']),
-                                'name' => new Schema(['type' => 'string']),
-                            ],
-                            'required' => ['id', 'name'],
-                            'format' => 'pet',
-                            'enum' => [['id' => 5, 'name' => 'Blink'], null],
-                            'nullable' => true,
-                            'additionalProperties' => new Schema(['type' => 'string']),
-                        ]
+                    (new V30\Schema(
+                        new Identifier(''), new Partial\Schema(
+                        type: 'object',
+                        enum: [new Value(['id' => 5, 'name' => 'Blink']), new Value(null)],
+                        required: ['id', 'name'],
+                        properties: [
+                            'id' => new Partial\Schema(type: 'integer'),
+                            'name' => new Partial\Schema(type: 'string'),
+                        ],
+                        additionalProperties: new Partial\Schema(type: 'string'),
+                        format: 'pet',
                     )
+                    ))->value,
                 ),
-                new AnyOf(
+                new FieldSet(
                     '',
-                    new Field('', new IsNull()),
-                    new FieldSet(
-                        '',
-                        new BeforeSet(
-                            new IsArray(),
-                            new Contained([['id' => 5, 'name' => 'Blink'], null]),
-                            new RequiredFields('id', 'name')
-                        ),
-                        DefaultProcessor::fromFiltersAndValidators(new IsString()),
-                        new Field('id', new IsInt()),
-                        new Field('name', new IsString())
-                    )
-                ),
+                    new BeforeSet(
+                        new IsArray(),
+                        new Contained([['id' => 5, 'name' => 'Blink'], null]),
+                        new RequiredFields('id', 'name')
+                    ),
+                    DefaultProcessor::fromFiltersAndValidators(new IsString()),
+                    new Field('id', new IsInt()),
+                    new Field('name', new IsString())
+                )
             ],
         ];
     }
 
-    #[DataProvider('specificationsToBuild')]
     #[Test]
+    #[DataProvider('specificationsToBuild')]
     public function buildTest(Specification\Objects $specification, Processor $expected): void
     {
         $sut = new Objects();

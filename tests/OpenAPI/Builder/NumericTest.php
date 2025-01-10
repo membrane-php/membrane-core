@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Builder;
 
-use cebe\openapi\spec\Schema;
 use Membrane\Filter\Type\ToFloat;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
@@ -12,6 +11,9 @@ use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Processor\AnyOf;
 use Membrane\OpenAPI\Specification;
+use Membrane\OpenAPIReader\ValueObject\Partial;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
+use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
@@ -22,7 +24,6 @@ use Membrane\Validator\String\IntString;
 use Membrane\Validator\String\NumericString;
 use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
-use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Type\IsNumber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -62,91 +63,101 @@ class NumericTest extends TestCase
     {
         return [
             'integer input to convert from string' => [
-                new Specification\Numeric('', new Schema(['type' => 'integer']), true),
+                new Specification\Numeric(
+                    '',
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'integer')))->value,
+                    true
+                ),
                 new Field('', new IntString(), new ToInt()),
             ],
             'strict integer input' => [
-                new Specification\Numeric('', new Schema(['type' => 'integer']), false),
+                new Specification\Numeric(
+                    '',
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'integer')))->value,
+                    false,
+                ),
                 new Field('', new IsInt()),
             ],
             'number input to convert from string' => [
-                new Specification\Numeric('', new Schema(['type' => 'number']), true),
+                new Specification\Numeric(
+                    '',
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number')))->value,
+                    true,
+                ),
                 new Field('', new NumericString(), new ToNumber()),
             ],
             'strict number input' => [
-                new Specification\Numeric('', new Schema(['type' => 'number']), false),
+                new Specification\Numeric(
+                    '',
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number')))->value,
+                    false,
+                ),
                 new Field('', new IsNumber()),
             ],
             'float input to convert from string' => [
-                new Specification\Numeric('', new Schema(['type' => 'number', 'format' => 'float']), true),
+                new Specification\Numeric(
+                    '',
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number', format: 'float')))->value,
+                    true,
+                ),
                 new Field('', new NumericString(), new ToFloat()),
             ],
             'strict float input' => [
-                new Specification\Numeric('', new Schema(['type' => 'number', 'format' => 'float']), false),
+                new Specification\Numeric(
+                    '',
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number', format: 'float')))->value,
+                    false,
+                ),
                 new Field('', new IsFloat()),
             ],
             'detailed input to convert from string' => [
                 new Specification\Numeric(
                     '',
-                    new Schema(
-                        [
-                            'type' => 'integer',
-                            'exclusiveMinimum' => true,
-                            'exclusiveMaximum' => true,
-                            'maximum' => 4,
-                            'minimum' => 0,
-                            'multipleOf' => 3,
-                            'enum' => [1, 2, 3, null],
-                            'format' => 'nullable int',
-                            'nullable' => true,
-                        ]
-                    ),
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(
+                        type: 'integer',
+                        enum: [new Value(1), new Value(2), new Value(3), new Value(null)],
+                        multipleOf: 3,
+                        exclusiveMaximum: true,
+                        exclusiveMinimum: true,
+                        maximum: 4,
+                        minimum: 0,
+                        format: 'int',
+                    )))->value,
                     true
                 ),
-                new AnyOf(
+                new Field(
                     '',
-                    new Field('', new IsNull()),
-                    new Field(
-                        '',
-                        new IntString(),
-                        new ToInt(),
-                        new Contained([1, 2, 3, null]),
-                        new Maximum(4, true),
-                        new Minimum(0, true),
-                        new MultipleOf(3)
-                    )
-                ),
+                    new IntString(),
+                    new ToInt(),
+                    new Contained([1, 2, 3, null]),
+                    new Maximum(4, true),
+                    new Minimum(0, true),
+                    new MultipleOf(3)
+                )
             ],
             'strict detailed input' => [
                 new Specification\Numeric(
                     '',
-                    new Schema(
-                        [
-                            'type' => 'integer',
-                            'exclusiveMinimum' => true,
-                            'exclusiveMaximum' => true,
-                            'maximum' => 4,
-                            'minimum' => 0,
-                            'multipleOf' => 3,
-                            'enum' => [1, 2, 3, null],
-                            'format' => 'nullable int',
-                            'nullable' => true,
-                        ]
-                    ),
+                    (new V30\Schema(new Identifier(''), new Partial\Schema(
+                        type: 'integer',
+                        enum: [new Value(1), new Value(2), new Value(3), new Value(null)],
+                        multipleOf: 3,
+                        exclusiveMaximum: true,
+                        exclusiveMinimum: true,
+                        maximum: 4,
+                        minimum: 0,
+                        format: 'int',
+                    )))->value,
                     false
                 ),
-                new AnyOf(
+                new Field(
                     '',
-                    new Field('', new IsNull()),
-                    new Field(
-                        '',
-                        new IsInt(),
-                        new Contained([1, 2, 3, null]),
-                        new Maximum(4, true),
-                        new Minimum(0, true),
-                        new MultipleOf(3)
-                    )
-                ),
+                    new IsInt(),
+                    new Contained([1, 2, 3, null]),
+                    new Maximum(4, true),
+                    new Minimum(0, true),
+                    new MultipleOf(3)
+                )
             ],
         ];
     }

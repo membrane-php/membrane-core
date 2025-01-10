@@ -130,12 +130,14 @@ class FixedFieldsTest extends TestCase
             'fixed fields, additional input only' => [
                 ['a', 'b', 'c'],
                 ['d' => 4, 'e' => 5],
-                Result::invalid(['d' => 4, 'e' => 5],
+                Result::invalid(
+                    ['d' => 4, 'e' => 5],
                     new MessageSet(
                         null,
                         new Message('%s is not a fixed field', ['d']),
                         new Message('%s is not a fixed field', ['e'])
-                    )),
+                    )
+                ),
             ],
         ];
     }

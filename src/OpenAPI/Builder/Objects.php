@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
-use cebe\openapi\spec\Schema;
 use Membrane\Builder\Specification;
 use Membrane\Filter;
 use Membrane\OpenAPI\Filter\FormatStyle\DeepObject;
@@ -76,11 +75,11 @@ class Objects extends APIBuilder
             $beforeChain[] = new Contained($specification->enum);
         }
 
-        if ($specification->required !== null) {
+        if (!empty($specification->required)) {
             $beforeChain[] = new RequiredFields(...$specification->required);
         }
 
-        if ($specification->additionalProperties === false) {
+        if ($specification->additionalProperties->value === false) {
             $beforeChain[] = new FixedFields(...array_keys($specification->properties));
         }
 
@@ -93,7 +92,6 @@ class Objects extends APIBuilder
         $fields = [];
 
         foreach ($specification->properties as $key => $schema) {
-            assert($schema instanceof Schema);
             $fields [] = $this->fromSchema(
                 $schema,
                 $key,
@@ -101,7 +99,7 @@ class Objects extends APIBuilder
             );
         }
 
-        if ($specification->additionalProperties instanceof Schema) {
+        if (!is_bool($specification->additionalProperties->value)) {
             $fields [] = new DefaultProcessor(
                 $this->fromSchema(
                     $specification->additionalProperties,
@@ -112,10 +110,6 @@ class Objects extends APIBuilder
         }
 
         $processor = new FieldSet($specification->fieldName, $beforeSet, ...$fields);
-
-        if ($specification->nullable) {
-            return $this->handleNullable($specification->fieldName, $processor);
-        }
 
         return $processor;
     }
