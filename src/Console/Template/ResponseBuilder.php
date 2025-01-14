@@ -67,13 +67,15 @@ class CachedResponseBuilder implements Builder
     }
 }
 END;
+    private readonly string $openAPIFilePath;
 
     /** @param array<string, array<string,string>> $map */
     public function __construct(
         private readonly string $namespace,
-        private readonly string $openAPIFilePath,
+        string $openAPIFilePath,
         private readonly array $map
     ) {
+        $this->openAPIFilePath = realpath($openAPIFilePath) ?: $openAPIFilePath;
     }
 
     public function getNamespace(): string

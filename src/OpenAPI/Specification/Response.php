@@ -9,11 +9,14 @@ use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 
 class Response implements Specification
 {
+    public readonly string $absoluteFilePath;
+
     public function __construct(
-        public readonly string $absoluteFilePath,
+        string $absoluteFilePath,
         public readonly string $url,
         public readonly Method $method,
         public readonly string $statusCode
     ) {
+        $this->absoluteFilePath = realpath($absoluteFilePath) ?: $absoluteFilePath;
     }
 }

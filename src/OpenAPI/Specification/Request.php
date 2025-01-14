@@ -11,11 +11,14 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class Request implements Specification
 {
+    public readonly string $absoluteFilePath;
+
     public function __construct(
-        public readonly string $absoluteFilePath,
+        string $absoluteFilePath,
         public readonly string $url,
         public readonly Method $method
     ) {
+        $this->absoluteFilePath = realpath($absoluteFilePath) ?: $absoluteFilePath;
     }
 
     public static function fromPsr7(string $apiPath, ServerRequestInterface $request): self
