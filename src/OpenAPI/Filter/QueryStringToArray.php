@@ -56,7 +56,7 @@ class QueryStringToArray implements Filter
             );
         }
 
-        $tokens = array_filter(explode('&', rawurldecode($value)), fn($p) => $p !== '');
+        $tokens = array_values(array_filter(explode('&', rawurldecode($value)), fn($p) => $p !== ''));
 
 
         $index = 0;
