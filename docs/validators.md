@@ -44,10 +44,10 @@ This method can also be called implicitly by typecasting your validator as strin
 
 ### Count
 
-Checks that an array has a number of values between a specified minimum and maximum.
+Checks the number of values in a collection is between a specified minimum and maximum.
 
 ```php
-new Count($min, $max)
+new \Membrane\Validator\Collection\Count($min, $max)
 ```
 
 | Parameter | Type | Default Value | Notes                              |
@@ -55,124 +55,193 @@ new Count($min, $max)
 | $min      | int  | 0             |                                    |
 | $max      | int  | null          | If set to null, maximum is ignored |
 
-**Example 1**
+**Example**
 
 ```php
 <?php
-$count = new Count(0, 5);
-$array = ['a' => 1, 'b' => 2, 'c' => 3];
 
-$result = $count->validate($array);
+$count = new \Membrane\Validator\Collection\Count(1, 2);
 
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+$examples = [
+    [],
+    ['a'],
+    ['a', 'b'],
+    ['a', 'b', 'c'],
+];
+
+foreach ($examples as $example) {
+    $result = $count->validate($example);
+    
+    if ($result->isValid()) {
+        echo json_encode($result->value) . ' is valid \n';
+    } else {
+        echo json_encode($result->value) . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
-The above example will output the following
+The above example will output:
 
 ```text
-['a' => 1, 'b' => 2, 'c' => 3]
-Result was valid
+[] is invalid
+    Array is expected have a minimum of 1 values
+["a"] is valid
+["a","b"] is valid
+["a","b","c"] is invalid
+    Array is expected have a maximum of 2 values
 ```
 
 ### Contained
 
-Checks that a collection contains the given value.
+Checks a collection contains the given value.
 
 ```php
-new Contained(array $enum)
+new \Membrane\Validator\Collection\Contained(array $enum)
 ```
 
-**Example 1**
+**Example**
 
 ```php
-$contained = new Contained(['a', 'b', 'c']);
+<?php
 
-$result = $contained->validate('b');
+$contained = new \Membrane\Validator\Collection\Contained(['a', 'b', 'c']);
 
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+$examples = [
+    'a',
+    'b',
+    'c',
+];
+
+foreach ($examples as $example) {
+    $result = $contained->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
-The above example will output the following
+The above example will output:
 
 ```text
-b
-Result was valid
-```
-
-**Example 2**
-
-```php
-$contained = new Contained(['a', 'b', 'c']);
-
-$result = $contained->validate('e');
-
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
-```
-
-The above example will output the following
-
-```text
-e
-Result was invalid
+a is invalid
+    Contained validator did not find value within array
+b is valid
+c is invalid
+    Contained validator did not find value within array
 ```
 
 ### Identical
 
-Checks that all values in a collection are identical.
+Checks all values in a collection are identical.
+Values that are equal but not identical are considered invalid.
 
 ```php
-new Identical()
+new \Membrane\Validator\Collection\Identical();
 ```
 
-**Example 1**
+**Example**
 
 ```php
 <?php
-$identical = new Identical();
-$list = ['a', 'a', 'a'];
 
-$result = $identical->validate($list);
+$identical = new \Membrane\Validator\Collection\Identical();
 
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+$examples = [
+    [],
+    ['a'],
+    ['a', 'a'],
+    ['a', 'b'],
+    ['a', 'b', 'b'],
+    ['1', 1, 1.0]
+];
+
+foreach ($examples as $example) {
+    $result = $identical->validate($example);
+    
+    if ($result->isValid()) {
+        echo json_encode($result->value) . ' is valid \n';
+    } else {
+        echo json_encode($result->value) . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-['a', 'a', 'a']
-Result was valid
+[] is valid
+["a"] is valid
+["a","a"] is valid
+["a","b"] is invalid
+    Do not match
+["a","b","b"] is invalid
+    Do not match
+["1",1,1.0] is invalid
+    Do not match
 ```
 
 ### Unique
 
-Checks that all values in a collection are unique.
+Checks all values in a collection are unique.  
+Values that are equal but not identical are considered valid.
 
 ```php
-new Unique()
+new \Membrane\Validator\Collection\Unique()
 ```
 
-**Example 1**
+**Example**
 
 ```php
 <?php
-$unique = new Unique();
-$list = ['a', 'b', 'c'];
 
-$result = $unique->validate($list);
+$unique = new \Membrane\Validator\Collection\Unique();
 
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+$examples = [
+    [],
+    ['a'],
+    ['a', 'a'],
+    ['a', 'b'],
+    ['a', 'b', 'b'],
+    ['1', 1, 1.0]
+];
+
+foreach ($examples as $example) {
+    $result = $unique->validate($example);
+    
+    if ($result->isValid()) {
+        echo json_encode($result->value) . ' is valid \n';
+    } else {
+        echo json_encode($result->value) . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-['a', 'b', 'c']
-Result was valid
+[] is valid
+["a"] is valid
+["a","a"] is invalid
+    Collection contains duplicate values
+["a","b"] is valid
+["a","b","b"] is invalid
+    Collection contains duplicate values
+["1",1,1.0] is valid
 ```
 
 ## DateTime
@@ -182,7 +251,7 @@ Result was valid
 Checks if a DateTime object corresponds to a time between a specified minimum and maximum.
 
 ```php
-new Range($min, $max)
+new \Membrane\Validator\DateTime\Range($min, $max)
 ```
 
 | Parameter | Type     | Default Value | Notes                              |
@@ -190,26 +259,41 @@ new Range($min, $max)
 | $min      | DateTime | null          | If set to null, minimum is ignored |
 | $max      | DateTime | null          | If set to null, maximum is ignored |
 
-**Example 1**
+**Example**
 
 ```php
 <?php
-$min = DateTime::createFromFormat('Y-m-d H:i:s', '1900-12-25 09:30:00');
-$max = DateTime::createFromFormat('Y-m-d H:i:s', '2050-04-15 16:05:33');
-$range = new Range($min, $max);
-$dateTime = DateTime::createFromFormat('Y-m-d H:i:s', '1970-01-01 00:00:00');
+$min = new \DateTime('1900-12-25 09:30:00');
+$max = new \DateTime('2050-04-15 16:05:33');
+$range = new \Membrane\Validator\DateTime\Range($min, $max);
+$examples = [
+    new \DateTime('1000-5-13 05:00:00'),
+    new \DateTime('1970-01-01 00:00:00'),
+    new \DateTime('2050-04-15 16:05:34'),
+];
 
-$result = $range->validate($dateTime);
-
-echo $result->value->format('Y-m-d H:i:s');
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+foreach ($examples as $example) {
+    $result = $range->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-1970-01-01 00:00:00
-Result was valid
+1000-5-13 05:00:00 is invalid
+    DateTime is expected to be after 1900-12-25 09:30:00
+1970-01-01 00:00:00 is valid
+2050-04-15 16:05:34 is invalid
+    DateTime is expected to be before 2050-04-15 16:05:33
 ```
 
 ### RangeDelta
@@ -217,7 +301,7 @@ Result was valid
 Checks if a DateTime object corresponds to a time between a specified minimum and maximum time from now.
 
 ```php
-new RangeDelta($min, $max)
+new \Membrane\Validator\DateTime\RangeDelta($min, $max)
 ```
 
 | Parameter | Type         | Default Value | Notes                              |
@@ -225,24 +309,42 @@ new RangeDelta($min, $max)
 | $min      | DateInterval | null          | If set to null, minimum is ignored |
 | $max      | DateInterval | null          | If set to null, maximum is ignored |
 
-**Example 1**
+**Example**
+
+The minimum and maximum of RangeDelta will update constantly, thus for the purpose of demonstration:  
+in this example, the date and time is 1970-01-01 00:00:00
 
 ```php
 <?php
-$rangeDelta = new RangeDelta(new DateInterval('P100Y'), new DateInterval('P100Y'));
-$dateTime = DateTime::createFromFormat('Y-m-d H:i:s', '2121-01-01 00:00:00');
+$rangeDelta = new \Membrane\Validator\DateTime\RangeDelta(new DateInterval('P100Y2M'), new DateInterval('P1M5D'));
+$examples = [
+    new \DateTime('1000-5-13 05:00:00'),
+    new \DateTime('1970-01-01 00:00:00'),
+    new \DateTime('2050-04-15 16:05:34'),
+];
 
-$result = $rangeDelta->validate($dateTime);
-
-echo $result->value->format('Y-m-d H:i:s');
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+foreach ($examples as $example) {
+    $result = $range->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-2121-01-01 00:00:00
-Result was valid
+1000-5-13 05:00:00 is invalid
+    DateTime is expected to be after 1869-10-00 00:00:00
+1970-01-01 00:00:00 is valid
+2050-04-15 16:05:34 is invalid
+    DateTime is expected to be before 1970-02-06 00:00:00
 ```
 
 ## FieldSet
@@ -252,18 +354,18 @@ Result was valid
 Checks that array does not contain any additional fields.
 
 ```php
-new Membrane\Validator\FieldSet\FixedFields(...$fields);
+new \Membrane\Validator\FieldSet\FixedFields(...$fields);
 ```
 
 | Parameter  | Type   |
 |------------|--------|
 | ...$fields | string |
 
+**Example**
+
 ```php
 <?php
-use Membrane\Validator\FieldSet\FixedFields;
-
-$fixedFields = new FixedFields('a', 'b');
+$fixedFields = new \Membrane\Validator\FieldSet\FixedFields('a', 'b');
 $arrayOfFields = [
         [],
         ['a' => 1],
@@ -292,7 +394,7 @@ The above example will output the following
 {} is valid
 {"a":1} is valid
 {"a":1,"b":2} is valid
-{c":3} is invalid
+{"c":3} is invalid
     c is not a fixed field
 {"a":1,"b":2,"c":3, "d": 4, "e": 5} is invalid
     c is not a fixed field
@@ -305,31 +407,53 @@ The above example will output the following
 Checks if array contains keys corresponding to all required fields.
 
 ```php
-new RequiredFields(...$fields)
+new \Membrane\Validator\FieldSet\RequiredFields(...$fields)
 ```
 
 | Parameter  | Type   |
 |------------|--------|
 | ...$fields | string |
 
-**Example 1**
+**Example**
 
 ```php
 <?php
-$requiredFields = new RequiredFields('a', 'c');
-$array = ['a' => 1, 'b' => 2, 'c' => 3]
+$requiredFields = new \Membrane\Validator\FieldSet\RequiredFields('a', 'c');
+$arrayOfFields = [
+        [],
+        ['a' => 1],
+        ['a' => 1, 'b' => 2],
+        ['c' => 3],
+        ['a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5],
+    ]
 
-$result = $requiredFields->validate($array);
-
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+foreach ($arrayOfFields as $fields) {
+    $result = $requiredFields->validate($fields);
+    
+    if ($result->isValid()) {
+        echo json_encode($result->value) . ' is valid \n';
+    } else {
+        echo json_encode($result->value) . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-['a' => 1, 'b' => 2, 'c' => 3]
-Result was valid
+{} is invalid
+    a is a required field
+    c is a required field
+{"a":1} is invalid
+    c is a required field
+{"a":1,"b":2} is invalid
+    c is a required field
+{"c":3} is invalid
+    a is a required field
+{"a":1,"b":2,"c":3, "d": 4, "e": 5} is valid
 ```
 
 ## Numeric
@@ -339,7 +463,7 @@ Result was valid
 Checks if a given value complies with specified maximum.
 
 ```php
-new Maximum($max, $exclusive)
+new \Membrane\Validator\Numeric\Maximum($max, $exclusive)
 ```
 
 | Parameter  | Type         | Default Value | Notes                                                      |
@@ -347,23 +471,77 @@ new Maximum($max, $exclusive)
 | $max       | int or float |               |                                                            |
 | $exclusive | boolean      | false         | determines whether it is an exclusive or inclusive maximum |
 
-**Example 1**
+**Example 1 (Inclusive Maximum)**
 
 ```php
 <?php
-$max = new Maximum(10);
+$inclusiveMax = new \Membrane\Validator\Numeric\Maximum(10);
+$examples = [
+    5,
+    9.9,
+    10,
+    10.01
+];
 
-$result = $max->validate(5);
-
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+foreach ($examples as $example) {
+    $result = $inclusiveMax->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-5
-Result was valid
+5 is valid
+9.9 is valid
+10 is valid
+10.01 is invalid
+    Number has an exclusive maximum of 10
+```
+
+**Example 2 (Exclusive Maximum)**
+
+```php
+<?php
+$exclusiveMax = new \Membrane\Validator\Numeric\Maximum(10, true);
+$examples = [
+    5,
+    9.9,
+    10,
+    10.01
+];
+
+foreach ($examples as $example) {
+    $result = $exclusiveMax->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
+```
+
+The above example will output the following
+
+```text
+5 is valid
+9.9 is valid
+10 is invalid
+    Number has an exclusive maximum of 10
+10.01 is invalid
+    Number has an exclusive maximum of 10
 ```
 
 ### Minimum
@@ -371,7 +549,7 @@ Result was valid
 Checks if a given value complies with specified minimum.
 
 ```php
-new Minimum($min, $exclusive)
+new \Membrane\Validator\Numeric\Minimum($min, $exclusive)
 ```
 
 | Parameter  | Type         | Default Value | Notes                                                      |
@@ -379,23 +557,79 @@ new Minimum($min, $exclusive)
 | $min       | int or float |               |                                                            |
 | $exclusive | boolean      | false         | determines whether it is an exclusive or inclusive minimum |
 
-**Example 1**
+**Example 1 (Inclusive Minimum)**
 
 ```php
 <?php
-$min = new Minimum(10);
+$inclusiveMin = new \Membrane\Validator\Numeric\Minimum(10);
+$examples = [
+    5,
+    9.9,
+    10,
+    10.01
+];
 
-$result = $min->validate(15);
-
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+foreach ($examples as $example) {
+    $result = $inclusiveMin->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-15
-Result was valid
+5 is invalid
+    Number has an inclusive minimum of 10
+9.9 is invalid
+    Number has an inclusive minimum of 10
+10 is valid
+10.01 is valid
+```
+
+**Example 2 (Exclusive Maximum)**
+
+```php
+<?php
+$exclusiveMin = new \Membrane\Validator\Numeric\Minimum(10, true);
+$examples = [
+    5,
+    9.9,
+    10,
+    10.01
+];
+
+foreach ($examples as $example) {
+    $result = $exclusiveMin->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
+```
+
+The above example will output the following
+
+```text
+5 is invalid
+    Number has an exclusive minimum of 10
+9.9 is invalid
+    Number has an exclusive minimum of 10
+10 is invalid
+    Number has an exclusive minimum of 10
+10.01 is valid
 ```
 
 ### MultipleOf
@@ -403,30 +637,47 @@ Result was valid
 Checks if an integer/float is a multiple of a given value.
 
 ```php
-new MultipleOf ($factor)
+new \Membrane\Validator\Numeric\MultipleOf($factor)
 ```
 
-| Parameter | Type         |
-|-----------|--------------|
-| $factor   | int or float |
+| Parameter | Type         | Notes                  |
+|-----------|--------------|------------------------|
+| $factor   | int or float | must be greater than 0 |
 
-**Example 1**
+**Example**
 
 ```php
 <?php
-$multipleOf = new MultipleOf(5);
+$multipleOf = new \Membrane\Validator\Numeric\MultipleOf(5);
+$examples = [
+    5,
+    10.0,
+    10,
+    10.01
+];
 
-$result = $multipleOf->validate(25);
-
-echo $result->value;
-echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+foreach ($examples as $example) {
+    $result = $multipleOf->validate($example);
+    
+    if ($result->isValid()) {
+        echo $result->value . ' is valid \n';
+    } else {
+        echo $result->value . ' is invalid \n';
+        foreach($result->messageSets[0]->messages as $message) {
+            echo '\t' . $message->rendered() . '\n';
+        }
+    }
+}
 ```
 
 The above example will output the following
 
 ```text
-25
-Result was valid
+5 is valid
+10.0 is valid
+10 is valid
+10.01 is invalid
+    Number is expected to be a multiple of 5
 ```
 
 ## String
