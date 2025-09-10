@@ -67,11 +67,11 @@ class ToPascalCaseTest extends TestCase
                 Result::noResult('KebabCase'),
             ],
             'snake_case to SnakeCase' => [
-                'snake-case',
+                'snake_case',
                 Result::noResult('SnakeCase'),
             ],
             'snake_____case to SnakeCase' => [
-                'snake-case',
+                'snake_____case',
                 Result::noResult('SnakeCase'),
             ],
             'plain text to PlainText' => [
