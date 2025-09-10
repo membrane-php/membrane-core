@@ -443,6 +443,32 @@ The above example will output the following
 Result was valid
 ```
 
+### ToKebabCase
+
+```php
+new Membrane\Filter\String\ToKebabCase();
+```
+
+Converts string into KebabCase (i.e. no whitespaces, uppercase for first letter of each word).
+
+```php
+$string = "helloThere have_you heard-of OpenAPI?";
+$pascalCase = new Membrane\Filter\String\ToKebabCase();
+
+$result = $pascalCase->filter($string);
+
+echo $result->value;
+echo $result->isValid() ? 'is valid' : 'is invalid';
+```
+
+The above example will output the following
+
+```text
+hellothere-have-you-heard-of-openapi?
+```
+
+Note that _helloThere_ became _hellothere_. `ToKebabCase` does not split on capitals, otherwise _OpenAPI_ would become _open-a-p-i_ which is a less desirable result.
+
 ### ToPascalCase
 
 ```php
