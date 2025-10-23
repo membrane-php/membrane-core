@@ -43,7 +43,7 @@ use Psr\Log\LoggerInterface;
 #[UsesClass(Builder\OpenAPIResponseBuilder::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathParameterExtractor::class)]
-#[UsesClass(Membrane\OpenAPI\Processor\AllOf::class)]
+#[UsesClass(Processor\AllOf::class)]
 #[UsesClass(Membrane\OpenAPI\Filter\QueryStringToArray::class)]
 #[UsesClass(Membrane\OpenAPI\Filter\FormatStyle\Form::class)]
 #[UsesClass(Request::class)]
