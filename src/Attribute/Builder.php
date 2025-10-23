@@ -63,7 +63,6 @@ class Builder implements BuilderInterface
                 throw CannotProcessProperty::compoundPropertyType($property->getName());
             }
 
-            // @TODO Allow forcing a property processor type?
             $processorType = $this->getProcessorTypeFromPropertyType($type->getName());
             $processorTypeAttribute = current($property->getAttributes(OverrideProcessorType::class));
             if ($processorTypeAttribute !== false) {
