@@ -9,8 +9,6 @@ use Membrane\Processor;
 use Membrane\Result\FieldName;
 use Membrane\Result\Result;
 
-use function count;
-
 class AnyOf implements Processor
 {
     /** @var Processor[] */
