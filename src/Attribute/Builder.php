@@ -53,30 +53,35 @@ class Builder implements BuilderInterface
                 continue;
             }
 
-            $type = $property->getType();
-
-            if ($type === null) {
-                throw CannotProcessProperty::noTypeHint($property->getName());
-            }
-
-            if (!($type instanceof ReflectionNamedType)) {
-                throw CannotProcessProperty::compoundPropertyType($property->getName());
-            }
-
-            $processorType = $this->getProcessorTypeFromPropertyType($type->getName());
-            $processorTypeAttribute = current($property->getAttributes(OverrideProcessorType::class));
-            if ($processorTypeAttribute !== false) {
-                $processorType = $processorTypeAttribute->newInstance()->type;
-            }
-
-            $processors[] = match ($processorType) {
-                ProcessorType::Field => $this->makeField($property),
-                ProcessorType::Fieldset => $this->fromClass($type->getName(), $property->getName()),
-                ProcessorType::Collection => $this->makeCollection($property),
-            };
+            $processors[] = $this->getProcessorFromProperty($property);
         }
 
         return new FieldSet($processes, ...$processors);
+    }
+
+    private function getProcessorFromProperty(ReflectionProperty $property): Processor
+    {
+        $type = $property->getType();
+
+        if ($type === null) {
+            throw CannotProcessProperty::noTypeHint($property->getName());
+        }
+
+        if (!($type instanceof ReflectionNamedType)) {
+            throw CannotProcessProperty::compoundPropertyType($property->getName());
+        }
+
+        $processorType = $this->getProcessorTypeFromPropertyType($type->getName());
+        $processorTypeAttribute = current($property->getAttributes(OverrideProcessorType::class));
+        if ($processorTypeAttribute !== false) {
+            $processorType = $processorTypeAttribute->newInstance()->type;
+        }
+
+        return match ($processorType) {
+            ProcessorType::Field => $this->makeField($property),
+            ProcessorType::Fieldset => $this->fromClass($type->getName(), $property->getName()),
+            ProcessorType::Collection => $this->makeCollection($property),
+        };
     }
 
     private function getProcessorTypeFromPropertyType(string $type): ProcessorType
