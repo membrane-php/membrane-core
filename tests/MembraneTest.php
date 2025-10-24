@@ -10,7 +10,9 @@ use Membrane\Attribute\ClassWithAttributes;
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\Explode;
 use Membrane\Membrane;
+use Membrane\OpenAPI\Builder as Builder;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
+use Membrane\OpenAPI\Specification as OpenAPISpecification;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
@@ -28,8 +30,6 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use Membrane\OpenAPI\Builder as Builder;
-use Membrane\OpenAPI\Specification as OpenAPISpecification;
 
 #[CoversClass(Membrane::class)]
 #[UsesClass(AttributeBuilder::class)]
@@ -57,7 +57,7 @@ use Membrane\OpenAPI\Specification as OpenAPISpecification;
 #[UsesClass(Processor\FieldSet::class)]
 #[UsesClass(Processor\Field::class)]
 #[UsesClass(\Membrane\OpenAPI\Processor\Request::class)]
-#[UsesClass(\Membrane\OpenAPI\Processor\AllOf::class)]
+#[UsesClass(Processor\AllOf::class)]
 #[UsesClass(Result::class)]
 #[UsesClass(FieldName::class)]
 #[UsesClass(Message::class)]

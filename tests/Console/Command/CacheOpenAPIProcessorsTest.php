@@ -11,8 +11,6 @@ use Membrane\Filter\String\AlphaNumeric;
 use Membrane\Filter\String\Explode;
 use Membrane\Filter\String\ToPascalCase;
 use Membrane\Filter\Type as TypeFilter;
-use Membrane\OpenAPIReader\MembraneReader;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPI\Builder as Builder;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
 use Membrane\OpenAPI\ContentType;
@@ -20,8 +18,9 @@ use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Processor\Request;
 use Membrane\OpenAPI\Specification as Specification;
+use Membrane\OpenAPIReader\MembraneReader;
+use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
-use Membrane\OpenAPIReader\Reader;
 use Membrane\Processor;
 use Membrane\Validator\{FieldSet as FieldSetValidator,
     String\IntString,
@@ -48,7 +47,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[UsesClass(Builder\OpenAPIResponseBuilder::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathParameterExtractor::class)]
-#[UsesClass(Membrane\OpenAPI\Processor\AllOf::class)]
+#[UsesClass(Processor\AllOf::class)]
 #[UsesClass(Membrane\OpenAPI\Filter\QueryStringToArray::class)]
 #[UsesClass(Membrane\OpenAPI\Filter\FormatStyle\Form::class)]
 #[UsesClass(Request::class)]

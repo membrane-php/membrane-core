@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Tests\OpenAPI\Processor;
+namespace Membrane\Tests\Processor;
 
 use Membrane\Exception\InvalidProcessorArguments;
-use Membrane\OpenAPI\Processor\AllOf;
 use Membrane\Processor;
+use Membrane\Processor\AnyOf;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Field;
 use Membrane\Processor\FieldSet;
@@ -27,7 +27,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(AllOf::class)]
+#[CoversClass(AnyOf::class)]
 #[CoversClass(InvalidProcessorArguments::class)]
 #[UsesClass(BeforeSet::class)]
 #[UsesClass(Field::class)]
@@ -43,21 +43,21 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Fails::class)]
 #[UsesClass(Indifferent::class)]
 #[UsesClass(Passes::class)]
-class AllOfTest extends TestCase
+class AnyOfTest extends TestCase
 {
     public static function dataSetsToConvertToPHPString(): array
     {
         return [
-            '2 validators' => [new AllOf('a', new Field('b'), new Field('c'))],
+            '2 validators' => [new AnyOf('a', new Field('b'), new Field('c'))],
             '3 validators' => [
-                new AllOf('a', new Field('b', new Passes()), new Field('c', new Fails()), new Field('d')),
+                new AnyOf('a', new Field('b', new Passes()), new Field('c', new Fails()), new Field('d')),
             ],
         ];
     }
 
     #[DataProvider('dataSetsToConvertToPHPString')]
     #[Test]
-    public function toPHPTest(AllOf $sut): void
+    public function toPHPTest(AnyOf $sut): void
     {
         $actual = $sut->__toPHP();
 
@@ -68,7 +68,7 @@ class AllOfTest extends TestCase
     public function toStringTest(): void
     {
         $expected = <<<END
-            All of the following:
+            Any of the following:
             \t"id":
             \t\t- condition.
             \t"id":
@@ -77,7 +77,7 @@ class AllOfTest extends TestCase
         $processor = $this->createMock(Processor::class);
         $processor->method('__toString')
             ->willReturn("\"id\":\n\t- condition");
-        $sut = new AllOf('id', $processor, $processor);
+        $sut = new AnyOf('id', $processor, $processor);
 
         $actual = (string)$sut;
 
@@ -87,16 +87,16 @@ class AllOfTest extends TestCase
     #[Test]
     public function throwsExceptionIfLessThanTwoProcessors(): void
     {
-        self::expectExceptionObject(InvalidProcessorArguments::redundantProcessor(AllOf::class));
+        self::expectExceptionObject(InvalidProcessorArguments::redundantProcessor(AnyOf::class));
 
-        new AllOf('');
+        new AnyOf('');
     }
 
     #[Test]
     public function processesTest(): void
     {
         $processes = 'test';
-        $sut = new AllOf($processes, new Field(''), new Field(''));
+        $sut = new AnyOf($processes, new FieldSet(''), new FieldSet(''));
 
         self::assertEquals($processes, $sut->processes());
     }
@@ -104,25 +104,31 @@ class AllOfTest extends TestCase
     public static function dataSetsToProcess(): array
     {
         return [
-            'two valid results' => [
+            'two Fields with valid results' => [
                 '',
                 [new Field('', new Passes()), new Field('', new Passes())],
                 new FieldName(''),
                 5,
                 Result::valid(5),
             ],
-            'two invalid results' => [
+            'two Fields with invalid results' => [
                 '',
                 [new Field('', new Fails()), new Field('', new Fails())],
                 new FieldName(''),
                 5,
                 Result::invalid(
                     5,
-                    new MessageSet(new FieldName('', ''), new Message('I always fail', [])),
-                    new MessageSet(new FieldName('', ''), new Message('I always fail', []))
+                    new MessageSet(
+                        new FieldName('', ''),
+                        new Message('I always fail', [])
+                    ),
+                    new MessageSet(
+                        new FieldName('', ''),
+                        new Message('I always fail', [])
+                    ),
                 ),
             ],
-            'two no results' => [
+            'two Fields with no results' => [
                 '',
                 [new Field('', new Indifferent()), new Field('', new Indifferent())],
                 new FieldName(''),
@@ -134,10 +140,7 @@ class AllOfTest extends TestCase
                 [new Field('', new Fails()), new Field('', new Passes())],
                 new FieldName(''),
                 5,
-                Result::invalid(
-                    5,
-                    new MessageSet(new FieldName('', ''), new Message('I always fail', [])),
-                ),
+                Result::valid(5),
             ],
             'one valid result, one no result' => [
                 '',
@@ -145,16 +148,6 @@ class AllOfTest extends TestCase
                 new FieldName(''),
                 5,
                 Result::valid(5),
-            ],
-            'one invalid result, one no result' => [
-                '',
-                [new Field('', new Fails()), new Field('', new Indifferent())],
-                new FieldName(''),
-                5,
-                Result::invalid(
-                    5,
-                    new MessageSet(new FieldName('', ''), new Message('I always fail', [])),
-                ),
             ],
             'expects an object which may have integer id and string name (valid input)' => [
                 '',
@@ -171,8 +164,8 @@ class AllOfTest extends TestCase
                     ),
                 ],
                 new FieldName(''),
-                ['id' => 5],
-                Result::valid(['id' => 5]),
+                ['id' => 5, 'name' => 5],
+                Result::valid(['id' => 5, 'name' => 5]),
             ],
             'expects an object which may have integer id and string name (invalid input)' => [
                 '',
@@ -189,12 +182,16 @@ class AllOfTest extends TestCase
                     ),
                 ],
                 new FieldName(''),
-                ['id' => '5', 'name' => 'Harley'],
+                ['id' => 'Ben', 'name' => 5],
                 Result::invalid(
-                    ['id' => '5', 'name' => 'Harley'],
+                    ['id' => 'Ben', 'name' => 5],
                     new MessageSet(
                         new FieldName('id', '', ''),
                         new Message('IsInt validator expects integer value, %s passed instead', ['string'])
+                    ),
+                    new MessageSet(
+                        new FieldName('name', '', ''),
+                        new Message('IsString validator expects string value, %s passed instead', ['integer'])
                     )
                 ),
             ],
@@ -213,8 +210,8 @@ class AllOfTest extends TestCase
                     ),
                 ],
                 new FieldName(''),
-                ['id' => 5, 'name' => 'Harley'],
-                Result::valid(['id' => 5, 'name' => 'Harley']),
+                ['name' => 'Harley'],
+                Result::valid(['name' => 'Harley']),
             ],
             'expects an object which must have integer id and string name (invalid input)' => [
                 '',
@@ -231,9 +228,13 @@ class AllOfTest extends TestCase
                     ),
                 ],
                 new FieldName(''),
-                ['id' => 5],
+                ['id' => 'Blink'],
                 Result::invalid(
-                    ['id' => 5],
+                    ['id' => 'Blink'],
+                    new MessageSet(
+                        new FieldName('id', '', ''),
+                        new Message('IsInt validator expects integer value, %s passed instead', ['string'])
+                    ),
                     new MessageSet(new FieldName('', '', ''), new Message('%s is a required field', ['name']))
                 ),
             ],
@@ -249,7 +250,7 @@ class AllOfTest extends TestCase
         mixed $value,
         Result $expected
     ): void {
-        $sut = new AllOf($processes, ...$processors);
+        $sut = new AnyOf($processes, ...$processors);
 
         $actual = $sut->process($fieldName, $value);
 

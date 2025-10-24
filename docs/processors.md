@@ -175,11 +175,6 @@ DefaultProcessor::fromFiltersAndValidators(...$chain)
 |-----------|---------------------|
 | ...$chain | Filter or Validator |
 
-## OpenAPI Processors
-
-The following processors are intended for Open-API specific use cases.  
-Alternative uses are not recommended.
-
 ### AllOf
 
 Designed specifically to deal with the 'allOf' keyword of OpenAPI:  
@@ -213,14 +208,10 @@ Designed specifically to deal with the 'oneOf' keyword of OpenAPI:
 The OneOf processor takes a chain of processors (one for each schema within the 'oneOf') and makes sure that one and
 only one processor returns a valid result.
 
-### Json
+## OpenAPI Processors
 
-| Parameter | Type      |
-|-----------|-----------|
-| $wrapped  | Processor |
-
-Designed specifically to wrap a processor that is expecting a json object. The Json processor attempts to decode a
-string into a json object before passing it into the wrapped processor.
+The following processors are intended for Open-API specific use cases.  
+Alternative uses are not recommended.
 
 ### Request
 
