@@ -16,6 +16,7 @@ use Membrane\Filter\CreateObject\WithNamedArguments;
 use Membrane\Filter\Type\ToBackedEnum;
 use Membrane\Filter\Type\ToString;
 use Membrane\Processor\AfterSet;
+use Membrane\Processor\AnyOf;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
 use Membrane\Processor\Field;
@@ -57,6 +58,7 @@ use Membrane\Validator\Collection\Count;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\String\Length;
 use Membrane\Validator\String\Regex;
+use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
 use Membrane\Validator\Type\IsString;
@@ -92,6 +94,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Regex::class)]
 #[UsesClass(AllOf::class)]
 #[UsesClass(Count::class)]
+#[UsesClass(AnyOf::class)]
 #[UsesClass(WithNamedArguments::class)]
 class BuilderTest extends TestCase
 {
@@ -281,7 +284,17 @@ class BuilderTest extends TestCase
                     )
                 ),
             ],
-
+            'class with union type' => [
+                new ClassWithAttributes((new class () {private float|int $number;})::class),
+                new FieldSet(
+                    '',
+                    new AnyOf(
+                        'number',
+                        new Field('number', new IsFloat()),
+                        new Field('number', new IsInt()),
+                    ),
+                ),
+            ]
         ];
     }
 
