@@ -11,8 +11,6 @@ use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
 
-use function count;
-
 class OneOf implements Processor
 {
     /** @var Processor[] */
