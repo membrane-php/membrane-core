@@ -67,9 +67,15 @@ class Builder implements BuilderInterface
             throw CannotProcessProperty::noTypeHint($property->getName());
         }
 
-        if (!($type instanceof ReflectionNamedType)) {
-            throw CannotProcessProperty::compoundPropertyType($property->getName());
+        if ($type instanceof \ReflectionIntersectionType) {
+            throw CannotProcessProperty::intersectionTypeHint($property->getName());
         }
+
+        if ($type instanceof \ReflectionUnionType) {
+            throw CannotProcessProperty::compoundPropertyType($property->getName()); //TODO support scalar unions
+        }
+
+        assert($type instanceof \ReflectionNamedType);
 
         $processorType = $this->getProcessorTypeFromPropertyType($type->getName());
         $processorTypeAttribute = current($property->getAttributes(OverrideProcessorType::class));
