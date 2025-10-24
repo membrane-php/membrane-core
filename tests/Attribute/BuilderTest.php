@@ -48,7 +48,6 @@ use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostMaxTags;
 use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostRegexAndMaxLength;
 use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostRequiredFields;
 use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostWithAllOf;
-use Membrane\Tests\Fixtures\Attribute\EmptyClass;
 use Membrane\Tests\Fixtures\Attribute\EmptyClassWithIgnoredProperty;
 use Membrane\Tests\Fixtures\Attribute\EnumProperties;
 use Membrane\Tests\Fixtures\Attribute\EnumPropertiesWithAttributes;
@@ -177,8 +176,8 @@ class BuilderTest extends TestCase
     public static function dataSetOfClassesToBuild(): array
     {
         return [
-            EmptyClass::class => [
-                new ClassWithAttributes(EmptyClass::class),
+            'empty class' => [
+                new ClassWithAttributes((new class() {})::class),
                 new FieldSet(''),
             ],
             EmptyClassWithIgnoredProperty::class => [
@@ -201,7 +200,7 @@ class BuilderTest extends TestCase
                 new ClassWithAttributes(ClassWithIntPropertyIsIntValidator::class),
                 new FieldSet('', new Field('integerProperty', new IsInt())),
             ],
-            EnumPropeties::class => [
+            EnumProperties::class => [
                 new ClassWithAttributes(EnumProperties::class),
                 new FieldSet(
                     '',
@@ -300,10 +299,10 @@ class BuilderTest extends TestCase
     public static function dataSetOfInputsAndOutputs(): array
     {
         return [
-            EmptyClass::class => [
-                new ClassWithAttributes(EmptyClass::class),
+            'empty class' => [
+                new ClassWithAttributes((new class() {})::class),
                 [],
-                Result::noResult([]),
+                Result::noResult([])
             ],
             EmptyClassWithIgnoredProperty::class => [
                 new ClassWithAttributes(EmptyClassWithIgnoredProperty::class),
