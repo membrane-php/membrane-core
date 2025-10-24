@@ -10,6 +10,7 @@ use DateTimeInterface;
 use Membrane\Builder\Builder as BuilderInterface;
 use Membrane\Builder\Specification;
 use Membrane\Exception\CannotProcessProperty;
+use Membrane\Filter;
 use Membrane\Processor;
 use Membrane\Processor\AfterSet;
 use Membrane\Processor\BeforeSet;
@@ -17,9 +18,9 @@ use Membrane\Processor\Collection;
 use Membrane\Processor\Field;
 use Membrane\Processor\FieldSet;
 use Membrane\Processor\ProcessorType;
+use Membrane\Validator;
 use ReflectionAttribute;
 use ReflectionClass;
-use ReflectionNamedType;
 use ReflectionProperty;
 
 use function array_map;
@@ -72,10 +73,26 @@ class Builder implements BuilderInterface
         }
 
         if ($type instanceof \ReflectionUnionType) {
-            throw CannotProcessProperty::compoundPropertyType($property->getName()); //TODO support scalar unions
+            $processors = [];
+
+            foreach ($type->getTypes() as $subType) {
+                if ($subType instanceof \ReflectionIntersectionType) {
+                    throw CannotProcessProperty::intersectionTypeHint($property->getName());
+                }
+
+                if (!in_array($subType->getName(), ['bool', 'float', 'int', 'string', 'null', 'true', 'false'])) {
+                    throw CannotProcessProperty::compoundPropertyType($property->getName());
+                }
+
+                $processors [] = $this->makeField($property->getName(), ...$this
+                    ->getFiltersOrValidators($property, $subType->getName()));
+            }
+
+            // AnyOf is faster than OneOf since it performs less checks
+            return new Processor\AnyOf($property->getName(), ...$processors);
         }
 
-        assert($type instanceof \ReflectionNamedType);
+        assert($type instanceof \ReflectionNamedType); // proof by exhaustion (all alternatives have been checked above)
 
         $processorType = $this->getProcessorTypeFromPropertyType($type->getName());
         $processorTypeAttribute = current($property->getAttributes(OverrideProcessorType::class));
@@ -84,10 +101,37 @@ class Builder implements BuilderInterface
         }
 
         return match ($processorType) {
-            ProcessorType::Field => $this->makeField($property),
+            ProcessorType::Field => $this->makeField($property->getName(), ...$this
+                ->getFiltersOrValidators($property, $type->getName())),
             ProcessorType::Fieldset => $this->fromClass($type->getName(), $property->getName()),
             ProcessorType::Collection => $this->makeCollection($property),
         };
+    }
+
+    /** @return array<Filter|Validator> */
+    private function getFiltersOrValidators(
+        ReflectionProperty $property,
+        string $type
+    ): array {
+        $reflectionAttributes = $property->getAttributes();
+
+        $result = [];
+        foreach ($reflectionAttributes as $reflectionAttribute) {
+            $attribute = $reflectionAttribute->newInstance();
+
+            switch (true) {
+                case $attribute instanceof When:
+                    if ($attribute->typeIs === $type) {
+                        $result [] = $attribute->filterOrValidator->class;
+                    }
+                    break;
+                case $attribute instanceof FilterOrValidator:
+                    $result [] = $attribute->class;
+                    break;
+            }
+        }
+
+        return $result;
     }
 
     private function getProcessorTypeFromPropertyType(string $type): ProcessorType
@@ -107,28 +151,20 @@ class Builder implements BuilderInterface
         };
     }
 
-    private function makeField(ReflectionProperty $property): Field
-    {
-        $attributes = $property->getAttributes(
-            FilterOrValidator::class,
-            ReflectionAttribute::IS_INSTANCEOF
-        );
-
-        return new Field(
-            $property->getName(),
-            ...array_map(fn($reflectionAttribute) => $reflectionAttribute->newInstance()->class, $attributes)
-        );
+    private function makeField(
+        string $propertyName,
+        Filter|Validator ...$filtersOrValidators
+    ): Field {
+        return new Field($propertyName, ...$filtersOrValidators);
     }
 
     private function makeCollection(ReflectionProperty $property): Processor
     {
-        $subtype = (current($property->getAttributes(Subtype::class)) ?: null)
-            ?->newInstance()
-            ?->type;
-
-        if ($subtype === null) {
+        $subtype = current($property->getAttributes(Subtype::class));
+        if ($subtype === false) {
             throw CannotProcessProperty::noSubtypeHint($property->getName());
         }
+        $subtype = $subtype->newInstance()->type;
 
         $subProcessorType = $this->getProcessorTypeFromPropertyType($subtype);
 
@@ -141,7 +177,8 @@ class Builder implements BuilderInterface
 
         $processors[] = match ($subProcessorType) {
             ProcessorType::Fieldset => $this->fromClass($subtype, $property->getName()),
-            ProcessorType::Field => $this->makeField($property),
+            ProcessorType::Field => $this->makeField($property->getName(), ...$this
+                ->getFiltersOrValidators($property, $subtype)),
             ProcessorType::Collection =>
                 throw CannotProcessProperty::nestedCollection($property->getName())
         };
