@@ -12,24 +12,29 @@ use Membrane\Result\Result;
 
 final class CallMethod implements Filter
 {
+    /** @var callable&array{0: class-string, 1: string} */
+    private readonly array $callable;
+
     /**
      * @param class-string $class
      */
-    public function __construct(
-        private readonly string $class,
-        private readonly string $method
-    ) {
-        if (!is_callable([$this->class, $this->method])) {
-            throw InvalidFilterArguments::methodNotCallable(
-                $this->class,
-                $this->method,
-            );
+    public function __construct(string $class, string $method)
+    {
+        $callable = [$class, $method];
+
+        if (!is_callable($callable)) {
+            throw InvalidFilterArguments::methodNotCallable($class, $method);
         }
+
+        $this->callable = $callable;
     }
 
     public function __toString(): string
     {
-        return "Call $this->class::$this->method with array value as arguments";
+        return sprintf(
+            'Call %s with array value as arguments',
+            implode('::', $this->callable),
+        );
     }
 
     public function __toPHP(): string
@@ -37,8 +42,8 @@ final class CallMethod implements Filter
         return sprintf(
             'new %s(\'%s\', \'%s\')',
             self::class,
-            $this->class,
-            $this->method,
+            $this->callable[0],
+            $this->callable[1],
         );
     }
 
@@ -54,10 +59,7 @@ final class CallMethod implements Filter
         }
 
         try {
-            $result = call_user_func(
-                sprintf('%s::%s', $this->class, $this->method),
-                ...$value,
-            );
+            $result = call_user_func($this->callable, ...$value);
         } catch (\Throwable $e) {
             return Result::invalid(
                 $value,
