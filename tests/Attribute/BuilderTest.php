@@ -10,12 +10,15 @@ use Membrane\Attribute\FilterOrValidator;
 use Membrane\Attribute\OverrideProcessorType;
 use Membrane\Attribute\SetFilterOrValidator;
 use Membrane\Attribute\Subtype;
+use Membrane\Attribute\When;
 use Membrane\Builder\Specification;
 use Membrane\Exception\CannotProcessProperty;
 use Membrane\Filter\CreateObject\WithNamedArguments;
 use Membrane\Filter\Type\ToBackedEnum;
+use Membrane\Filter\Type\ToNumber;
 use Membrane\Filter\Type\ToString;
 use Membrane\Processor\AfterSet;
+use Membrane\Processor\AnyOf;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
 use Membrane\Processor\Field;
@@ -28,7 +31,6 @@ use Membrane\Tests\Fixtures\Attribute\ArraySumFilter;
 use Membrane\Tests\Fixtures\Attribute\ClassThatOverridesProcessorType;
 use Membrane\Tests\Fixtures\Attribute\ClassWithClassArrayPropertyIsIntValidator;
 use Membrane\Tests\Fixtures\Attribute\ClassWithClassProperty;
-use Membrane\Tests\Fixtures\Attribute\ClassWithCompoundPropertyType;
 use Membrane\Tests\Fixtures\Attribute\ClassWithDateTimeProperty;
 use Membrane\Tests\Fixtures\Attribute\ClassWithIntArrayPropertyBeforeSet;
 use Membrane\Tests\Fixtures\Attribute\ClassWithIntArrayPropertyIsIntValidator;
@@ -48,7 +50,6 @@ use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostMaxTags;
 use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostRegexAndMaxLength;
 use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostRequiredFields;
 use Membrane\Tests\Fixtures\Attribute\Docs\BlogPostWithAllOf;
-use Membrane\Tests\Fixtures\Attribute\EmptyClass;
 use Membrane\Tests\Fixtures\Attribute\EmptyClassWithIgnoredProperty;
 use Membrane\Tests\Fixtures\Attribute\EnumProperties;
 use Membrane\Tests\Fixtures\Attribute\EnumPropertiesWithAttributes;
@@ -56,10 +57,14 @@ use Membrane\Tests\Fixtures\Enum\IntBackedDummy;
 use Membrane\Tests\Fixtures\Enum\StringBackedDummy;
 use Membrane\Validator\Collection\Count;
 use Membrane\Validator\FieldSet\RequiredFields;
+use Membrane\Validator\Numeric\Maximum;
 use Membrane\Validator\String\Length;
+use Membrane\Validator\String\NumericString;
 use Membrane\Validator\String\Regex;
+use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsList;
+use Membrane\Validator\Type\IsNumber;
 use Membrane\Validator\Type\IsString;
 use Membrane\Validator\Utility\AllOf;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -93,6 +98,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Regex::class)]
 #[UsesClass(AllOf::class)]
 #[UsesClass(Count::class)]
+#[UsesClass(AnyOf::class)]
 #[UsesClass(WithNamedArguments::class)]
 class BuilderTest extends TestCase
 {
@@ -146,20 +152,6 @@ class BuilderTest extends TestCase
     }
 
     #[Test]
-    public function compoundPropertyThrowsException(): void
-    {
-        $specification = new ClassWithAttributes(ClassWithCompoundPropertyType::class);
-        $builder = new Builder();
-
-        self::expectException(CannotProcessProperty::class);
-        self::expectExceptionMessage(
-            'Property compoundProperty uses a compound type hint, these are not currently supported'
-        );
-
-        $builder->build($specification);
-    }
-
-    #[Test]
     public function nestedCollectionThrowsException(): void
     {
         $specification = new ClassWithAttributes(ClassWithNestedCollection::class);
@@ -177,8 +169,8 @@ class BuilderTest extends TestCase
     public static function dataSetOfClassesToBuild(): array
     {
         return [
-            EmptyClass::class => [
-                new ClassWithAttributes(EmptyClass::class),
+            'empty class' => [
+                new ClassWithAttributes((new class() {})::class),
                 new FieldSet(''),
             ],
             EmptyClassWithIgnoredProperty::class => [
@@ -201,7 +193,7 @@ class BuilderTest extends TestCase
                 new ClassWithAttributes(ClassWithIntPropertyIsIntValidator::class),
                 new FieldSet('', new Field('integerProperty', new IsInt())),
             ],
-            EnumPropeties::class => [
+            EnumProperties::class => [
                 new ClassWithAttributes(EnumProperties::class),
                 new FieldSet(
                     '',
@@ -282,13 +274,87 @@ class BuilderTest extends TestCase
                     )
                 ),
             ],
-
+            'union type' => [
+                new ClassWithAttributes((new class () {private float|int $number;})::class),
+                new FieldSet(
+                    '',
+                    new AnyOf(
+                        'number',
+                        new Field('number'),
+                        new Field('number'),
+                    ),
+                ),
+            ],
+            'union type, When float, isfloat?' => [
+                new ClassWithAttributes((new class () {
+                    #[When('float', new FilterOrValidator(new IsFloat()))]
+                    private float|int $number;
+                })::class),
+                new FieldSet(
+                    '',
+                    new AnyOf(
+                        'number',
+                        new Field('number'),
+                        new Field('number', new IsFloat()),
+                    ),
+                ),
+            ],
+            'union type. When float, isfloat? When int, isInt?' => [
+                new ClassWithAttributes((new class () {
+                    #[When('float', new FilterOrValidator(new IsFloat()))]
+                    #[When('int', new FilterOrValidator(new IsInt()))]
+                    private float|int $number;
+                })::class),
+                new FieldSet(
+                    '',
+                    new AnyOf(
+                        'number',
+                        new Field('number', new IsInt()),
+                        new Field('number', new IsFloat()),
+                    ),
+                ),
+            ],
+            'union type. When string NumericString?' => [
+                new ClassWithAttributes((new class () {
+                    #[When('string', new FilterOrValidator(new NumericString()))]
+                    #[When('string', new FilterOrValidator(new ToNumber()))]
+                    #[FilterOrValidator(new Maximum(3.14))]
+                    private float|int|string $number;
+                })::class),
+                new FieldSet(
+                    '',
+                    new AnyOf(
+                        'number',
+                        new Field('number', new NumericString(), new ToNumber(), new Maximum(3.14)),
+                        new Field('number', new Maximum(3.14)),
+                        new Field('number', new Maximum(3.14)),
+                    ),
+                ),
+            ],
+            'union type. Whens and FilterOrValidators mixed together' => [
+                new ClassWithAttributes((new class () {
+                    #[When('string', new FilterOrValidator(new NumericString()))]
+                    #[When('string', new FilterOrValidator(new ToNumber()))]
+                    #[FilterOrValidator(new Maximum(3.14))]
+                    #[When('string', new FilterOrValidator(new ToString()))]
+                    private float|int|string $number;
+                })::class),
+                new FieldSet(
+                    '',
+                    new AnyOf(
+                        'number',
+                        new Field('number', new NumericString(), new ToNumber(), new Maximum(3.14), new ToString()),
+                        new Field('number', new Maximum(3.14)),
+                        new Field('number', new Maximum(3.14)),
+                    ),
+                ),
+            ],
         ];
     }
 
-    #[DataProvider('dataSetOfClassesToBuild')]
     #[Test]
-    public function BuildingProcessorsTest(Specification $specification, FieldSet $expected): void
+    #[DataProvider('dataSetOfClassesToBuild')]
+    public function buildingProcessorsTest(Specification $specification, FieldSet $expected): void
     {
         $builder = new Builder();
 
@@ -300,10 +366,10 @@ class BuilderTest extends TestCase
     public static function dataSetOfInputsAndOutputs(): array
     {
         return [
-            EmptyClass::class => [
-                new ClassWithAttributes(EmptyClass::class),
+            'empty class' => [
+                new ClassWithAttributes((new class() {})::class),
                 [],
-                Result::noResult([]),
+                Result::noResult([])
             ],
             EmptyClassWithIgnoredProperty::class => [
                 new ClassWithAttributes(EmptyClassWithIgnoredProperty::class),
@@ -369,8 +435,8 @@ class BuilderTest extends TestCase
         ];
     }
 
-    #[DataProvider('dataSetOfInputsAndOutputs')]
     #[Test]
+    #[DataProvider('dataSetOfInputsAndOutputs')]
     public function InputsAndOutputsTest(Specification $specification, mixed $input, mixed $expected): void
     {
         $builder = new Builder();
@@ -551,8 +617,8 @@ class BuilderTest extends TestCase
         ];
     }
 
-    #[DataProvider('dataSetsWithDocExamples')]
     #[Test]
+    #[DataProvider('dataSetsWithDocExamples')]
     public function docExamplesTest(Specification $specification, array $input, Result $expected): void
     {
         $builder = new Builder();
