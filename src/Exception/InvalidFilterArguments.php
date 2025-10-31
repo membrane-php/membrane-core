@@ -6,7 +6,13 @@ namespace Membrane\Exception;
 
 class InvalidFilterArguments extends \RuntimeException
 {
-    public const EMPTY_STRING_DELIMITER = 0;
+    public const METHOD_NOT_CALLABLE = 0;
+    public const EMPTY_STRING_DELIMITER = 1;
+
+    public static function methodNotCallable(string $class, string $method): self
+    {
+        return new self("$class::$method must be callable", self::METHOD_NOT_CALLABLE);
+    }
 
     public static function emptyStringDelimiter(): self
     {
