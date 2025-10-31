@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Tests\OpenAPI\Processor;
+namespace Membrane\Tests\Processor;
 
 use Membrane\Exception\InvalidProcessorArguments;
-use Membrane\OpenAPI\Processor\OneOf;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Field;
 use Membrane\Processor\FieldSet;
+use Membrane\Processor\OneOf;
 use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
