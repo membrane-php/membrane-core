@@ -21,9 +21,19 @@ class CannotProcessProperty extends RuntimeException
         return new self($message);
     }
 
+    public static function intersectionTypeHint(string $propertyName): self
+    {
+        $message = sprintf('Property %s uses an intersection type, these are not supported', $propertyName);
+        return new self($message);
+    }
+
     public static function compoundPropertyType(string $propertyName): self
     {
-        $message = sprintf('Property %s uses a compound type hint, these are not currently supported', $propertyName);
+        $message = sprintf(
+            'Property %s uses a compound type hint'
+            . ', currently these are only supported for scalar types',
+            $propertyName
+        );
         return new self($message);
     }
 

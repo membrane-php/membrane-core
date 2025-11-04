@@ -29,7 +29,6 @@ class CannotProcessOpenAPI extends RuntimeException
         return new self($message, self::INVALID_OPEN_API);
     }
 
-    /** @param $mediaTypes */
     public static function unsupportedMediaTypes(string ...$mediaTypes): self
     {
         $supportedContentTypes = [

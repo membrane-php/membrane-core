@@ -21,7 +21,6 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
-use Membrane\Tests\Fixtures\Attribute\EmptyClass;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Type\IsList;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -102,7 +101,7 @@ class MembraneTest extends TestCase
         yield 'Attributes' => [
             new class {
             },
-            new ClassWithAttributes(EmptyClass::class),
+            new ClassWithAttributes((new class () {})::class),
         ];
         yield 'Request' => [
             new \GuzzleHttp\Psr7\Request('get', ''),
