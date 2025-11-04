@@ -33,7 +33,7 @@ class BlogPost
 }
 ```
 
-Okay brilliant, we've got a minimal example, note the Subtype attribute on the $tags array.  
+Okay brilliant, we've got a minimal example, note the Subtype attribute on the $tags array.
 This is required, Membrane will not accept arrays without defined subtypes.
 
 ```php
@@ -208,7 +208,7 @@ class BlogPost
         public string $title,
         #[FilterOrValidator(new ToString())]
         public string $body,
-        #[FilterOrValidator(new ToString())]
+        #[SetFilterOrValidator(new ToString(), Placement::Before)]
         #[Subtype('string')]
         public array $tags,
     ) {
@@ -259,6 +259,66 @@ Ouputs
 
 Brilliant! It's a bit more flexible, but we can still rest assured a valid Result contains string values. Let's add some
 more control to our tags.
+
+### When it's a String
+
+Sometimes validation is only relevant to certain types.
+
+For instance if you accept any numeric value;
+if it's an integer or a float, you know it's numeric already.
+If that value is a string, you need to validate it is a numeric string.
+
+You can use the #[When] attribute.
+
+```php
+class MyNumericValue
+{
+    public function __construct(
+        #[When('string', new NumericString())]
+        public float | int | string $number,
+    ) {
+    }
+}
+```
+
+The #[When] attribute takes a the type name as a string, this must match one of the types allowed by the property.
+
+```php
+$specification = new ClassWithAttributes(MyNumericValue::class);
+$membrane = new Membrane();
+$examples = [
+    ['number' => 1],
+    ['number' => 'Tyrone'],
+    ['number' => 3.14],
+    ['number' => '4'],
+];
+
+foreach ($examples as $example) {
+    $result = $membrane->process($example, $specification);
+    var_dump($result->value);
+    if ($result->isValid()) {
+        echo ' is valid';
+    } else {
+        echo ' is invalid' . "\n";
+        foreach($result->messageSets as $messageSet) {
+            foreach ($messageSet->messages as $message) {
+                echo $message->rendered() . "\n";
+            }
+        }
+    }
+    echo "\n";
+}
+```
+
+Ouputs
+
+```text
+    ['number' => 1] is valid
+    ['number => 'Tyrone'] is invalid
+    StringValue must be numeric
+    ['number' => 3.14] is valid
+    ['number' => '4'] is valid
+```
 
 ### Maximum Number Of Tags
 
@@ -511,7 +571,7 @@ $data = [
 $membrane = new Membrane();
 
 $result = $membrane->process($data, $specification);
-    
+
 $blogPost = $result->isValid() ? $result->value : null;
 
 echo $blogPost?->title; // My Title
