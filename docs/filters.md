@@ -16,6 +16,14 @@ interface Filter
 }
 ```
 
+If you need a custom Filter, implement this in your own class.
+
+The `filter` method SHOULD NOT throw on failure. 
+It SHOULD provide an invalid result with an error message.
+This ensures the processor can fail gracefully and provide all errors in one go.
+
+It MAY throw exceptions in other methods (such as invalid arguments to `__construct`).
+
 ## Methods
 
 ### Filter
@@ -43,6 +51,47 @@ This method can also be called implicitly by typecasting your filter as string. 
 ## Create Object
 
 Create objects from external data.
+
+### CallMethod
+
+This filter exists to call bespoke methods required by a class, when [FromArray](#fromarray) and [WithNamedArguments](#withnamedarguments) are not sufficiently flexible.
+
+If you are calling methods on an external class, as a way of reusing logic; create a reusable [Filter](#interface) instead.
+
+```php
+new CallMethod($className, $methodName)
+```
+
+| Parameter   | Type   |
+|-------------|--------|
+| $className  | string |
+| $methodName | string |
+
+**Example**
+
+Your class may have a constructor with variadic number of arguments.
+Currently, no filter exists to handle this.
+
+```php
+$classWithMethod = new class () {
+    public function __construct(string ...$tags) {
+        // do some stuff...
+    }
+
+    /** @param list<string> $list */
+    public static function fromList(array $list): self
+    {
+        return new self(...$list);
+    }
+};
+
+$callMethod = new CallMethod($class::class, 'fromList');
+
+$result = $callMethod->filter(['foo', 'bar', 'baz'])
+
+echo $result->value;
+echo $result->isValid() ? 'Result was valid' : 'Result was invalid';
+```
 
 ### FromArray
 
