@@ -97,6 +97,7 @@ class Request implements Processor
     private function formatPsr7(FieldName $parentFieldName, ServerRequestInterface $request): Result
     {
         $value = ['cookie' => []];
+        $value['request'] = ['method' => $this->method->value, 'operationId' => $this->operationId];
         $value['path'] = $request->getUri()->getPath();
         $value['query'] = $request->getUri()->getQuery();
         $value['header'] = $this->filterHeaders($request->getHeaders());
