@@ -27,7 +27,7 @@ class Request implements Processor
     ) {
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         if ($this->processors === []) {
             return 'Parse PSR-7 request';
