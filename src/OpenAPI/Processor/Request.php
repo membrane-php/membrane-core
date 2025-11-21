@@ -67,21 +67,14 @@ class Request implements Processor
             if (!$result->isValid()) {
                 return $result;
             }
-
             $value = $result->value;
         }
 
         if (!is_array($value)) {
-            return Result::invalid(
-                $value,
-                new MessageSet(
-                    $parentFieldName,
-                    new Message(
-                        'Request processor expects array or PSR7 HTTP request, %s passed',
-                        [gettype($value)]
-                    )
-                )
-            );
+            return Result::invalid($value, new MessageSet($parentFieldName, new Message(
+                'Request processor expects array or PSR7 HTTP request, %s passed',
+                [gettype($value)],
+            )));
         }
 
         $request = ['method' => $this->method->value, 'operationId' => $this->operationId];
