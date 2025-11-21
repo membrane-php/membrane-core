@@ -17,13 +17,13 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use Membrane\Tests\MembraneTestCase;
 use Membrane\Validator\Utility\Fails;
 use Membrane\Validator\Utility\Passes;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
-use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Request::class)]
 #[UsesClass(Field::class)]
@@ -35,7 +35,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Passes::class)]
 #[UsesClass(ContentType::class)]
 #[UsesClass(JsonDecode::class)]
-class RequestTest extends TestCase
+class RequestTest extends MembraneTestCase
 {
     public static function dataSetsToConvertToString(): array
     {
@@ -133,6 +133,13 @@ class RequestTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
+    /**
+     * @return array<string, list{
+     *     mixed,       // given value
+     *     Processor[], // injected processors
+     *     Result,      // expected result
+     * }>
+     */
     public static function dataSetsToProcess(): array
     {
         $validProcessor = new Field('', new Passes());
@@ -140,10 +147,11 @@ class RequestTest extends TestCase
 
         return [
             'array, no processors' => [
+                'listPets',
                 [],
                 [],
                 Result::valid([
-                    'request' => ['method' => 'get', 'operationId' => ''],
+                    'request' => ['method' => 'get', 'operationId' => 'listPets'],
                     'path' => '',
                     'query' => '',
                     'header' => [],
@@ -152,6 +160,7 @@ class RequestTest extends TestCase
                 ]),
             ],
             'array, valid processors' => [
+                'listPets',
                 [],
                 [
                     'path' => $validProcessor,
@@ -161,7 +170,7 @@ class RequestTest extends TestCase
                     'body' => $validProcessor,
                 ],
                 Result::valid([
-                    'request' => ['method' => 'get', 'operationId' => ''],
+                    'request' => ['method' => 'get', 'operationId' => 'listPets'],
                     'path' => '',
                     'query' => '',
                     'header' => [],
@@ -170,6 +179,7 @@ class RequestTest extends TestCase
                 ]),
             ],
             'array, valid and invalid processors' => [
+                'listPets',
                 [],
                 [
                     'path' => $validProcessor,
@@ -180,22 +190,23 @@ class RequestTest extends TestCase
                 ],
                 Result::invalid(
                     [
-                    'request' => ['method' => 'get', 'operationId' => ''],
-                    'path' => '',
-                    'query' => '',
-                    'header' => [],
-                    'cookie' => [],
-                    'body' => '',
+                        'request' => ['method' => 'get', 'operationId' => 'listPets'],
+                        'path' => '',
+                        'query' => '',
+                        'header' => [],
+                        'cookie' => [],
+                        'body' => '',
                     ],
                     new MessageSet(new FieldName('', ''), new Message('I always fail', [])),
                     new MessageSet(new FieldName('', ''), new Message('I always fail', []))
                 ),
             ],
             'guzzle server request, no processors' => [
+                'listPets',
                 new ServerRequest('get', 'https://www.swaggerstore.io/pets?limit=5', [], 'request body'),
                 [],
                 Result::valid([
-                    'request' => ['method' => 'get', 'operationId' => ''],
+                    'request' => ['method' => 'get', 'operationId' => 'listPets'],
                     'path' => '/pets',
                     'query' => 'limit=5',
                     'header' => ['Host' => ['www.swaggerstore.io']],
@@ -204,6 +215,7 @@ class RequestTest extends TestCase
                 ]),
             ],
             'guzzle server request, valid processors' => [
+                'listPets',
                 new ServerRequest('get', 'https://www.swaggerstore.io/pets?limit=5', [], 'request body'),
                 [
                     'path' => $validProcessor,
@@ -213,7 +225,7 @@ class RequestTest extends TestCase
                     'body' => $validProcessor,
                 ],
                 Result::valid([
-                    'request' => ['method' => 'get', 'operationId' => ''],
+                    'request' => ['method' => 'get', 'operationId' => 'listPets'],
                     'path' => '/pets',
                     'query' => 'limit=5',
                     'header' => ['Host' => ['www.swaggerstore.io']],
@@ -222,6 +234,7 @@ class RequestTest extends TestCase
                 ]),
             ],
             'guzzle server request, valid and invalid processors' => [
+                'listPets',
                 new ServerRequest('get', 'https://www.swaggerstore.io/pets?limit=5', [], 'request body'),
                 [
                     'path' => $validProcessor,
@@ -232,7 +245,7 @@ class RequestTest extends TestCase
                 ],
                 Result::invalid(
                     [
-                        'request' => ['method' => 'get', 'operationId' => ''],
+                        'request' => ['method' => 'get', 'operationId' => 'listPets'],
                         'path' => '/pets',
                         'query' => 'limit=5',
                         'header' => ['Host' => ['www.swaggerstore.io']],
@@ -244,6 +257,7 @@ class RequestTest extends TestCase
                 ),
             ],
             'guzzle server request, valid processors, invalid json' => [
+                'listPets',
                 new ServerRequest(
                     'get',
                     'https://www.swaggerstore.io/pets?limit=5',
@@ -259,6 +273,7 @@ class RequestTest extends TestCase
                 ],
                 Result::invalid(
                     [
+                        'request' => ['method' => 'get', 'operationId' => 'listPets'],
                         'path' => '/pets',
                         'query' => 'limit=5',
                         'header' => [
@@ -275,6 +290,7 @@ class RequestTest extends TestCase
                 ),
             ],
             'guzzle server request, valid processors, json content type' => [
+                'listPets',
                 new ServerRequest(
                     'get',
                     'https://www.swaggerstore.io/pets?limit=5',
@@ -289,7 +305,7 @@ class RequestTest extends TestCase
                     'body' => $validProcessor,
                 ],
                 Result::valid([
-                    'request' => ['method' => 'get', 'operationId' => ''],
+                    'request' => ['method' => 'get', 'operationId' => 'listPets'],
                     'path' => '/pets',
                     'query' => 'limit=5',
                     'header' => [
@@ -301,6 +317,7 @@ class RequestTest extends TestCase
                 ]),
             ],
             'guzzle server request, valid processors, json content type, empty body' => [
+                'listPets',
                 new ServerRequest(
                     'get',
                     'https://www.swaggerstore.io/pets?limit=5',
@@ -315,7 +332,7 @@ class RequestTest extends TestCase
                     'body' => $validProcessor,
                 ],
                 Result::valid([
-                    'request' => ['method' => 'get', 'operationId' => ''],
+                    'request' => ['method' => 'get', 'operationId' => 'listPets'],
                     'path' => '/pets',
                     'query' => 'limit=5',
                     'header' => [
@@ -327,6 +344,7 @@ class RequestTest extends TestCase
                 ]),
             ],
             'guzzle server request, valid processors, form type' => [
+                'listPets',
                 (new ServerRequest(
                     'get',
                     'https://www.swaggerstore.io/pets?limit=5',
@@ -341,7 +359,7 @@ class RequestTest extends TestCase
                     'body' => $validProcessor,
                 ],
                 Result::valid([
-                    'request' => ['method' => 'get', 'operationId' => ''],
+                    'request' => ['method' => 'get', 'operationId' => 'listPets'],
                     'path' => '/pets',
                     'query' => 'limit=5',
                     'header' => [
@@ -353,6 +371,7 @@ class RequestTest extends TestCase
                 ]),
             ],
             'guzzle server request, valid processors, with file uploads' => [
+                'listPets',
                 (new ServerRequest(
                     'get',
                     'https://www.swaggerstore.io/pets?limit=5',
@@ -374,7 +393,7 @@ class RequestTest extends TestCase
                     'body' => $validProcessor,
                 ],
                 Result::valid([
-                    'request' => ['method' => 'get', 'operationId' => ''],
+                    'request' => ['method' => 'get', 'operationId' => 'listPets'],
                     'path' => '/pets',
                     'query' => 'limit=5',
                     'header' => [
@@ -388,14 +407,21 @@ class RequestTest extends TestCase
         ];
     }
 
-    #[DataProvider('dataSetsToProcess')]
+    /**
+     * @param Processor[] $processors
+     */
     #[Test]
-    public function processTest(mixed $value, array $processors, Result $expected): void
-    {
-        $sut = new Request('', '', Method::GET, $processors);
+    #[DataProvider('dataSetsToProcess')]
+    public function processTest(
+        string $operationId,
+        mixed $value,
+        array $processors,
+        Result $expected
+    ): void {
+        $sut = new Request('', $operationId, Method::GET, $processors);
 
         $actual = $sut->process(new FieldName(''), $value);
 
-        self::assertEquals($expected, $actual);
+        self::assertResultEquals($expected, $actual);
     }
 }
