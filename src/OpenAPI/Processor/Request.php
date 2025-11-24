@@ -81,7 +81,8 @@ class Request implements Processor
                     [gettype($value)],
                 )));
         }
-
+        // The switch statement fail for anything that is not converted to an array
+        assert(is_array($value));
 
         $result = Result::valid($value);
 
@@ -177,16 +178,9 @@ class Request implements Processor
     }
 
     /**
-     * @param array{} $value
+     * @param array<mixed> $value
      *
-     * @return array{
-     *     request: array{method:string, operationId:string,
-     *     path: string,
-     *     query: string,
-     *     header: array<string, string|string[]>,
-     *     cookie: array<string, string>,
-     *     body: string|array
-     * }
+     * @return non-empty-array<mixed>
      */
     private function appendRequestMetadata(array $value): array
     {
