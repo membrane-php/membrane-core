@@ -62,26 +62,26 @@ class Request implements Processor
 
     public function process(FieldName $parentFieldName, mixed $value): Result
     {
-        if ($value instanceof ServerRequestInterface) {
-            $result = $this->formatPsr7($parentFieldName, $value);
-            if (!$result->isValid()) {
-                return $result;
-            }
-            $value = $result->value;
+        switch (true) {
+            case $value instanceof ServerRequestInterface:
+                $result = $this->formatPsr7($parentFieldName, $value);
+                if (!$result->isValid()) {
+                    return $result;
+                }
+                $value = $result->value;
+
+                break;
+            case is_array($value):
+                $value = $this->appendRequestMetadata($value);
+
+                break;
+            default:
+                return Result::invalid($value, new MessageSet($parentFieldName, new Message(
+                    'Request processor expects array or PSR7 HTTP request, %s passed',
+                    [gettype($value)],
+                )));
         }
 
-        if (!is_array($value)) {
-            return Result::invalid($value, new MessageSet($parentFieldName, new Message(
-                'Request processor expects array or PSR7 HTTP request, %s passed',
-                [gettype($value)],
-            )));
-        }
-
-        $request = ['method' => $this->method->value, 'operationId' => $this->operationId];
-        $value = array_merge(
-            ['request' => $request, 'path' => '', 'query' => '', 'header' => [], 'cookie' => [], 'body' => ''],
-            $value
-        );
 
         $result = Result::valid($value);
 
@@ -96,12 +96,12 @@ class Request implements Processor
 
     private function formatPsr7(FieldName $parentFieldName, ServerRequestInterface $request): Result
     {
-        $value = ['cookie' => []];
-        $value['request'] = ['method' => $this->method->value, 'operationId' => $this->operationId];
-        $value['path'] = $request->getUri()->getPath();
-        $value['query'] = $request->getUri()->getQuery();
-        $value['header'] = $this->filterHeaders($request->getHeaders());
-//        $value['cookie'] = $request->getCookieParams();
+        $value = $this->appendRequestMetadata([
+            'path' => $request->getUri()->getPath(),
+            'query' => $request->getUri()->getQuery(),
+            'header' => $this->filterHeaders($request->getHeaders()),
+            //@TODO 'cookie' => $request->getCookieParams() cannot recall why this is commented out
+        ]);
 
         //There should only be one content type header; PHP ignores additional header values
         $contentType = ContentType::fromContentTypeHeader(current($request->getHeader('Content-Type')));
@@ -172,6 +172,36 @@ class Request implements Processor
             $headers,
             fn($k) => strtolower($k) !== 'cookie',
             ARRAY_FILTER_USE_KEY
+        );
+    }
+
+    /**
+     * @param array{} $value
+     *
+     * @return array{
+     *     request: array{method:string, operationId:string,
+     *     path: string,
+     *     query: string,
+     *     header: array<string, string|string[]>,
+     *     cookie: array<string, string>,
+     *     body: string|array
+     * }
+     */
+    private function appendRequestMetadata(array $value): array
+    {
+        return array_merge(
+            [
+                'request' => [
+                    'method' => $this->method->value,
+                    'operationId' => $this->operationId,
+                ],
+                'path' => '',
+                'query' => '',
+                'header' => [],
+                'cookie' => [],
+                'body' => '',
+            ],
+            $value,
         );
     }
 }
