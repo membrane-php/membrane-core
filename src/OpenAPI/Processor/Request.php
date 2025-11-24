@@ -162,15 +162,14 @@ class Request implements Processor
     }
 
     /**
-     * @param string[][] $headers
-     *
-     * @return string[][]
+     * @param array<string, string|string[]> $headers
+     * @return array<string, string|string[]>
      */
     private function filterHeaders(array $headers): array
     {
         return array_filter(
             $headers,
-            fn($k) => strtolower($k) !== 'cookie',
+            fn(string $k) => strtolower($k) !== 'cookie',
             ARRAY_FILTER_USE_KEY
         );
     }
