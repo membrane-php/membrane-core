@@ -100,7 +100,9 @@ class Request implements Processor
             'path' => $request->getUri()->getPath(),
             'query' => $request->getUri()->getQuery(),
             'header' => $this->filterHeaders($request->getHeaders()),
-            //@TODO 'cookie' => $request->getCookieParams() cannot recall why this is commented out
+            //@TODO 'cookie' => $request->getCookieParams()
+            // Cannot recall exact reasons, but possibly:
+            // - Return types from getCookieParams come back as arrays making it difficult to validate types
         ]);
 
         //There should only be one content type header; PHP ignores additional header values
