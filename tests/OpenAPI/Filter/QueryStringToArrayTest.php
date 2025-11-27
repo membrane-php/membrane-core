@@ -99,147 +99,215 @@ class QueryStringToArrayTest extends MembraneTestCase
     {
         $alwaysResolvable = [
             // type:primitive, style:form
-            'color' => [
-                ['color' => ['style' => 'form', 'explode' => false]],
-                'color=blue',
+            'color=red' => [
+                'color=red',
+                'color',
+                'form',
+                false,
             ],
-            'colour' => [
-                ['colour' => ['style' => 'form', 'explode' => false]],
+            'colour=blue' => [
                 'colour=blue',
+                'colour',
+                'form',
+                true,
             ],
-            'watercolor' => [
-                ['watercolor' => ['style' => 'form', 'explode' => true]],
-                'watercolor=blue',
+            'watercolor=lime%20green' => [
+                'watercolor=lime green',
+                'watercolor',
+                'form',
+                false,
             ],
-            'watercolour' => [
-                ['watercolour' => ['style' => 'form', 'explode' => true]],
-                'watercolour=blue',
+            'watercolour=sky%20blue'  => [
+                'watercolour=sky blue',
+                'watercolour',
+                'form',
+                true,
             ],
 
             // type:array, style:form
-            'colors' => [
-                ['colors' => ['style' => 'form', 'explode' => false]],
+            'colors=blue,black,brown' => [
                 'colors=blue,black,brown',
+                'colors',
+                'form',
+                false,
             ],
-            'colours' => [
-                ['colours' => ['style' => 'form', 'explode' => false]],
+            'colours=blue,black,brown' => [
                 'colours=blue,black,brown',
+                'colours',
+                'form',
+                true,
             ],
-            'watercolors' => [
-                ['watercolors' => ['style' => 'form', 'explode' => true]],
-                'watercolors=blue&watercolors=black&watercolors=brown',
+            'watercolors=powder%20blue,saddle%20brown,slate%20grey' => [
+                'watercolors=powder blue,saddle brown,slate grey',
+                'watercolors',
+                'form',
+                false,
             ],
-            'watercolours' => [
-                ['watercolours' => ['style' => 'form', 'explode' => true]],
-                'watercolours=blue&watercolours=black&watercolours=brown',
+            'watercolours=powder%20blue,saddle%20brown,slate%20grey' => [
+                'watercolours=powder blue,saddle brown,slate grey',
+                'watercolours',
+                'form',
+                true,
             ],
 
             // type:object, style:form, explode:false only
-            'paint' => [
-                ['paint' => ['style' => 'form', 'explode' => false]],
+            // OpenAPI Specification only defines explode:false in this instance
+            'paint=R,100,G,200,B,150' => [
                 'paint=R,100,G,200,B,150',
+                'paint',
+                'form',
+                false,
             ],
-            'paintpot' => [
-                ['paintpot' => ['style' => 'form', 'explode' => false]],
-                'paintpot=R,100,G,200,B,150',
+            'paintpot=light%20grey,0.5,dark%20red,1.0' => [
+                'paintpot=light grey,0.5,dark red,1.0',
+                'paintpot',
+                'form',
+                false
             ],
 
             // type:object only, style:deepObject
-            'ink' => [
-                ['ink' => ['style' => 'deepObject', 'explode' => true]],
+            // OpenAPI Specification only defines explode:true in this instance.
+            'ink[R]=100&ink[G]=200&ink[B]=150' => [
                 'ink[R]=100&ink[G]=200&ink[B]=150',
+                'ink',
+                'deepObject',
+                true
             ],
-            'inkwell' => [
-                ['inkwell' => ['style' => 'deepObject', 'explode' => true]],
-                'inkwell[R]=100&inkwell[G]=200&inkwell[B]=150',
+            'inkwell[navy%20blue]=100&inkwell[standard%20black%20ink]=200' => [
+                'inkwell[navy blue]=100&inkwell[standard black ink]=200',
+                'inkwell',
+                'deepObject',
+                true,
             ],
 
             // type:array, style:spaceDelimited
-            'pen' => [
-                ['pen' => ['style' => 'spaceDelimited', 'explode' => false]],
+            // OpenAPI Specification only defines explode:false in this instance.
+            'pen=blue black brown' => [
                 'pen=blue black brown',
+                'pen',
+                'spaceDelimited',
+                false,
             ],
-            'pencil' => [
-                ['pencil' => ['style' => 'spaceDelimited', 'explode' => false]],
+            'pencil=blue%20black%20brown' => [
                 'pencil=blue black brown',
+                'pencil',
+                'spaceDelimited',
+                false,
             ],
 
             // type:object, style:spaceDelimited
-            'graphite' => [
-                ['graphite' => ['style' => 'spaceDelimited', 'explode' => false]],
+            // OpenAPI Specification only defines explode:false in this instance.
+            'graphite=R 100 G 200 B 150' => [
                 'graphite=R 100 G 200 B 150',
+                'graphite',
+                'spaceDelimited',
+                false,
             ],
-            'lead' => [
-                ['lead' => ['style' => 'spaceDelimited', 'explode' => false]],
+            'lead=R%20100%20G%20200%20B%20150' => [
                 'lead=R 100 G 200 B 150',
+                'lead',
+                'spaceDelimited',
+                false,
             ],
 
             //type:array style:pipeDelimited
-            'crayon' => [
-                ['crayon' => ['style' => 'pipeDelimited', 'explode' => false]],
+            // OpenAPI Specification only defines explode:false in this instance.
+            'crayon=blue|black|brown' => [
                 'crayon=blue|black|brown',
+                'crayon',
+                'pipeDelimited',
+                false,
             ],
-            'crayola' => [
-                ['crayola' => ['style' => 'pipeDelimited', 'explode' => false]],
+            'crayola=blue%7Cblack%7Cbrown' => [
                 'crayola=blue|black|brown',
+                'crayola',
+                'pipeDelimited',
+                false,
             ],
 
             //type:object style:pipeDelimited
-            'chalk' => [
-                ['chalk' => ['style' => 'pipeDelimited', 'explode' => false]],
+            // OpenAPI Specification only defines explode:false in this instance.
+            'chalk=R|100|G|200|B|150' => [
                 'chalk=R|100|G|200|B|150',
+                'chalk',
+                'pipeDelimited',
+                false,
             ],
-            'charcoal' => [
-                ['charcoal' => ['style' => 'pipeDelimited', 'explode' => false]],
+            'charcoal=R%7C100%7CG%7C200%7CB%7C150' => [
                 'charcoal=R|100|G|200|B|150',
-            ]
+                'charcoal',
+                'pipeDelimited',
+                false,
+            ],
         ];
 
         $resolvableIfOnlyOneOfKind = [
-            'quill' => [
-                ['quill' => ['style' => 'form', 'explode' => true]],
+            'R=100&G=200&B=150'  => [
                 'R=100&G=200&B=150',
+                'quill',
+                'form',
+                true,
             ],
         ];
 
-        foreach ($resolvableIfOnlyOneOfKind as $name => $parameter) {
-            yield "$name" => [
-                Result::noResult([$name => $parameter[1]]),
-                $parameter[0],
-                $parameter[1],
+        $formatResult = fn(
+            string $resultString,
+            string $paramName,
+            string $style,
+            bool $explode,
+        ) => [$paramName => $resultString];
+
+        $formatParam = fn(
+            string $resultString,
+            string $paramName,
+            string $style,
+            bool $explode,
+        ) => [$paramName => ['style' => $style, 'explode' => $explode]];
+
+        foreach ($resolvableIfOnlyOneOfKind as $query => $datum) {
+            yield $query => [
+                Result::noResult($formatResult(...$datum)),
+                $formatParam(...$datum),
+                $query,
             ];
         }
 
-        foreach ($alwaysResolvable as $name => $parameter) {
-            yield "$name" => [
-                Result::noResult([$name => $parameter[1]]),
-                $parameter[0],
-                $parameter[1],
+        foreach ($alwaysResolvable as $query => $datum) {
+            yield $query => [
+                Result::noResult($formatResult(...$datum)),
+                $formatParam(...$datum),
+                $query,
             ];
 
-            foreach ($alwaysResolvable as $otherName => $otherParameter) {
-                if ($name === $otherName) {
+            foreach ($alwaysResolvable as $otherQuery => $otherDatum) {
+                if ($query === $otherQuery) {
                     continue;
                 }
 
-                yield "$name and $otherName" => [
-                    Result::noResult([
-                        $name => $parameter[1],
-                        $otherName => $otherParameter[1]
-                    ]),
-                    array_merge($parameter[0], $otherParameter[0]),
-                    implode('&', [$parameter[1], $otherParameter[1]])
+                yield "$query&$otherQuery" => [
+                    Result::noResult(array_merge(
+                        $formatResult(...$datum),
+                        $formatResult(...$otherDatum),
+                    )),
+                    array_merge(
+                        $formatParam(...$datum),
+                        $formatParam(...$otherDatum),
+                    ),
+                    "$query&$otherQuery",
                 ];
             }
 
-            foreach ($resolvableIfOnlyOneOfKind as $otherName => $otherParameter) {
-                yield "$name and $otherName" => [
-                    Result::noResult([
-                        $name => $parameter[1],
-                        $otherName => $otherParameter[1]
-                    ]),
-                    array_merge($otherParameter[0], $parameter[0]),
-                    implode('&', [$otherParameter[1], $parameter[1]])
+            foreach ($resolvableIfOnlyOneOfKind as $otherQuery => $otherDatum) {
+                yield "$query&$otherQuery" => [
+                    Result::noResult(array_merge(
+                        $formatResult(...$datum),
+                        $formatResult(...$otherDatum),
+                    )),
+                    array_merge(
+                        $formatParam(...$datum),
+                        $formatParam(...$otherDatum),
+                    ),
+                    "$query&$otherQuery",
                 ];
             }
         }

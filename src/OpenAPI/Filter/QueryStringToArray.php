@@ -56,14 +56,14 @@ class QueryStringToArray implements Filter
             );
         }
 
-        $tokens = array_values(array_filter(explode('&', rawurldecode($value)), fn($p) => $p !== ''));
+        $tokens = array_values(array_filter(explode('&', $value), fn($p) => $p !== ''));
 
 
         $index = 0;
         $resolvedTokens = [];
         $unresolvedTokens = [];
         while (!empty($tokens)) {
-            $token = $tokens[$index];
+            $token = rawurldecode($tokens[$index]);
             unset($tokens[$index++]);
 
 
