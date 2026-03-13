@@ -31,9 +31,7 @@ abstract class APIBuilder implements Builder
         ?string $style = null,
         ?bool $explode = null,
     ): Processor {
-        if (is_int($fieldName)) {
-            $fieldName = (string) $fieldName;
-        }
+        $fieldName = (string) $fieldName;
 
         if (is_bool($schema->value)) {
             return new Field($fieldName, $schema->value ?
