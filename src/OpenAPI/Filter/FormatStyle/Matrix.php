@@ -73,7 +73,6 @@ final class Matrix implements Filter
                 assert(is_string($result));
 
                 $result = str_replace('=', ';', $result);
-                assert(is_string($result));
 
                 return Result::noResult(explode(';', $result));
             } else {

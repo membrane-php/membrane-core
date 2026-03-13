@@ -50,7 +50,6 @@ use RuntimeException;
 #[UsesClass(OpenAPISpecification\Arrays::class)]
 #[UsesClass(OpenAPISpecification\Numeric::class)]
 #[UsesClass(OpenAPISpecification\Strings::class)]
-#[UsesClass(Processor\FieldSet::class)]
 #[UsesClass(Processor\BeforeSet::class)]
 #[UsesClass(Processor\Collection::class)]
 #[UsesClass(Processor\FieldSet::class)]

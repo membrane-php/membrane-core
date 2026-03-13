@@ -1,0 +1,7 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Parameter \#1 \$uploadedFiles of method Membrane\\OpenAPI\\Processor\\Request\:\:convertUploadedFilesToStrings\(\) expects array\<string, mixed\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/OpenAPI/Processor/Request.php

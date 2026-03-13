@@ -199,7 +199,7 @@ class FieldsetTest extends TestCase
 
     #[DataProvider('dataSetsWithIncorrectValues')]
     #[Test]
-    public function acceptsAnyValueWithoutAChainOrDefault(mixed $input): void
+    public function acceptsAnyValueWithoutAChainOrDefault(mixed $input, $_): void
     {
         $expected = Result::noResult($input);
         $fieldName = 'field to process';

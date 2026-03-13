@@ -70,7 +70,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(Strings::class)]
 #[UsesClass(Parameter::class)]
 #[UsesClass(ParameterBuilder::class)]
-#[UsesClass(ParameterBuilder::class)]
 #[UsesClass(QueryStringToArray::class)]
 #[UsesClass(Form::class)]
 #[UsesClass(PathMatcher::class)]
@@ -80,8 +79,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Numeric::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Strings::class)]
-#[UsesClass(Parameter::class)]
-#[UsesClass(Request::class)]
 #[UsesClass(ToInt::class)]
 #[UsesClass(Explode::class)]
 #[UsesClass(Implode::class)]
@@ -100,8 +97,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(IsList::class)]
 #[UsesClass(IsString::class)]
 #[UsesClass(Passes::class)]
-#[UsesClass(IntString::class)]
-#[UsesClass(Explode::class)]
 #[UsesClass(ContentType::class)]
 class RequestBuilderTest extends MembraneTestCase
 {

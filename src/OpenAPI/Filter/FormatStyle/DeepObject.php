@@ -41,7 +41,6 @@ final class DeepObject implements Filter
             assert(is_string($nameRemoved));
 
             $bracesRemoved = str_replace(['[', ']'], '', $nameRemoved);
-            assert(is_string($bracesRemoved));
 
             $splitPair = explode('=', $bracesRemoved);
 

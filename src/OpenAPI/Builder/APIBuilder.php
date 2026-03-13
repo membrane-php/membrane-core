@@ -25,12 +25,16 @@ abstract class APIBuilder implements Builder
 
     public function fromSchema(
         V30\Schema|V31\Schema $schema,
-        string $fieldName = '',
+        int|string $fieldName = '',
         bool $convertFromString = false,
         bool $convertFromArray = false,
         ?string $style = null,
         ?bool $explode = null,
     ): Processor {
+        if (is_int($fieldName)) {
+            $fieldName = (string) $fieldName;
+        }
+
         if (is_bool($schema->value)) {
             return new Field($fieldName, $schema->value ?
                 new Utility\Passes() :

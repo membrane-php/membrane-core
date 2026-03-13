@@ -39,10 +39,10 @@ class Tokenize implements Filter
             $token = strtok($this->delimiters);
         }
 
-        return Result::noResult(array_filter($tokens, fn($t) => $t !== false));
+        return Result::noResult($tokens);
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf(
             'Tokenize string using "%s" as a delimiter',
