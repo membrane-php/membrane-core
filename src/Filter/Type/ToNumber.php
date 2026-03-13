@@ -33,7 +33,7 @@ class ToNumber implements Filter
             );
         }
 
-        $value = (string)$value === (string)(int)$value ? (int)$value : (double)$value;
+        $value = (string)$value === (string)(int)$value ? (int)$value : (float)$value;
 
         return Result::valid($value);
     }
