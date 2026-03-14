@@ -32,11 +32,10 @@ class Implode implements Filter
             );
         }
 
-        assert($this->delimiter !== '');
         return Result::noResult(implode($this->delimiter, $value));
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf('implode array value taking "%s" as a delimiter', $this->delimiter);
     }

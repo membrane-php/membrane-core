@@ -27,9 +27,8 @@ class OpenAPIResponse implements Specification
             return null;
         }
 
-        $schema = $content['application/json']?->schema
-            ??
-            throw CannotProcessOpenAPI::unsupportedMediaTypes(...array_keys($content));
+        $schema = $content['application/json']->schema
+            ?? throw CannotProcessOpenAPI::unsupportedMediaTypes(...array_keys($content));
 
         return $schema;
     }

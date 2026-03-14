@@ -98,16 +98,16 @@ class IdenticalTest extends TestCase
     public static function dataSetsForInvalidResults(): array
     {
         return [
-            [[null, 1], Result::INVALID],
-            [[1, 1.0], Result::INVALID],
-            [[1, '1'], Result::INVALID],
-            [[true, false], Result::INVALID],
-            [[true, 'true'], Result::INVALID],
-            [[false, ''], Result::INVALID],
-            [[null, ''], Result::INVALID],
-            [[1, 1, 2], Result::INVALID],
-            [[1, 2, 3, 4, 5], Result::INVALID],
-            [[[1, 5], [5, 1]], Result::INVALID],
+            [[null, 1]],
+            [[1, 1.0]],
+            [[1, '1']],
+            [[true, false]],
+            [[true, 'true']],
+            [[false, '']],
+            [[null, '']],
+            [[1, 1, 2]],
+            [[1, 2, 3, 4, 5]],
+            [[[1, 5], [5, 1]]],
         ];
     }
 

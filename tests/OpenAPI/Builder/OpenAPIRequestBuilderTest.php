@@ -88,7 +88,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[CoversClass(CannotProcessOpenAPI::class)]
 #[UsesClass(HumanReadable::class)] // to render test failure messages
 #[UsesClass(RequestBuilder::class)]
-#[UsesClass(OpenAPIRequestBuilder::class)]
 #[UsesClass(\Membrane\OpenAPI\Builder\TrueFalse::class)]
 #[UsesClass(OpenAPIRequest::class)]
 #[UsesClass(Request::class)]
@@ -111,7 +110,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(\Membrane\OpenAPI\Specification\Objects::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Strings::class)]
 #[UsesClass(TrueFalse::class)]
-#[UsesClass(Request::class)]
 #[UsesClass(Explode::class)]
 #[UsesClass(Implode::class)]
 #[UsesClass(Tokenize::class)]

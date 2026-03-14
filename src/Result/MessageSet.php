@@ -37,6 +37,6 @@ class MessageSet
 
     public function isEmpty(): bool
     {
-        return !(isset($this->messages) && count($this->messages) > 0);
+        return empty($this->messages);
     }
 }

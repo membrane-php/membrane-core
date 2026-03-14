@@ -32,11 +32,10 @@ class Explode implements Filter
             );
         }
 
-        assert($this->delimiter !== '');
         return Result::noResult(explode($this->delimiter, $value));
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf('explode string value using "%s" as a delimiter', $this->delimiter);
     }

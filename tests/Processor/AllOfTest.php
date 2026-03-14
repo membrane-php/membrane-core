@@ -25,6 +25,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\MockObject\Rule\InvokedAtLeastOnce;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(AllOf::class)]
@@ -77,6 +78,7 @@ class AllOfTest extends TestCase
         $processor = $this->createMock(Processor::class);
         $processor->method('__toString')
             ->willReturn("\"id\":\n\t- condition");
+        $processor->expects(new InvokedAtLeastOnce())->method('__toString');
         $sut = new AllOf('id', $processor, $processor);
 
         $actual = (string)$sut;

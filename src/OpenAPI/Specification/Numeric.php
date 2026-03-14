@@ -36,8 +36,8 @@ class Numeric extends APISchema
             );
         }
 
-        $this->exclusiveMaximum = $keywords->maximum?->exclusive ?? false;
-        $this->exclusiveMinimum = $keywords->minimum?->exclusive ?? false;
+        $this->exclusiveMaximum = $keywords->maximum->exclusive ?? false;
+        $this->exclusiveMinimum = $keywords->minimum->exclusive ?? false;
         $this->maximum = $keywords->maximum?->limit;
         $this->minimum = $keywords->minimum?->limit;
         $this->multipleOf = $keywords->multipleOf;
