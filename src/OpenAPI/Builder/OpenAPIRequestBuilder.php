@@ -93,7 +93,11 @@ class OpenAPIRequestBuilder implements Builder
         }
 
         $fieldSets = [];
-        foreach ($locations as $in => ['required' => $required, 'fields' => $fields, 'beforeSet' => $beforeSet]) {
+        foreach ($locations as $in => $location) {
+            $fields = $location['fields'];
+            $required = $location['required'] ?? [];
+            $beforeSet = $location['beforeSet'] ?? [];
+
             if (!empty($required)) {
                 $beforeSet[] = new RequiredFields(...$required);
             }
