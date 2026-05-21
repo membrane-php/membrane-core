@@ -23,16 +23,25 @@ class Implode implements Filter
     public function filter(mixed $value): Result
     {
         if (!is_array($value)) {
-            return Result::invalid(
-                $value,
-                new MessageSet(
-                    null,
-                    new Message('Implode Filter expects an array value, %s passed instead', [gettype($value)])
-                )
-            );
+            return Result::invalid($value, new MessageSet(null, new Message(
+                'Implode Filter expects an array value, %s passed instead',
+                [gettype($value)],
+            )));
         }
 
-        return Result::noResult(implode($this->delimiter, $value));
+        $strings = [];
+        foreach ($value as $v) {
+            if (!is_string($v)) {
+                return Result::invalid($value, new MessageSet(null, new Message(
+                    'Implode Filter expects strings, %s passed instead',
+                    [gettype($v)],
+                )));
+            }
+            $strings[] = $v;
+        }
+
+
+        return Result::noResult(implode($this->delimiter, $strings));
     }
 
     public function __toString(): string
