@@ -17,11 +17,11 @@ abstract class MembraneTestCase extends TestCase
     ): void {
         self::assertEquals($expected, $actual, sprintf(
             <<<TEXT
-            expected: 
+            expected:
             %s
-            actual: 
+            actual:
             %s
-            
+
             TEXT,
             $expected,
             $actual,
@@ -34,14 +34,14 @@ abstract class MembraneTestCase extends TestCase
     ): void {
         $message = sprintf(
             <<<TEXT
-            expected: 
+            expected:
             %s
-            actual: 
+            actual:
             %s
-            
+
             TEXT,
-            (new HumanReadable($expected))->toString(),
-            (new HumanReadable($actual))->toString(),
+            new HumanReadable($expected)->toString(),
+            new HumanReadable($actual)->toString(),
         );
 
         self::assertEquals($expected, $actual, $message);

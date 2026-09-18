@@ -98,8 +98,7 @@ class MembraneTest extends TestCase
     public static function provideSpecifications(): Generator
     {
         yield 'Attributes' => [
-            new class {
-            },
+            new class {},
             new ClassWithAttributes((new class () {})::class),
         ];
         yield 'Request' => [
