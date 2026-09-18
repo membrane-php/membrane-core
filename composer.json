@@ -31,10 +31,5 @@
   },
   "bin": [
     "bin/membrane"
-  ],
-  "config": {
-    "allow-plugins": {
-      "infection/extension-installer": true
-    }
-  }
+  ]
 }
