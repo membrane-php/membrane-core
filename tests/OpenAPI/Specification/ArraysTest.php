@@ -27,7 +27,7 @@ class ArraysTest extends TestCase
 
         new Arrays(
             '',
-            (new V30\Schema(new Identifier('test'), new Partial\Schema()))->value
+            new V30\Schema(new Identifier('test'), new Partial\Schema())->value
         );
     }
 
@@ -38,7 +38,7 @@ class ArraysTest extends TestCase
 
         new Arrays(
             '',
-            (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')))->value
+            new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string'))->value
         );
     }
 
