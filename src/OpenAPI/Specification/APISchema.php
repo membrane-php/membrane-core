@@ -12,5 +12,6 @@ abstract class APISchema implements Specification
     public function __construct(
         public readonly string $fieldName,
         public V30\Keywords | V31\Keywords $keywords
-    ) {}
+    ) {
+    }
 }

@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
-use Membrane\Builder\Specification;
-use Membrane\Filter\String\Explode;
 use Membrane\Filter\String\Implode;
 use Membrane\Filter\String\LeftTrim;
 use Membrane\Filter\String\ToUpperCase;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -23,33 +22,31 @@ use Membrane\Validator\String\Regex;
 use Membrane\Validator\Type\IsString;
 use Membrane\Validator\Utility\AnyOf;
 
-class Strings extends APIBuilder
+final readonly class Strings
 {
-    public function supports(Specification $specification): bool
-    {
-        return $specification instanceof \Membrane\OpenAPI\Specification\Strings;
-    }
-
-    public function build(Specification $specification): Processor
-    {
-        assert($specification instanceof \Membrane\OpenAPI\Specification\Strings);
-        if (!in_array(Type::String, $specification->keywords->types)) {
+    public function build(
+        string $fieldName,
+        V30\Keywords | V31\Keywords $keywords,
+        bool $convertFromArray = false,
+        ?string $style = null,
+    ): Processor {
+        if (!in_array(Type::String, $keywords->types)) {
             throw new \DomainException(sprintf(
                 'strings builder expected string types, received: %s',
                 implode(', ', array_map(
                     fn($t) => $t->value,
-                    $specification->keywords->types,
+                    $keywords->types,
                 )),
             ));
         }
 
 
-        $chain = $specification->convertFromArray ?
+        $chain = $convertFromArray ?
             [new Implode(',')] :
             [];
 
-        if (isset($specification->style)) {
-            switch (Style::tryFrom($specification->style)) {
+        if (isset($style)) {
+            switch (Style::tryFrom($style)) {
                 case Style::Matrix:
                     $chain[] = new Matrix('string', false);
                     break;
@@ -67,19 +64,19 @@ class Strings extends APIBuilder
         $chain[] = new IsString();
 
         if (
-            $specification->keywords->enum !== null
+            $keywords->enum !== null
         ) {
             $chain[] = new Contained(array_map(
                 fn(Value $v) => $v->value,
-                $specification->keywords->enum,
+                $keywords->enum,
             ));
         }
 
-        if ($specification->keywords->format === 'date') {
+        if ($keywords->format === 'date') {
             $chain[] = new DateString('Y-m-d', true);
         }
 
-        if ($specification->keywords->format === 'date-time') {
+        if ($keywords->format === 'date-time') {
             $chain[] = new ToUpperCase();
             $chain[] = new AnyOf(
                 new DateString('Y-m-d\TH:i:sP', true),
@@ -88,22 +85,22 @@ class Strings extends APIBuilder
         }
 
         if (
-            $specification->keywords->maxLength !== null
-            || $specification->keywords->minLength > 0
+            $keywords->maxLength !== null
+            || $keywords->minLength > 0
         ) {
             $chain[] = new Length(
-                $specification->keywords->minLength,
-                $specification->keywords->maxLength,
+                $keywords->minLength,
+                $keywords->maxLength,
             );
         }
 
-        if ($specification->keywords->pattern !== null) {
+        if ($keywords->pattern !== null) {
             $chain[] = new Regex(sprintf(
                 '#%s#u',
-                str_replace('#', '\#', $specification->keywords->pattern),
+                str_replace('#', '\#', $keywords->pattern),
             ));
         }
 
-        return new Field($specification->fieldName, ...$chain);
+        return new Field($fieldName, ...$chain);
     }
 }

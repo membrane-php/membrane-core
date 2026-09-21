@@ -110,16 +110,17 @@ abstract class APIBuilder
                         $schema->value,
                         $convertFromString,
                         $convertFromArray,
-                        $style
+                        $style,
                     ),
 
-                Type::String => ($this->getStringBuilder())
-                    ->build(new OpenAPI\Specification\Strings(
+                Type::String => $this
+                    ->getStringBuilder()
+                    ->build(
                         $fieldName,
                         $schema->value,
                         $convertFromArray,
-                        $style
-                    )),
+                        $style,
+                    ),
 
                 Type::Object => $this->getObjectBuilder()
                     ->build(new OpenAPI\Specification\Objects(

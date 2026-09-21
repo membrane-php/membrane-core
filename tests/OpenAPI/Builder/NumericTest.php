@@ -134,16 +134,15 @@ class NumericTest extends TestCase
         bool $convertFromArray = false,
         ?string $style = null,
     ): void {
-        $sut = new Numeric();
-
-        $actual = $sut->build(
-            $fieldName,
-            $keywords,
-            $convertFromString,
-            $convertFromArray,
-            $style,
+        self::assertEquals(
+            $expected,
+            new Numeric()->build(
+                $fieldName,
+                $keywords,
+                $convertFromString,
+                $convertFromArray,
+                $style,
+            ),
         );
-
-        self::assertEquals($expected, $actual);
     }
 }

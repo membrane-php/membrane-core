@@ -48,7 +48,6 @@ use RuntimeException;
 #[UsesClass(OpenAPISpecification\OpenAPIResponse::class)]
 #[UsesClass(OpenAPISpecification\APISchema::class)]
 #[UsesClass(OpenAPISpecification\Arrays::class)]
-#[UsesClass(OpenAPISpecification\Strings::class)]
 #[UsesClass(Processor\BeforeSet::class)]
 #[UsesClass(Processor\Collection::class)]
 #[UsesClass(Processor\FieldSet::class)]

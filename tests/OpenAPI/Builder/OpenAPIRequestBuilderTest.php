@@ -106,7 +106,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(OneOf::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Objects::class)]
-#[UsesClass(\Membrane\OpenAPI\Specification\Strings::class)]
 #[UsesClass(Explode::class)]
 #[UsesClass(Implode::class)]
 #[UsesClass(Tokenize::class)]

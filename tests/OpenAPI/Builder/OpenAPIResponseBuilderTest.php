@@ -17,7 +17,6 @@ use Membrane\OpenAPI\Specification\Arrays;
 use Membrane\OpenAPI\Specification\Objects;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
-use Membrane\OpenAPI\Specification\Strings;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\Processor;
@@ -75,7 +74,6 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(APISchema::class)]
 #[UsesClass(Arrays::class)]
 #[UsesClass(Objects::class)]
-#[UsesClass(Strings::class)]
 #[UsesClass(Response::class)]
 #[UsesClass(BeforeSet::class)]
 #[UsesClass(Collection::class)]
