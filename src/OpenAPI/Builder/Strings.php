@@ -72,19 +72,19 @@ class Strings extends APIBuilder
 
         if (
             $specification->keywords->maxLength !== null
-            || ($specification->keywords->minLength !== null
-                && $specification->keywords->minLength > 0)
+            || $specification->keywords->minLength > 0
         ) {
             $chain[] = new Length(
-                $specification->keywords?->minLength ?? 0,
-                $specification->keywords?->maxLength,
+                $specification->keywords->minLength,
+                $specification->keywords->maxLength,
             );
         }
 
-        if ($specification->pattern !== null) {
-            $chain[] = new Regex(
-                sprintf('#%s#u', str_replace('#', '\#', $specification->pattern))
-            );
+        if ($specification->keywords->pattern !== null) {
+            $chain[] = new Regex(sprintf(
+                '#%s#u',
+                str_replace('#', '\#', $specification->keywords->pattern),
+            ));
         }
 
         return new Field($specification->fieldName, ...$chain);

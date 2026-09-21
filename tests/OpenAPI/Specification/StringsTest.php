@@ -48,7 +48,6 @@ class StringsTest extends TestCase
             'default values' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')),
                 [
-                    'pattern' => null,
                     'enum' => null,
                     'format' => '',
                 ],
@@ -57,11 +56,9 @@ class StringsTest extends TestCase
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'string',
                     enum: [new Value('This is a string'), new Value('So is this')],
-                    pattern: '.+',
                     format: 'arbitrary',
                 )),
                 [
-                    'pattern' => '.+',
                     'enum' => ['This is a string', 'So is this'],
                     'format' => 'arbitrary',
                 ],
