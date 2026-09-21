@@ -679,9 +679,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
 
     public static function dataSetsForDocExamples(): array
     {
-        $petstoreApi = (new MembraneReader([OpenAPIVersion::Version_3_0]))
-            ->readFromAbsoluteFilePath(self::FIXTURES . '/docs/petstore.yaml');
-
+        $petstoreApi = Fixtures\OpenAPI\Petstore::validated();
         $petstoreExpandedApi = Fixtures\OpenAPI\PetstoreExpanded::validated();
 
         return [

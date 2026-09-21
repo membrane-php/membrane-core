@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Membrane\Tests\OpenAPI\Builder;
 
 use Generator;
+use Membrane\Tests\Fixtures;
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\ToUpperCase;
 use Membrane\OpenAPI\Builder\APIBuilder;
@@ -155,7 +156,7 @@ class OpenAPIResponseBuilderTest extends TestCase
         ]);
 
         $noReferences = $reader->readFromAbsoluteFilePath(self::DIR . 'noReferences.json');
-        $petstore = $reader->readFromAbsoluteFilePath(self::DIR . 'docs/petstore.yaml');
+        $petstore = Fixtures\OpenAPI\Petstore::validated();
 
         return [
             'no properties' => [
@@ -964,8 +965,7 @@ class OpenAPIResponseBuilderTest extends TestCase
 
     public static function dataSetsForDocExamples(): array
     {
-        $petstore = (new MembraneReader([OpenAPIVersion::Version_3_0]))
-            ->readFromAbsoluteFilePath(self::DIR . 'docs/petstore.yaml');
+        $petstore = Fixtures\OpenAPI\Petstore::validated();
 
         $petsGet200Response = new OpenAPIResponse(
             $petstore->paths['/pets']->get->operationId,
