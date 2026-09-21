@@ -16,13 +16,6 @@ class Strings extends APISchema
         public readonly bool $convertFromArray = false,
         public readonly ?string $style = null,
     ) {
-        if (!in_array(Type::String, $keywords->types)) {
-            throw CannotProcessSpecification::mismatchedType(
-                ['string'],
-                array_map(fn($t) => $t->value, $keywords->types),
-            );
-        }
-
         parent::__construct($fieldName, $keywords);
     }
 }

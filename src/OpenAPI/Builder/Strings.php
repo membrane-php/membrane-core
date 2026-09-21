@@ -12,6 +12,7 @@ use Membrane\Filter\String\ToUpperCase;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\Field;
@@ -32,6 +33,16 @@ class Strings extends APIBuilder
     public function build(Specification $specification): Processor
     {
         assert($specification instanceof \Membrane\OpenAPI\Specification\Strings);
+        if (!in_array(Type::String, $specification->keywords->types)) {
+            throw new \DomainException(sprintf(
+                'strings builder expected string types, received: %s',
+                implode(', ', array_map(
+                    fn($t) => $t->value,
+                    $specification->keywords->types,
+                )),
+            ));
+        }
+
 
         $chain = $specification->convertFromArray ?
             [new Implode(',')] :
