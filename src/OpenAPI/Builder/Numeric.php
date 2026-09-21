@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
+use DomainException;
 use Membrane\Builder\Specification;
 use Membrane\Filter;
 use Membrane\Filter\String\LeftTrim;
@@ -14,6 +15,7 @@ use Membrane\OpenAPI;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\Field;
@@ -39,6 +41,18 @@ class Numeric extends APIBuilder
     {
         assert($specification instanceof OpenAPI\Specification\Numeric);
 
+        $types = $specification->keywords->types;
+        if (in_array(Type::Integer, $types)) {
+            $type = Type::Integer->value;
+        } elseif (in_array(Type::Number, $types)) {
+            $type = Type::Number->value;
+        } else {
+            throw new \DomainException(sprintf(
+                'numeric builder expected integer or number types, received: %s',
+                implode(', ', array_map(fn($t) => $t->value, $types)),
+            ));
+        }
+
         $chain = $specification->convertFromArray ?
             [new Filter\String\Implode(',')] :
             [];
@@ -46,7 +60,7 @@ class Numeric extends APIBuilder
         if (isset($specification->style)) {
             switch (Style::tryFrom($specification->style)) {
                 case Style::Matrix:
-                    $chain[] = new Matrix($specification->type, false);
+                    $chain[] = new Matrix($type, false);
                     break;
                 case Style::Label:
                     $chain[] = new LeftTrim('.');
@@ -54,12 +68,12 @@ class Numeric extends APIBuilder
                 case Style::Form:
                 case Style::SpaceDelimited:
                 case Style::PipeDelimited:
-                    $chain[] = new Form($specification->type, false);
+                    $chain[] = new Form($type, false);
                     break;
             }
         }
 
-        $chain = array_merge($chain, $specification->type === 'number' ?
+        $chain = array_merge($chain, $type === 'number' ?
             $this->handleNumber($specification) :
             $this->handleInteger($specification));
 
