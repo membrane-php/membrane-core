@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Specification;
 
-use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
-use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 
 class Arrays extends APISchema
 {
@@ -18,13 +16,6 @@ class Arrays extends APISchema
         public readonly ?string $style = null,
         public readonly ?bool $explode = null,
     ) {
-        if (!in_array(Type::Array, $keywords->types)) {
-            throw CannotProcessSpecification::mismatchedType(
-                ['array'],
-                array_map(fn($t) => $t->value, $keywords->types),
-            );
-        }
-
         parent::__construct($fieldName, $keywords);
     }
 }
