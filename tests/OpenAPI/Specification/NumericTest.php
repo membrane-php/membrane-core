@@ -53,7 +53,6 @@ class NumericTest extends TestCase
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'number')),
                 [
                     'type' => 'number',
-                    'multipleOf' => null,
                     'enum' => null,
                 ],
             ],
@@ -61,7 +60,6 @@ class NumericTest extends TestCase
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'integer')),
                 [
                     'type' => 'integer',
-                    'multipleOf' => null,
                     'enum' => null,
                 ],
             ],
@@ -69,12 +67,10 @@ class NumericTest extends TestCase
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'number',
                     enum: [new Value(3), new Value(9)],
-                    multipleOf: 3,
                     format: 'float',
                 )),
                 [
                     'type' => 'number',
-                    'multipleOf' => 3,
                     'enum' => [3, 9],
                     'format' => 'float',
                 ],
@@ -88,7 +84,6 @@ class NumericTest extends TestCase
                 )),
                 [
                     'type' => 'integer',
-                    'multipleOf' => 3,
                     'enum' => [9],
                     'format' => 'square of 3',
                 ],

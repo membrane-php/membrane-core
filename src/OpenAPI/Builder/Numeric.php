@@ -107,8 +107,8 @@ class Numeric extends APIBuilder
             );
         }
 
-        if ($specification->multipleOf !== null) {
-            $chain[] = new MultipleOf($specification->multipleOf);
+        if ($specification->keywords->multipleOf !== null) {
+            $chain[] = new MultipleOf($specification->keywords->multipleOf);
         }
 
         return $chain;

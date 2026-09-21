@@ -10,7 +10,6 @@ use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 
 class Numeric extends APISchema
 {
-    public readonly float | int | null $multipleOf;
     public readonly string $type;
 
     public function __construct(
@@ -31,8 +30,6 @@ class Numeric extends APISchema
                 array_map(fn($t) => $t->value, $types),
             );
         }
-
-        $this->multipleOf = $keywords->multipleOf;
 
         parent::__construct($fieldName, $keywords);
     }
