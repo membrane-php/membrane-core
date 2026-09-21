@@ -62,6 +62,7 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use Membrane\Tests\Fixtures;
 use Membrane\Tests\MembraneTestCase;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Numeric\Maximum;
@@ -681,8 +682,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         $petstoreApi = (new MembraneReader([OpenAPIVersion::Version_3_0]))
             ->readFromAbsoluteFilePath(self::FIXTURES . '/docs/petstore.yaml');
 
-        $petstoreExpandedApi = (new MembraneReader([OpenAPIVersion::Version_3_0]))
-            ->readFromAbsoluteFilePath(self::FIXTURES . '/docs/petstore-expanded.json');
+        $petstoreExpandedApi = Fixtures\OpenAPI\PetstoreExpanded::validated();
 
         return [
             'petstore /pets get, minimal (valid)' => [

@@ -11,7 +11,6 @@ use Membrane\Filter\{String\AlphaNumeric, String\Explode, String\ToPascalCase, T
 use Membrane\OpenAPI\Builder as Builder;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
 use Membrane\OpenAPI\ContentType;
-use Membrane\OpenAPI\Exception\CannotReadOpenAPI;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Processor\Request;
@@ -20,6 +19,7 @@ use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\Processor;
+use Membrane\Tests\Fixtures;
 use Membrane\Validator\{FieldSet as FieldSetValidator,
     String\IntString,
     Type as TypeValidator,
@@ -180,7 +180,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
         $cacheDir = $this->root->url() . '/cache';
 
         $this->sut->cache(
-            __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json',
+            Fixtures\OpenAPI\PetstoreExpanded::FILENAME,
             $cacheDir,
             'ServiceTest\\Petstore\\RequestsOnly',
             true,
@@ -200,7 +200,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
         $cacheDir = $this->root->url() . '/cache';
 
         $this->sut->cache(
-            __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json',
+            Fixtures\OpenAPI\PetstoreExpanded::FILENAME,
             $cacheDir,
             'ServiceTest\\Petstore\\ResponsesOnly',
             false,
@@ -217,8 +217,8 @@ class CacheOpenAPIProcessorsTest extends TestCase
     public static function provideCasesOfCachedRequestsFromPetstoreExpanded(): array
     {
         $requestBuilder = new OpenAPIRequestBuilder();
-        $petstoreExpandedFilePath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
-        $petstoreExpandedOpenApi = (new MembraneReader([OpenAPIVersion::Version_3_0]))
+        $petstoreExpandedFilePath = Membrane\Tests\Fixtures\OpenAPI\PetstoreExpanded::FILENAME;
+        $petstoreExpandedOpenApi = new MembraneReader([OpenAPIVersion::Version_3_0])
             ->readFromAbsoluteFilePath($petstoreExpandedFilePath);
 
         return [

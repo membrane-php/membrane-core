@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Membrane\Tests\OpenAPI\Specification;
 
 use Membrane\OpenAPI\ContentType;
+use Membrane\Tests\Fixtures;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
@@ -31,8 +32,7 @@ class OpenAPIRequestTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->openApi = (new MembraneReader([OpenAPIVersion::Version_3_0]))
-            ->readFromAbsoluteFilePath(__DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json');
+        $this->openApi = Fixtures\OpenAPI\PetstoreExpanded::validated();
         $this->pathParameterExtractor = new PathParameterExtractor('/pets');
     }
 
@@ -47,7 +47,7 @@ class OpenAPIRequestTest extends TestCase
     #[Test, TestDox('Throws an exception if the request body contains content that is not supported')]
     public function throwsExceptionIfRequestBodyContentContainsUnsupportedMediaTypes(): void
     {
-        $pathItem = (new MembraneReader([OpenAPIVersion::Version_3_0]))
+        $pathItem = new MembraneReader([OpenAPIVersion::Version_3_0])
             ->readFromAbsoluteFilePath(__DIR__ . '/../../fixtures/OpenAPI/noReferences.json')
             ->paths['/path'];
 
@@ -72,7 +72,12 @@ class OpenAPIRequestTest extends TestCase
     #[Test, TestDox('$requestBodySchema will be null if request body has no content')]
     public function requestBodySchemaIsNullIfRequestBodyHasNoContent(): void
     {
-        $sut = new OpenAPIRequest($this->pathParameterExtractor, $this->openApi->paths['/pets'], Method::GET);
+
+        $sut = new OpenAPIRequest(
+            $this->pathParameterExtractor,
+            $this->openApi->paths['/pets'],
+            Method::GET,
+        );
 
         self::assertNull($sut->requestBodySchema);
     }

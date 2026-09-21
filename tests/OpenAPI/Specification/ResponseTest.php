@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Specification;
 
+use Membrane\Tests\Fixtures;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -18,7 +19,7 @@ class ResponseTest extends TestCase
     public function constructTest(): void
     {
         $sut = new Response(
-            __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json',
+            Fixtures\OpenAPI\PetstoreExpanded::FILENAME,
             'http://petstore.swagger.io/api/pets',
             Method::GET,
             '200'

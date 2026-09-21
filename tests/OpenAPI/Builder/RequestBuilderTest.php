@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Builder;
 
+use Membrane\Tests\Fixtures;
 use GuzzleHttp\Psr7\ServerRequest;
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\Explode;
@@ -514,7 +515,7 @@ class RequestBuilderTest extends MembraneTestCase
     public static function dataSetsForDocExamples(): array
     {
         $api = self::DIR . '/docs/petstore.yaml';
-        $expanded = self::DIR . '/docs/petstore-expanded.json';
+        $expanded = Fixtures\OpenAPI\PetstoreExpanded::FILENAME;
 
         return [
             'petstore /pets get, minimal (valid)' => [
