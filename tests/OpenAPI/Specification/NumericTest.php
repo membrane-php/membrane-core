@@ -53,38 +53,32 @@ class NumericTest extends TestCase
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'number')),
                 [
                     'type' => 'number',
-                    'enum' => null,
                 ],
             ],
             'default values for integer' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'integer')),
                 [
                     'type' => 'integer',
-                    'enum' => null,
                 ],
             ],
             'assigned values for number' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'number',
-                    enum: [new Value(3), new Value(9)],
                     format: 'float',
                 )),
                 [
                     'type' => 'number',
-                    'enum' => [3, 9],
                     'format' => 'float',
                 ],
             ],
             'assigned values for integer' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'integer',
-                    enum: [new Value(9)],
                     multipleOf: 3,
                     format: 'square of 3',
                 )),
                 [
                     'type' => 'integer',
-                    'enum' => [9],
                     'format' => 'square of 3',
                 ],
             ],

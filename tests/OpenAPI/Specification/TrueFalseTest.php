@@ -48,18 +48,15 @@ class TrueFalseTest extends TestCase
             'default values' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'boolean')),
                 [
-                    'enum' => null,
                     'format' => '',
                 ],
             ],
             'assigned values' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'boolean',
-                    enum: [new Value(false), new Value(null)],
                     format: 'you cannot say yes',
                 )),
                 [
-                    'enum' => [false, null],
                     'format' => 'you cannot say yes',
                 ],
             ],

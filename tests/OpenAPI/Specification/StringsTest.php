@@ -48,18 +48,15 @@ class StringsTest extends TestCase
             'default values' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')),
                 [
-                    'enum' => null,
                     'format' => '',
                 ],
             ],
             'assigned values' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'string',
-                    enum: [new Value('This is a string'), new Value('So is this')],
                     format: 'arbitrary',
                 )),
                 [
-                    'enum' => ['This is a string', 'So is this'],
                     'format' => 'arbitrary',
                 ],
             ],

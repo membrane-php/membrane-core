@@ -12,6 +12,7 @@ use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPI\Filter\FormatStyle\PipeDelimited;
 use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
+use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\DefaultProcessor;
@@ -71,8 +72,13 @@ class Objects extends APIBuilder
 
         $beforeChain[] = new IsArray();
 
-        if ($specification->enum !== null) {
-            $beforeChain[] = new Contained($specification->enum);
+        if (
+            $specification->keywords->enum !== null
+        ) {
+            $beforeChain[] = new Contained(array_map(
+                fn(Value $v) => $v->value,
+                $specification->keywords->enum,
+            ));
         }
 
         if (!empty($specification->keywords->required)) {

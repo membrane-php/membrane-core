@@ -11,6 +11,7 @@ use Membrane\Filter\Type\ToBool;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
+use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Collection\Contained;
@@ -52,8 +53,13 @@ class TrueFalse extends APIBuilder
             [new BoolString(), new ToBool()] :
             [new IsBool()]);
 
-        if ($specification->enum !== null) {
-            $chain[] = new Contained($specification->enum);
+        if (
+            $specification->keywords->enum !== null
+        ) {
+            $chain[] = new Contained(array_map(
+                fn(Value $v) => $v->value,
+                $specification->keywords->enum,
+            ));
         }
 
         return new Field($specification->fieldName, ...$chain);

@@ -48,7 +48,6 @@ class ObjectsTest extends TestCase
             'default values' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'object')),
                 [
-                    'enum' => null,
                     'format' => '',
                 ],
             ],
@@ -57,18 +56,15 @@ class ObjectsTest extends TestCase
                     type: 'object',
                 )),
                 [
-                    'enum' => null,
                     'format' => '',
                 ],
             ],
             'all relevant keywords assigned values' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'object',
-                    enum: [new Value(['id' => 5]), new Value(['id' => 10])],
                     format: 'you cannot say yes',
                 )),
                 [
-                    'enum' => [['id' => 5], ['id' => 10]],
                     'format' => 'you cannot say yes',
                 ],
             ],

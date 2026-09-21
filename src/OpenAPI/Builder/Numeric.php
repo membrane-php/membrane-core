@@ -14,6 +14,7 @@ use Membrane\OpenAPI;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
+use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator;
@@ -62,8 +63,13 @@ class Numeric extends APIBuilder
             $this->handleNumber($specification) :
             $this->handleInteger($specification));
 
-        if ($specification->enum !== null) {
-            $chain[] = new Contained($specification->enum);
+        if (
+            $specification->keywords->enum !== null
+        ) {
+            $chain[] = new Contained(array_map(
+                fn(Value $v) => $v->value,
+                $specification->keywords->enum,
+            ));
         }
 
         $chain = array_merge($chain, $this->handleNumericConstraints($specification));
