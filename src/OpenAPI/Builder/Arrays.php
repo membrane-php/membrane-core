@@ -72,7 +72,7 @@ class Arrays extends APIBuilder
             $beforeChain[] = new Count($specification->minItems, $specification->maxItems);
         }
 
-        if ($specification->uniqueItems === true) {
+        if ($specification->keywords->uniqueItems === true) {
             $beforeChain[] = new Unique();
         }
 

@@ -13,7 +13,6 @@ class Arrays extends APISchema
     public readonly V30\Schema | V31\Schema $items;
     public readonly ?int $maxItems;
     public readonly int $minItems;
-    public readonly bool $uniqueItems;
 
     public function __construct(
         string $fieldName,
@@ -33,7 +32,6 @@ class Arrays extends APISchema
         $this->items = $keywords->items;
         $this->maxItems = $keywords->maxItems;
         $this->minItems = $keywords->minItems;
-        $this->uniqueItems = $keywords->uniqueItems;
 
         parent::__construct($fieldName, $keywords);
     }
