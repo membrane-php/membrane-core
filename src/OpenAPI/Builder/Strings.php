@@ -70,8 +70,15 @@ class Strings extends APIBuilder
             );
         }
 
-        if ($specification->minLength > 0 || $specification->maxLength !== null) {
-            $chain[] = new Length($specification->minLength, $specification->maxLength);
+        if (
+            $specification->keywords->maxLength !== null
+            || ($specification->keywords->minLength !== null
+                && $specification->keywords->minLength > 0)
+        ) {
+            $chain[] = new Length(
+                $specification->keywords?->minLength ?? 0,
+                $specification->keywords?->maxLength,
+            );
         }
 
         if ($specification->pattern !== null) {

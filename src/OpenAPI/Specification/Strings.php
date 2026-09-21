@@ -10,8 +10,6 @@ use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
 
 class Strings extends APISchema
 {
-    public readonly ?int $maxLength;
-    public readonly int $minLength;
     public readonly ?string $pattern;
 
     public function __construct(
@@ -27,8 +25,6 @@ class Strings extends APISchema
             );
         }
 
-        $this->maxLength = $keywords->maxLength;
-        $this->minLength = $keywords->minLength;
         $this->pattern = $keywords->pattern;
 
         parent::__construct($fieldName, $keywords);
