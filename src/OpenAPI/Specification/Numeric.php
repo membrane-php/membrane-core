@@ -10,10 +10,6 @@ use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 
 class Numeric extends APISchema
 {
-    public readonly bool $exclusiveMaximum;
-    public readonly bool $exclusiveMinimum;
-    public readonly float | int | null $maximum;
-    public readonly float | int | null $minimum;
     public readonly float | int | null $multipleOf;
     public readonly string $type;
 
@@ -36,10 +32,6 @@ class Numeric extends APISchema
             );
         }
 
-        $this->exclusiveMaximum = $keywords->maximum->exclusive ?? false;
-        $this->exclusiveMinimum = $keywords->minimum->exclusive ?? false;
-        $this->maximum = $keywords->maximum?->limit;
-        $this->minimum = $keywords->minimum?->limit;
         $this->multipleOf = $keywords->multipleOf;
 
         parent::__construct($fieldName, $keywords);

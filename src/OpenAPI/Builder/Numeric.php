@@ -91,13 +91,20 @@ class Numeric extends APIBuilder
     private function handleNumericConstraints(OpenAPI\Specification\Numeric $specification): array
     {
         $chain = [];
-
-        if ($specification->maximum !== null) {
-            $chain[] = new Maximum($specification->maximum, $specification->exclusiveMaximum);
+        // if keywords->maximum !== null
+        // keywords->maximum->limit
+        if ($specification->keywords->maximum !== null) {
+            $chain[] = new Maximum(
+                $specification->keywords->maximum->limit,
+                $specification->keywords->maximum->exclusive,
+            );
         }
 
-        if ($specification->minimum !== null) {
-            $chain[] = new Minimum($specification->minimum, $specification->exclusiveMinimum);
+        if ($specification->keywords->minimum !== null) {
+            $chain[] = new Minimum(
+                $specification->keywords->minimum->limit,
+                $specification->keywords->minimum->exclusive,
+            );
         }
 
         if ($specification->multipleOf !== null) {

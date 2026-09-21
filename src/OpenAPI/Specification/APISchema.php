@@ -15,7 +15,7 @@ abstract class APISchema implements Specification
 
     public function __construct(
         public readonly string $fieldName,
-        V30\Keywords | V31\Keywords $keywords
+        public V30\Keywords | V31\Keywords $keywords
     ) {
         $this->enum = isset($keywords->enum) ?
             array_map(fn($e) => $e->value, $keywords->enum) :
