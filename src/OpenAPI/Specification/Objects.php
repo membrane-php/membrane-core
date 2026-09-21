@@ -10,16 +10,6 @@ use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 
 class Objects extends APISchema
 {
-    // @TODO support minProperties and maxProperties
-    public readonly V30\Schema | V31\Schema $additionalProperties;
-    /** @var V30\Schema[] | V31\Schema[] */
-    public readonly array $properties;
-    /** @var string[] */
-    public readonly array $required;
-
-    public readonly ?int $maxProperties;
-    public readonly int $minProperties;
-
     public function __construct(
         string $fieldName,
         V30\Keywords | V31\Keywords $keywords,
@@ -34,12 +24,6 @@ class Objects extends APISchema
                 array_map(fn($t) => $t->value, $keywords->types),
             );
         }
-
-        $this->additionalProperties = $keywords->additionalProperties;
-        $this->properties = $keywords->properties;
-        $this->required = $keywords->required;
-        $this->maxProperties = $keywords->maxProperties;
-        $this->minProperties = $keywords->minProperties;
 
         parent::__construct($fieldName, $keywords);
     }

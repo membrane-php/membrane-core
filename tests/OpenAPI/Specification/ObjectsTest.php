@@ -48,12 +48,6 @@ class ObjectsTest extends TestCase
             'default values' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'object')),
                 [
-                    'additionalProperties' => new V30\Schema(
-                        new Identifier('test', 'additionalProperties'),
-                        true,
-                    ),
-                    'properties' => [],
-                    'required' => [],
                     'enum' => null,
                     'format' => '',
                 ],
@@ -61,15 +55,8 @@ class ObjectsTest extends TestCase
             'additionalProperties assigned false' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'object',
-                    additionalProperties: false,
                 )),
                 [
-                    'additionalProperties' => new V30\Schema(
-                        new Identifier('test', 'additionalProperties'),
-                        false,
-                    ),
-                    'properties' => [],
-                    'required' => [],
                     'enum' => null,
                     'format' => '',
                 ],
@@ -78,21 +65,9 @@ class ObjectsTest extends TestCase
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'object',
                     enum: [new Value(['id' => 5]), new Value(['id' => 10])],
-                    required: ['id'],
-                    properties: ['id' => new Partial\Schema(type: 'integer')],
-                    additionalProperties: new Partial\Schema(type: 'string'),
                     format: 'you cannot say yes',
                 )),
                 [
-                    'additionalProperties' => new V30\Schema(
-                        new Identifier('test', 'additionalProperties'),
-                        new Partial\Schema(type: 'string')
-                    ),
-                    'properties' => ['id' => new V30\Schema(
-                        new Identifier('test', 'properties(id)'),
-                        new Partial\Schema(type: 'integer')
-                    )],
-                    'required' => ['id'],
                     'enum' => [['id' => 5], ['id' => 10]],
                     'format' => 'you cannot say yes',
                 ],

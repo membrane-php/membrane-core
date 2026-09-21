@@ -75,36 +75,46 @@ class Objects extends APIBuilder
             $beforeChain[] = new Contained($specification->enum);
         }
 
-        if (!empty($specification->required)) {
-            $beforeChain[] = new RequiredFields(...$specification->required);
+        if (!empty($specification->keywords->required)) {
+            $beforeChain[] = new RequiredFields(
+                ...$specification->keywords->required
+            );
         }
 
-        if ($specification->additionalProperties->value === false) {
-            $beforeChain[] = new FixedFields(...array_keys($specification->properties));
+        if ($specification->keywords->additionalProperties->value === false) {
+            $beforeChain[] = new FixedFields(
+                ...array_keys($specification->keywords->properties)
+            );
         }
 
-        if ($specification->minProperties > 0 || isset($specification->maxProperties)) {
-            $beforeChain[] = new Count($specification->minProperties, $specification->maxProperties);
+        if (
+            $specification->keywords->minProperties > 0
+            || $specification->keywords->maxProperties !== null
+        ) {
+            $beforeChain[] = new Count(
+                $specification->keywords->minProperties,
+                $specification->keywords->maxProperties,
+            );
         }
 
         $beforeSet = new BeforeSet(...$beforeChain);
 
         $fields = [];
 
-        foreach ($specification->properties as $key => $schema) {
+        foreach ($specification->keywords->properties as $key => $schema) {
             $fields [] = $this->fromSchema(
                 $schema,
                 $key,
-                $specification->convertFromString
+                $specification->convertFromString,
             );
         }
 
-        if (!is_bool($specification->additionalProperties->value)) {
+        if (!is_bool($specification->keywords->additionalProperties->value)) {
             $fields [] = new DefaultProcessor(
                 $this->fromSchema(
-                    $specification->additionalProperties,
+                    $specification->keywords->additionalProperties,
                     '',
-                    $specification->convertFromString
+                    $specification->convertFromString,
                 )
             );
         }
