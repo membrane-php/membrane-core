@@ -93,16 +93,18 @@ abstract class APIBuilder
                         $explode,
                     )),
 
-                Type::Boolean => $this->getTrueFalseBuilder()
-                    ->build(new OpenAPI\Specification\TrueFalse(
+                Type::Boolean => $this
+                    ->getTrueFalseBuilder()
+                    ->build(
                         $fieldName,
                         $schema->value,
                         $convertFromString,
                         $convertFromArray,
                         $style,
-                    )),
+                    ),
 
-                Type::Integer, Type::Number => $this->getNumericBuilder()
+                Type::Integer, Type::Number => $this
+                    ->getNumericBuilder()
                     ->build(
                         $fieldName,
                         $schema->value,

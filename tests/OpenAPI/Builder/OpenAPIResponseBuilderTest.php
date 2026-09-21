@@ -18,7 +18,6 @@ use Membrane\OpenAPI\Specification\Objects;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPI\Specification\Strings;
-use Membrane\OpenAPI\Specification\TrueFalse;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\Processor;
@@ -75,7 +74,6 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(OneOf::class)]
 #[UsesClass(APISchema::class)]
 #[UsesClass(Arrays::class)]
-#[UsesClass(TrueFalse::class)]
 #[UsesClass(Objects::class)]
 #[UsesClass(Strings::class)]
 #[UsesClass(Response::class)]

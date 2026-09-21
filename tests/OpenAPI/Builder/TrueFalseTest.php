@@ -7,9 +7,8 @@ namespace Membrane\Tests\OpenAPI\Builder;
 use Membrane\Filter\Type\ToBool;
 use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\TrueFalse;
-use Membrane\OpenAPI\Specification;
 use Membrane\OpenAPIReader\ValueObject\Partial;
-use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\AnyOf;
@@ -26,95 +25,78 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(TrueFalse::class)]
 #[CoversClass(APIBuilder::class)]
 #[UsesClass(AnyOf::class)]
-#[UsesClass(Specification\TrueFalse::class)]
 #[UsesClass(Field::class)]
 #[UsesClass(Contained::class)]
 class TrueFalseTest extends TestCase
 {
-    #[Test]
-    public function supportsNumericSpecification(): void
-    {
-        $specification = self::createStub(Specification\TrueFalse::class);
-        $sut = new TrueFalse();
-
-        self::assertTrue($sut->supports($specification));
-    }
-
-    #[Test]
-    public function doesNotSupportNonNumericSpecification(): void
-    {
-        $specification = self::createStub(\Membrane\Builder\Specification::class);
-        $sut = new TrueFalse();
-
-        self::assertFalse($sut->supports($specification));
-    }
-
     public static function specificationsToBuild(): array
     {
         return [
-            'input to convert from string' => [
-                new Specification\TrueFalse(
-                    '',
-                    (new V30\Schema(
-                        new Identifier('test'),
-                        new Partial\Schema(type: 'boolean')
-                    ))->value,
-                    true,
-                ),
-                new Field('', new BoolString(), new ToBool()),
+            'MVP' => [
+                new Field('mvp', new IsBool()),
+                'mvp',
+                new V30\Schema(
+                    new Identifier('test'),
+                    new Partial\Schema(type: 'boolean')
+                )->value,
             ],
-            'strict input' => [
-                new Specification\TrueFalse(
-                    '',
-                    (new V30\Schema(
-                        new Identifier('test'),
-                        new Partial\Schema(type: 'boolean')
-                    ))->value,
-                    false,
-                ),
-                new Field('', new IsBool()),
+            'MVP from string' => [
+                new Field('mvp-from-string', new BoolString(), new ToBool()),
+                'mvp-from-string',
+                new V30\Schema(
+                    new Identifier('test'),
+                    new Partial\Schema(type: 'boolean')
+                )->value,
+                true,
             ],
-            'detailed input to convert from string' => [
-                new Specification\TrueFalse(
-                    '',
-                    (new V30\Schema(
-                        new Identifier('test'),
-                        new Partial\Schema(
-                            type: 'boolean',
-                            enum: [new Value(true), new Value(null)],
-                            format: 'rather pointless boolean',
-                        )
-                    ))->value,
-                    true
-                ),
-                new Field('', new BoolString(), new ToBool(), new Contained([true, null])),
+            'max' => [
+                new Field('max', new IsBool(), new Contained([true, null])),
+                'max',
+                new V30\Schema(
+                    new Identifier('test'),
+                    new Partial\Schema(
+                        type: 'boolean',
+                        enum: [new Value(true), new Value(null)],
+                        format: 'rather pointless boolean',
+                    )
+                )->value,
             ],
-            'strict detailed input' => [
-                new Specification\TrueFalse(
-                    '',
-                    (new V30\Schema(
-                        new Identifier('test'),
-                        new Partial\Schema(
-                            type: 'boolean',
-                            enum: [new Value(true), new Value(null)],
-                            format: 'rather pointless boolean',
-                        )
-                    ))->value,
-                    false
-                ),
-                new Field('', new IsBool(), new Contained([true, null])),
+            'max from string' => [
+                new Field('max-from-string', new BoolString(), new ToBool(), new Contained([true, null])),
+                'max-from-string',
+                new V30\Schema(
+                    new Identifier('test'),
+                    new Partial\Schema(
+                        type: 'boolean',
+                        enum: [new Value(true), new Value(null)],
+                        format: 'rather pointless boolean',
+                    )
+                )->value,
+                true,
             ],
+
         ];
     }
 
     #[Test]
     #[DataProvider('specificationsToBuild')]
-    public function buildTest(Specification\TrueFalse $specification, Processor $expected): void
-    {
-        $sut = new TrueFalse();
-
-        $actual = $sut->build($specification);
-
-        self::assertEquals($expected, $actual);
+    public function buildTest(
+        Processor $expected,
+        string $fieldName,
+        V30\Keywords | V31\Keywords $keywords,
+        bool $convertFromString = false,
+        bool $convertFromArray = false,
+        ?string $style = null,
+    ): void {
+        self::assertEquals(
+            $expected,
+            new TrueFalse()->build(
+                $fieldName,
+                $keywords,
+                $convertFromString,
+                $convertFromArray,
+                $style,
+            ),
+        );
     }
 }

@@ -10,6 +10,7 @@ use Membrane\Filter\String\LeftTrim;
 use Membrane\Filter\Type\ToBool;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -19,32 +20,31 @@ use Membrane\Validator\Collection\Contained;
 use Membrane\Validator\String\BoolString;
 use Membrane\Validator\Type\IsBool;
 
-class TrueFalse extends APIBuilder
+final readonly class TrueFalse
 {
-    public function supports(Specification $specification): bool
-    {
-        return $specification instanceof \Membrane\OpenAPI\Specification\TrueFalse;
-    }
-
-    public function build(Specification $specification): Processor
-    {
-        assert($specification instanceof \Membrane\OpenAPI\Specification\TrueFalse);
-        if (!in_array(Type::Boolean, $specification->keywords->types)) {
+    public function build(
+        string $fieldName,
+        V30\Keywords | V31\Keywords $keywords,
+        bool $convertFromString = false,
+        bool $convertFromArray = false,
+        ?string $style = null,
+    ): Processor {
+        if (!in_array(Type::Boolean, $keywords->types)) {
             throw new \DomainException(sprintf(
                 'truefalse builder expected boolean types, received: %s',
                 implode(', ', array_map(
                     fn($t) => $t->value,
-                    $specification->keywords->types,
+                    $keywords->types,
                 )),
             ));
         }
 
-        $chain = $specification->convertFromArray ?
+        $chain = $convertFromArray ?
             [new Implode(',')] :
             [];
 
-        if (isset($specification->style)) {
-            switch (Style::tryFrom($specification->style)) {
+        if (isset($style)) {
+            switch (Style::tryFrom($style)) {
                 case Style::Matrix:
                     $chain[] = new Matrix('boolean', false);
                     break;
@@ -59,19 +59,19 @@ class TrueFalse extends APIBuilder
             }
         }
 
-        $chain = array_merge($chain, $specification->convertFromString ?
+        $chain = array_merge($chain, $convertFromString ?
             [new BoolString(), new ToBool()] :
             [new IsBool()]);
 
         if (
-            $specification->keywords->enum !== null
+            $keywords->enum !== null
         ) {
             $chain[] = new Contained(array_map(
                 fn(Value $v) => $v->value,
-                $specification->keywords->enum,
+                $keywords->enum,
             ));
         }
 
-        return new Field($specification->fieldName, ...$chain);
+        return new Field($fieldName, ...$chain);
     }
 }
