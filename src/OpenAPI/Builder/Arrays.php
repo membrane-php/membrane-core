@@ -88,7 +88,7 @@ class Arrays extends APIBuilder
             $specification->fieldName,
             $beforeSet,
             $this->fromSchema(
-                $specification->items,
+                $specification->keywords->items,
                 '',
                 $specification->convertFromString,
             )

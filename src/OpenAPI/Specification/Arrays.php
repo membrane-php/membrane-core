@@ -10,8 +10,6 @@ use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 
 class Arrays extends APISchema
 {
-    public readonly V30\Schema | V31\Schema $items;
-
     public function __construct(
         string $fieldName,
         V30\Keywords | V31\Keywords $keywords,
@@ -26,8 +24,6 @@ class Arrays extends APISchema
                 array_map(fn($t) => $t->value, $keywords->types),
             );
         }
-
-        $this->items = $keywords->items;
 
         parent::__construct($fieldName, $keywords);
     }

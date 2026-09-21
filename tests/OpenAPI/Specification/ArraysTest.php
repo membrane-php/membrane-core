@@ -48,10 +48,6 @@ class ArraysTest extends TestCase
             'default values' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'array')),
                 [
-                    'items' => new V30\Schema(
-                        new Identifier('test', 'items'),
-                        true
-                    ),
                     'enum' => null,
                     'format' => '',
                 ],
@@ -60,14 +56,9 @@ class ArraysTest extends TestCase
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'array',
                     enum: [new Value([1, 2, 3]), new Value([5, 6, 7])],
-                    items: new Partial\Schema(type: 'integer'),
                     format: 'array of ints',
                 )),
                 [
-                    'items' => new V30\Schema(
-                        new Identifier('test', 'items'),
-                        new Partial\Schema(type: 'integer'),
-                    ),
                     'enum' => [[1, 2, 3], [5, 6, 7]],
                     'format' => 'array of ints',
                 ],
