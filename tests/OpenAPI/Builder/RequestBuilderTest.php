@@ -77,7 +77,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(RequestProcessor::class)]
 #[UsesClass(APISchema::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
-#[UsesClass(\Membrane\OpenAPI\Specification\Numeric::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Strings::class)]
 #[UsesClass(ToInt::class)]
 #[UsesClass(Explode::class)]

@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
-use DomainException;
-use Membrane\Builder\Specification;
 use Membrane\Filter;
 use Membrane\Filter\String\LeftTrim;
 use Membrane\Filter\Type\ToFloat;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
-use Membrane\OpenAPI;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -30,18 +28,16 @@ use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsNumber;
 
-class Numeric extends APIBuilder
+final readonly class Numeric
 {
-    public function supports(Specification $specification): bool
-    {
-        return $specification instanceof OpenAPI\Specification\Numeric;
-    }
-
-    public function build(Specification $specification): Processor
-    {
-        assert($specification instanceof OpenAPI\Specification\Numeric);
-
-        $types = $specification->keywords->types;
+    public function build(
+        string $fieldName,
+        V30\Keywords | V31\Keywords $keywords,
+        bool $convertFromString = false,
+        bool $convertFromArray = false,
+        ?string $style = null,
+    ): Processor {
+        $types = $keywords->types;
         if (in_array(Type::Integer, $types)) {
             $type = Type::Integer->value;
         } elseif (in_array(Type::Number, $types)) {
@@ -53,12 +49,12 @@ class Numeric extends APIBuilder
             ));
         }
 
-        $chain = $specification->convertFromArray ?
+        $chain = $convertFromArray ?
             [new Filter\String\Implode(',')] :
             [];
 
-        if (isset($specification->style)) {
-            switch (Style::tryFrom($specification->style)) {
+        if (isset($style)) {
+            switch (Style::tryFrom($style)) {
                 case Style::Matrix:
                     $chain[] = new Matrix($type, false);
                     break;
@@ -73,62 +69,70 @@ class Numeric extends APIBuilder
             }
         }
 
-        $chain = array_merge($chain, $type === 'number' ?
-            $this->handleNumber($specification) :
-            $this->handleInteger($specification));
+        $chain = array_merge($chain, $type === 'number'
+            ? $this->handleNumber($keywords, $convertFromString)
+            : $this->handleInteger($keywords, $convertFromString));
 
         if (
-            $specification->keywords->enum !== null
+            $keywords->enum !== null
         ) {
             $chain[] = new Contained(array_map(
                 fn(Value $v) => $v->value,
-                $specification->keywords->enum,
+                $keywords->enum,
             ));
         }
 
-        $chain = array_merge($chain, $this->handleNumericConstraints($specification));
+        $chain = array_merge(
+            $chain,
+            $this->handleNumericConstraints($keywords),
+        );
 
-        return new Field($specification->fieldName, ...$chain);
+        return new Field($fieldName, ...$chain);
     }
 
     /** @return Filter[]|Validator[] */
-    private function handleNumber(OpenAPI\Specification\Numeric $specification): array
-    {
-        if (in_array($specification->keywords->format, ['float', 'double'], true)) {
-            return $specification->convertFromString ? [new NumericString(), new ToFloat()] : [new IsFloat()];
+    private function handleNumber(
+        V30\Keywords | V31\Keywords $keywords,
+        bool $convertFromString,
+    ): array {
+        if (in_array($keywords->format, ['float', 'double'], true)) {
+            return $convertFromString ? [new NumericString(), new ToFloat()] : [new IsFloat()];
         } else {
-            return $specification->convertFromString ? [new NumericString(), new ToNumber()] : [new IsNumber()];
+            return $convertFromString ? [new NumericString(), new ToNumber()] : [new IsNumber()];
         }
     }
 
     /** @return Filter[]|Validator[] */
-    private function handleInteger(OpenAPI\Specification\Numeric $specification): array
-    {
-        return $specification->convertFromString ? [new IntString(), new ToInt()] : [new IsInt()];
+    private function handleInteger(
+        V30\Keywords | V31\Keywords $keywords,
+        bool $convertFromString,
+    ): array {
+        return $convertFromString ? [new IntString(), new ToInt()] : [new IsInt()];
     }
 
     /** @return Validator[] */
-    private function handleNumericConstraints(OpenAPI\Specification\Numeric $specification): array
-    {
+    private function handleNumericConstraints(
+        V30\Keywords | V31\Keywords $keywords,
+    ): array {
         $chain = [];
         // if keywords->maximum !== null
         // keywords->maximum->limit
-        if ($specification->keywords->maximum !== null) {
+        if ($keywords->maximum !== null) {
             $chain[] = new Maximum(
-                $specification->keywords->maximum->limit,
-                $specification->keywords->maximum->exclusive,
+                $keywords->maximum->limit,
+                $keywords->maximum->exclusive,
             );
         }
 
-        if ($specification->keywords->minimum !== null) {
+        if ($keywords->minimum !== null) {
             $chain[] = new Minimum(
-                $specification->keywords->minimum->limit,
-                $specification->keywords->minimum->exclusive,
+                $keywords->minimum->limit,
+                $keywords->minimum->exclusive,
             );
         }
 
-        if ($specification->keywords->multipleOf !== null) {
-            $chain[] = new MultipleOf($specification->keywords->multipleOf);
+        if ($keywords->multipleOf !== null) {
+            $chain[] = new MultipleOf($keywords->multipleOf);
         }
 
         return $chain;

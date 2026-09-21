@@ -106,7 +106,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(AnyOf::class)]
 #[UsesClass(OneOf::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
-#[UsesClass(\Membrane\OpenAPI\Specification\Numeric::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Objects::class)]
 #[UsesClass(\Membrane\OpenAPI\Specification\Strings::class)]
 #[UsesClass(TrueFalse::class)]
@@ -146,7 +145,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(KeyValueSplit::class)]
 class OpenAPIRequestBuilderTest extends MembraneTestCase
 {
-    public const FIXTURES = __DIR__ . '/../../fixtures/OpenAPI/';
+    public const string FIXTURES = __DIR__ . '/../../fixtures/OpenAPI/';
 
     #[Test, TestDox('It will support the OpenAPIRequest Specification')]
     public function supportsRequestSpecification(): void

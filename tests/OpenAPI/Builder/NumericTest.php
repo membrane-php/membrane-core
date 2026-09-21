@@ -11,7 +11,7 @@ use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Specification;
 use Membrane\OpenAPIReader\ValueObject\Partial;
-use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30};
+use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\AnyOf;
@@ -41,134 +41,108 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(MultipleOf::class)]
 class NumericTest extends TestCase
 {
-    #[Test]
-    public function supportsNumericSpecification(): void
-    {
-        $specification = self::createStub(Specification\Numeric::class);
-        $sut = new Numeric();
-
-        self::assertTrue($sut->supports($specification));
-    }
-
-    #[Test]
-    public function doesNotSupportSpecificationsOtherThanNumeric(): void
-    {
-        $specification = self::createStub(\Membrane\Builder\Specification::class);
-        $sut = new Numeric();
-
-        self::assertFalse($sut->supports($specification));
-    }
-
     public static function specificationsToBuild(): array
     {
         return [
             'integer input to convert from string' => [
-                new Specification\Numeric(
-                    '',
-                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'integer')))->value,
-                    true
-                ),
-                new Field('', new IntString(), new ToInt()),
+                new Field('int-from-string', new IntString(), new ToInt()),
+                'int-from-string',
+                new V30\Schema(new Identifier(''), new Partial\Schema(type: 'integer'))->value,
+                true,
             ],
             'strict integer input' => [
-                new Specification\Numeric(
-                    '',
-                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'integer')))->value,
-                    false,
-                ),
-                new Field('', new IsInt()),
+                new Field('strict-integer', new IsInt()),
+                'strict-integer',
+                new V30\Schema(new Identifier(''), new Partial\Schema(type: 'integer'))->value,
             ],
             'number input to convert from string' => [
-                new Specification\Numeric(
-                    '',
-                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number')))->value,
-                    true,
-                ),
-                new Field('', new NumericString(), new ToNumber()),
+                new Field('number-from-string', new NumericString(), new ToNumber()),
+                'number-from-string',
+                new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number'))->value,
+                true,
             ],
             'strict number input' => [
-                new Specification\Numeric(
-                    '',
-                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number')))->value,
-                    false,
-                ),
-                new Field('', new IsNumber()),
+                new Field('strict-number', new IsNumber()),
+                'strict-number',
+                new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number'))->value,
             ],
             'float input to convert from string' => [
-                new Specification\Numeric(
-                    '',
-                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number', format: 'float')))->value,
-                    true,
-                ),
-                new Field('', new NumericString(), new ToFloat()),
+                new Field('float-from-string', new NumericString(), new ToFloat()),
+                'float-from-string',
+                new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number', format: 'float'))->value,
+                true,
             ],
             'strict float input' => [
-                new Specification\Numeric(
-                    '',
-                    (new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number', format: 'float')))->value,
-                    false,
-                ),
-                new Field('', new IsFloat()),
+                new Field('strict-float', new IsFloat()),
+                'strict-float',
+                new V30\Schema(new Identifier(''), new Partial\Schema(type: 'number', format: 'float'))->value,
             ],
             'detailed input to convert from string' => [
-                new Specification\Numeric(
-                    '',
-                    (new V30\Schema(new Identifier(''), new Partial\Schema(
-                        type: 'integer',
-                        enum: [new Value(1), new Value(2), new Value(3), new Value(null)],
-                        multipleOf: 3,
-                        exclusiveMaximum: true,
-                        exclusiveMinimum: true,
-                        maximum: 4,
-                        minimum: 0,
-                        format: 'int',
-                    )))->value,
-                    true
-                ),
                 new Field(
-                    '',
+                    'maximum-detail-from-string',
                     new IntString(),
                     new ToInt(),
                     new Contained([1, 2, 3, null]),
                     new Maximum(4, true),
                     new Minimum(0, true),
                     new MultipleOf(3)
-                )
+                ),
+                'maximum-detail-from-string',
+                new V30\Schema(new Identifier(''), new Partial\Schema(
+                    type: 'integer',
+                    enum: [new Value(1), new Value(2), new Value(3), new Value(null)],
+                    multipleOf: 3,
+                    exclusiveMaximum: true,
+                    exclusiveMinimum: true,
+                    maximum: 4,
+                    minimum: 0,
+                    format: 'int',
+                ))->value,
+                true,
             ],
             'strict detailed input' => [
-                new Specification\Numeric(
-                    '',
-                    (new V30\Schema(new Identifier(''), new Partial\Schema(
-                        type: 'integer',
-                        enum: [new Value(1), new Value(2), new Value(3), new Value(null)],
-                        multipleOf: 3,
-                        exclusiveMaximum: true,
-                        exclusiveMinimum: true,
-                        maximum: 4,
-                        minimum: 0,
-                        format: 'int',
-                    )))->value,
-                    false
-                ),
                 new Field(
-                    '',
+                    'strict-maximum-detail',
                     new IsInt(),
                     new Contained([1, 2, 3, null]),
                     new Maximum(4, true),
                     new Minimum(0, true),
                     new MultipleOf(3)
-                )
+                ),
+                'strict-maximum-detail',
+                new V30\Schema(new Identifier(''), new Partial\Schema(
+                    type: 'integer',
+                    enum: [new Value(1), new Value(2), new Value(3), new Value(null)],
+                    multipleOf: 3,
+                    exclusiveMaximum: true,
+                    exclusiveMinimum: true,
+                    maximum: 4,
+                    minimum: 0,
+                    format: 'int',
+                ))->value,
             ],
         ];
     }
 
     #[DataProvider('specificationsToBuild')]
     #[Test]
-    public function buildTest(Specification\Numeric $specification, Processor $expected): void
-    {
+    public function buildTest(
+        Processor $expected,
+        string $fieldName,
+        V30\Keywords | V31\Keywords $keywords,
+        bool $convertFromString = false,
+        bool $convertFromArray = false,
+        ?string $style = null,
+    ): void {
         $sut = new Numeric();
 
-        $actual = $sut->build($specification);
+        $actual = $sut->build(
+            $fieldName,
+            $keywords,
+            $convertFromString,
+            $convertFromArray,
+            $style,
+        );
 
         self::assertEquals($expected, $actual);
     }

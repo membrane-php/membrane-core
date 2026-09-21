@@ -59,7 +59,6 @@ use Psr\Log\LoggerInterface;
 #[UsesClass(Specification\APISchema::class)]
 #[UsesClass(Specification\Parameter::class)]
 #[UsesClass(Specification\Arrays::class)]
-#[UsesClass(Specification\Numeric::class)]
 #[UsesClass(Specification\Strings::class)]
 #[UsesClass(Processor\BeforeSet::class)]
 #[UsesClass(Processor\Collection::class)]

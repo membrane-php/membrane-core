@@ -41,7 +41,6 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Strings::class)]
 #[UsesClass(AnyOf::class)]
 #[UsesClass(Specification\APISchema::class)]
-#[UsesClass(Specification\Numeric::class)]
 #[UsesClass(Specification\Strings::class)]
 #[UsesClass(Specification\TrueFalse::class)]
 #[UsesClass(BeforeSet::class)]

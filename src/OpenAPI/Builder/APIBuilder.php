@@ -15,7 +15,7 @@ use Membrane\Processor\OneOf;
 use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Utility;
 
-abstract class APIBuilder implements Builder
+abstract class APIBuilder
 {
     private Arrays $arrayBuilder;
     private TrueFalse $trueFalseBuilder;
@@ -103,13 +103,13 @@ abstract class APIBuilder implements Builder
                     )),
 
                 Type::Integer, Type::Number => $this->getNumericBuilder()
-                    ->build(new OpenAPI\Specification\Numeric(
+                    ->build(
                         $fieldName,
                         $schema->value,
                         $convertFromString,
                         $convertFromArray,
                         $style
-                    )),
+                    ),
 
                 Type::String => ($this->getStringBuilder())
                     ->build(new OpenAPI\Specification\Strings(

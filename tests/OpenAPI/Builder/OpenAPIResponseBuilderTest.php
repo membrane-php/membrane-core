@@ -14,7 +14,6 @@ use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Arrays;
-use Membrane\OpenAPI\Specification\Numeric;
 use Membrane\OpenAPI\Specification\Objects;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
@@ -77,7 +76,6 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(APISchema::class)]
 #[UsesClass(Arrays::class)]
 #[UsesClass(TrueFalse::class)]
-#[UsesClass(Numeric::class)]
 #[UsesClass(Objects::class)]
 #[UsesClass(Strings::class)]
 #[UsesClass(Response::class)]

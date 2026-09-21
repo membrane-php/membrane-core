@@ -35,7 +35,6 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Numeric::class)]
 #[UsesClass(AnyOf::class)]
 #[UsesClass(Specification\APISchema::class)]
-#[UsesClass(Specification\Numeric::class)]
 #[UsesClass(BeforeSet::class)]
 #[UsesClass(Collection::class)]
 #[UsesClass(Field::class)]

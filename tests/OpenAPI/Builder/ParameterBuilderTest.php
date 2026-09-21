@@ -31,7 +31,6 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(OpenAPISpecification\Parameter::class)]
 #[UsesClass(OpenAPISpecification\APISchema::class)]
 #[UsesClass(OpenAPISpecification\Arrays::class)]
-#[UsesClass(OpenAPISpecification\Numeric::class)]
 #[UsesClass(OpenAPISpecification\Strings::class)]
 #[UsesClass(Explode::class)]
 #[UsesClass(Processor\BeforeSet::class)]
