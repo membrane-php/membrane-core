@@ -11,6 +11,7 @@ use Membrane\Filter\Type\ToBool;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\Field;
@@ -28,6 +29,15 @@ class TrueFalse extends APIBuilder
     public function build(Specification $specification): Processor
     {
         assert($specification instanceof \Membrane\OpenAPI\Specification\TrueFalse);
+        if (!in_array(Type::Boolean, $specification->keywords->types)) {
+            throw new \DomainException(sprintf(
+                'truefalse builder expected boolean types, received: %s',
+                implode(', ', array_map(
+                    fn($t) => $t->value,
+                    $specification->keywords->types,
+                )),
+            ));
+        }
 
         $chain = $specification->convertFromArray ?
             [new Implode(',')] :
