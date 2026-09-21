@@ -68,8 +68,14 @@ class Arrays extends APIBuilder
             $beforeChain[] = new Contained($specification->enum);
         }
 
-        if ($specification->minItems > 0 || $specification->maxItems !== null) {
-            $beforeChain[] = new Count($specification->minItems, $specification->maxItems);
+        if (
+            $specification->keywords->minItems > 0
+            || $specification->keywords->maxItems !== null
+        ) {
+            $beforeChain[] = new Count(
+                $specification->keywords->minItems,
+                $specification->keywords->maxItems,
+            );
         }
 
         if ($specification->keywords->uniqueItems === true) {

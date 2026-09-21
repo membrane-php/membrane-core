@@ -52,8 +52,6 @@ class ArraysTest extends TestCase
                         new Identifier('test', 'items'),
                         true
                     ),
-                    'maxItems' => null,
-                    'minItems' => 0,
                     'enum' => null,
                     'format' => '',
                 ],
@@ -62,8 +60,6 @@ class ArraysTest extends TestCase
                 new V30\Schema(new Identifier('test'), new Partial\Schema(
                     type: 'array',
                     enum: [new Value([1, 2, 3]), new Value([5, 6, 7])],
-                    maxItems: 5,
-                    minItems: 2,
                     items: new Partial\Schema(type: 'integer'),
                     format: 'array of ints',
                 )),
@@ -72,8 +68,6 @@ class ArraysTest extends TestCase
                         new Identifier('test', 'items'),
                         new Partial\Schema(type: 'integer'),
                     ),
-                    'maxItems' => 5,
-                    'minItems' => 2,
                     'enum' => [[1, 2, 3], [5, 6, 7]],
                     'format' => 'array of ints',
                 ],
