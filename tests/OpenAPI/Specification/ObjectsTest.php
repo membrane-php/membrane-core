@@ -27,7 +27,7 @@ class ObjectsTest extends TestCase
 
         new Objects(
             '',
-            (new V30\Schema(new Identifier('test'), new Partial\Schema()))->value
+            new V30\Schema(new Identifier('test'), new Partial\Schema())->value,
         );
     }
 
@@ -38,49 +38,7 @@ class ObjectsTest extends TestCase
 
         new Objects(
             '',
-            (new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string')))->value,
+            new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string'))->value,
         );
-    }
-
-    public static function dataSetsToConstruct(): array
-    {
-        return [
-            'default values' => [
-                new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'object')),
-                [
-                    'format' => '',
-                ],
-            ],
-            'additionalProperties assigned false' => [
-                new V30\Schema(new Identifier('test'), new Partial\Schema(
-                    type: 'object',
-                )),
-                [
-                    'format' => '',
-                ],
-            ],
-            'all relevant keywords assigned values' => [
-                new V30\Schema(new Identifier('test'), new Partial\Schema(
-                    type: 'object',
-                    format: 'you cannot say yes',
-                )),
-                [
-                    'format' => 'you cannot say yes',
-                ],
-            ],
-        ];
-    }
-
-    #[DataProvider('dataSetsToConstruct')]
-    #[Test]
-    public function constructTest(
-        V30\Schema | V31\Schema $schema,
-        array $expected
-    ): void {
-        $sut = new Objects('', $schema->value);
-
-        foreach ($expected as $key => $value) {
-            self::assertEquals($value, $sut->$key, sprintf('%s does not meet expected value', $key));
-        }
     }
 }

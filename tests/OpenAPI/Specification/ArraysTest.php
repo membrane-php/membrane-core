@@ -27,7 +27,7 @@ class ArraysTest extends TestCase
 
         new Arrays(
             '',
-            new V30\Schema(new Identifier('test'), new Partial\Schema())->value
+            new V30\Schema(new Identifier('test'), new Partial\Schema())->value,
         );
     }
 
@@ -38,45 +38,7 @@ class ArraysTest extends TestCase
 
         new Arrays(
             '',
-            new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string'))->value
+            new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'string'))->value,
         );
-    }
-
-    public static function dataSetsToConstruct(): array
-    {
-        return [
-            'default values' => [
-                new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'array')),
-                [
-                    'format' => '',
-                ],
-            ],
-            'assigned values' => [
-                new V30\Schema(new Identifier('test'), new Partial\Schema(
-                    type: 'array',
-                    format: 'array of ints',
-                )),
-                [
-                    'format' => 'array of ints',
-                ],
-            ],
-        ];
-    }
-
-    #[Test]
-    #[DataProvider('dataSetsToConstruct')]
-    public function constructTest(
-        V30\Schema | V31\Schema $schema,
-        array $expected
-    ): void {
-        $sut = new Arrays('', $schema->value);
-
-        foreach ($expected as $key => $value) {
-            if ($key === 'items') {
-                self::assertEquals($value, $sut->$key, sprintf('%s does not meet expected value', $key));
-            } else {
-                self::assertSame($value, $sut->$key, sprintf('%s does not meet expected value', $key));
-            }
-        }
     }
 }

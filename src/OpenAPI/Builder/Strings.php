@@ -64,11 +64,11 @@ class Strings extends APIBuilder
             ));
         }
 
-        if ($specification->format === 'date') {
+        if ($specification->keywords->format === 'date') {
             $chain[] = new DateString('Y-m-d', true);
         }
 
-        if ($specification->format === 'date-time') {
+        if ($specification->keywords->format === 'date-time') {
             $chain[] = new ToUpperCase();
             $chain[] = new AnyOf(
                 new DateString('Y-m-d\TH:i:sP', true),

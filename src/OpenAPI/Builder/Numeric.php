@@ -80,7 +80,7 @@ class Numeric extends APIBuilder
     /** @return Filter[]|Validator[] */
     private function handleNumber(OpenAPI\Specification\Numeric $specification): array
     {
-        if (in_array($specification->format, ['float', 'double'], true)) {
+        if (in_array($specification->keywords->format, ['float', 'double'], true)) {
             return $specification->convertFromString ? [new NumericString(), new ToFloat()] : [new IsFloat()];
         } else {
             return $specification->convertFromString ? [new NumericString(), new ToNumber()] : [new IsNumber()];

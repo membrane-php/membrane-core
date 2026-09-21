@@ -49,37 +49,16 @@ class NumericTest extends TestCase
     public static function dataSetsToConstruct(): array
     {
         return [
-            'default values for number' => [
+            'number' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'number')),
                 [
                     'type' => 'number',
                 ],
             ],
-            'default values for integer' => [
+            'integer' => [
                 new V30\Schema(new Identifier('test'), new Partial\Schema(type: 'integer')),
                 [
                     'type' => 'integer',
-                ],
-            ],
-            'assigned values for number' => [
-                new V30\Schema(new Identifier('test'), new Partial\Schema(
-                    type: 'number',
-                    format: 'float',
-                )),
-                [
-                    'type' => 'number',
-                    'format' => 'float',
-                ],
-            ],
-            'assigned values for integer' => [
-                new V30\Schema(new Identifier('test'), new Partial\Schema(
-                    type: 'integer',
-                    multipleOf: 3,
-                    format: 'square of 3',
-                )),
-                [
-                    'type' => 'integer',
-                    'format' => 'square of 3',
                 ],
             ],
         ];
