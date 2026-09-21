@@ -12,6 +12,7 @@ use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPI\Filter\FormatStyle\PipeDelimited;
 use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
@@ -33,6 +34,15 @@ class Objects extends APIBuilder
     public function build(Specification $specification): Processor
     {
         assert($specification instanceof \Membrane\OpenAPI\Specification\Objects);
+        if (!in_array(Type::Object, $specification->keywords->types)) {
+            throw new \DomainException(sprintf(
+                'arrays builder expected object types, received: %s',
+                implode(', ', array_map(
+                    fn($t) => $t->value,
+                    $specification->keywords->types,
+                )),
+            ));
+        }
 
         $beforeChain = [];
 
