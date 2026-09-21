@@ -36,7 +36,7 @@ class Objects extends APIBuilder
         assert($specification instanceof \Membrane\OpenAPI\Specification\Objects);
         if (!in_array(Type::Object, $specification->keywords->types)) {
             throw new \DomainException(sprintf(
-                'arrays builder expected object types, received: %s',
+                'object builder expected object types, received: %s',
                 implode(', ', array_map(
                     fn($t) => $t->value,
                     $specification->keywords->types,
