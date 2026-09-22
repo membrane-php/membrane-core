@@ -24,7 +24,6 @@ use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Filter\QueryStringToArray;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
-use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\Reader;
@@ -66,7 +65,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(Arrays::class)]
 #[UsesClass(Numeric::class)]
 #[UsesClass(Strings::class)]
-#[UsesClass(Parameter::class)]
 #[UsesClass(QueryStringToArray::class)]
 #[UsesClass(Form::class)]
 #[UsesClass(PathMatcher::class)]

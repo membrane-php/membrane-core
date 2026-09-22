@@ -35,9 +35,7 @@ use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Filter\QueryStringToArray;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
-use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
-use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPIReader\FileFormat;
 use Membrane\OpenAPIReader\MembraneReader;
@@ -97,12 +95,9 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(PathParameterExtractor::class)]
 #[UsesClass(PathMatcherClass::class)]
 #[UsesClass(RequestProcessor::class)]
-#[UsesClass(Parameter::class)]
-#[UsesClass(APISchema::class)]
 #[UsesClass(AllOf::class)]
 #[UsesClass(AnyOf::class)]
 #[UsesClass(OneOf::class)]
-#[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
 #[UsesClass(Explode::class)]
 #[UsesClass(Implode::class)]
 #[UsesClass(Tokenize::class)]

@@ -31,7 +31,7 @@ class OpenAPIRequestTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->openApi = (new MembraneReader([OpenAPIVersion::Version_3_0]))
+        $this->openApi = new MembraneReader([OpenAPIVersion::Version_3_0])
             ->readFromAbsoluteFilePath(__DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json');
         $this->pathParameterExtractor = new PathParameterExtractor('/pets');
     }

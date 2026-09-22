@@ -58,7 +58,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[UsesClass(Explode::class)]
 #[UsesClass(IntString::class)]
 #[UsesClass(TypeFilter\ToInt::class)]
-#[UsesClass(Specification\Parameter::class)]
 #[UsesClass(Processor\BeforeSet::class)]
 #[UsesClass(Processor\Collection::class)]
 #[UsesClass(Processor\Field::class)]
