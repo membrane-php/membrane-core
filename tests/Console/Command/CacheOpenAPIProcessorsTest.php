@@ -51,7 +51,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[UsesClass(Membrane\OpenAPI\Filter\QueryStringToArray::class)]
 #[UsesClass(Membrane\OpenAPI\Filter\FormatStyle\Form::class)]
 #[UsesClass(Request::class)]
-#[UsesClass(Specification\Objects::class)]
 #[UsesClass(Specification\OpenAPIRequest::class)]
 #[UsesClass(Specification\OpenAPIResponse::class)]
 #[UsesClass(Membrane\Result\Result::class)]

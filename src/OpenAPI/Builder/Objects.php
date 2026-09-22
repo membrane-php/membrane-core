@@ -11,6 +11,7 @@ use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPI\Filter\FormatStyle\PipeDelimited;
 use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -26,50 +27,50 @@ use Membrane\Validator\Type\IsArray;
 
 class Objects extends APIBuilder
 {
-    public function supports(Specification $specification): bool
-    {
-        return $specification instanceof \Membrane\OpenAPI\Specification\Objects;
-    }
-
-    public function build(Specification $specification): Processor
-    {
-        assert($specification instanceof \Membrane\OpenAPI\Specification\Objects);
-        if (!in_array(Type::Object, $specification->keywords->types)) {
+    public function build(
+        string $fieldName,
+        V30\Keywords | V31\Keywords $keywords,
+        bool $convertFromString = false,
+        bool $convertFromArray = false,
+        ?string $style = null,
+        ?bool $explode = null,
+    ): Processor {
+        if (!in_array(Type::Object, $keywords->types)) {
             throw new \DomainException(sprintf(
                 'object builder expected object types, received: %s',
                 implode(', ', array_map(
                     fn($t) => $t->value,
-                    $specification->keywords->types,
+                    $keywords->types,
                 )),
             ));
         }
 
         $beforeChain = [];
 
-        if ($specification->convertFromArray) {
+        if ($convertFromArray) {
             array_unshift($beforeChain, new Filter\String\Implode(','));
         }
 
-        if (isset($specification->style)) {
+        if (isset($style)) {
             $beforeChain = array_merge(
                 $beforeChain,
-                match (Style::tryFrom($specification->style)) {
+                match (Style::tryFrom($style)) {
                     Style::Matrix => [
-                        new Matrix('object', $specification->explode ?? false),
+                        new Matrix('object', $explode ?? false),
                     ],
                     Style::Label => [
                         new Filter\String\LeftTrim('.'),
-                        $specification->explode ?? false ?
+                        $explode ?? false ?
                             new Filter\String\Tokenize('.=') :
                             new Filter\String\Explode(','),
                     ],
                     Style::Simple => [
-                        $specification->explode === true ?
+                        $explode === true ?
                             new Filter\String\Tokenize(',=') :
                             new Filter\String\Explode(','),
                     ],
                     Style::Form => [
-                        new Form('object', $specification->explode ?? true),
+                        new Form('object', $explode ?? true),
                     ],
                     Style::SpaceDelimited => [new SpaceDelimited()],
                     Style::PipeDelimited => [new PipeDelimited()],
@@ -83,33 +84,33 @@ class Objects extends APIBuilder
         $beforeChain[] = new IsArray();
 
         if (
-            $specification->keywords->enum !== null
+            $keywords->enum !== null
         ) {
             $beforeChain[] = new Contained(array_map(
                 fn(Value $v) => $v->value,
-                $specification->keywords->enum,
+                $keywords->enum,
             ));
         }
 
-        if (!empty($specification->keywords->required)) {
+        if (!empty($keywords->required)) {
             $beforeChain[] = new RequiredFields(
-                ...$specification->keywords->required
+                ...$keywords->required
             );
         }
 
-        if ($specification->keywords->additionalProperties->value === false) {
+        if ($keywords->additionalProperties->value === false) {
             $beforeChain[] = new FixedFields(
-                ...array_keys($specification->keywords->properties)
+                ...array_keys($keywords->properties)
             );
         }
 
         if (
-            $specification->keywords->minProperties > 0
-            || $specification->keywords->maxProperties !== null
+            $keywords->minProperties > 0
+            || $keywords->maxProperties !== null
         ) {
             $beforeChain[] = new Count(
-                $specification->keywords->minProperties,
-                $specification->keywords->maxProperties,
+                $keywords->minProperties,
+                $keywords->maxProperties,
             );
         }
 
@@ -117,25 +118,25 @@ class Objects extends APIBuilder
 
         $fields = [];
 
-        foreach ($specification->keywords->properties as $key => $schema) {
+        foreach ($keywords->properties as $key => $schema) {
             $fields [] = $this->fromSchema(
                 $schema,
                 $key,
-                $specification->convertFromString,
+                $convertFromString,
             );
         }
 
-        if (!is_bool($specification->keywords->additionalProperties->value)) {
+        if (!is_bool($keywords->additionalProperties->value)) {
             $fields [] = new DefaultProcessor(
                 $this->fromSchema(
-                    $specification->keywords->additionalProperties,
+                    $keywords->additionalProperties,
                     '',
-                    $specification->convertFromString,
+                    $convertFromString,
                 )
             );
         }
 
-        $processor = new FieldSet($specification->fieldName, $beforeSet, ...$fields);
+        $processor = new FieldSet($fieldName, $beforeSet, ...$fields);
 
         return $processor;
     }

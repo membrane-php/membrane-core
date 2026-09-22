@@ -15,7 +15,6 @@ use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
 use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\Arrays;
-use Membrane\OpenAPI\Specification\Objects;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;

@@ -42,7 +42,6 @@ use RuntimeException;
 #[UsesClass(Builder\OpenAPIResponseBuilder::class)]
 #[UsesClass(Builder\RequestBuilder::class)]
 #[UsesClass(Builder\ResponseBuilder::class)]
-#[UsesClass(OpenAPISpecification\Objects::class)]
 #[UsesClass(OpenAPISpecification\Parameter::class)]
 #[UsesClass(OpenAPISpecification\OpenAPIRequest::class)]
 #[UsesClass(OpenAPISpecification\OpenAPIResponse::class)]

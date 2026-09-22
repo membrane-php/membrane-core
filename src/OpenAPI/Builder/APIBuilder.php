@@ -122,15 +122,16 @@ abstract class APIBuilder
                         $style,
                     ),
 
-                Type::Object => $this->getObjectBuilder()
-                    ->build(new OpenAPI\Specification\Objects(
+                Type::Object => $this
+                    ->getObjectBuilder()
+                    ->build(
                         $fieldName,
                         $schema->value,
                         $convertFromString,
                         $convertFromArray,
                         $style,
                         $explode,
-                    )),
+                    ),
 
                 Type::Null => new Field($fieldName, new IsNull()),
             },
