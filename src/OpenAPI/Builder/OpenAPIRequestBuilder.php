@@ -21,7 +21,7 @@ use Membrane\Validator\Utility\Passes;
 
 class OpenAPIRequestBuilder implements Builder
 {
-    private Schema $apiBuilder;
+    private Schema $schemaBuilder;
 
     public function supports(Specification $specification): bool
     {
@@ -49,7 +49,7 @@ class OpenAPIRequestBuilder implements Builder
             return new Field('requestBody', new Passes());
         }
 
-        return $this->getApiBuilder()->fromSchema(
+        return $this->getSchemaBuilder()->fromSchema(
             $specification->requestBodySchema,
             'requestBody',
         );
@@ -91,7 +91,7 @@ class OpenAPIRequestBuilder implements Builder
             }
 
             $locations[$parameter->in->value]['fields'][] = $this
-                ->getApiBuilder()
+                ->getSchemaBuilder()
                 ->fromSchema(
                     $parameter->getSchema(),
                     $parameter->name,
@@ -126,8 +126,8 @@ class OpenAPIRequestBuilder implements Builder
         return $fieldSets;
     }
 
-    private function getApiBuilder(): Schema
+    private function getSchemaBuilder(): Schema
     {
-        return $this->apiBuilder ??= new Schema();
+        return $this->schemaBuilder ??= new Schema();
     }
 }
