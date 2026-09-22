@@ -16,12 +16,12 @@ use Membrane\Filter\Type\ToBool;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
 use Membrane\OpenAPI\Builder\APIBuilder;
-use Membrane\OpenAPI\Builder\Arrays;
-use Membrane\OpenAPI\Builder\Numeric;
-use Membrane\OpenAPI\Builder\Objects;
+use Membrane\OpenAPI\Builder\Internal\Arrays;
+use Membrane\OpenAPI\Builder\Internal\Numeric;
+use Membrane\OpenAPI\Builder\Internal\Objects;
+use Membrane\OpenAPI\Builder\Internal\Strings;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
 use Membrane\OpenAPI\Builder\RequestBuilder;
-use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
@@ -83,7 +83,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[CoversClass(CannotProcessOpenAPI::class)]
 #[UsesClass(HumanReadable::class)] // to render test failure messages
 #[UsesClass(RequestBuilder::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\TrueFalse::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\Internal\TrueFalse::class)]
 #[UsesClass(OpenAPIRequest::class)]
 #[UsesClass(Request::class)]
 #[UsesClass(Arrays::class)]

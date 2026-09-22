@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Membrane\OpenAPI\Builder;
+namespace Membrane\OpenAPI\Builder\Internal;
 
-use Membrane\Builder\Specification;
 use Membrane\Filter\String\Implode;
 use Membrane\Filter\String\LeftTrim;
 use Membrane\Filter\Type\ToBool;
@@ -21,6 +20,9 @@ use Membrane\Validator\Collection\Contained;
 use Membrane\Validator\String\BoolString;
 use Membrane\Validator\Type\IsBool;
 
+/**
+ * @internal see README.md
+ */
 final readonly class TrueFalse
 {
     public function build(

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Membrane\OpenAPI\Builder;
+namespace Membrane\OpenAPI\Builder\Internal;
 
-use Membrane\Builder\Specification;
 use Membrane\Filter;
+use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Filter\FormatStyle\DeepObject;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
@@ -26,6 +26,9 @@ use Membrane\Validator\FieldSet\FixedFields;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Type\IsArray;
 
+/**
+ * @internal see README.md
+ */
 class Objects extends APIBuilder
 {
     public function build(

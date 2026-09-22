@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Membrane\OpenAPI\Builder;
+namespace Membrane\OpenAPI\Builder\Internal;
 
-use Membrane\Builder\Specification;
 use Membrane\Filter;
+use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
@@ -23,6 +23,9 @@ use Membrane\Validator\Collection\Count;
 use Membrane\Validator\Collection\Unique;
 use Membrane\Validator\Type\IsList;
 
+/**
+ * @internal see README.md
+ */
 class Arrays extends APIBuilder
 {
     public function build(

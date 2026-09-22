@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Tests\OpenAPI\Builder;
+namespace Membrane\Tests\OpenAPI\Builder\Internal;
 
 use Membrane\Filter\Type\ToBool;
 use Membrane\OpenAPI\Builder\APIBuilder;
-use Membrane\OpenAPI\Builder\TrueFalse;
+use Membrane\OpenAPI\Builder\Internal\TrueFalse;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Value;

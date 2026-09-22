@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Membrane\OpenAPI\Builder;
+namespace Membrane\OpenAPI\Builder\Internal;
 
 use Membrane\Filter\String\Implode;
 use Membrane\Filter\String\LeftTrim;
@@ -23,6 +23,9 @@ use Membrane\Validator\String\Regex;
 use Membrane\Validator\Type\IsString;
 use Membrane\Validator\Utility\AnyOf;
 
+/**
+ * @internal see README.md
+ */
 final readonly class Strings
 {
     public function build(

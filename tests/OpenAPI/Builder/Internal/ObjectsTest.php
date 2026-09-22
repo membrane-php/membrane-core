@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Tests\OpenAPI\Builder;
+namespace Membrane\Tests\OpenAPI\Builder\Internal;
 
 use Membrane\OpenAPI\Builder\APIBuilder;
-use Membrane\OpenAPI\Builder\Numeric;
-use Membrane\OpenAPI\Builder\Objects;
-use Membrane\OpenAPI\Builder\Strings;
-use Membrane\OpenAPI\Builder\TrueFalse;
+use Membrane\OpenAPI\Builder\Internal\Numeric;
+use Membrane\OpenAPI\Builder\Internal\Objects;
+use Membrane\OpenAPI\Builder\Internal\Strings;
+use Membrane\OpenAPI\Builder\Internal\TrueFalse;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Value;

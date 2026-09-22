@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Membrane\OpenAPI\Builder;
+namespace Membrane\OpenAPI\Builder\Internal;
 
 use Membrane\Filter;
 use Membrane\Filter\String\LeftTrim;
@@ -29,6 +29,9 @@ use Membrane\Validator\Type\IsFloat;
 use Membrane\Validator\Type\IsInt;
 use Membrane\Validator\Type\IsNumber;
 
+/**
+ * @internal see README.md
+ */
 final readonly class Numeric
 {
     public function build(

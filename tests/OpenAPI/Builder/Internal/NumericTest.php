@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Tests\OpenAPI\Builder;
+namespace Membrane\Tests\OpenAPI\Builder\Internal;
 
 use Membrane\Filter\Type\ToFloat;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
 use Membrane\OpenAPI\Builder\APIBuilder;
-use Membrane\OpenAPI\Builder\Numeric;
-use Membrane\OpenAPI\Specification;
+use Membrane\OpenAPI\Builder\Internal\Numeric;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Value;

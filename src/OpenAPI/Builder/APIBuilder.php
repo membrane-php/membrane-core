@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Builder;
 
 use Membrane\OpenAPI;
+use Membrane\OpenAPI\Builder\Internal\Arrays;
+use Membrane\OpenAPI\Builder\Internal\Numeric;
+use Membrane\OpenAPI\Builder\Internal\Objects;
+use Membrane\OpenAPI\Builder\Internal\Strings;
+use Membrane\OpenAPI\Builder\Internal\TrueFalse;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
 use Membrane\Processor;
 use Membrane\Processor\AllOf;
@@ -225,7 +230,7 @@ class APIBuilder
     private function getNumericBuilder(): Numeric
     {
         if (!isset($this->numericBuilder)) {
-            $this->numericBuilder = new OpenAPI\Builder\Numeric();
+            $this->numericBuilder = new Internal\Numeric();
         }
 
         return $this->numericBuilder;
@@ -234,7 +239,7 @@ class APIBuilder
     private function getStringBuilder(): Strings
     {
         if (!isset($this->stringBuilder)) {
-            $this->stringBuilder = new OpenAPI\Builder\Strings();
+            $this->stringBuilder = new Internal\Strings();
         }
         return $this->stringBuilder;
     }
