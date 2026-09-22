@@ -6,6 +6,7 @@ namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Builder;
 use Membrane\Builder\Specification;
+use Membrane\OpenAPI\Builder\Internal\APIBuilder;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Filter;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
@@ -66,7 +67,7 @@ class OpenAPIRequestBuilder implements Builder
             'required' => [],
             'fields' => [],
             'beforeSet' => $chain,
-            ];
+        ];
         $locations = [
             'path' => $location([new Filter\PathMatcher($specification->pathParameterExtractor)]),
             'query' => $location([new Filter\QueryStringToArray(array_combine(
@@ -108,8 +109,8 @@ class OpenAPIRequestBuilder implements Builder
         $fieldSets = [];
         foreach ($locations as $in => $location) {
             $fields = $location['fields'];
-            $required = $location['required'] ?? [];
-            $beforeSet = $location['beforeSet'] ?? [];
+            $required = $location['required'];
+            $beforeSet = $location['beforeSet'];
 
             if (!empty($required)) {
                 $beforeSet[] = new RequiredFields(...$required);

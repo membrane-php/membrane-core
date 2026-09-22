@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Membrane\Tests\OpenAPI\Builder\Internal;
 
 use Membrane\Filter\String\ToUpperCase;
-use Membrane\OpenAPI\Builder\APIBuilder;
+use Membrane\OpenAPI\Builder\Internal\APIBuilder;
 use Membrane\OpenAPI\Builder\Internal\Strings;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};

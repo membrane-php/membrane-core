@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Builder\Internal;
 
 use Membrane\Filter;
-use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Filter\FormatStyle\DeepObject;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
@@ -137,8 +136,6 @@ class Objects extends APIBuilder
             );
         }
 
-        $processor = new FieldSet($fieldName, $beforeSet, ...$fields);
-
-        return $processor;
+        return new FieldSet($fieldName, $beforeSet, ...$fields);
     }
 }

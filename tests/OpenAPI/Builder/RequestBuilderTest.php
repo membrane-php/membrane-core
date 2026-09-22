@@ -9,7 +9,7 @@ use Membrane\Builder\Specification;
 use Membrane\Filter\String\Explode;
 use Membrane\Filter\String\Implode;
 use Membrane\Filter\Type\ToInt;
-use Membrane\OpenAPI\Builder\APIBuilder;
+use Membrane\OpenAPI\Builder\Internal\APIBuilder;
 use Membrane\OpenAPI\Builder\Internal\Arrays;
 use Membrane\OpenAPI\Builder\Internal\Numeric;
 use Membrane\OpenAPI\Builder\Internal\Strings;

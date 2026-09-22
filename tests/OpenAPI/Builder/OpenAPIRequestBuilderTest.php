@@ -15,7 +15,7 @@ use Membrane\Filter\String\Tokenize;
 use Membrane\Filter\Type\ToBool;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
-use Membrane\OpenAPI\Builder\APIBuilder;
+use Membrane\OpenAPI\Builder\Internal\APIBuilder;
 use Membrane\OpenAPI\Builder\Internal\Arrays;
 use Membrane\OpenAPI\Builder\Internal\Numeric;
 use Membrane\OpenAPI\Builder\Internal\Objects;

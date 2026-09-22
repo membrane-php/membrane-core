@@ -2,14 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Membrane\OpenAPI\Builder;
+namespace Membrane\OpenAPI\Builder\Internal;
 
 use Membrane\OpenAPI;
-use Membrane\OpenAPI\Builder\Internal\Arrays;
-use Membrane\OpenAPI\Builder\Internal\Numeric;
-use Membrane\OpenAPI\Builder\Internal\Objects;
-use Membrane\OpenAPI\Builder\Internal\Strings;
-use Membrane\OpenAPI\Builder\Internal\TrueFalse;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
 use Membrane\Processor;
 use Membrane\Processor\AllOf;
@@ -160,7 +155,7 @@ class APIBuilder
 
     /**
      * @param class-string<AllOf|AnyOf|OneOf> $complexSchemaClass
-     * @param non-empty-list<V30\Schema|V31\Schema> $subSchemas
+     * @param non-empty-list<V30\Schema> | non-empty-list<V31\Schema> $subSchemas
      */
     private function fromComplexSchema(
         string $complexSchemaClass,
@@ -202,45 +197,26 @@ class APIBuilder
 
     private function getArrayBuilder(): Arrays
     {
-        if (!isset($this->arrayBuilder)) {
-            $this->arrayBuilder = new Arrays();
-        }
-
-        return $this->arrayBuilder;
+        return $this->arrayBuilder ??= new Arrays();
     }
 
     private function getTrueFalseBuilder(): TrueFalse
     {
-        if (!isset($this->trueFalseBuilder)) {
-            $this->trueFalseBuilder = new TrueFalse();
-        }
-
-        return $this->trueFalseBuilder;
+        return $this->trueFalseBuilder ??= new TrueFalse();
     }
 
     private function getObjectBuilder(): Objects
     {
-        if (!isset($this->objectBuilder)) {
-            $this->objectBuilder = new Objects();
-        }
-
-        return $this->objectBuilder;
+        return $this->objectBuilder ??= new Objects();
     }
 
     private function getNumericBuilder(): Numeric
     {
-        if (!isset($this->numericBuilder)) {
-            $this->numericBuilder = new Internal\Numeric();
-        }
-
-        return $this->numericBuilder;
+        return $this->numericBuilder ??= new Numeric();
     }
 
     private function getStringBuilder(): Strings
     {
-        if (!isset($this->stringBuilder)) {
-            $this->stringBuilder = new Internal\Strings();
-        }
-        return $this->stringBuilder;
+        return $this->stringBuilder ??= new Strings();
     }
 }

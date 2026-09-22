@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Builder\Internal;
 
 use Membrane\Filter;
-use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
@@ -102,7 +101,7 @@ class Arrays extends APIBuilder
 
         $beforeSet = new BeforeSet(...$beforeChain);
 
-        $collection = new Collection(
+        return new Collection(
             $fieldName,
             $beforeSet,
             $this->fromSchema(
@@ -111,7 +110,5 @@ class Arrays extends APIBuilder
                 $convertFromString,
             )
         );
-
-        return $collection;
     }
 }

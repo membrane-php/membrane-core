@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Builder\Internal;
 
-use Membrane\OpenAPI\Builder\APIBuilder;
+use Membrane\OpenAPI\Builder\Internal\APIBuilder;
 use Membrane\OpenAPI\Builder\Internal\Arrays;
 use Membrane\OpenAPI\Builder\Internal\Numeric;
 use Membrane\OpenAPIReader\ValueObject\Partial;

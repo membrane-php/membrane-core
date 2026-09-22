@@ -6,7 +6,7 @@ namespace Membrane\Tests\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\ToUpperCase;
-use Membrane\OpenAPI\Builder\APIBuilder;
+use Membrane\OpenAPI\Builder\Internal\APIBuilder;
 use Membrane\OpenAPI\Builder\OpenAPIResponseBuilder;
 use Membrane\OpenAPI\Builder\ResponseBuilder;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
