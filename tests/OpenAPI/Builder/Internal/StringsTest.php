@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Membrane\Tests\OpenAPI\Builder\Internal;
 
 use Membrane\Filter\String\ToUpperCase;
-use Membrane\OpenAPI\Builder\Internal\APIBuilder;
+use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Builder\Internal\Strings;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
@@ -25,7 +25,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Strings::class)]
-#[CoversClass(APIBuilder::class)]
+#[CoversClass(Schema::class)]
 #[UsesClass(AnyOf::class)]
 #[UsesClass(Field::class)]
 #[UsesClass(Contained::class)]

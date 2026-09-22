@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Membrane\Tests\OpenAPI\Builder\Internal;
 
 use Membrane\Filter\Type\ToBool;
-use Membrane\OpenAPI\Builder\Internal\APIBuilder;
+use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Builder\Internal\TrueFalse;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
@@ -23,7 +23,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(TrueFalse::class)]
-#[CoversClass(APIBuilder::class)]
+#[CoversClass(Schema::class)]
 #[UsesClass(AnyOf::class)]
 #[UsesClass(Field::class)]
 #[UsesClass(Contained::class)]

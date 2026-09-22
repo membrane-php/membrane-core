@@ -15,7 +15,7 @@ use Membrane\Filter\String\Tokenize;
 use Membrane\Filter\Type\ToBool;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
-use Membrane\OpenAPI\Builder\Internal\APIBuilder;
+use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Builder\Internal\Arrays;
 use Membrane\OpenAPI\Builder\Internal\Numeric;
 use Membrane\OpenAPI\Builder\Internal\Objects;
@@ -78,7 +78,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use Psr\Http\Message\ServerRequestInterface;
 
 #[CoversClass(OpenAPIRequestBuilder::class)]
-#[CoversClass(APIBuilder::class)]
+#[CoversClass(Schema::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
 #[UsesClass(HumanReadable::class)] // to render test failure messages

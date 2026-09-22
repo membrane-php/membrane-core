@@ -6,7 +6,7 @@ namespace Membrane\Tests\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\ToUpperCase;
-use Membrane\OpenAPI\Builder\Internal\APIBuilder;
+use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Builder\OpenAPIResponseBuilder;
 use Membrane\OpenAPI\Builder\ResponseBuilder;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
@@ -58,7 +58,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(CannotProcessResponse::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
-#[UsesClass(APIBuilder::class)]
+#[UsesClass(Schema::class)]
 #[UsesClass(OpenAPIResponseBuilder::class)]
 #[UsesClass(OpenAPIResponse::class)]
 #[UsesClass(\Membrane\OpenAPI\Builder\Internal\Arrays::class)]

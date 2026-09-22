@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
-use Membrane\OpenAPI\Builder\Internal\APIBuilder;
+use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Utility\Passes;
 
-class OpenAPIResponseBuilder extends APIBuilder
+class OpenAPIResponseBuilder extends Schema
 {
     public function supports(Specification $specification): bool
     {

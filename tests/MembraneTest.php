@@ -32,7 +32,7 @@ use RuntimeException;
 
 #[CoversClass(Membrane::class)]
 #[UsesClass(AttributeBuilder::class)]
-#[UsesClass(Builder\Internal\APIBuilder::class)]
+#[UsesClass(Builder\Internal\Schema::class)]
 #[UsesClass(Builder\Internal\Arrays::class)]
 #[UsesClass(Builder\Internal\Numeric::class)]
 #[UsesClass(Builder\Internal\Strings::class)]

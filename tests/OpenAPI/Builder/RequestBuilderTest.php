@@ -9,7 +9,7 @@ use Membrane\Builder\Specification;
 use Membrane\Filter\String\Explode;
 use Membrane\Filter\String\Implode;
 use Membrane\Filter\Type\ToInt;
-use Membrane\OpenAPI\Builder\Internal\APIBuilder;
+use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Builder\Internal\Arrays;
 use Membrane\OpenAPI\Builder\Internal\Numeric;
 use Membrane\OpenAPI\Builder\Internal\Strings;
@@ -58,7 +58,7 @@ use Psr\Http\Message\ServerRequestInterface;
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
 #[UsesClass(HumanReadable::class)]
-#[UsesClass(APIBuilder::class)]
+#[UsesClass(Schema::class)]
 #[UsesClass(OpenAPIRequestBuilder::class)]
 #[UsesClass(OpenAPIRequest::class)]
 #[UsesClass(Request::class)]

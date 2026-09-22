@@ -25,7 +25,7 @@ use Membrane\Validator\Type\IsList;
 /**
  * @internal see README.md
  */
-class Arrays extends APIBuilder
+class Arrays extends Schema
 {
     public function build(
         string $fieldName,

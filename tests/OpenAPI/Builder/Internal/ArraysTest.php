@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\Tests\OpenAPI\Builder\Internal;
 
-use Membrane\OpenAPI\Builder\Internal\APIBuilder;
+use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Builder\Internal\Arrays;
 use Membrane\OpenAPI\Builder\Internal\Numeric;
 use Membrane\OpenAPIReader\ValueObject\Partial;
@@ -30,7 +30,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Arrays::class)]
-#[CoversClass(APIBuilder::class)]
+#[CoversClass(Schema::class)]
 #[UsesClass(Numeric::class)]
 #[UsesClass(AnyOf::class)]
 #[UsesClass(BeforeSet::class)]

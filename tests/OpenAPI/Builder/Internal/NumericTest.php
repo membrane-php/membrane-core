@@ -7,7 +7,7 @@ namespace Membrane\Tests\OpenAPI\Builder\Internal;
 use Membrane\Filter\Type\ToFloat;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
-use Membrane\OpenAPI\Builder\Internal\APIBuilder;
+use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Builder\Internal\Numeric;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
@@ -31,7 +31,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Numeric::class)]
-#[CoversClass(APIBuilder::class)]
+#[CoversClass(Schema::class)]
 #[UsesClass(AnyOf::class)]
 #[UsesClass(Field::class)]
 #[UsesClass(Contained::class)]

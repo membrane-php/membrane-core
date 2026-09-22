@@ -6,7 +6,7 @@ namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Builder;
 use Membrane\Builder\Specification;
-use Membrane\OpenAPI\Builder\Internal\APIBuilder;
+use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Filter;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
@@ -21,7 +21,7 @@ use Membrane\Validator\Utility\Passes;
 
 class OpenAPIRequestBuilder implements Builder
 {
-    private APIBuilder $apiBuilder;
+    private Schema $apiBuilder;
 
     public function supports(Specification $specification): bool
     {
@@ -126,8 +126,8 @@ class OpenAPIRequestBuilder implements Builder
         return $fieldSets;
     }
 
-    private function getApiBuilder(): APIBuilder
+    private function getApiBuilder(): Schema
     {
-        return $this->apiBuilder ??= new APIBuilder();
+        return $this->apiBuilder ??= new Schema();
     }
 }

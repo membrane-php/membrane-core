@@ -28,7 +28,7 @@ use Membrane\Validator\Type\IsArray;
 /**
  * @internal see README.md
  */
-class Objects extends APIBuilder
+class Objects extends Schema
 {
     public function build(
         string $fieldName,
