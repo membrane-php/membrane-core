@@ -54,47 +54,12 @@ class ObjectsTest extends TestCase
 {
     public static function specificationsToBuild(): array
     {
-        /**
-         * @param array<Value> $enum
-         * @param array<string> $required
-         * @param array<string, Partial\Schema> $properties
-         */
-        $keywordsV30 = static fn (
-            ?array $enum = null,
-            ?int $maxProperties = null,
-            int $minProperties = 0,
-            array $required = [],
-            array $properties = [],
-            bool|Partial\Schema $additionalProperties = true,
-        ) => new V30\Schema(new Identifier(''), new Partial\Schema(
-            type: 'object',
-            enum: $enum,
-            maxProperties: $maxProperties,
-            minProperties: $minProperties,
-            required: $required,
-            properties: $properties,
-            additionalProperties: $additionalProperties,
-        ))->value;
-
-        /** @param array<string, Partial\Schema> $properties */
-        $keywordsV31 = static fn (
-            ?int $maxProperties = null,
-            int $minProperties = 0,
-            array $properties = [],
-            bool|Partial\Schema $additionalProperties = true,
-        ) => new V31\Schema(new Identifier(''), new Partial\Schema(
-            type: 'object',
-            maxProperties: $maxProperties,
-            minProperties: $minProperties,
-            properties: $properties,
-            additionalProperties: $additionalProperties,
-        ))->value;
 
         return [
             '3.0 mvp' => [
                 new FieldSet('3.0-mvp', new BeforeSet(new IsArray())),
                 '3.0-mvp',
-                $keywordsV30(),
+                self::keywordsV30(),
             ],
             '3.0 minProperties' => [
                 new FieldSet(
@@ -102,7 +67,7 @@ class ObjectsTest extends TestCase
                     new BeforeSet(new IsArray(), new Count(1)),
                 ),
                 '3.0-min',
-                $keywordsV30(minProperties: 1),
+                self::keywordsV30(minProperties: 1),
             ],
             '3.0 maxProperties' => [
                 new FieldSet(
@@ -110,7 +75,7 @@ class ObjectsTest extends TestCase
                     new BeforeSet(new IsArray(), new Count(0, 1)),
                 ),
                 '3.0-max',
-                $keywordsV30(maxProperties: 1),
+                self::keywordsV30(maxProperties: 1),
             ],
             '3.0 minProperties and maxProperties' => [
                 new FieldSet(
@@ -118,7 +83,7 @@ class ObjectsTest extends TestCase
                     new BeforeSet(new IsArray(), new Count(1, 1)),
                 ),
                 '3.0-min-max',
-                $keywordsV30(maxProperties: 1, minProperties: 1),
+                self::keywordsV30(maxProperties: 1, minProperties: 1),
             ],
             '3.0 integer property' => [
                 new FieldSet(
@@ -127,7 +92,7 @@ class ObjectsTest extends TestCase
                     new Field('a', new IsInt()),
                 ),
                 '3.0-prop-int',
-                $keywordsV30(
+                self::keywordsV30(
                     properties: ['a' => new Partial\Schema(type: 'integer')],
                 ),
             ],
@@ -138,7 +103,7 @@ class ObjectsTest extends TestCase
                     new Field('a', new IsInt()),
                 ),
                 '3.0-additional',
-                $keywordsV30(
+                self::keywordsV30(
                     properties: ['a' => new Partial\Schema(type: 'integer')],
                     additionalProperties: false,
                 ),
@@ -154,7 +119,7 @@ class ObjectsTest extends TestCase
                     ),
                 ),
                 '3.0-prop-stringint',
-                $keywordsV30(
+                self::keywordsV30(
                     properties: ['a' => new Partial\Schema(anyOf: [
                         new Partial\Schema(type: 'string'),
                         new Partial\Schema(type: 'integer'),
@@ -172,7 +137,7 @@ class ObjectsTest extends TestCase
                     ),
                 ),
                 '3.1-prop-int',
-                $keywordsV31(
+                self::keywordsV31(
                     properties: ['a' => new Partial\Schema(
                         type: ['string', 'integer'],
                     )],
@@ -191,7 +156,7 @@ class ObjectsTest extends TestCase
                     )
                 ),
                 '3.0-additional-schema',
-                $keywordsV30(
+                self::keywordsV30(
                     maxProperties: 5,
                     minProperties: 2,
                     additionalProperties: new Partial\Schema(oneOf: [
@@ -213,7 +178,7 @@ class ObjectsTest extends TestCase
                     new Field('name', new IsString())
                 ),
                 'max-v-p',
-                $keywordsV30(
+                self::keywordsV30(
                     enum: [new Value(['id' => 5, 'name' => 'Blink']), new Value(null)],
                     required: ['id', 'name'],
                     properties: [
@@ -248,5 +213,53 @@ class ObjectsTest extends TestCase
                 $explode,
             ),
         );
+    }
+
+    /**
+     * @param array<Value> $enum
+     * @param array<string> $required
+     * @param array<string, Partial\Schema> $properties
+     */
+    private static function keywordsV30(
+        ?array $enum = null,
+        ?int $maxProperties = null,
+        int $minProperties = 0,
+        array $required = [],
+        array $properties = [],
+        bool|Partial\Schema $additionalProperties = true,
+    ): V30\Keywords {
+        return new V30\Schema(new Identifier(''), new Partial\Schema(
+            type: 'object',
+            enum: $enum,
+            maxProperties: $maxProperties,
+            minProperties: $minProperties,
+            required: $required,
+            properties: $properties,
+            additionalProperties: $additionalProperties,
+        ))->value;
+    }
+
+    /**
+     * @param array<Value> $enum
+     * @param array<string> $required
+     * @param array<string, Partial\Schema> $properties
+     */
+    private static function keywordsV31(
+        ?array $enum = null,
+        ?int $maxProperties = null,
+        int $minProperties = 0,
+        array $required = [],
+        array $properties = [],
+        bool|Partial\Schema $additionalProperties = true,
+    ): V31\Keywords {
+        return new V31\Schema(new Identifier(''), new Partial\Schema(
+            type: 'object',
+            enum: $enum,
+            maxProperties: $maxProperties,
+            minProperties: $minProperties,
+            required: $required,
+            properties: $properties,
+            additionalProperties: $additionalProperties,
+        ))->value;
     }
 }
