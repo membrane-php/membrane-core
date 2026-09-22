@@ -57,7 +57,6 @@ class TrueFalseTest extends TestCase
                     new Partial\Schema(
                         type: 'boolean',
                         enum: [new Value(true), new Value(null)],
-                        format: 'rather pointless boolean',
                     )
                 )->value,
             ],
@@ -69,12 +68,10 @@ class TrueFalseTest extends TestCase
                     new Partial\Schema(
                         type: 'boolean',
                         enum: [new Value(true), new Value(null)],
-                        format: 'rather pointless boolean',
                     )
                 )->value,
                 true,
             ],
-
         ];
     }
 
