@@ -9,7 +9,6 @@ use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\Objects;
 use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\Builder\TrueFalse;
-use Membrane\OpenAPI\Specification;
 use Membrane\OpenAPIReader\ValueObject\Partial;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Identifier, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -40,7 +39,6 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(TrueFalse::class)]
 #[UsesClass(Strings::class)]
 #[UsesClass(AnyOf::class)]
-#[UsesClass(Specification\APISchema::class)]
 #[UsesClass(BeforeSet::class)]
 #[UsesClass(DefaultProcessor::class)]
 #[UsesClass(Field::class)]

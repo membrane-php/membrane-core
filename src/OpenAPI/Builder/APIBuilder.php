@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
-use Membrane\Builder\Builder;
 use Membrane\OpenAPI;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
 use Membrane\Processor;
