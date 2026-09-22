@@ -45,8 +45,6 @@ use RuntimeException;
 #[UsesClass(OpenAPISpecification\Parameter::class)]
 #[UsesClass(OpenAPISpecification\OpenAPIRequest::class)]
 #[UsesClass(OpenAPISpecification\OpenAPIResponse::class)]
-#[UsesClass(OpenAPISpecification\APISchema::class)]
-#[UsesClass(OpenAPISpecification\Arrays::class)]
 #[UsesClass(Processor\BeforeSet::class)]
 #[UsesClass(Processor\Collection::class)]
 #[UsesClass(Processor\FieldSet::class)]

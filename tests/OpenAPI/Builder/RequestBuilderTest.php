@@ -24,7 +24,6 @@ use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\PathMatcher;
 use Membrane\OpenAPI\Filter\QueryStringToArray;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
-use Membrane\OpenAPI\Specification\APISchema;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPI\Specification\Request;
@@ -75,8 +74,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathMatcherClass::class)]
 #[UsesClass(RequestProcessor::class)]
-#[UsesClass(APISchema::class)]
-#[UsesClass(\Membrane\OpenAPI\Specification\Arrays::class)]
 #[UsesClass(ToInt::class)]
 #[UsesClass(Explode::class)]
 #[UsesClass(Implode::class)]

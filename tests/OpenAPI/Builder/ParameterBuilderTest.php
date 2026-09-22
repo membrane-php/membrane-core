@@ -29,8 +29,6 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(OpenAPIBuilder\Numeric::class)]
 #[UsesClass(OpenAPIBuilder\Strings::class)]
 #[UsesClass(OpenAPISpecification\Parameter::class)]
-#[UsesClass(OpenAPISpecification\APISchema::class)]
-#[UsesClass(OpenAPISpecification\Arrays::class)]
 #[UsesClass(Explode::class)]
 #[UsesClass(Processor\BeforeSet::class)]
 #[UsesClass(Processor\Collection::class)]

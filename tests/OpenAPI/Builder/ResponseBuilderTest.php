@@ -13,8 +13,6 @@ use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessResponse;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
-use Membrane\OpenAPI\Specification\APISchema;
-use Membrane\OpenAPI\Specification\Arrays;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
@@ -72,9 +70,6 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(AllOf::class)]
 #[UsesClass(AnyOf::class)]
 #[UsesClass(OneOf::class)]
-#[UsesClass(APISchema::class)]
-#[UsesClass(Arrays::class)]
-#[UsesClass(Objects::class)]
 #[UsesClass(Response::class)]
 #[UsesClass(BeforeSet::class)]
 #[UsesClass(Collection::class)]
