@@ -6,6 +6,7 @@ namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
 use Membrane\Filter;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Filter\FormatStyle\DeepObject;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
@@ -36,13 +37,10 @@ class Objects extends APIBuilder
         ?bool $explode = null,
     ): Processor {
         if (!in_array(Type::Object, $keywords->types)) {
-            throw new \DomainException(sprintf(
-                'object builder expected object types, received: %s',
-                implode(', ', array_map(
-                    fn($t) => $t->value,
-                    $keywords->types,
-                )),
-            ));
+            throw CannotProcessSpecification::mismatchedType(
+                ['object'],
+                array_map(fn($t) => $t->value, $keywords->types),
+            );
         }
 
         $beforeChain = [];

@@ -8,6 +8,7 @@ use Membrane\Builder\Specification;
 use Membrane\Filter\String\Implode;
 use Membrane\Filter\String\LeftTrim;
 use Membrane\Filter\Type\ToBool;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
@@ -30,13 +31,10 @@ final readonly class TrueFalse
         ?string $style = null,
     ): Processor {
         if (!in_array(Type::Boolean, $keywords->types)) {
-            throw new \DomainException(sprintf(
-                'truefalse builder expected boolean types, received: %s',
-                implode(', ', array_map(
-                    fn($t) => $t->value,
-                    $keywords->types,
-                )),
-            ));
+            throw CannotProcessSpecification::mismatchedType(
+                ['boolean'],
+                array_map(fn($t) => $t->value, $keywords->types),
+            );
         }
 
         $chain = $convertFromArray ?

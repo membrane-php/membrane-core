@@ -9,6 +9,7 @@ use Membrane\Filter\String\LeftTrim;
 use Membrane\Filter\Type\ToFloat;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
@@ -43,10 +44,10 @@ final readonly class Numeric
         } elseif (in_array(Type::Number, $types)) {
             $type = Type::Number->value;
         } else {
-            throw new \DomainException(sprintf(
-                'numeric builder expected integer or number types, received: %s',
-                implode(', ', array_map(fn($t) => $t->value, $types)),
-            ));
+            throw CannotProcessSpecification::mismatchedType(
+                ['number', 'integer'],
+                array_map(fn($t) => $t->value, $keywords->types),
+            );
         }
 
         $chain = $convertFromArray ?

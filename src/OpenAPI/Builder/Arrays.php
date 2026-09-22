@@ -6,6 +6,7 @@ namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
 use Membrane\Filter;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPI\Filter\FormatStyle\PipeDelimited;
@@ -33,13 +34,10 @@ class Arrays extends APIBuilder
         ?bool $explode,
     ): Processor {
         if (!in_array(Type::Array, $keywords->types)) {
-            throw new \DomainException(sprintf(
-                'arrays builder expected array types, received: %s',
-                implode(', ', array_map(
-                    fn($t) => $t->value,
-                    $keywords->types,
-                )),
-            ));
+            throw CannotProcessSpecification::mismatchedType(
+                ['array'],
+                array_map(fn($t) => $t->value, $keywords->types),
+            );
         }
 
         $beforeChain = $convertFromArray ?

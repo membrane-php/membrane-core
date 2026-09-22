@@ -7,6 +7,7 @@ namespace Membrane\OpenAPI\Builder;
 use Membrane\Filter\String\Implode;
 use Membrane\Filter\String\LeftTrim;
 use Membrane\Filter\String\ToUpperCase;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
@@ -31,13 +32,10 @@ final readonly class Strings
         ?string $style = null,
     ): Processor {
         if (!in_array(Type::String, $keywords->types)) {
-            throw new \DomainException(sprintf(
-                'strings builder expected string types, received: %s',
-                implode(', ', array_map(
-                    fn($t) => $t->value,
-                    $keywords->types,
-                )),
-            ));
+            throw CannotProcessSpecification::mismatchedType(
+                ['string'],
+                array_map(fn($t) => $t->value, $keywords->types),
+            );
         }
 
 
