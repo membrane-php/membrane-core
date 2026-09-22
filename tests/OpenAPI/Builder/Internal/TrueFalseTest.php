@@ -68,7 +68,7 @@ class TrueFalseTest extends TestCase
                     new Partial\Schema(
                         type: 'boolean',
                         enum: [new Value(true), new Value(null)],
-                    )
+                    ),
                 )->value,
                 true,
             ],
