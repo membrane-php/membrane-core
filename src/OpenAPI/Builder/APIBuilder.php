@@ -83,15 +83,16 @@ abstract class APIBuilder
 
         $typeSpecificProcessors = array_map(
             fn ($t) => match ($t) {
-                Type::Array => $this->getArrayBuilder()
-                    ->build(new OpenAPI\Specification\Arrays(
+                Type::Array => $this
+                    ->getArrayBuilder()
+                    ->build(
                         $fieldName,
                         $schema->value,
                         $convertFromString,
                         $convertFromArray,
                         $style,
                         $explode,
-                    )),
+                    ),
 
                 Type::Boolean => $this
                     ->getTrueFalseBuilder()

@@ -10,6 +10,7 @@ use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPI\Filter\FormatStyle\PipeDelimited;
 use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
 use Membrane\OpenAPIReader\ValueObject\Value;
@@ -23,46 +24,45 @@ use Membrane\Validator\Type\IsList;
 
 class Arrays extends APIBuilder
 {
-    public function supports(Specification $specification): bool
-    {
-        return $specification instanceof \Membrane\OpenAPI\Specification\Arrays;
-    }
-
-    public function build(Specification $specification): Processor
-    {
-        assert($specification instanceof \Membrane\OpenAPI\Specification\Arrays);
-        if (!in_array(Type::Array, $specification->keywords->types)) {
+    public function build(
+        string $fieldName,
+        V30\Keywords | V31\Keywords $keywords,
+        bool $convertFromString,
+        bool $convertFromArray,
+        ?string $style,
+        ?bool $explode,
+    ): Processor {
+        if (!in_array(Type::Array, $keywords->types)) {
             throw new \DomainException(sprintf(
                 'arrays builder expected array types, received: %s',
                 implode(', ', array_map(
                     fn($t) => $t->value,
-                    $specification->keywords->types,
+                    $keywords->types,
                 )),
             ));
         }
 
-
-        $beforeChain = $specification->convertFromArray ?
+        $beforeChain = $convertFromArray ?
             [new Filter\String\Implode(',')] :
             [];
 
-        if (isset($specification->style)) {
+        if (isset($style)) {
             $beforeChain = array_merge(
                 $beforeChain,
-                match (Style::from($specification->style)) {
+                match (Style::from($style)) {
                     Style::Matrix => [
-                        new Matrix('array', $specification->explode ?? false),
+                        new Matrix('array', $explode ?? false),
                     ],
                     Style::Label => [
                         new Filter\String\LeftTrim('.'),
                         new Filter\String\Explode(
-                            $specification->explode ?? false ?
+                            $explode ?? false ?
                                 '.' :
                                 ','
                         ),
                     ],
                     Style::Form => [
-                        new Form('array', $specification->explode ?? true),
+                        new Form('array', $explode ?? true),
                     ],
                     Style::Simple => [
                         new Filter\String\Explode(',')
@@ -77,37 +77,37 @@ class Arrays extends APIBuilder
         $beforeChain[] = new IsList();
 
         if (
-            $specification->keywords->enum !== null
+            $keywords->enum !== null
         ) {
             $beforeChain[] = new Contained(array_map(
                 fn(Value $v) => $v->value,
-                $specification->keywords->enum,
+                $keywords->enum,
             ));
         }
 
         if (
-            $specification->keywords->minItems > 0
-            || $specification->keywords->maxItems !== null
+            $keywords->minItems > 0
+            || $keywords->maxItems !== null
         ) {
             $beforeChain[] = new Count(
-                $specification->keywords->minItems,
-                $specification->keywords->maxItems,
+                $keywords->minItems,
+                $keywords->maxItems,
             );
         }
 
-        if ($specification->keywords->uniqueItems === true) {
+        if ($keywords->uniqueItems === true) {
             $beforeChain[] = new Unique();
         }
 
         $beforeSet = new BeforeSet(...$beforeChain);
 
         $collection = new Collection(
-            $specification->fieldName,
+            $fieldName,
             $beforeSet,
             $this->fromSchema(
-                $specification->keywords->items,
+                $keywords->items,
                 '',
-                $specification->convertFromString,
+                $convertFromString,
             )
         );
 
