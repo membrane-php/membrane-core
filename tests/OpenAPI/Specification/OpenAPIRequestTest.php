@@ -12,7 +12,10 @@ use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
-use Membrane\OpenAPIReader\ValueObject\Valid\V30;
+use Membrane\OpenAPIReader\ValueObject\Valid\Identifier;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
+use Membrane\OpenAPIReader\ValueObject\Partial;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -34,6 +37,165 @@ class OpenAPIRequestTest extends TestCase
         $this->openApi = new MembraneReader([OpenAPIVersion::Version_3_0])
             ->readFromAbsoluteFilePath(__DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json');
         $this->pathParameterExtractor = new PathParameterExtractor('/pets');
+    }
+
+
+
+    public static function provideValidParameters(): array
+    {
+        return [
+            '"style": "matrix" in "path"' => [
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'path',
+                    required: true,
+                    style: 'matrix',
+                    schema: new Partial\Schema(type: 'integer'),
+                )),
+                [
+                    'name' => 'id',
+                    'in' => 'path',
+                    'required' => true,
+                    'style' => 'matrix',
+                    'explode' => false,
+                    'schema' => new V30\Schema(
+                        new Identifier('test', 'id(path)', 'schema'),
+                        new Partial\Schema(type: 'integer'),
+                    ),
+                ],
+            ],
+            '"style": "label" in "path"' => [
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'path',
+                    required: true,
+                    style: 'label',
+                    schema: new Partial\Schema(type: 'integer'),
+                )),
+                [
+                    'name' => 'id',
+                    'in' => 'path',
+                    'required' => true,
+                    'style' => 'label',
+                    'explode' => false,
+                    'schema' => new V30\Schema(
+                        new Identifier('test', 'id(path)', 'schema'),
+                        new Partial\Schema(type: 'integer'),
+                    ),
+                ],
+            ],
+            '"style":"form" in "query"' => [
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'query',
+                    required: false,
+                    style: 'form',
+                    schema: new Partial\Schema(type: 'integer'),
+                )),
+                [
+                    'name' => 'id',
+                    'in' => 'query',
+                    'required' => false,
+                    'style' => 'form',
+                    'explode' => true,
+                    'schema' => new V30\Schema(
+                        new Identifier('test', 'id(query)', 'schema'),
+                        new Partial\Schema(type: 'integer'),
+                    ),
+                ],
+            ],
+            '"style":"simple" in "path"' => [
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'path',
+                    required: true,
+                    style: 'simple',
+                    schema: new Partial\Schema(type: 'integer'),
+                )),
+                [
+                    'name' => 'id',
+                    'in' => 'path',
+                    'required' => true,
+                    'style' => 'simple',
+                    'explode' => false,
+                    'schema' => new V30\Schema(
+                        new Identifier('test', 'id(path)', 'schema'),
+                        new Partial\Schema(type: 'integer'),
+                    ),
+                ],
+            ],
+            '"style":"spaceDelimited" in "query"' => [
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'query',
+                    required: false,
+                    style: 'spaceDelimited',
+                    schema: new Partial\Schema(type: 'integer'),
+                )),
+                [
+                    'name' => 'id',
+                    'in' => 'query',
+                    'required' => false,
+                    'style' => 'spaceDelimited',
+                    'explode' => false,
+                    'schema' => new V30\Schema(
+                        new Identifier('test', 'id(query)', 'schema'),
+                        new Partial\Schema(type: 'integer'),
+                    ),
+                ],
+            ],
+            '"style":"pipeDelimited" in "query"' => [
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'query',
+                    required: false,
+                    style: 'pipeDelimited',
+                    schema: new Partial\Schema(type: 'integer'),
+                )),
+                [
+                    'name' => 'id',
+                    'in' => 'query',
+                    'required' => false,
+                    'style' => 'pipeDelimited',
+                    'explode' => false,
+                    'schema' => new V30\Schema(
+                        new Identifier('test', 'id(query)', 'schema'),
+                        new Partial\Schema(type: 'integer'),
+                    ),
+                ],
+            ],
+            '"style":"deepObject" in "query"' => [
+                new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+                    name: 'id',
+                    in: 'query',
+                    required: false,
+                    style: 'deepObject',
+                    explode: false,
+                    schema: new Partial\Schema(type: 'object'),
+                )),
+                [
+                    'name' => 'id',
+                    'in' => 'query',
+                    'required' => false,
+                    'style' => 'deepObject',
+                    'explode' => false,
+                    'schema' => new V30\Schema(
+                        new Identifier('test', 'id(query)', 'schema'),
+                        new Partial\Schema(type: 'object'),
+                    ),
+                ],
+            ],
+        ];
+    }
+
+    #[Test]
+    #[TestDox('It will construct itself from valid Parameters')]
+    #[DataProvider('provideValidParameters')]
+    public function itConstructsFromValidParameters(
+        V30\Parameter|V31\Parameter $parameter,
+        array $expectedProperties
+    ): void {
+        self::markTestSkipped();
     }
 
     #[Test, TestDox('If the method given is not specified on the PathItem then an exception will be thrown')]
