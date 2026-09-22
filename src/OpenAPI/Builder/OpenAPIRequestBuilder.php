@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder;
 
-use Membrane\Builder\Builder;
 use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
@@ -19,7 +18,7 @@ use Membrane\Processor\FieldSet;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Utility\Passes;
 
-class OpenAPIRequestBuilder implements Builder
+class OpenAPIRequestBuilder
 {
     private Schema $schemaBuilder;
 
