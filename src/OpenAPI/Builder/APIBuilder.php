@@ -14,7 +14,7 @@ use Membrane\Processor\OneOf;
 use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Utility;
 
-abstract class APIBuilder
+class APIBuilder
 {
     private Arrays $arrayBuilder;
     private TrueFalse $trueFalseBuilder;

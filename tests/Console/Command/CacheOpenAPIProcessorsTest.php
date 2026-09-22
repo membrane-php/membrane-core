@@ -38,7 +38,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[UsesClass(Template\ResponseBuilder::class)]
 #[UsesClass(Template\RequestBuilder::class)]
 #[UsesClass(Builder\APIBuilder::class)]
-#[UsesClass(Builder\ParameterBuilder::class)]
 #[UsesClass(Builder\Arrays::class)]
 #[UsesClass(Builder\Numeric::class)]
 #[UsesClass(Builder\Strings::class)]

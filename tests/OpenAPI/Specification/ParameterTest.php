@@ -18,19 +18,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(CannotProcessOpenAPI::class)]
 class ParameterTest extends TestCase
 {
-    #[Test, TestDox('Exceptions will be thrown for parameters with unsupported content types')]
-    public function throwsExceptionForUnsupportedContentTypes(): void
-    {
-        $parameter = new V30\Parameter(new Identifier('test'), new Partial\Parameter(
-            name: 'test-param',
-            in: 'query',
-            content: [new Partial\MediaType(contentType: 'application/pdf', schema: new Partial\Schema())],
-        ));
 
-        self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes('application/pdf'));
-
-        new Parameter($parameter);
-    }
 
     public static function provideValidParameters(): array
     {

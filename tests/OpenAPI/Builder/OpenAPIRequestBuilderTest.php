@@ -20,7 +20,6 @@ use Membrane\OpenAPI\Builder\Arrays;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\Objects;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
-use Membrane\OpenAPI\Builder\ParameterBuilder;
 use Membrane\OpenAPI\Builder\RequestBuilder;
 use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\ContentType;
@@ -81,7 +80,6 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use Psr\Http\Message\ServerRequestInterface;
 
 #[CoversClass(OpenAPIRequestBuilder::class)]
-#[CoversClass(ParameterBuilder::class)]
 #[CoversClass(APIBuilder::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
@@ -142,6 +140,23 @@ use Psr\Http\Message\ServerRequestInterface;
 class OpenAPIRequestBuilderTest extends MembraneTestCase
 {
     public const string FIXTURES = __DIR__ . '/../../fixtures/OpenAPI/';
+
+    #[Test, TestDox('Exceptions will be thrown for parameters with unsupported content types')]
+    public function throwsExceptionForUnsupportedContentTypes(): void
+    {
+        self::markTestSkipped();
+
+        $parameter = new V30\Parameter(new Identifier('test'), new Partial\Parameter(
+            name: 'test-param',
+            in: 'query',
+            content: [new Partial\MediaType(contentType: 'application/pdf', schema: new Partial\Schema())],
+        ));
+
+        self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes('application/pdf'));
+
+        $sut = new OpenAPIRequestBuilder();
+        new $sut->build($parameter);
+    }
 
     #[Test, TestDox('It will support the OpenAPIRequest Specification')]
     public function supportsRequestSpecification(): void

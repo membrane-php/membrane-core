@@ -6,10 +6,10 @@ namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Builder;
 use Membrane\Builder\Specification;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Filter;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
-use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\In;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
@@ -20,7 +20,7 @@ use Membrane\Validator\Utility\Passes;
 
 class OpenAPIRequestBuilder implements Builder
 {
-    private ParameterBuilder $parameterBuilder;
+    private APIBuilder $apiBuilder;
 
     public function supports(Specification $specification): bool
     {
@@ -48,7 +48,7 @@ class OpenAPIRequestBuilder implements Builder
             return new Field('requestBody', new Passes());
         }
 
-        return $this->getParameterBuilder()->fromSchema(
+        return $this->getApiBuilder()->fromSchema(
             $specification->requestBodySchema,
             'requestBody',
         );
@@ -57,20 +57,25 @@ class OpenAPIRequestBuilder implements Builder
     /** @return Processor[] */
     private function fromParameters(OpenAPIRequest $specification): array
     {
-        $parameters = array_map(
-            fn($p) => new Parameter($p),
+        $queryParameters = array_filter(
             $specification->parameters,
+            fn($p) => $p->in === In::Query,
         );
 
-        $queryParameters = array_filter($parameters, fn($p) => $p->in === 'query');
-
-        $location = fn(array $chain) => ['required' => [], 'fields' => [], 'beforeSet' => $chain];
+        $location = fn(array $chain) => [
+            'required' => [],
+            'fields' => [],
+            'beforeSet' => $chain,
+            ];
         $locations = [
             'path' => $location([new Filter\PathMatcher($specification->pathParameterExtractor)]),
             'query' => $location([new Filter\QueryStringToArray(array_combine(
                 array_map(fn($p) => $p->name, $queryParameters),
                 array_map(
-                    fn($p) => ['style' => $p->style, 'explode' => $p->explode],
+                    fn($p) => [
+                        'style' => $p->style->value,
+                        'explode' => $p->explode,
+                    ],
                     $queryParameters,
                 )
             ))]),
@@ -78,17 +83,25 @@ class OpenAPIRequestBuilder implements Builder
             'cookie' => $location([]),
         ];
 
-        foreach ($parameters as $parameter) {
-            $locations[$parameter->in]['fields'][] = $this
-                ->getParameterBuilder()
-                ->fromParameter(
-                    $parameter,
+        foreach ($specification->parameters as $parameter) {
+            if ($parameter->hasMediaType() && $parameter->getMediaType() !== 'application/json') {
+                assert($parameter->getMediaType() !== null);
+                throw CannotProcessOpenAPI::unsupportedMediaTypes($parameter->getMediaType());
+            }
+
+            $locations[$parameter->in->value]['fields'][] = $this
+                ->getApiBuilder()
+                ->fromSchema(
+                    $parameter->getSchema(),
+                    $parameter->name,
                     true,
-                    $parameter->in === In::Header->value,
+                    $parameter->in === In::Header,
+                    $parameter->style->value,
+                    $parameter->explode,
                 );
 
             if ($parameter->required) {
-                $locations[$parameter->in]['required'][] = $parameter->name;
+                $locations[$parameter->in->value]['required'][] = $parameter->name;
             }
         }
 
@@ -112,11 +125,8 @@ class OpenAPIRequestBuilder implements Builder
         return $fieldSets;
     }
 
-    private function getParameterBuilder(): ParameterBuilder
+    private function getApiBuilder(): APIBuilder
     {
-        if (!isset($this->parameterBuilder)) {
-            $this->parameterBuilder = new ParameterBuilder();
-        }
-        return $this->parameterBuilder;
+        return $this->apiBuilder ??= new APIBuilder();
     }
 }

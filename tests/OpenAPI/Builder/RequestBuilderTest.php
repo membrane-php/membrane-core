@@ -13,7 +13,6 @@ use Membrane\OpenAPI\Builder\APIBuilder;
 use Membrane\OpenAPI\Builder\Arrays;
 use Membrane\OpenAPI\Builder\Numeric;
 use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
-use Membrane\OpenAPI\Builder\ParameterBuilder;
 use Membrane\OpenAPI\Builder\RequestBuilder;
 use Membrane\OpenAPI\Builder\Strings;
 use Membrane\OpenAPI\ContentType;
@@ -68,7 +67,6 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(Numeric::class)]
 #[UsesClass(Strings::class)]
 #[UsesClass(Parameter::class)]
-#[UsesClass(ParameterBuilder::class)]
 #[UsesClass(QueryStringToArray::class)]
 #[UsesClass(Form::class)]
 #[UsesClass(PathMatcher::class)]
