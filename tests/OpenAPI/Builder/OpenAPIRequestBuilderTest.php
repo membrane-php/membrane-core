@@ -58,6 +58,7 @@ use Membrane\Result\FieldName;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;
 use Membrane\Result\Result;
+use Membrane\Tests\Fixtures;
 use Membrane\Tests\MembraneTestCase;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Numeric\Maximum;
@@ -139,18 +140,22 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
     #[Test, TestDox('Exceptions will be thrown for parameters with unsupported content types')]
     public function throwsExceptionForUnsupportedContentTypes(): void
     {
-        self::markTestSkipped();
+        $path = '/path';
+        $method = Method::GET;
+        $mediaType = 'application/pdf';
+        $pathItem = Fixtures\OpenAPI\ProvidesUnsupportedContent::pathItemMediaType(
+            path: $path,
+            method: $method,
+            mediaType: $mediaType,
+        );
 
-        $parameter = new V30\Parameter(new Identifier('test'), new Partial\Parameter(
-            name: 'test-param',
-            in: 'query',
-            content: [new Partial\MediaType(contentType: 'application/pdf', schema: new Partial\Schema())],
+        self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes($mediaType));
+
+        new OpenAPIRequestBuilder()->build(new OpenAPIRequest(
+            new PathParameterExtractor($path),
+            $pathItem,
+            $method,
         ));
-
-        self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes('application/pdf'));
-
-        $sut = new OpenAPIRequestBuilder();
-        new $sut->build($parameter);
     }
 
     #[Test, TestDox('It will support the OpenAPIRequest Specification')]
