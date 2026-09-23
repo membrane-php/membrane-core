@@ -6,6 +6,7 @@ namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Builder;
 use Membrane\Builder\Specification;
+use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessResponse;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
@@ -18,9 +19,7 @@ use Membrane\Processor;
 
 class ResponseBuilder implements Builder
 {
-    private Internal\Response $responseBuilder {
-        get => $this->responseBuilder ??= new Internal\Response();
-    }
+    private Internal\Response $responseBuilder;
 
     public function supports(Specification $specification): bool
     {
@@ -47,7 +46,7 @@ class ResponseBuilder implements Builder
 
             $response = $this->getResponse($operation, $specification->statusCode);
 
-            return $this->responseBuilder->build($response);
+            return $this->getResponseBuilder()->build($response);
         }
 
         throw CannotProcessSpecification::pathNotFound(
@@ -88,5 +87,10 @@ class ResponseBuilder implements Builder
         }
 
         return '';
+    }
+
+    private function getResponseBuilder(): Internal\Response
+    {
+        return $this->responseBuilder ??= new Internal\Response();
     }
 }

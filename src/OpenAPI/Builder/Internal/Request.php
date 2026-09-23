@@ -24,9 +24,7 @@ use Membrane\Validator\Utility\Passes;
  */
 class Request
 {
-    private Schema $schemaBuilder {
-        get => $this->schemaBuilder ??= new Schema();
-    }
+    private Schema $schemaBuilder;
 
     public function build(
         ExtractsPathParameters $pathParameterExtractor,
@@ -62,7 +60,7 @@ class Request
                 ContentType::fromContentTypeHeader($contentType) !== ContentType::Unmatched
                 && $mediaType->schema !== null
             ) {
-                return $this->schemaBuilder->fromSchema(
+                return $this->getSchemaBuilder()->fromSchema(
                     $mediaType->schema,
                     'requestBody',
                 );
@@ -116,7 +114,7 @@ class Request
             }
 
             $locations[$parameter->in->value]['fields'][] = $this
-                ->schemaBuilder
+                ->getSchemaBuilder()
                 ->fromSchema(
                     $parameter->getSchema(),
                     $parameter->name,
@@ -149,5 +147,10 @@ class Request
         }
 
         return $fieldSets;
+    }
+
+    private function getSchemaBuilder(): Schema
+    {
+        return $this->schemaBuilder ??= new Schema();
     }
 }
