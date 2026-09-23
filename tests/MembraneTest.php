@@ -12,7 +12,6 @@ use Membrane\Filter\String\Explode;
 use Membrane\Membrane;
 use Membrane\OpenAPI\Builder as Builder;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
-use Membrane\OpenAPI\Specification as OpenAPISpecification;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
@@ -41,7 +40,6 @@ use RuntimeException;
 #[UsesClass(Builder\Internal\Response::class)]
 #[UsesClass(Builder\RequestBuilder::class)]
 #[UsesClass(Builder\ResponseBuilder::class)]
-#[UsesClass(OpenAPISpecification\OpenAPIResponse::class)]
 #[UsesClass(Processor\BeforeSet::class)]
 #[UsesClass(Processor\Collection::class)]
 #[UsesClass(Processor\FieldSet::class)]

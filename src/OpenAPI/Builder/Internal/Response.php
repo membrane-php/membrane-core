@@ -4,32 +4,36 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder\Internal;
 
-use Membrane\Builder\Specification;
-use Membrane\OpenAPI\Specification\OpenAPIResponse;
+use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Utility\Passes;
 
 class Response extends Schema
 {
-    public function supports(Specification $specification): bool
-    {
-        return ($specification instanceof OpenAPIResponse);
+    public function build(
+        V30\Response | V31\Response $response,
+    ): Processor {
+        return $this->fromContent($response);
     }
 
-    public function build(Specification $specification): Processor
+    private function fromContent(V30\Response | V31\Response $response): Processor
     {
-        assert($specification instanceof OpenAPIResponse);
-
-        return $this->fromContent($specification);
-    }
-
-    private function fromContent(OpenAPIResponse $response): Processor
-    {
-        if ($response->schema === null) {
+        if ($response->content === []) {
             return new Field('', new Passes());
         }
 
-        return $this->fromSchema($response->schema);
+        if (! isset($response->content['application/json'])) {
+            throw CannotProcessOpenAPI::unsupportedMediaTypes(
+                ...array_keys($response->content),
+            );
+        }
+
+        if ($response->content['application/json']->schema === null) {
+            return new Field('', new Passes());
+        }
+
+        return $this->fromSchema($response->content['application/json']->schema);
     }
 }

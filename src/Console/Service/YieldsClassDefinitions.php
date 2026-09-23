@@ -9,7 +9,6 @@ use Membrane\Filter;
 use Membrane\OpenAPI\Builder\Internal\Request;
 use Membrane\OpenAPI\Builder\Internal\Response;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
-use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Method, V30, V31};
@@ -74,13 +73,7 @@ final class YieldsClassDefinitions
                         yield new Template\Processor(
                             namespace: "$cacheNamespace\\Response\\$prefixedCode",
                             name: $className,
-                            processor: $this->getResponseBuilder()->build(
-                                new OpenAPIResponse(
-                                    $operation->operationId,
-                                    (string)$code,
-                                    $response,
-                                )
-                            )
+                            processor: $this->getResponseBuilder()->build($response),
                         );
                     }
                 }
@@ -107,10 +100,10 @@ final class YieldsClassDefinitions
     private function readOpenAPIFile(string $filepath): V30\OpenAPI | V31\OpenAPI
     {
         $this->logger->info("Reading OpenAPI from $filepath");
-        return (new MembraneReader([
+        return new MembraneReader([
             OpenAPIVersion::Version_3_0,
             OpenAPIVersion::Version_3_1
-        ]))->readFromAbsoluteFilePath($filepath);
+        ])->readFromAbsoluteFilePath($filepath);
     }
 
     /** @param array<string,string> $existingClassNames */

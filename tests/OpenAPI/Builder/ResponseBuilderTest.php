@@ -13,7 +13,6 @@ use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessResponse;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
-use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\Processor;
@@ -60,7 +59,6 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(CannotProcessOpenAPI::class)]
 #[UsesClass(Internal\Schema::class)]
 #[UsesClass(Internal\Response::class)]
-#[UsesClass(OpenAPIResponse::class)]
 #[UsesClass(\Membrane\OpenAPI\Builder\Internal\Arrays::class)]
 #[UsesClass(\Membrane\OpenAPI\Builder\Internal\TrueFalse::class)]
 #[UsesClass(\Membrane\OpenAPI\Builder\Internal\Numeric::class)]

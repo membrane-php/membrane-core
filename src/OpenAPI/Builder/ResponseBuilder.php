@@ -9,7 +9,6 @@ use Membrane\Builder\Specification;
 use Membrane\OpenAPI\Exception\CannotProcessResponse;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
-use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
@@ -34,7 +33,7 @@ class ResponseBuilder implements Builder
 
         $openAPI = new MembraneReader([
             OpenAPIVersion::Version_3_0,
-            OpenAPIVersion::Version_3_1
+            OpenAPIVersion::Version_3_1,
         ])->readFromAbsoluteFilePath($specification->absoluteFilePath);
 
         $serverUrl = $this->matchServer($openAPI, $specification->url);
@@ -48,13 +47,7 @@ class ResponseBuilder implements Builder
 
             $response = $this->getResponse($operation, $specification->statusCode);
 
-            $newSpecification = new OpenAPIResponse(
-                $operation->operationId,
-                $specification->statusCode,
-                $response
-            );
-
-            return $this->responseBuilder->build($newSpecification);
+            return $this->responseBuilder->build($response);
         }
 
         throw CannotProcessSpecification::pathNotFound(
