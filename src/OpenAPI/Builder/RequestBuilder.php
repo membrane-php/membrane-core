@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\{Builder, Specification};
-use Membrane\OpenAPI\Builder\Internal;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
-use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
@@ -40,13 +38,11 @@ class RequestBuilder implements Builder
                 continue;
             }
 
-            $newSpecification = new OpenAPIRequest(
+            return $this->getOpenAPIRequestBuilder()->build(
                 $pathMatcher,
                 $pathItem,
-                $specification->method
+                $specification->method,
             );
-
-            return $this->getOpenAPIRequestBuilder()->build($newSpecification);
         }
 
         throw CannotProcessSpecification::pathNotFound(

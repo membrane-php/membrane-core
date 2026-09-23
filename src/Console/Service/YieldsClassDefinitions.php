@@ -9,7 +9,6 @@ use Membrane\Filter;
 use Membrane\OpenAPI\Builder\Internal\Request;
 use Membrane\OpenAPI\Builder\OpenAPIResponseBuilder;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
-use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
@@ -58,11 +57,9 @@ final class YieldsClassDefinitions
                         namespace: "$cacheNamespace\\Request",
                         name: $className,
                         processor: $this->getRequestBuilder()->build(
-                            new OpenAPIRequest(
-                                new PathParameterExtractor($pathUrl),
-                                $path,
-                                $methodObject,
-                            )
+                            new PathParameterExtractor($pathUrl),
+                            $path,
+                            $methodObject,
                         )
                     );
                 }

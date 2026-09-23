@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Membrane\OpenAPI\Builder\Internal;
 
-use Membrane\Builder\Specification;
+use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
+use Membrane\OpenAPI\ExtractPathParameters\ExtractsPathParameters;
 use Membrane\OpenAPI\Filter;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
-use Membrane\OpenAPI\Specification\OpenAPIRequest;
+use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Method, V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\In;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
@@ -26,38 +28,63 @@ class Request
         get => $this->schemaBuilder ??= new Schema();
     }
 
-    public function build(Specification $specification): Processor
-    {
-        assert($specification instanceof OpenAPIRequest);
-
-        $processors = $this->fromParameters($specification);
-        $processors['body'] = $this->fromRequestBody($specification);
+    public function build(
+        ExtractsPathParameters $pathParameterExtractor,
+        V30\PathItem | V31\PathItem $pathItem,
+        Method $method,
+    ): Processor {
+        $operation = $pathItem->getOperations()[$method->value]
+            ?? throw CannotProcessSpecification::methodNotFound($method->value);
 
         return new RequestProcessor(
             '',
-            $specification->operationId,
-            $specification->method,
-            $processors
+            $operation->operationId,
+            $method,
+            [
+                'body' => $this->fromRequestBody($operation->requestBody),
+                ...$this->fromParameters(
+                    $pathParameterExtractor,
+                    $operation->parameters,
+                ),
+            ],
         );
     }
 
-    private function fromRequestBody(OpenAPIRequest $specification): Processor
-    {
-        if ($specification->requestBodySchema === null) {
+    private function fromRequestBody(
+        null | V30\RequestBody | V31\RequestBody $requestBody,
+    ): Processor {
+        if ($requestBody === null || $requestBody->content === []) {
             return new Field('requestBody', new Passes());
         }
 
-        return $this->schemaBuilder->fromSchema(
-            $specification->requestBodySchema,
-            'requestBody',
+        foreach ($requestBody->content as $contentType => $mediaType) {
+            if (
+                ContentType::fromContentTypeHeader($contentType) !== ContentType::Unmatched
+                && $mediaType->schema !== null
+            ) {
+                return $this->schemaBuilder->fromSchema(
+                    $mediaType->schema,
+                    'requestBody',
+                );
+            }
+        }
+
+        throw CannotProcessOpenAPI::unsupportedMediaTypes(
+            ...array_keys($requestBody->content),
         );
     }
 
-    /** @return Processor[] */
-    private function fromParameters(OpenAPIRequest $specification): array
-    {
+    /**
+     * @param V30\Parameter[] | V31\Parameter[] $parameters
+     *
+     * @return Processor[]
+     */
+    private function fromParameters(
+        ExtractsPathParameters $extractsPathParameters,
+        array $parameters,
+    ): array {
         $queryParameters = array_filter(
-            $specification->parameters,
+            $parameters,
             fn($p) => $p->in === In::Query,
         );
 
@@ -67,7 +94,7 @@ class Request
             'beforeSet' => $chain,
         ];
         $locations = [
-            'path' => $location([new Filter\PathMatcher($specification->pathParameterExtractor)]),
+            'path' => $location([new Filter\PathMatcher($extractsPathParameters)]),
             'query' => $location([new Filter\QueryStringToArray(array_combine(
                 array_map(fn($p) => $p->name, $queryParameters),
                 array_map(
@@ -82,7 +109,7 @@ class Request
             'cookie' => $location([]),
         ];
 
-        foreach ($specification->parameters as $parameter) {
+        foreach ($parameters as $parameter) {
             if ($parameter->hasMediaType() && $parameter->getMediaType() !== 'application/json') {
                 assert($parameter->getMediaType() !== null);
                 throw CannotProcessOpenAPI::unsupportedMediaTypes($parameter->getMediaType());

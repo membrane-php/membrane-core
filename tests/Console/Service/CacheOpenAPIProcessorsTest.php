@@ -8,12 +8,12 @@ use Membrane;
 use Membrane\Console\Service\CacheOpenAPIProcessors;
 use Membrane\Console\Template;
 use Membrane\Filter\{String\AlphaNumeric, String\Explode, String\ToPascalCase, Type as TypeFilter};
+use Membrane\OpenAPI;
 use Membrane\OpenAPI\Builder as Builder;
 use Membrane\OpenAPI\Builder\Internal\Request;
 use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\PathMatcher;
-use Membrane\OpenAPI;
 use Membrane\OpenAPI\Specification;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
@@ -45,7 +45,6 @@ use Psr\Log\LoggerInterface;
 #[UsesClass(OpenAPI\Filter\QueryStringToArray::class)]
 #[UsesClass(OpenAPI\Filter\FormatStyle\Form::class)]
 #[UsesClass(OpenAPI\Processor\Request::class)]
-#[UsesClass(Specification\OpenAPIRequest::class)]
 #[UsesClass(Specification\OpenAPIResponse::class)]
 #[UsesClass(Membrane\Result\Result::class)]
 #[UsesClass(IntString::class)]
@@ -114,23 +113,19 @@ class CacheOpenAPIProcessorsTest extends TestCase
     public function cachesProcessorsWithSuitableNamesToAvoidDuplicates(): void
     {
         $hatstoreFilePath = __DIR__ . '/../../fixtures/OpenAPI/hatstore.json';
-        $hatstoreApi = (new MembraneReader([OpenAPIVersion::Version_3_0]))
+        $hatstoreApi = new MembraneReader([OpenAPIVersion::Version_3_0])
             ->readFromAbsoluteFilePath($hatstoreFilePath);
 
         $requestBuilder = new Builder\Internal\Request();
         $expectedFindHats = $requestBuilder->build(
-            new Specification\OpenAPIRequest(
-                new PathParameterExtractor('/hats'),
-                $hatstoreApi->paths['/hats'],
-                Method::GET
-            )
+            new PathParameterExtractor('/hats'),
+            $hatstoreApi->paths['/hats'],
+            Method::GET,
         );
         $expectedFindHats1 = $requestBuilder->build(
-            new Specification\OpenAPIRequest(
-                new PathParameterExtractor('/hats/{id}'),
-                $hatstoreApi->paths['/hats/{id}'],
-                Method::GET
-            )
+            new PathParameterExtractor('/hats/{id}'),
+            $hatstoreApi->paths['/hats/{id}'],
+            Method::GET,
         );
 
         $this->sut->cache($hatstoreFilePath, $this->root->url() . '/cache/', 'ServiceTest\\Hatstore');
@@ -210,7 +205,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
     {
         $requestBuilder = new Request();
         $petstoreExpandedFilePath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
-        $petstoreExpandedOpenApi = (new MembraneReader([OpenAPIVersion::Version_3_0]))
+        $petstoreExpandedOpenApi = new MembraneReader([OpenAPIVersion::Version_3_0])
             ->readFromAbsoluteFilePath($petstoreExpandedFilePath);
 
         return [
@@ -220,11 +215,9 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'ServiceTest\\PetstoreA',
                 'Request\\FindPets',
                 $requestBuilder->build(
-                    new Specification\OpenAPIRequest(
-                        new PathParameterExtractor('/pets'),
-                        $petstoreExpandedOpenApi->paths['/pets'],
-                        Method::GET
-                    )
+                    new PathParameterExtractor('/pets'),
+                    $petstoreExpandedOpenApi->paths['/pets'],
+                    Method::GET,
                 ),
             ],
             'addPet : Request' => [
@@ -233,11 +226,9 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'ServiceTest\\PetstoreD',
                 'Request\\AddPet',
                 $requestBuilder->build(
-                    new Specification\OpenAPIRequest(
-                        new PathParameterExtractor('/pets'),
-                        $petstoreExpandedOpenApi->paths['/pets'],
-                        Method::POST
-                    )
+                    new PathParameterExtractor('/pets'),
+                    $petstoreExpandedOpenApi->paths['/pets'],
+                    Method::POST,
                 ),
             ],
             'find pet by id : Request' => [
@@ -246,11 +237,9 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'ServiceTest\\PetstoreE',
                 'Request\\FindPetById',
                 $requestBuilder->build(
-                    new Specification\OpenAPIRequest(
-                        new PathParameterExtractor('/pets/{id}'),
-                        $petstoreExpandedOpenApi->paths['/pets/{id}'],
-                        Method::GET
-                    )
+                    new PathParameterExtractor('/pets/{id}'),
+                    $petstoreExpandedOpenApi->paths['/pets/{id}'],
+                    Method::GET,
                 ),
             ],
             'deletePet : Request' => [
@@ -259,11 +248,9 @@ class CacheOpenAPIProcessorsTest extends TestCase
                 'ServiceTest\\PetstoreH',
                 'Request\\DeletePet',
                 $requestBuilder->build(
-                    new Specification\OpenAPIRequest(
-                        new PathParameterExtractor('/pets/{id}'),
-                        $petstoreExpandedOpenApi->paths['/pets/{id}'],
-                        Method::DELETE
-                    )
+                    new PathParameterExtractor('/pets/{id}'),
+                    $petstoreExpandedOpenApi->paths['/pets/{id}'],
+                    Method::DELETE,
                 ),
             ],
         ];
@@ -273,7 +260,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
     {
         $responseBuilder = new Builder\OpenAPIResponseBuilder();
         $petstoreExpandedFilePath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
-        $petstoreExpandedOpenApi = (new MembraneReader([OpenAPIVersion::Version_3_0]))
+        $petstoreExpandedOpenApi = new MembraneReader([OpenAPIVersion::Version_3_0])
             ->readFromAbsoluteFilePath($petstoreExpandedFilePath);
 
         return [
