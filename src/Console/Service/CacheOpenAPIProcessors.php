@@ -41,7 +41,7 @@ class CacheOpenAPIProcessors
             $classWriter = new PHPFilesWriter($destination, $cacheNamespace);
             $classWriter->writeFiles($definitionProducer);
         } catch (CannotRead | CannotSupport | InvalidOpenAPI | \RuntimeException $e) {
-            // TODO do not catch RuntimeException once PHPFilesWriter throws specific exceptions
+            //@TODO do not catch RuntimeException once PHPFilesWriter throws specific exceptions
             $this->logger->error($e->getMessage());
             return false;
         }

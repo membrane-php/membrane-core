@@ -29,6 +29,29 @@ final class YieldsClassDefinitions
         bool $buildResponses,
         bool $routeMatch,
     ): \Generator {
+        if ($routeMatch) {
+            return $this->yieldRouteMatch(
+                $openAPIFilePath,
+                $cacheNamespace,
+                $buildRequests,
+                $buildResponses,
+            );
+        }
+
+        return $this->yieldRequestsAndResponses(
+            $openAPIFilePath,
+            $cacheNamespace,
+            $buildRequests,
+            $buildResponses,
+        );
+    }
+
+    private function yieldRequestsAndResponses(
+        string $openAPIFilePath,
+        string $cacheNamespace,
+        bool $buildRequests,
+        bool $buildResponses,
+    ): \Generator {
         $openAPI = $this->readOpenAPIFile($openAPIFilePath);
 
         // Initialize classMap for CachedBuilers
@@ -95,6 +118,15 @@ final class YieldsClassDefinitions
                 );
             }
         }
+    }
+
+    private function yieldRouteMatch(
+        string $openAPIFilePath,
+        string $cacheNamespace,
+        bool $buildRequests,
+        bool $buildResponses,
+    ): \Generator {
+        yield [];
     }
 
     private function readOpenAPIFile(string $filepath): V30\OpenAPI | V31\OpenAPI
