@@ -10,6 +10,9 @@ use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Utility\Passes;
 
+/**
+ * @internal see README.md
+ */
 class Response extends Schema
 {
     public function build(
