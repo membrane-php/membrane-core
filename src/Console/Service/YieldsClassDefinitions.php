@@ -43,17 +43,17 @@ final class YieldsClassDefinitions
                 $classNames[$operationId] = $className =
                     $this->createSuitableClassName($operationId, $classNames);
                 $classMap[$operationId] = [
-                    'request' => "$cacheNamespace\\Request\\$className",
+                    'request' => "{$cacheNamespace}\\Request\\{$className}",
                     'response' => [],
                 ];
 
                 if ($buildRequests) {
                     $this->logger->info(
-                        "Generating $cacheNamespace\\Request\\$className"
+                        "Generating {$cacheNamespace}\\Request\\{$className}"
                     );
 
                     yield new Template\Processor(
-                        namespace: "$cacheNamespace\\Request",
+                        namespace: "{$cacheNamespace}\\Request",
                         name: $className,
                         processor: $this->getRequestBuilder()->build(
                             new PathParameterExtractor($pathUrl),
@@ -67,11 +67,11 @@ final class YieldsClassDefinitions
                     foreach ($operation->responses as $code => $response) {
                         $prefixedCode = 'Code' . ucwords((string) $code);
                         $this->logger->info(
-                            "Generating $cacheNamespace\\Response\\$prefixedCode\\$className"
+                            "Generating {$cacheNamespace}\\Response\\{$prefixedCode}\\{$className}"
                         );
 
                         yield new Template\Processor(
-                            namespace: "$cacheNamespace\\Response\\$prefixedCode",
+                            namespace: "{$cacheNamespace}\\Response\\{$prefixedCode}",
                             name: $className,
                             processor: $this->getResponseBuilder()->build($response),
                         );
