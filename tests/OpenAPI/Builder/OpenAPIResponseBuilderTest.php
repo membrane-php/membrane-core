@@ -7,8 +7,8 @@ namespace Membrane\Tests\OpenAPI\Builder;
 use Generator;
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\ToUpperCase;
+use Membrane\OpenAPI\Builder\Internal;
 use Membrane\OpenAPI\Builder\Internal\Schema;
-use Membrane\OpenAPI\Builder\OpenAPIResponseBuilder;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
@@ -54,7 +54,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(OpenAPIResponseBuilder::class)]
+#[CoversClass(Internal\Response::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
 #[CoversClass(Schema::class)]
@@ -106,7 +106,7 @@ class OpenAPIResponseBuilderTest extends TestCase
 
         $operation = $openApi->paths['/responsepath']->get;
 
-        $sut = new OpenAPIResponseBuilder();
+        $sut = new Internal\Response();
         $response = new OpenAPIResponse(
             $operation->operationId,
             '360',
@@ -122,7 +122,7 @@ class OpenAPIResponseBuilderTest extends TestCase
     public function supportsResponseSpecification(): void
     {
         $specification = self::createStub(OpenAPIResponse::class);
-        $sut = new OpenAPIResponseBuilder();
+        $sut = new Internal\Response();
 
         self::assertTrue($sut->supports($specification));
     }
@@ -131,7 +131,7 @@ class OpenAPIResponseBuilderTest extends TestCase
     public function doesNotSupportSpecificationsThatAreNotResponse(): void
     {
         $specification = self::createStub(\Membrane\Builder\Specification::class);
-        $sut = new OpenAPIResponseBuilder();
+        $sut = new Internal\Response();
 
         self::assertFalse($sut->supports($specification));
     }
@@ -943,7 +943,7 @@ class OpenAPIResponseBuilderTest extends TestCase
     #[DataProvider('dataSetsforBuilds')]
     public function buildsTest(Specification $spec, Processor $expected): void
     {
-        $sut = new OpenAPIResponseBuilder();
+        $sut = new Internal\Response();
 
         $processor = $sut->build($spec);
 
@@ -952,7 +952,7 @@ class OpenAPIResponseBuilderTest extends TestCase
 
     public static function dataSetsForDocExamples(): array
     {
-        $petstore = (new MembraneReader([OpenAPIVersion::Version_3_0]))
+        $petstore = new MembraneReader([OpenAPIVersion::Version_3_0])
             ->readFromAbsoluteFilePath(self::DIR . 'docs/petstore.yaml');
 
         $petsGet200Response = new OpenAPIResponse(
@@ -1018,7 +1018,7 @@ class OpenAPIResponseBuilderTest extends TestCase
     #[Test]
     public function docsTest(Specification $spec, array $data, Result $expected): void
     {
-        $sut = new OpenAPIResponseBuilder();
+        $sut = new Internal\Response();
 
         $processor = $sut->build($spec);
 
@@ -1029,9 +1029,9 @@ class OpenAPIResponseBuilderTest extends TestCase
     #[DataProvider('provideDateStrings')]
     public function itValidatesDateTime(Result $expected, string $dateTime): void
     {
-        $noReferences = (new MembraneReader([
+        $noReferences = new MembraneReader([
             OpenAPIVersion::Version_3_0,
-        ]))->readFromAbsoluteFilePath(self::DIR . 'noReferences.json');
+        ])->readFromAbsoluteFilePath(self::DIR . 'noReferences.json');
 
         $specification = new OpenAPIResponse(
             $noReferences->paths['/responsepath']->get->operationId,
@@ -1039,7 +1039,7 @@ class OpenAPIResponseBuilderTest extends TestCase
             $noReferences->paths['/responsepath']->get->responses['224']
         );
 
-        $sut = new OpenAPIResponseBuilder();
+        $sut = new Internal\Response();
 
         $processor = $sut->build($specification);
 

@@ -6,8 +6,8 @@ namespace Membrane\Tests\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\ToUpperCase;
+use Membrane\OpenAPI\Builder\Internal;
 use Membrane\OpenAPI\Builder\Internal\Schema;
-use Membrane\OpenAPI\Builder\OpenAPIResponseBuilder;
 use Membrane\OpenAPI\Builder\ResponseBuilder;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessResponse;
@@ -58,8 +58,8 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(CannotProcessResponse::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
-#[UsesClass(Schema::class)]
-#[UsesClass(OpenAPIResponseBuilder::class)]
+#[UsesClass(Internal\Schema::class)]
+#[UsesClass(Internal\Response::class)]
 #[UsesClass(OpenAPIResponse::class)]
 #[UsesClass(\Membrane\OpenAPI\Builder\Internal\Arrays::class)]
 #[UsesClass(\Membrane\OpenAPI\Builder\Internal\TrueFalse::class)]
@@ -107,7 +107,12 @@ class ResponseBuilderTest extends TestCase
     #[Test, TestDox('It throws an exception if you try to use the keyword "not"')]
     public function throwsExceptionIfNotIsFound(): void
     {
-        $response = new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '360');
+        $response = new Response(
+            self::DIR . 'noReferences.json',
+            '/responsepath',
+            Method::GET,
+            '360',
+        );
 
         self::expectExceptionObject(CannotProcessOpenAPI::unsupportedKeyword('not'));
 
@@ -169,7 +174,7 @@ class ResponseBuilderTest extends TestCase
 
         $specification = new Response(self::DIR . 'noReferences.json', '/nonexistentpath', Method::GET, '200');
 
-        (new ResponseBuilder())->build($specification);
+        new ResponseBuilder()->build($specification);
     }
 
     public static function dataSetsforBuilds(): array

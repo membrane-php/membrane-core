@@ -7,7 +7,7 @@ namespace Membrane\Console\Service;
 use Membrane\Console\Template;
 use Membrane\Filter;
 use Membrane\OpenAPI\Builder\Internal\Request;
-use Membrane\OpenAPI\Builder\OpenAPIResponseBuilder;
+use Membrane\OpenAPI\Builder\Internal\Response;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPIReader\MembraneReader;
@@ -17,7 +17,7 @@ use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Method, V30, V31};
 final class YieldsClassDefinitions
 {
     private Request $requestBuilder;
-    private OpenAPIResponseBuilder $responseBuilder;
+    private Response $responseBuilder;
 
     public function __construct(
         private readonly \Psr\Log\LoggerInterface $logger,
@@ -147,10 +147,10 @@ final class YieldsClassDefinitions
         return $this->requestBuilder;
     }
 
-    private function getResponseBuilder(): OpenAPIResponseBuilder
+    private function getResponseBuilder(): Response
     {
         if (!isset($this->responseBuilder)) {
-            $this->responseBuilder = new OpenAPIResponseBuilder();
+            $this->responseBuilder = new Response();
             return $this->responseBuilder;
         }
         return $this->responseBuilder;

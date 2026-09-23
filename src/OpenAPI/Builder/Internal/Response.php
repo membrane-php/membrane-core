@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Membrane\OpenAPI\Builder;
+namespace Membrane\OpenAPI\Builder\Internal;
 
 use Membrane\Builder\Specification;
-use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\Processor;
 use Membrane\Processor\Field;
 use Membrane\Validator\Utility\Passes;
 
-class OpenAPIResponseBuilder extends Schema
+class Response extends Schema
 {
     public function supports(Specification $specification): bool
     {

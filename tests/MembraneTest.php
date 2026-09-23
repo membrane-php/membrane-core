@@ -38,7 +38,7 @@ use RuntimeException;
 #[UsesClass(Builder\Internal\Strings::class)]
 #[UsesClass(Builder\Internal\Objects::class)]
 #[UsesClass(Builder\Internal\Request::class)]
-#[UsesClass(Builder\OpenAPIResponseBuilder::class)]
+#[UsesClass(Builder\Internal\Response::class)]
 #[UsesClass(Builder\RequestBuilder::class)]
 #[UsesClass(Builder\ResponseBuilder::class)]
 #[UsesClass(OpenAPISpecification\OpenAPIResponse::class)]

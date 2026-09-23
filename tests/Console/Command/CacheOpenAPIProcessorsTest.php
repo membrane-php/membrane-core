@@ -43,7 +43,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[UsesClass(Builder\Internal\Strings::class)]
 #[UsesClass(Builder\Internal\Objects::class)]
 #[UsesClass(Builder\Internal\Request::class)]
-#[UsesClass(Builder\OpenAPIResponseBuilder::class)]
+#[UsesClass(Builder\Internal\Response::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathParameterExtractor::class)]
 #[UsesClass(Processor\AllOf::class)]
@@ -120,7 +120,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
     public static function provideCasesToCache(): array
     {
         $requestBuilder = new Request();
-        $responseBuilder = new Builder\OpenAPIResponseBuilder();
+        $responseBuilder = new Builder\Internal\Response();
         $petstoreExpandedFilePath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
 
         $petstoreExpandedOpenApi = new MembraneReader([OpenAPIVersion::Version_3_0])

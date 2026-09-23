@@ -19,7 +19,9 @@ use Membrane\Processor;
 
 class ResponseBuilder implements Builder
 {
-    private OpenAPIResponseBuilder $responseBuilder;
+    private Internal\Response $responseBuilder {
+        get => $this->responseBuilder ??= new Internal\Response();
+    }
 
     public function supports(Specification $specification): bool
     {
@@ -30,10 +32,10 @@ class ResponseBuilder implements Builder
     {
         assert($specification instanceof Response);
 
-        $openAPI = (new MembraneReader([
+        $openAPI = new MembraneReader([
             OpenAPIVersion::Version_3_0,
             OpenAPIVersion::Version_3_1
-        ]))->readFromAbsoluteFilePath($specification->absoluteFilePath);
+        ])->readFromAbsoluteFilePath($specification->absoluteFilePath);
 
         $serverUrl = $this->matchServer($openAPI, $specification->url);
         foreach ($openAPI->paths as $path => $pathItem) {
@@ -52,7 +54,7 @@ class ResponseBuilder implements Builder
                 $response
             );
 
-            return $this->getOpenAPIResponseBuilder()->build($newSpecification);
+            return $this->responseBuilder->build($newSpecification);
         }
 
         throw CannotProcessSpecification::pathNotFound(
@@ -60,16 +62,6 @@ class ResponseBuilder implements Builder
             $specification->url
         );
     }
-
-    private function getOpenAPIResponseBuilder(): OpenAPIResponseBuilder
-    {
-        if (!isset($this->responseBuilder)) {
-            $this->responseBuilder = new OpenAPIResponseBuilder();
-        }
-
-        return $this->responseBuilder;
-    }
-
 
     private function getOperation(
         V30\PathItem | V31\PathItem $pathItem,
