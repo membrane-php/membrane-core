@@ -22,7 +22,9 @@ use Membrane\Validator\Utility\Passes;
  */
 class Request
 {
-    private Schema $schemaBuilder;
+    private Schema $schemaBuilder {
+        get => $this->schemaBuilder ??= new Schema();
+    }
 
     public function build(Specification $specification): Processor
     {
@@ -45,7 +47,7 @@ class Request
             return new Field('requestBody', new Passes());
         }
 
-        return $this->getSchemaBuilder()->fromSchema(
+        return $this->schemaBuilder->fromSchema(
             $specification->requestBodySchema,
             'requestBody',
         );
@@ -87,7 +89,7 @@ class Request
             }
 
             $locations[$parameter->in->value]['fields'][] = $this
-                ->getSchemaBuilder()
+                ->schemaBuilder
                 ->fromSchema(
                     $parameter->getSchema(),
                     $parameter->name,
@@ -120,10 +122,5 @@ class Request
         }
 
         return $fieldSets;
-    }
-
-    private function getSchemaBuilder(): Schema
-    {
-        return $this->schemaBuilder ??= new Schema();
     }
 }
