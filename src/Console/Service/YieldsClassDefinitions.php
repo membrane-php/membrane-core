@@ -6,8 +6,7 @@ namespace Membrane\Console\Service;
 
 use Membrane\Console\Template;
 use Membrane\Filter;
-use Membrane\OpenAPI\Builder\Internal\Request;
-use Membrane\OpenAPI\Builder\Internal\Response;
+use Membrane\OpenAPI\Builder\Internal;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
@@ -15,8 +14,8 @@ use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Method, V30, V31};
 
 final class YieldsClassDefinitions
 {
-    private Request $requestBuilder;
-    private Response $responseBuilder;
+    private Internal\Request $requestBuilder;
+    private Internal\Response $responseBuilder;
 
     public function __construct(
         private readonly \Psr\Log\LoggerInterface $logger,
@@ -28,6 +27,7 @@ final class YieldsClassDefinitions
         string $cacheNamespace,
         bool $buildRequests,
         bool $buildResponses,
+        bool $routeMatch,
     ): \Generator {
         $openAPI = $this->readOpenAPIFile($openAPIFilePath);
 
@@ -109,19 +109,19 @@ final class YieldsClassDefinitions
     /** @param array<string,string> $existingClassNames */
     private function createSuitableClassName(string $nameToConvert, array $existingClassNames): string
     {
-        $pascalCaseName = (new Filter\String\ToPascalCase())->filter($nameToConvert)->value;
-        $alphanumericName = (new Filter\String\AlphaNumeric())->filter($pascalCaseName)->value;
-
+        $pascalCaseName = new Filter\String\ToPascalCase()->filter($nameToConvert)->value;
+        $alphanumericName = new Filter\String\AlphaNumeric()->filter($pascalCaseName)->value;
         assert(is_string($alphanumericName));
+
         if (is_numeric($alphanumericName[0])) {
             $alphanumericName = 'm' . $alphanumericName;
         }
 
-        if (in_array($alphanumericName, $existingClassNames)) {
+        if (in_array($alphanumericName, $existingClassNames, true)) {
             $i = 1;
             do {
                 $postfixedName = sprintf('%s%d', $alphanumericName, $i++);
-            } while (in_array($postfixedName, $existingClassNames));
+            } while (in_array($postfixedName, $existingClassNames, true));
 
             return $postfixedName;
         }
@@ -130,22 +130,13 @@ final class YieldsClassDefinitions
     }
 
 
-    private function getRequestBuilder(): Request
+    private function getRequestBuilder(): Internal\Request
     {
-        if (!isset($this->requestBuilder)) {
-            $this->requestBuilder = new Request();
-            return $this->requestBuilder;
-        }
-
-        return $this->requestBuilder;
+        return $this->requestBuilder ??= new Internal\Request();
     }
 
-    private function getResponseBuilder(): Response
+    private function getResponseBuilder(): Internal\Response
     {
-        if (!isset($this->responseBuilder)) {
-            $this->responseBuilder = new Response();
-            return $this->responseBuilder;
-        }
-        return $this->responseBuilder;
+        return $this->responseBuilder ??= new Internal\Response();
     }
 }

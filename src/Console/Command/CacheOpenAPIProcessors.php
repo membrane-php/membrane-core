@@ -54,6 +54,14 @@ class CacheOpenAPIProcessors extends Command
             'Skip generation of Response processors',
             null,
         );
+
+        self::addOption(
+            'route-match',
+            null,
+            InputOption::VALUE_NONE,
+            'Use RouteMatch Builder for multi-file request handling',
+            null,
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -68,16 +76,27 @@ class CacheOpenAPIProcessors extends Command
         assert(is_bool($skipResponses));
         $skipRequests = $input->getOption('skip-requests');
         assert(is_bool($skipRequests));
+        $routeMatch = $input->getOption('skip-requests');
+        assert(is_bool($routeMatch));
 
         $consoleLogger = new ConsoleLogger($output);
 
         if ($skipResponses && $skipRequests) {
-            $consoleLogger->warning('Skipping both requests and responses, nothing will be generated');
+            $consoleLogger->warning(
+                'Skipping both requests and responses, nothing will be generated',
+            );
         }
 
         $cachingService = new \Membrane\Console\Service\CacheOpenAPIProcessors($consoleLogger);
 
-        $success = $cachingService->cache($openAPIFilePath, $destination, $namespace, !$skipRequests, !$skipResponses);
+        $success = $cachingService->cache(
+            $openAPIFilePath,
+            $destination,
+            $namespace,
+            !$skipRequests,
+            !$skipResponses,
+            $routeMatch,
+        );
         return $success ? Command::SUCCESS : Command::FAILURE;
     }
 }

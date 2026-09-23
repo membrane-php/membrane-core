@@ -9,8 +9,6 @@ use Atto\CodegenTools\CodeGeneration\PHPFilesWriter;
 use Membrane\OpenAPIReader\Exception\CannotRead;
 use Membrane\OpenAPIReader\Exception\CannotSupport;
 use Membrane\OpenAPIReader\Exception\InvalidOpenAPI;
-use Membrane\OpenAPIReader\MembraneReader;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Psr\Log\LoggerInterface;
 
 class CacheOpenAPIProcessors
@@ -25,7 +23,8 @@ class CacheOpenAPIProcessors
         string $cacheDestinationFilePath,
         string $cacheNamespace,
         bool $buildRequests = true,
-        bool $buildResponses = true
+        bool $buildResponses = true,
+        bool $routeMatch = false,
     ): bool {
         $yieldsClasses = new YieldsClassDefinitions($this->logger);
 
@@ -35,6 +34,7 @@ class CacheOpenAPIProcessors
                 $cacheNamespace,
                 $buildRequests,
                 $buildResponses,
+                $routeMatch,
             ));
 
             $destination = rtrim($cacheDestinationFilePath, '/');
