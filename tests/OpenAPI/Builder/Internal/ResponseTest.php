@@ -7,7 +7,6 @@ namespace Membrane\Tests\OpenAPI\Builder\Internal;
 use Generator;
 use Membrane\Filter\String\ToUpperCase;
 use Membrane\OpenAPI\Builder\Internal;
-use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
@@ -56,12 +55,12 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Internal\Response::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
-#[CoversClass(Schema::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\Internal\Arrays::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\Internal\TrueFalse::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\Internal\Numeric::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\Internal\Objects::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\Internal\Strings::class)]
+#[CoversClass(Internal\Schema::class)]
+#[UsesClass(Internal\Arrays::class)]
+#[UsesClass(Internal\TrueFalse::class)]
+#[UsesClass(Internal\Numeric::class)]
+#[UsesClass(Internal\Objects::class)]
+#[UsesClass(Internal\Strings::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(AllOf::class)]
 #[UsesClass(AnyOf::class)]

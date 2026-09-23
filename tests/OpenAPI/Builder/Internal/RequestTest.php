@@ -15,7 +15,6 @@ use Membrane\Filter\Type\ToBool;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
 use Membrane\OpenAPI\Builder\Internal;
-use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Builder\RequestBuilder;
 use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
@@ -74,12 +73,12 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use Psr\Http\Message\ServerRequestInterface;
 
 #[CoversClass(Request::class)]
-#[CoversClass(Schema::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
+#[CoversClass(Internal\Schema::class)]
 #[UsesClass(HumanReadable::class)] // to render test failure messages
 #[UsesClass(RequestBuilder::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\Internal\TrueFalse::class)]
+#[UsesClass(Internal\TrueFalse::class)]
 #[UsesClass(Internal\Request::class)]
 #[UsesClass(Internal\Arrays::class)]
 #[UsesClass(Internal\Numeric::class)]
