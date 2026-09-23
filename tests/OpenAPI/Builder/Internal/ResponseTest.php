@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Tests\OpenAPI\Builder;
+namespace Membrane\Tests\OpenAPI\Builder\Internal;
 
 use Generator;
-use \Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
-use Membrane\Builder\Specification;
 use Membrane\Filter\String\ToUpperCase;
 use Membrane\OpenAPI\Builder\Internal;
 use Membrane\OpenAPI\Builder\Internal\Schema;
@@ -16,6 +14,7 @@ use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\Processor;
 use Membrane\Processor\AllOf;
 use Membrane\Processor\AnyOf;
@@ -92,9 +91,9 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(IsList::class)]
 #[UsesClass(IsString::class)]
 #[UsesClass(\Membrane\Validator\Utility\AnyOf::class)]
-class OpenAPIResponseBuilderTest extends TestCase
+class ResponseTest extends TestCase
 {
-    public const DIR = __DIR__ . '/../../fixtures/OpenAPI/';
+    public const DIR = __DIR__ . '/../../../fixtures/OpenAPI/';
 
     #[Test, TestDox('It throws an exception if you try to use the keyword "not"')]
     public function throwsExceptionIfNotIsFound(): void
