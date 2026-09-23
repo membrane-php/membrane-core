@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Membrane\OpenAPI\Builder;
+namespace Membrane\OpenAPI\Builder\Internal;
 
-use Membrane\Builder\Builder;
 use Membrane\OpenAPI;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Type, V30, V31};
 use Membrane\Processor;
@@ -15,7 +14,10 @@ use Membrane\Processor\OneOf;
 use Membrane\Validator\Type\IsNull;
 use Membrane\Validator\Utility;
 
-abstract class APIBuilder implements Builder
+/**
+ * @internal see README.md
+ */
+class Schema
 {
     private Arrays $arrayBuilder;
     private TrueFalse $trueFalseBuilder;
@@ -83,51 +85,56 @@ abstract class APIBuilder implements Builder
 
         $typeSpecificProcessors = array_map(
             fn ($t) => match ($t) {
-                Type::Array => $this->getArrayBuilder()
-                    ->build(new OpenAPI\Specification\Arrays(
+                Type::Array => $this
+                    ->getArrayBuilder()
+                    ->build(
                         $fieldName,
                         $schema->value,
                         $convertFromString,
                         $convertFromArray,
                         $style,
                         $explode,
-                    )),
+                    ),
 
-                Type::Boolean => $this->getTrueFalseBuilder()
-                    ->build(new OpenAPI\Specification\TrueFalse(
+                Type::Boolean => $this
+                    ->getTrueFalseBuilder()
+                    ->build(
                         $fieldName,
                         $schema->value,
                         $convertFromString,
                         $convertFromArray,
                         $style,
-                    )),
+                    ),
 
-                Type::Integer, Type::Number => $this->getNumericBuilder()
-                    ->build(new OpenAPI\Specification\Numeric(
+                Type::Integer, Type::Number => $this
+                    ->getNumericBuilder()
+                    ->build(
                         $fieldName,
                         $schema->value,
                         $convertFromString,
                         $convertFromArray,
-                        $style
-                    )),
+                        $style,
+                    ),
 
-                Type::String => ($this->getStringBuilder())
-                    ->build(new OpenAPI\Specification\Strings(
+                Type::String => $this
+                    ->getStringBuilder()
+                    ->build(
                         $fieldName,
                         $schema->value,
                         $convertFromArray,
-                        $style
-                    )),
+                        $style,
+                    ),
 
-                Type::Object => $this->getObjectBuilder()
-                    ->build(new OpenAPI\Specification\Objects(
+                Type::Object => $this
+                    ->getObjectBuilder()
+                    ->build(
                         $fieldName,
                         $schema->value,
                         $convertFromString,
                         $convertFromArray,
                         $style,
                         $explode,
-                    )),
+                    ),
 
                 Type::Null => new Field($fieldName, new IsNull()),
             },
@@ -151,7 +158,7 @@ abstract class APIBuilder implements Builder
 
     /**
      * @param class-string<AllOf|AnyOf|OneOf> $complexSchemaClass
-     * @param non-empty-list<V30\Schema|V31\Schema> $subSchemas
+     * @param non-empty-list<V30\Schema> | non-empty-list<V31\Schema> $subSchemas
      */
     private function fromComplexSchema(
         string $complexSchemaClass,
@@ -193,45 +200,26 @@ abstract class APIBuilder implements Builder
 
     private function getArrayBuilder(): Arrays
     {
-        if (!isset($this->arrayBuilder)) {
-            $this->arrayBuilder = new Arrays();
-        }
-
-        return $this->arrayBuilder;
+        return $this->arrayBuilder ??= new Arrays();
     }
 
     private function getTrueFalseBuilder(): TrueFalse
     {
-        if (!isset($this->trueFalseBuilder)) {
-            $this->trueFalseBuilder = new TrueFalse();
-        }
-
-        return $this->trueFalseBuilder;
+        return $this->trueFalseBuilder ??= new TrueFalse();
     }
 
     private function getObjectBuilder(): Objects
     {
-        if (!isset($this->objectBuilder)) {
-            $this->objectBuilder = new Objects();
-        }
-
-        return $this->objectBuilder;
+        return $this->objectBuilder ??= new Objects();
     }
 
     private function getNumericBuilder(): Numeric
     {
-        if (!isset($this->numericBuilder)) {
-            $this->numericBuilder = new OpenAPI\Builder\Numeric();
-        }
-
-        return $this->numericBuilder;
+        return $this->numericBuilder ??= new Numeric();
     }
 
     private function getStringBuilder(): Strings
     {
-        if (!isset($this->stringBuilder)) {
-            $this->stringBuilder = new OpenAPI\Builder\Strings();
-        }
-        return $this->stringBuilder;
+        return $this->stringBuilder ??= new Strings();
     }
 }

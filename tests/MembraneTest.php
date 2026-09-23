@@ -12,7 +12,6 @@ use Membrane\Filter\String\Explode;
 use Membrane\Membrane;
 use Membrane\OpenAPI\Builder as Builder;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
-use Membrane\OpenAPI\Specification as OpenAPISpecification;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
@@ -32,24 +31,15 @@ use RuntimeException;
 
 #[CoversClass(Membrane::class)]
 #[UsesClass(AttributeBuilder::class)]
-#[UsesClass(Builder\APIBuilder::class)]
-#[UsesClass(Builder\Arrays::class)]
-#[UsesClass(Builder\Numeric::class)]
-#[UsesClass(Builder\Strings::class)]
-#[UsesClass(Builder\Objects::class)]
-#[UsesClass(Builder\ParameterBuilder::class)]
-#[UsesClass(Builder\OpenAPIRequestBuilder::class)]
-#[UsesClass(Builder\OpenAPIResponseBuilder::class)]
+#[UsesClass(Builder\Internal\Schema::class)]
+#[UsesClass(Builder\Internal\Arrays::class)]
+#[UsesClass(Builder\Internal\Numeric::class)]
+#[UsesClass(Builder\Internal\Strings::class)]
+#[UsesClass(Builder\Internal\Objects::class)]
+#[UsesClass(Builder\Internal\Request::class)]
+#[UsesClass(Builder\Internal\Response::class)]
 #[UsesClass(Builder\RequestBuilder::class)]
 #[UsesClass(Builder\ResponseBuilder::class)]
-#[UsesClass(OpenAPISpecification\Objects::class)]
-#[UsesClass(OpenAPISpecification\Parameter::class)]
-#[UsesClass(OpenAPISpecification\OpenAPIRequest::class)]
-#[UsesClass(OpenAPISpecification\OpenAPIResponse::class)]
-#[UsesClass(OpenAPISpecification\APISchema::class)]
-#[UsesClass(OpenAPISpecification\Arrays::class)]
-#[UsesClass(OpenAPISpecification\Numeric::class)]
-#[UsesClass(OpenAPISpecification\Strings::class)]
 #[UsesClass(Processor\BeforeSet::class)]
 #[UsesClass(Processor\Collection::class)]
 #[UsesClass(Processor\FieldSet::class)]

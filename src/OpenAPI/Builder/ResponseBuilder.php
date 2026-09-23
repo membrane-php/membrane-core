@@ -6,10 +6,10 @@ namespace Membrane\OpenAPI\Builder;
 
 use Membrane\Builder\Builder;
 use Membrane\Builder\Specification;
+use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessResponse;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
-use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
@@ -19,7 +19,7 @@ use Membrane\Processor;
 
 class ResponseBuilder implements Builder
 {
-    private OpenAPIResponseBuilder $responseBuilder;
+    private Internal\Response $responseBuilder;
 
     public function supports(Specification $specification): bool
     {
@@ -30,10 +30,10 @@ class ResponseBuilder implements Builder
     {
         assert($specification instanceof Response);
 
-        $openAPI = (new MembraneReader([
+        $openAPI = new MembraneReader([
             OpenAPIVersion::Version_3_0,
-            OpenAPIVersion::Version_3_1
-        ]))->readFromAbsoluteFilePath($specification->absoluteFilePath);
+            OpenAPIVersion::Version_3_1,
+        ])->readFromAbsoluteFilePath($specification->absoluteFilePath);
 
         $serverUrl = $this->matchServer($openAPI, $specification->url);
         foreach ($openAPI->paths as $path => $pathItem) {
@@ -46,13 +46,7 @@ class ResponseBuilder implements Builder
 
             $response = $this->getResponse($operation, $specification->statusCode);
 
-            $newSpecification = new OpenAPIResponse(
-                $operation->operationId,
-                $specification->statusCode,
-                $response
-            );
-
-            return $this->getOpenAPIResponseBuilder()->build($newSpecification);
+            return $this->getResponseBuilder()->build($response);
         }
 
         throw CannotProcessSpecification::pathNotFound(
@@ -60,16 +54,6 @@ class ResponseBuilder implements Builder
             $specification->url
         );
     }
-
-    private function getOpenAPIResponseBuilder(): OpenAPIResponseBuilder
-    {
-        if (!isset($this->responseBuilder)) {
-            $this->responseBuilder = new OpenAPIResponseBuilder();
-        }
-
-        return $this->responseBuilder;
-    }
-
 
     private function getOperation(
         V30\PathItem | V31\PathItem $pathItem,
@@ -103,5 +87,10 @@ class ResponseBuilder implements Builder
         }
 
         return '';
+    }
+
+    private function getResponseBuilder(): Internal\Response
+    {
+        return $this->responseBuilder ??= new Internal\Response();
     }
 }

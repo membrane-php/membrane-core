@@ -4,24 +4,19 @@ declare(strict_types=1);
 
 namespace Membrane\Console\Service;
 
-use Membrane\Filter;
 use Membrane\Console\Template;
-use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
-use Membrane\OpenAPI\Builder\OpenAPIResponseBuilder;
+use Membrane\Filter;
+use Membrane\OpenAPI\Builder\Internal\Request;
+use Membrane\OpenAPI\Builder\Internal\Response;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
-use Membrane\OpenAPI\Specification\OpenAPIRequest;
-use Membrane\OpenAPI\Specification\OpenAPIResponse;
-use Membrane\OpenAPIReader\Exception\CannotRead;
-use Membrane\OpenAPIReader\Exception\CannotSupport;
-use Membrane\OpenAPIReader\Exception\InvalidOpenAPI;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Method, V30, V31};
 
 final class YieldsClassDefinitions
 {
-    private OpenAPIRequestBuilder $requestBuilder;
-    private OpenAPIResponseBuilder $responseBuilder;
+    private Request $requestBuilder;
+    private Response $responseBuilder;
 
     public function __construct(
         private readonly \Psr\Log\LoggerInterface $logger,
@@ -61,11 +56,9 @@ final class YieldsClassDefinitions
                         namespace: "$cacheNamespace\\Request",
                         name: $className,
                         processor: $this->getRequestBuilder()->build(
-                            new OpenAPIRequest(
-                                new PathParameterExtractor($pathUrl),
-                                $path,
-                                $methodObject,
-                            )
+                            new PathParameterExtractor($pathUrl),
+                            $path,
+                            $methodObject,
                         )
                     );
                 }
@@ -80,13 +73,7 @@ final class YieldsClassDefinitions
                         yield new Template\Processor(
                             namespace: "$cacheNamespace\\Response\\$prefixedCode",
                             name: $className,
-                            processor: $this->getResponseBuilder()->build(
-                                new OpenAPIResponse(
-                                    $operation->operationId,
-                                    (string)$code,
-                                    $response,
-                                )
-                            )
+                            processor: $this->getResponseBuilder()->build($response),
                         );
                     }
                 }
@@ -113,10 +100,10 @@ final class YieldsClassDefinitions
     private function readOpenAPIFile(string $filepath): V30\OpenAPI | V31\OpenAPI
     {
         $this->logger->info("Reading OpenAPI from $filepath");
-        return (new MembraneReader([
+        return new MembraneReader([
             OpenAPIVersion::Version_3_0,
             OpenAPIVersion::Version_3_1
-        ]))->readFromAbsoluteFilePath($filepath);
+        ])->readFromAbsoluteFilePath($filepath);
     }
 
     /** @param array<string,string> $existingClassNames */
@@ -143,20 +130,20 @@ final class YieldsClassDefinitions
     }
 
 
-    private function getRequestBuilder(): OpenAPIRequestBuilder
+    private function getRequestBuilder(): Request
     {
         if (!isset($this->requestBuilder)) {
-            $this->requestBuilder = new OpenAPIRequestBuilder();
+            $this->requestBuilder = new Request();
             return $this->requestBuilder;
         }
 
         return $this->requestBuilder;
     }
 
-    private function getResponseBuilder(): OpenAPIResponseBuilder
+    private function getResponseBuilder(): Response
     {
         if (!isset($this->responseBuilder)) {
-            $this->responseBuilder = new OpenAPIResponseBuilder();
+            $this->responseBuilder = new Response();
             return $this->responseBuilder;
         }
         return $this->responseBuilder;

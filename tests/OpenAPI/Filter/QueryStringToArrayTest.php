@@ -6,7 +6,6 @@ namespace Membrane\Tests\OpenAPI\Filter;
 
 use Generator;
 use Membrane\OpenAPI\Filter\QueryStringToArray;
-use Membrane\OpenAPI\Specification\Parameter;
 use Membrane\Renderer\HumanReadable;
 use Membrane\Result\Message;
 use Membrane\Result\MessageSet;

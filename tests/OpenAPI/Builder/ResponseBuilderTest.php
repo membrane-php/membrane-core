@@ -6,21 +6,14 @@ namespace Membrane\Tests\OpenAPI\Builder;
 
 use Membrane\Builder\Specification;
 use Membrane\Filter\String\ToUpperCase;
-use Membrane\OpenAPI\Builder\APIBuilder;
-use Membrane\OpenAPI\Builder\OpenAPIResponseBuilder;
+use Membrane\OpenAPI\Builder\Internal;
+use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Builder\ResponseBuilder;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Exception\CannotProcessResponse;
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
-use Membrane\OpenAPI\Specification\APISchema;
-use Membrane\OpenAPI\Specification\Arrays;
-use Membrane\OpenAPI\Specification\Numeric;
-use Membrane\OpenAPI\Specification\Objects;
-use Membrane\OpenAPI\Specification\OpenAPIResponse;
 use Membrane\OpenAPI\Specification\Response;
-use Membrane\OpenAPI\Specification\Strings;
-use Membrane\OpenAPI\Specification\TrueFalse;
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Method;
 use Membrane\Processor;
 use Membrane\Processor\AllOf;
@@ -64,24 +57,17 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(CannotProcessResponse::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
-#[UsesClass(APIBuilder::class)]
-#[UsesClass(OpenAPIResponseBuilder::class)]
-#[UsesClass(OpenAPIResponse::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\Arrays::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\TrueFalse::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\Numeric::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\Objects::class)]
-#[UsesClass(\Membrane\OpenAPI\Builder\Strings::class)]
+#[UsesClass(Internal\Schema::class)]
+#[UsesClass(Internal\Response::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\Internal\Arrays::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\Internal\TrueFalse::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\Internal\Numeric::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\Internal\Objects::class)]
+#[UsesClass(\Membrane\OpenAPI\Builder\Internal\Strings::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(AllOf::class)]
 #[UsesClass(AnyOf::class)]
 #[UsesClass(OneOf::class)]
-#[UsesClass(APISchema::class)]
-#[UsesClass(Arrays::class)]
-#[UsesClass(TrueFalse::class)]
-#[UsesClass(Numeric::class)]
-#[UsesClass(Objects::class)]
-#[UsesClass(Strings::class)]
 #[UsesClass(Response::class)]
 #[UsesClass(BeforeSet::class)]
 #[UsesClass(Collection::class)]
@@ -119,7 +105,12 @@ class ResponseBuilderTest extends TestCase
     #[Test, TestDox('It throws an exception if you try to use the keyword "not"')]
     public function throwsExceptionIfNotIsFound(): void
     {
-        $response = new Response(self::DIR . 'noReferences.json', '/responsepath', Method::GET, '360');
+        $response = new Response(
+            self::DIR . 'noReferences.json',
+            '/responsepath',
+            Method::GET,
+            '360',
+        );
 
         self::expectExceptionObject(CannotProcessOpenAPI::unsupportedKeyword('not'));
 
@@ -181,7 +172,7 @@ class ResponseBuilderTest extends TestCase
 
         $specification = new Response(self::DIR . 'noReferences.json', '/nonexistentpath', Method::GET, '200');
 
-        (new ResponseBuilder())->build($specification);
+        new ResponseBuilder()->build($specification);
     }
 
     public static function dataSetsforBuilds(): array

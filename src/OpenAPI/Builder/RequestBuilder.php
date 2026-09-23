@@ -7,7 +7,6 @@ namespace Membrane\OpenAPI\Builder;
 use Membrane\Builder\{Builder, Specification};
 use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\ExtractPathParameters\PathMatcher;
-use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\Request;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
@@ -16,7 +15,7 @@ use Membrane\Processor;
 
 class RequestBuilder implements Builder
 {
-    private OpenAPIRequestBuilder $requestBuilder;
+    private Internal\Request $requestBuilder;
 
     public function supports(Specification $specification): bool
     {
@@ -27,10 +26,10 @@ class RequestBuilder implements Builder
     {
         assert($specification instanceof Request);
 
-        $openAPI = (new MembraneReader([
+        $openAPI = new MembraneReader([
             OpenAPIVersion::Version_3_0,
             OpenAPIVersion::Version_3_1,
-            ]))->readFromAbsoluteFilePath($specification->absoluteFilePath);
+            ])->readFromAbsoluteFilePath($specification->absoluteFilePath);
 
         $serverUrl = $this->matchServer($openAPI, $specification->url);
         foreach ($openAPI->paths as $path => $pathItem) {
@@ -39,13 +38,11 @@ class RequestBuilder implements Builder
                 continue;
             }
 
-            $newSpecification = new OpenAPIRequest(
+            return $this->getOpenAPIRequestBuilder()->build(
                 $pathMatcher,
                 $pathItem,
-                $specification->method
+                $specification->method,
             );
-
-            return $this->getOpenAPIRequestBuilder()->build($newSpecification);
         }
 
         throw CannotProcessSpecification::pathNotFound(
@@ -54,13 +51,9 @@ class RequestBuilder implements Builder
         );
     }
 
-    private function getOpenAPIRequestBuilder(): OpenAPIRequestBuilder
+    private function getOpenAPIRequestBuilder(): Internal\Request
     {
-        if (!isset($this->requestBuilder)) {
-            $this->requestBuilder = new OpenAPIRequestBuilder();
-        }
-
-        return $this->requestBuilder;
+        return $this->requestBuilder ??= new Internal\Request();
     }
 
     private function matchServer(

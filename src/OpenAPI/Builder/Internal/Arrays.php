@@ -2,15 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Membrane\OpenAPI\Builder;
+namespace Membrane\OpenAPI\Builder\Internal;
 
-use Membrane\Builder\Specification;
 use Membrane\Filter;
+use Membrane\OpenAPI\Exception\CannotProcessSpecification;
 use Membrane\OpenAPI\Filter\FormatStyle\Form;
 use Membrane\OpenAPI\Filter\FormatStyle\Matrix;
 use Membrane\OpenAPI\Filter\FormatStyle\PipeDelimited;
 use Membrane\OpenAPI\Filter\FormatStyle\SpaceDelimited;
+use Membrane\OpenAPIReader\ValueObject\Valid\{V30, V31};
 use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Style;
+use Membrane\OpenAPIReader\ValueObject\Valid\Enum\Type;
+use Membrane\OpenAPIReader\ValueObject\Value;
 use Membrane\Processor;
 use Membrane\Processor\BeforeSet;
 use Membrane\Processor\Collection;
@@ -19,38 +22,47 @@ use Membrane\Validator\Collection\Count;
 use Membrane\Validator\Collection\Unique;
 use Membrane\Validator\Type\IsList;
 
-class Arrays extends APIBuilder
+/**
+ * @internal see README.md
+ */
+class Arrays extends Schema
 {
-    public function supports(Specification $specification): bool
-    {
-        return $specification instanceof \Membrane\OpenAPI\Specification\Arrays;
-    }
+    public function build(
+        string $fieldName,
+        V30\Keywords | V31\Keywords $keywords,
+        bool $convertFromString,
+        bool $convertFromArray,
+        ?string $style,
+        ?bool $explode,
+    ): Processor {
+        if (!in_array(Type::Array, $keywords->types)) {
+            throw CannotProcessSpecification::mismatchedType(
+                ['array'],
+                array_map(fn($t) => $t->value, $keywords->types),
+            );
+        }
 
-    public function build(Specification $specification): Processor
-    {
-        assert($specification instanceof \Membrane\OpenAPI\Specification\Arrays);
-
-        $beforeChain = $specification->convertFromArray ?
+        $beforeChain = $convertFromArray ?
             [new Filter\String\Implode(',')] :
             [];
 
-        if (isset($specification->style)) {
+        if (isset($style)) {
             $beforeChain = array_merge(
                 $beforeChain,
-                match (Style::from($specification->style)) {
+                match (Style::from($style)) {
                     Style::Matrix => [
-                        new Matrix('array', $specification->explode ?? false),
+                        new Matrix('array', $explode ?? false),
                     ],
                     Style::Label => [
                         new Filter\String\LeftTrim('.'),
                         new Filter\String\Explode(
-                            $specification->explode ?? false ?
+                            $explode ?? false ?
                                 '.' :
                                 ','
                         ),
                     ],
                     Style::Form => [
-                        new Form('array', $specification->explode ?? true),
+                        new Form('array', $explode ?? true),
                     ],
                     Style::Simple => [
                         new Filter\String\Explode(',')
@@ -64,30 +76,39 @@ class Arrays extends APIBuilder
 
         $beforeChain[] = new IsList();
 
-        if ($specification->enum !== null) {
-            $beforeChain[] = new Contained($specification->enum);
+        if (
+            $keywords->enum !== null
+        ) {
+            $beforeChain[] = new Contained(array_map(
+                fn(Value $v) => $v->value,
+                $keywords->enum,
+            ));
         }
 
-        if ($specification->minItems > 0 || $specification->maxItems !== null) {
-            $beforeChain[] = new Count($specification->minItems, $specification->maxItems);
+        if (
+            $keywords->minItems > 0
+            || $keywords->maxItems !== null
+        ) {
+            $beforeChain[] = new Count(
+                $keywords->minItems,
+                $keywords->maxItems,
+            );
         }
 
-        if ($specification->uniqueItems === true) {
+        if ($keywords->uniqueItems === true) {
             $beforeChain[] = new Unique();
         }
 
         $beforeSet = new BeforeSet(...$beforeChain);
 
-        $collection = new Collection(
-            $specification->fieldName,
+        return new Collection(
+            $fieldName,
             $beforeSet,
             $this->fromSchema(
-                $specification->items,
+                $keywords->items,
                 '',
-                $specification->convertFromString,
+                $convertFromString,
             )
         );
-
-        return $collection;
     }
 }
