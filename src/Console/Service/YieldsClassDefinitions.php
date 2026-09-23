@@ -104,17 +104,17 @@ final class YieldsClassDefinitions
 
             if ($buildRequests) {
                 yield new Template\RequestBuilder(
-                    "$cacheNamespace",
+                    $cacheNamespace,
                     $openAPIFilePath,
-                    array_map(fn($p) => $p['request'], $classMap),
+                    array_map(static fn($p) => $p['request'], $classMap),
                 );
             }
 
             if ($buildResponses) {
                 yield new Template\ResponseBuilder(
-                    "$cacheNamespace",
+                    $cacheNamespace,
                     $openAPIFilePath,
-                    array_map(fn($p) => $p['response'], $classMap),
+                    array_map(static fn($p) => $p['response'], $classMap),
                 );
             }
         }
