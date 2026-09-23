@@ -4,23 +4,20 @@ declare(strict_types=1);
 
 namespace Membrane\Console\Service;
 
-use Membrane\Filter;
 use Membrane\Console\Template;
-use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
+use Membrane\Filter;
+use Membrane\OpenAPI\Builder\Internal\Request;
 use Membrane\OpenAPI\Builder\OpenAPIResponseBuilder;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Specification\OpenAPIRequest;
 use Membrane\OpenAPI\Specification\OpenAPIResponse;
-use Membrane\OpenAPIReader\Exception\CannotRead;
-use Membrane\OpenAPIReader\Exception\CannotSupport;
-use Membrane\OpenAPIReader\Exception\InvalidOpenAPI;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Method, V30, V31};
 
 final class YieldsClassDefinitions
 {
-    private OpenAPIRequestBuilder $requestBuilder;
+    private Request $requestBuilder;
     private OpenAPIResponseBuilder $responseBuilder;
 
     public function __construct(
@@ -143,10 +140,10 @@ final class YieldsClassDefinitions
     }
 
 
-    private function getRequestBuilder(): OpenAPIRequestBuilder
+    private function getRequestBuilder(): Request
     {
         if (!isset($this->requestBuilder)) {
-            $this->requestBuilder = new OpenAPIRequestBuilder();
+            $this->requestBuilder = new Request();
             return $this->requestBuilder;
         }
 

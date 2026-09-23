@@ -12,11 +12,11 @@ use Membrane\Filter\String\Explode;
 use Membrane\Filter\String\ToPascalCase;
 use Membrane\Filter\Type as TypeFilter;
 use Membrane\OpenAPI\Builder as Builder;
-use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
+use Membrane\OpenAPI\Builder\Internal\Request;
 use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPI\Filter\PathMatcher;
-use Membrane\OpenAPI\Processor\Request;
+use Membrane\OpenAPI;
 use Membrane\OpenAPI\Specification as Specification;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
@@ -42,14 +42,14 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[UsesClass(Builder\Internal\Numeric::class)]
 #[UsesClass(Builder\Internal\Strings::class)]
 #[UsesClass(Builder\Internal\Objects::class)]
-#[UsesClass(Builder\OpenAPIRequestBuilder::class)]
+#[UsesClass(Builder\Internal\Request::class)]
 #[UsesClass(Builder\OpenAPIResponseBuilder::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathParameterExtractor::class)]
 #[UsesClass(Processor\AllOf::class)]
 #[UsesClass(Membrane\OpenAPI\Filter\QueryStringToArray::class)]
 #[UsesClass(Membrane\OpenAPI\Filter\FormatStyle\Form::class)]
-#[UsesClass(Request::class)]
+#[UsesClass(OpenAPI\Processor\Request::class)]
 #[UsesClass(Specification\OpenAPIRequest::class)]
 #[UsesClass(Specification\OpenAPIResponse::class)]
 #[UsesClass(Membrane\Result\Result::class)]
@@ -120,7 +120,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
 
     public static function provideCasesToCache(): array
     {
-        $requestBuilder = new OpenAPIRequestBuilder();
+        $requestBuilder = new Request();
         $responseBuilder = new Builder\OpenAPIResponseBuilder();
         $petstoreExpandedFilePath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
 
@@ -305,7 +305,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
         $hatstoreAPI = (new MembraneReader([OpenAPIVersion::Version_3_0]))
             ->readFromAbsoluteFilePath($hatstoreFilePath);
 
-        $requestBuilder = new Builder\OpenAPIRequestBuilder();
+        $requestBuilder = new Builder\Internal\Request();
         $expectedFindHats = $requestBuilder->build(
             new Specification\OpenAPIRequest(
                 new PathParameterExtractor('/hats'),

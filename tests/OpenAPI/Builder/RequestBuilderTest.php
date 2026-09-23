@@ -9,11 +9,7 @@ use Membrane\Builder\Specification;
 use Membrane\Filter\String\Explode;
 use Membrane\Filter\String\Implode;
 use Membrane\Filter\Type\ToInt;
-use Membrane\OpenAPI\Builder\Internal\Schema;
-use Membrane\OpenAPI\Builder\Internal\Arrays;
-use Membrane\OpenAPI\Builder\Internal\Numeric;
-use Membrane\OpenAPI\Builder\Internal\Strings;
-use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
+use Membrane\OpenAPI\Builder\Internal;
 use Membrane\OpenAPI\Builder\RequestBuilder;
 use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
@@ -58,13 +54,13 @@ use Psr\Http\Message\ServerRequestInterface;
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
 #[UsesClass(HumanReadable::class)]
-#[UsesClass(Schema::class)]
-#[UsesClass(OpenAPIRequestBuilder::class)]
+#[UsesClass(Internal\Schema::class)]
+#[UsesClass(Internal\Request::class)]
+#[UsesClass(Internal\Arrays::class)]
+#[UsesClass(Internal\Numeric::class)]
+#[UsesClass(Internal\Strings::class)]
 #[UsesClass(OpenAPIRequest::class)]
 #[UsesClass(Request::class)]
-#[UsesClass(Arrays::class)]
-#[UsesClass(Numeric::class)]
-#[UsesClass(Strings::class)]
 #[UsesClass(QueryStringToArray::class)]
 #[UsesClass(Form::class)]
 #[UsesClass(PathMatcher::class)]
@@ -100,7 +96,7 @@ class RequestBuilderTest extends MembraneTestCase
         $specification = new Request($openAPIFilePath, '/requestpathexceptions', Method::POST);
         $sut = new RequestBuilder();
 
-        $openApi = (new Reader([OpenAPIVersion::Version_3_0]))
+        $openApi = new Reader([OpenAPIVersion::Version_3_0])
             ->readFromAbsoluteFilePath($openAPIFilePath);
 
         $mediaTypes = array_keys($openApi->paths->getPath('/requestpathexceptions')->post->parameters[0]->content);

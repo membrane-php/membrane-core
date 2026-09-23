@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Membrane\Tests\OpenAPI\Builder;
+namespace Membrane\Tests\OpenAPI\Builder\Internal;
 
 use Generator;
 use GuzzleHttp\Psr7\ServerRequest;
@@ -15,12 +15,8 @@ use Membrane\Filter\String\Tokenize;
 use Membrane\Filter\Type\ToBool;
 use Membrane\Filter\Type\ToInt;
 use Membrane\Filter\Type\ToNumber;
+use Membrane\OpenAPI\Builder\Internal;
 use Membrane\OpenAPI\Builder\Internal\Schema;
-use Membrane\OpenAPI\Builder\Internal\Arrays;
-use Membrane\OpenAPI\Builder\Internal\Numeric;
-use Membrane\OpenAPI\Builder\Internal\Objects;
-use Membrane\OpenAPI\Builder\Internal\Strings;
-use Membrane\OpenAPI\Builder\OpenAPIRequestBuilder;
 use Membrane\OpenAPI\Builder\RequestBuilder;
 use Membrane\OpenAPI\ContentType;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
@@ -78,7 +74,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\UsesClass;
 use Psr\Http\Message\ServerRequestInterface;
 
-#[CoversClass(OpenAPIRequestBuilder::class)]
+#[CoversClass(Request::class)]
 #[CoversClass(Schema::class)]
 #[CoversClass(CannotProcessSpecification::class)]
 #[CoversClass(CannotProcessOpenAPI::class)]
@@ -86,11 +82,11 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(RequestBuilder::class)]
 #[UsesClass(\Membrane\OpenAPI\Builder\Internal\TrueFalse::class)]
 #[UsesClass(OpenAPIRequest::class)]
-#[UsesClass(Request::class)]
-#[UsesClass(Arrays::class)]
-#[UsesClass(Numeric::class)]
-#[UsesClass(Objects::class)]
-#[UsesClass(Strings::class)]
+#[UsesClass(Internal\Request::class)]
+#[UsesClass(Internal\Arrays::class)]
+#[UsesClass(Internal\Numeric::class)]
+#[UsesClass(Internal\Objects::class)]
+#[UsesClass(Internal\Strings::class)]
 #[UsesClass(QueryStringToArray::class)]
 #[UsesClass(PathMatcher::class)]
 #[UsesClass(PathParameterExtractor::class)]
@@ -133,9 +129,9 @@ use Psr\Http\Message\ServerRequestInterface;
 #[UsesClass(ContentType::class)]
 #[UsesClass(LeftTrim::class)]
 #[UsesClass(KeyValueSplit::class)]
-class OpenAPIRequestBuilderTest extends MembraneTestCase
+class RequestTest extends MembraneTestCase
 {
-    public const string FIXTURES = __DIR__ . '/../../fixtures/OpenAPI/';
+    public const string FIXTURES = __DIR__ . '/../../../fixtures/OpenAPI/';
 
     #[Test, TestDox('Exceptions will be thrown for parameters with unsupported content types')]
     public function throwsExceptionForUnsupportedContentTypes(): void
@@ -151,35 +147,17 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
 
         self::expectExceptionObject(CannotProcessOpenAPI::unsupportedMediaTypes($mediaType));
 
-        new OpenAPIRequestBuilder()->build(new OpenAPIRequest(
+        new Internal\Request()->build(new OpenAPIRequest(
             new PathParameterExtractor($path),
             $pathItem,
             $method,
         ));
     }
 
-    #[Test, TestDox('It will support the OpenAPIRequest Specification')]
-    public function supportsRequestSpecification(): void
-    {
-        $specification = self::createStub(OpenAPIRequest::class);
-        $sut = new OpenAPIRequestBuilder();
-
-        self::assertTrue($sut->supports($specification));
-    }
-
-    #[Test, TestDox('It will not support any Specifications other than OpenAPIRequest')]
-    public function doesNotSupportSpecificationsOtherThanRequest(): void
-    {
-        $specification = self::createStub(\Membrane\Builder\Specification::class);
-        $sut = new OpenAPIRequestBuilder();
-
-        self::assertFalse($sut->supports($specification));
-    }
-
     #[Test, TestDox('It currently only supports application/json content')]
     public function throwsExceptionIfParameterHasContentThatIsNotJson(): void
     {
-        $openAPI = (new MembraneReader([OpenAPIVersion::Version_3_0]))
+        $openAPI = new MembraneReader([OpenAPIVersion::Version_3_0])
             ->readFromAbsoluteFilePath((self::FIXTURES . 'noReferences.json'));
 
         $specification = new OpenAPIRequest(
@@ -188,7 +166,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
             Method::POST
         );
 
-        $sut = new OpenAPIRequestBuilder();
+        $sut = new Internal\Request();
 
         $mediaTypes = array_keys($openAPI->paths['/requestpathexceptions']->post->parameters[0]->content);
 
@@ -202,7 +180,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
     #[DataProvider('dataSetsForBuild')]
     public function buildTest(Specification $spec, Processor $expected): void
     {
-        $sut = new OpenAPIRequestBuilder();
+        $sut = new Internal\Request();
 
         $actual = $sut->build($spec);
 
@@ -219,7 +197,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
         array | ServerRequestInterface $serverRequest,
         Result $expected
     ): void {
-        $sut = new OpenAPIRequestBuilder();
+        $sut = new Internal\Request();
 
         $processor = $sut->build($specification);
 
@@ -233,7 +211,7 @@ class OpenAPIRequestBuilderTest extends MembraneTestCase
     {
         $reader = new MembraneReader([OpenAPIVersion::Version_3_0]);
         $noRefAPI = $reader
-            ->readFromAbsoluteFilePath(__DIR__ . '/../../fixtures/OpenAPI/noReferences.json');
+            ->readFromAbsoluteFilePath(__DIR__ . '/../../../fixtures/OpenAPI/noReferences.json');
 
         yield 'Request: no path params, no operation params, no requestBody' => [
             new OpenAPIRequest(

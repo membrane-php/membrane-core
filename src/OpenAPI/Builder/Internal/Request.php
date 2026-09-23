@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Membrane\OpenAPI\Builder;
+namespace Membrane\OpenAPI\Builder\Internal;
 
 use Membrane\Builder\Specification;
-use Membrane\OpenAPI\Builder\Internal\Schema;
 use Membrane\OpenAPI\Exception\CannotProcessOpenAPI;
 use Membrane\OpenAPI\Filter;
 use Membrane\OpenAPI\Processor\Request as RequestProcessor;
@@ -18,14 +17,12 @@ use Membrane\Processor\FieldSet;
 use Membrane\Validator\FieldSet\RequiredFields;
 use Membrane\Validator\Utility\Passes;
 
-class OpenAPIRequestBuilder
+/**
+ * @internal see README.md
+ */
+class Request
 {
     private Schema $schemaBuilder;
-
-    public function supports(Specification $specification): bool
-    {
-        return $specification instanceof OpenAPIRequest;
-    }
 
     public function build(Specification $specification): Processor
     {
