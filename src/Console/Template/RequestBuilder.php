@@ -21,7 +21,7 @@ use Membrane\Builder\Specification;
 use Membrane\OpenAPIRouter\Router;
 use Membrane\OpenAPI\Specification\Request as RequestSpecification;
 
-class CachedRequestBuilder implements Builder
+class %s implements Builder
 {
     private const OPEN_API_FILENAME = '%s';
     private const MAP = [%s];
@@ -73,6 +73,7 @@ END;
     /** @param array<string, string> $map */
     public function __construct(
         private readonly string $namespace,
+        private readonly string $className,
         string $openAPIFilePath,
         private readonly array $map
     ) {
@@ -86,7 +87,7 @@ END;
 
     public function getName(): string
     {
-        return 'CachedRequestBuilder';
+        return $this->className;
     }
 
     public function getCode(): string
@@ -96,6 +97,12 @@ END;
             $implodedMap .= sprintf('\'%s\' => \'%s\', ', $operationId, $processor);
         }
 
-        return sprintf(self::TEMPLATE_CODE, $this->namespace, $this->openAPIFilePath, $implodedMap);
+        return sprintf(
+            self::TEMPLATE_CODE,
+            $this->namespace,
+            $this->className,
+            $this->openAPIFilePath,
+            $implodedMap,
+        );
     }
 }

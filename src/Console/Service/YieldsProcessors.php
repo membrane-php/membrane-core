@@ -11,53 +11,36 @@ use Membrane\OpenAPI\ExtractPathParameters\PathParameterExtractor;
 use Membrane\OpenAPIReader\MembraneReader;
 use Membrane\OpenAPIReader\OpenAPIVersion;
 use Membrane\OpenAPIReader\ValueObject\Valid\{Enum\Method, V30, V31};
+use Psr\Log\LoggerInterface;
 
-final class YieldsClassDefinitions
+final class YieldsProcessors
 {
     private Internal\Request $requestBuilder;
     private Internal\Response $responseBuilder;
 
+    /** @var array<string, array{
+     *      request: class-string,
+     *      response: array<class-string>,
+     *  }>
+     */
+    private(set) array $classMap;
+
     public function __construct(
-        private readonly \Psr\Log\LoggerInterface $logger,
+        private readonly LoggerInterface $logger,
+        private readonly string $apiFilePath,
+        private readonly string $cacheNamespace,
+        private readonly bool $buildRequests,
+        private readonly bool $buildResponses,
     ) {
     }
 
-    public function __invoke(
-        string $openAPIFilePath,
-        string $cacheNamespace,
-        bool $buildRequests,
-        bool $buildResponses,
-        bool $routeMatch,
-    ): \Generator {
-        if ($routeMatch) {
-            return $this->yieldRouteMatch(
-                $openAPIFilePath,
-                $cacheNamespace,
-                $buildRequests,
-                $buildResponses,
-            );
-        }
+    public function __invoke(): \Generator
+    {
+        $this->classMap = [];
 
-        return $this->yieldRequestsAndResponses(
-            $openAPIFilePath,
-            $cacheNamespace,
-            $buildRequests,
-            $buildResponses,
-        );
-    }
+        $openAPI = $this->readOpenAPIFile($this->apiFilePath);
 
-    private function yieldRequestsAndResponses(
-        string $openAPIFilePath,
-        string $cacheNamespace,
-        bool $buildRequests,
-        bool $buildResponses,
-    ): \Generator {
-        $openAPI = $this->readOpenAPIFile($openAPIFilePath);
-
-        // Initialize classMap for CachedBuilers
-        $classNames = [];
-        $classMap = [];
-
+        $classNames = []; // to avoid duplicates classNames
         foreach ($openAPI->paths as $pathUrl => $path) {
             foreach ($path->getOperations() as $method => $operation) {
                 $methodObject = Method::from(strtolower($method));
@@ -65,68 +48,65 @@ final class YieldsClassDefinitions
 
                 $classNames[$operationId] = $className =
                     $this->createSuitableClassName($operationId, $classNames);
-                $classMap[$operationId] = [
-                    'request' => "{$cacheNamespace}\\Request\\{$className}",
+                $this->classMap[$operationId] = [
+                    'request' => $this->getRequestFQCN($className),
                     'response' => [],
                 ];
 
-                if ($buildRequests) {
-                    $this->logger->info(
-                        "Generating {$cacheNamespace}\\Request\\{$className}"
-                    );
+                if ($this->buildRequests) {
+                    $this->logger
+                        ->info("Generating {$this->getRequestFQCN($className)}");
 
                     yield new Template\Processor(
-                        namespace: "{$cacheNamespace}\\Request",
+                        namespace: $this->getRequestNamespace(),
                         name: $className,
                         processor: $this->getRequestBuilder()->build(
                             new PathParameterExtractor($pathUrl),
                             $path,
                             $methodObject,
-                        )
+                        ),
                     );
                 }
 
-                if ($buildResponses) {
+                if ($this->buildResponses) {
                     foreach ($operation->responses as $code => $response) {
                         $prefixedCode = 'Code' . ucwords((string) $code);
-                        $this->logger->info(
-                            "Generating {$cacheNamespace}\\Response\\{$prefixedCode}\\{$className}"
-                        );
+
+                        $this->classMap[$operationId]['responses'] []= $this
+                            ->getResponseFQCN($prefixedCode, $className);
+
+                        $this->logger
+                            ->info("Generating {$this->getResponseFQCN($prefixedCode, $className)}");
 
                         yield new Template\Processor(
-                            namespace: "{$cacheNamespace}\\Response\\{$prefixedCode}",
+                            namespace: $this->getResponseNamespace($prefixedCode),
                             name: $className,
                             processor: $this->getResponseBuilder()->build($response),
                         );
                     }
                 }
             }
-
-            if ($buildRequests) {
-                yield new Template\RequestBuilder(
-                    $cacheNamespace,
-                    $openAPIFilePath,
-                    array_map(static fn($p) => $p['request'], $classMap),
-                );
-            }
-
-            if ($buildResponses) {
-                yield new Template\ResponseBuilder(
-                    $cacheNamespace,
-                    $openAPIFilePath,
-                    array_map(static fn($p) => $p['response'], $classMap),
-                );
-            }
         }
     }
 
-    private function yieldRouteMatch(
-        string $openAPIFilePath,
-        string $cacheNamespace,
-        bool $buildRequests,
-        bool $buildResponses,
-    ): \Generator {
-        yield [];
+    private function getRequestNamespace(): string
+    {
+        return "{$this->cacheNamespace}\\Request";
+    }
+
+    private function getRequestFQCN(string $name): string
+    {
+        return "{$this->getRequestNamespace()}\\{$name}";
+    }
+
+    private function getResponseNamespace(string $code): string
+    {
+        return "{$this->cacheNamespace}\\Response\\{$code}";
+    }
+
+    private function getResponseFQCN(string $code, string $name): string
+    {
+        return "{$this->getResponseNamespace($code)}\\{$name}";
     }
 
     private function readOpenAPIFile(string $filepath): V30\OpenAPI | V31\OpenAPI

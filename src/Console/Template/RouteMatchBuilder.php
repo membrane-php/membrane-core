@@ -15,25 +15,22 @@ declare(strict_types=1);
 
 namespace %s;
 
-use Membrane\Builder\Builder;
-use Membrane\Builder\Specification;
+use Membrane\Builder\{Builder, Specification};
 use Membrane\OpenAPI\Specification\RouteMatch;
-use Membrane\OpenAPIRouter\Router;
 use Membrane\Processor;
 
 class %s implements Builder
 {
-    private const OPEN_API_FILENAME = '%s';
-    private const MAP = [%s];
+    private const string OPEN_API_FILENAME = '%s';
+    private const array MAP = [%s];
 
-    /** @phpstan-assert-if-true RouteMatch $specification */
+    /**
+     * @phpstan-assert-if-true RouteMatch $specification
+    */
     public function supports(Specification $specification): bool
     {
-        if (!$specification instanceof RouteMatch) {
-            return false;
-        }
-
-        return $specification->source === self::OPEN_API_FILENAME
+        return $specification instanceof RouteMatch
+            && realpath($specification->source) === self::OPEN_API_FILENAME
             && isset(self::MAP[$specification->operationId]);
     }
 

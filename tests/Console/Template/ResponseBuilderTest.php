@@ -25,12 +25,14 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(Field::class)]
 class ResponseBuilderTest extends TestCase
 {
-    private $petstoreAPIPath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
+    private string $petstoreAPIPath = __DIR__ . '/../../fixtures/OpenAPI/docs/petstore-expanded.json';
 
     #[Test, TestDox('createFromTemplate will return a string of PHP code that can evaluate to a CachedResponseBuilder')]
     public function createFromTemplateReturnsPHPString(): \ResponseBuilderTemplateTest\Petstore\CachedResponseBuilder
     {
         $namespace = 'ResponseBuilderTemplateTest\\Petstore';
+        $classname = 'CachedResponseBuilder';
+
         $petstoreExpandedFilePath = $this->petstoreAPIPath;
         $map = [
             'findPets' => [
@@ -50,18 +52,24 @@ class ResponseBuilderTest extends TestCase
             ],
         ];
 
-        $sut = new Template\ResponseBuilder($namespace, $petstoreExpandedFilePath, $map);
+        $sut = new Template\ResponseBuilder(
+            $namespace,
+            $classname,
+            $petstoreExpandedFilePath,
+            $map,
+        );
         $phpString = $sut->getCode();
         eval('//' . $phpString);
 
-        $openAPI = (new MembraneReader([OpenAPIVersion::Version_3_0]))
+        $openAPI = new MembraneReader([OpenAPIVersion::Version_3_0])
             ->readFromAbsoluteFilePath($petstoreExpandedFilePath);
 
-        $routeCollection = (new RouteCollector())->collect($openAPI);
+        $routeCollection = new RouteCollector()->collect($openAPI);
         $createdBuilder = eval(
             sprintf(
-                'return new \\%s\\CachedResponseBuilder(new %s(new %s(%s)));',
+                'return new \\%s\\%s(new %s(new %s(%s)));',
                 $namespace,
+                $classname,
                 Router::class,
                 RouteCollection::class,
                 var_export($routeCollection->routes, true)
@@ -102,11 +110,11 @@ class ResponseBuilderTest extends TestCase
 namespace ResponseBuilderTemplateTest\Petstore\Response\Code200;
 
 use Membrane;
-    
+
 class FindPets implements Membrane\Processor
 {
     public readonly Membrane\Processor $processor;
-    
+
     public function __construct()
     {
         $this->processor = new Membrane\Processor\Field(\'\');

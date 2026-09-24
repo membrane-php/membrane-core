@@ -80,7 +80,11 @@ class CacheOpenAPIProcessorsTest extends TestCase
         chmod($this->root->url(), 0444);
         $readonlyDestination = $this->root->url() . '/cache';
 
-        $actual = $this->sut->cache($correctApiPath, $readonlyDestination, 'Membrane\\Cache');
+        $actual = $this->sut->cache(
+            $correctApiPath,
+            $readonlyDestination,
+            'Membrane\\Cache',
+        );
 
         self::assertFalse($actual);
     }
@@ -103,7 +107,11 @@ class CacheOpenAPIProcessorsTest extends TestCase
     #[DataProvider('provideCasesThatFailToRead')]
     public function failsOnUnreadableOpenAPI(string $openAPI, string $destination): void
     {
-        $actual = $this->sut->cache($openAPI, $destination, 'Membrane\\Cache');
+        $actual = $this->sut->cache(
+            $openAPI,
+            $destination,
+            'Membrane\\Cache',
+        );
 
         self::assertFalse($actual);
     }
@@ -127,7 +135,11 @@ class CacheOpenAPIProcessorsTest extends TestCase
             Method::GET,
         );
 
-        $this->sut->cache($hatstoreFilePath, $this->root->url() . '/cache/', 'ServiceTest\\Hatstore');
+        $this->sut->cache(
+            $hatstoreFilePath,
+            $this->root->url() . '/cache/',
+            'ServiceTest\\Hatstore',
+        );
 
         eval('//' . file_get_contents($this->root->getChild('root/cache/Request/FindHats.php')->url()));
         $actualFindHats = eval('return new \\ServiceTest\\Hatstore\\Request\\FindHats();');
@@ -150,7 +162,11 @@ class CacheOpenAPIProcessorsTest extends TestCase
     ): void {
         $cacheDir = $this->root->url() . '/cache';
 
-        $this->sut->cache($openAPIFilePath, $cacheDir, $namespace);
+        $this->sut->cache(
+            $openAPIFilePath,
+            $cacheDir,
+            $namespace,
+        );
 
         $fullClassName = sprintf('\\%s\\%s', $namespace, $className);
 
@@ -170,7 +186,7 @@ class CacheOpenAPIProcessorsTest extends TestCase
             $cacheDir,
             'ServiceTest\\Petstore\\RequestsOnly',
             true,
-            false
+            false,
         );
 
         self::assertDirectoryDoesNotExist("$cacheDir/Response");
@@ -190,7 +206,6 @@ class CacheOpenAPIProcessorsTest extends TestCase
             $cacheDir,
             'ServiceTest\\Petstore\\ResponsesOnly',
             false,
-            true
         );
 
         self::assertDirectoryExists("$cacheDir/Response");
