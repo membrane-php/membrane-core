@@ -19,8 +19,8 @@ final class YieldsProcessors
     private Internal\Response $responseBuilder;
 
     /** @var array<string, array{
-     *      request: class-string,
-     *      response: array<class-string>,
+     *      request: string,
+     *      response: array<string>,
      *  }>
      */
     private(set) array $classMap;
@@ -48,7 +48,7 @@ final class YieldsProcessors
 
                 $classNames[$operationId] = $className =
                     $this->createSuitableClassName($operationId, $classNames);
-                $this->classMap[$operationId] = [
+                $operationMap = [
                     'request' => $this->getRequestFQCN($className),
                     'response' => [],
                 ];
@@ -72,7 +72,7 @@ final class YieldsProcessors
                     foreach ($operation->responses as $code => $response) {
                         $prefixedCode = 'Code' . ucwords((string) $code);
 
-                        $this->classMap[$operationId]['responses'] []= $this
+                        $operationMap['response'][] = $this
                             ->getResponseFQCN($prefixedCode, $className);
 
                         $this->logger
@@ -85,6 +85,8 @@ final class YieldsProcessors
                         );
                     }
                 }
+
+                $this->classMap[$operationId] = $operationMap;
             }
         }
     }

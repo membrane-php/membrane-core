@@ -78,8 +78,6 @@ class CacheOpenAPIProcessors extends Command
             'Use RouteMatch Builder for multi-file request handling',
             null,
         );
-
-
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
