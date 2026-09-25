@@ -6,11 +6,10 @@ namespace Membrane\Console\Service;
 
 use Atto\CodegenTools\ClassDefinition\PHPClassDefinitionProducer;
 use Atto\CodegenTools\CodeGeneration\PHPFilesWriter;
+use Membrane\Console\Template;
 use Membrane\OpenAPIReader\Exception\CannotRead;
 use Membrane\OpenAPIReader\Exception\CannotSupport;
 use Membrane\OpenAPIReader\Exception\InvalidOpenAPI;
-use Membrane\OpenAPIReader\MembraneReader;
-use Membrane\OpenAPIReader\OpenAPIVersion;
 use Psr\Log\LoggerInterface;
 
 class CacheOpenAPIProcessors
@@ -25,17 +24,61 @@ class CacheOpenAPIProcessors
         string $cacheDestinationFilePath,
         string $cacheNamespace,
         bool $buildRequests = true,
-        bool $buildResponses = true
+        bool $buildResponses = true,
+        bool $buildRouteMatch = false,
+        string $requestClassname = 'CachedRequestBuilder',
+        string $responseClassname = 'CachedResponseBuilder',
     ): bool {
-        $yieldsClasses = new YieldsClassDefinitions($this->logger);
+        $yieldsClasses = new YieldsProcessors(
+            $this->logger,
+            $openAPIFilePath,
+            $cacheNamespace,
+            $buildRequests,
+            $buildResponses,
+        );
+
+        $gensClasses = function () use (
+            $yieldsClasses,
+            $openAPIFilePath,
+            $cacheNamespace,
+            $buildRequests,
+            $buildResponses,
+            $buildRouteMatch,
+            $requestClassname,
+            $responseClassname,
+        ) {
+            yield from $yieldsClasses();
+
+            if ($buildRequests) {
+                if ($buildRouteMatch) {
+                    yield new Template\RouteMatchBuilder(
+                        $cacheNamespace,
+                        $requestClassname,
+                        $openAPIFilePath,
+                        array_map(fn($p) => $p['request'], $yieldsClasses->classMap),
+                    );
+                } else {
+                    yield new Template\RequestBuilder(
+                        $cacheNamespace,
+                        $requestClassname,
+                        $openAPIFilePath,
+                        array_map(fn($p) => $p['request'], $yieldsClasses->classMap),
+                    );
+                }
+            }
+
+            if ($buildResponses) {
+                yield new Template\ResponseBuilder(
+                    $cacheNamespace,
+                    $responseClassname,
+                    $openAPIFilePath,
+                    array_map(fn($p) => $p['response'], $yieldsClasses->classMap),
+                );
+            }
+        };
 
         try {
-            $definitionProducer = new PHPClassDefinitionProducer($yieldsClasses(
-                $openAPIFilePath,
-                $cacheNamespace,
-                $buildRequests,
-                $buildResponses,
-            ));
+            $definitionProducer = new PHPClassDefinitionProducer($gensClasses());
 
             $destination = rtrim($cacheDestinationFilePath, '/');
             $classWriter = new PHPFilesWriter($destination, $cacheNamespace);

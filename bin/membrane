@@ -21,15 +21,15 @@ use Symfony\Component\Console\Application;
 $application = new Application();
 
 if (class_exists(CacheOpenAPIProcessors::class)) {
-    $application->add(new CacheOpenAPIProcessors());
+    $application->addCommand(new CacheOpenAPIProcessors());
 }
 
 if (class_exists(CacheOpenAPI::class)) {
-    $application->add(new CacheOpenAPI());
+    $application->addCommand(new CacheOpenAPI());
 }
 
 if (class_exists(CacheOpenAPIRoutes::class)) {
-    $application->add(new CacheOpenAPIRoutes());
+    $application->addCommand(new CacheOpenAPIRoutes());
 }
 
 $application->run();

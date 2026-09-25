@@ -31,6 +31,7 @@ class RequestBuilderTest extends TestCase
     public function createFromTemplateReturnsPHPString(): \RequestBuilderTemplateTest\Petstore\CachedRequestBuilder
     {
         $namespace = 'RequestBuilderTemplateTest\\Petstore';
+        $classname = 'CachedRequestBuilder';
         $petstoreExpandedFilePath = $this->petstoreAPIPath;
         $map = [
             'findPets' => 'RequestBuilderTemplateTest\\Petstore\\Request\\FindPets',
@@ -39,20 +40,25 @@ class RequestBuilderTest extends TestCase
             'deletePet' => 'RequestBuilderTemplateTest\\Petstore\\Request\\DeletePet',
         ];
 
-        $sut = new Template\RequestBuilder($namespace, $petstoreExpandedFilePath, $map);
+        $sut = new Template\RequestBuilder(
+            $namespace,
+            $classname,
+            $petstoreExpandedFilePath,
+            $map,
+        );
 
         $phpString = $sut->getCode();
 
         eval('//' . $phpString);
 
-        $openAPI = (new MembraneReader([OpenAPIVersion::Version_3_0]))
+        $openAPI = new MembraneReader([OpenAPIVersion::Version_3_0])
             ->readFromAbsoluteFilePath($petstoreExpandedFilePath);
-        $routeCollection = (new RouteCollector())
-            ->collect($openAPI);
+        $routeCollection = new RouteCollector()->collect($openAPI);
         $createdBuilder = eval(
             sprintf(
-                'return new \\%s\\CachedRequestBuilder(new %s(new %s(%s)));',
+                'return new \\%s\\%s(new %s(new %s(%s)));',
                 $namespace,
+                $classname,
                 Router::class,
                 RouteCollection::class,
                 var_export($routeCollection->routes, true)
@@ -91,11 +97,11 @@ class RequestBuilderTest extends TestCase
 namespace RequestBuilderTemplateTest\Petstore\Request;
 
 use Membrane;
-    
+
 class FindPets implements Membrane\Processor
 {
     public readonly Membrane\Processor $processor;
-    
+
     public function __construct()
     {
         $this->processor = new Membrane\Processor\Field(\'\');

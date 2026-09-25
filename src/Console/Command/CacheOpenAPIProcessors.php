@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Membrane\Console\Command;
 
+use Membrane\Console\Service;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\{InputArgument, InputInterface, InputOption};
@@ -30,13 +31,28 @@ class CacheOpenAPIProcessors extends Command
             getcwd() . '/cache'
         );
 
-
         self::addOption(
             'namespace',
             null,
             InputOption::VALUE_OPTIONAL,
             'The namespace for the generated processors',
             'Membrane\Cache'
+        );
+
+        self::addOption(
+            'request-processor-classname',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Classname for the generated request processor',
+            'CachedRequestBuilder'
+        );
+
+        self::addOption(
+            'response-processor-classname',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Classname for the generated response processor',
+            'CachedResponseBuilder'
         );
 
         self::addOption(
@@ -54,6 +70,14 @@ class CacheOpenAPIProcessors extends Command
             'Skip generation of Response processors',
             null,
         );
+
+        self::addOption(
+            'route-match',
+            null,
+            InputOption::VALUE_NONE,
+            'Use RouteMatch Builder for multi-file request handling',
+            null,
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -68,16 +92,33 @@ class CacheOpenAPIProcessors extends Command
         assert(is_bool($skipResponses));
         $skipRequests = $input->getOption('skip-requests');
         assert(is_bool($skipRequests));
+        $routeMatch = $input->getOption('route-match');
+        assert(is_bool($routeMatch));
+        $requestName = $input->getOption('request-processor-classname');
+        assert(is_string($requestName));
+        $responseName = $input->getOption('response-processor-classname');
+        assert(is_string($responseName));
 
         $consoleLogger = new ConsoleLogger($output);
 
         if ($skipResponses && $skipRequests) {
-            $consoleLogger->warning('Skipping both requests and responses, nothing will be generated');
+            $consoleLogger->warning(
+                'Skipping both requests and responses, nothing will be generated',
+            );
         }
 
-        $cachingService = new \Membrane\Console\Service\CacheOpenAPIProcessors($consoleLogger);
+        $success = new Service\CacheOpenAPIProcessors($consoleLogger)
+            ->cache(
+                $openAPIFilePath,
+                $destination,
+                $namespace,
+                !$skipRequests,
+                !$skipResponses,
+                $routeMatch,
+                $requestName,
+                $responseName,
+            );
 
-        $success = $cachingService->cache($openAPIFilePath, $destination, $namespace, !$skipRequests, !$skipResponses);
         return $success ? Command::SUCCESS : Command::FAILURE;
     }
 }
