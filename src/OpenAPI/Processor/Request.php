@@ -27,7 +27,7 @@ class Request implements Processor
     ) {
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         if ($this->processors === []) {
             return 'Parse PSR-7 request';
@@ -62,33 +62,27 @@ class Request implements Processor
 
     public function process(FieldName $parentFieldName, mixed $value): Result
     {
-        if ($value instanceof ServerRequestInterface) {
-            $result = $this->formatPsr7($parentFieldName, $value);
-            if (!$result->isValid()) {
-                return $result;
-            }
+        switch (true) {
+            case $value instanceof ServerRequestInterface:
+                $result = $this->formatPsr7($parentFieldName, $value);
+                if (!$result->isValid()) {
+                    return $result;
+                }
+                $value = $result->value;
 
-            $value = $result->value;
+                break;
+            case is_array($value):
+                $value = $this->appendRequestMetadata($value);
+
+                break;
+            default:
+                return Result::invalid($value, new MessageSet($parentFieldName, new Message(
+                    'Request processor expects array or PSR7 HTTP request, %s passed',
+                    [gettype($value)],
+                )));
         }
-
-        if (!is_array($value)) {
-            return Result::invalid(
-                $value,
-                new MessageSet(
-                    $parentFieldName,
-                    new Message(
-                        'Request processor expects array or PSR7 HTTP request, %s passed',
-                        [gettype($value)]
-                    )
-                )
-            );
-        }
-
-        $request = ['method' => $this->method->value, 'operationId' => $this->operationId];
-        $value = array_merge(
-            ['request' => $request, 'path' => '', 'query' => '', 'header' => [], 'cookie' => [], 'body' => ''],
-            $value
-        );
+        // The switch statement fail for anything that is not converted to an array
+        assert(is_array($value));
 
         $result = Result::valid($value);
 
@@ -103,11 +97,14 @@ class Request implements Processor
 
     private function formatPsr7(FieldName $parentFieldName, ServerRequestInterface $request): Result
     {
-        $value = ['cookie' => []];
-        $value['path'] = $request->getUri()->getPath();
-        $value['query'] = $request->getUri()->getQuery();
-        $value['header'] = $this->filterHeaders($request->getHeaders());
-//        $value['cookie'] = $request->getCookieParams();
+        $value = $this->appendRequestMetadata([
+            'path' => $request->getUri()->getPath(),
+            'query' => $request->getUri()->getQuery(),
+            'header' => $this->filterHeaders($request->getHeaders()),
+            //@TODO 'cookie' => $request->getCookieParams()
+            // Cannot recall exact reasons, but possibly:
+            // - Return types from getCookieParams come back as arrays making it difficult to validate types
+        ]);
 
         //There should only be one content type header; PHP ignores additional header values
         $contentType = ContentType::fromContentTypeHeader(current($request->getHeader('Content-Type')));
@@ -168,16 +165,38 @@ class Request implements Processor
     }
 
     /**
-     * @param string[][] $headers
-     *
-     * @return string[][]
+     * @param array<string, string|string[]> $headers
+     * @return array<string, string|string[]>
      */
     private function filterHeaders(array $headers): array
     {
         return array_filter(
             $headers,
-            fn($k) => strtolower($k) !== 'cookie',
+            fn(string $k) => strtolower($k) !== 'cookie',
             ARRAY_FILTER_USE_KEY
+        );
+    }
+
+    /**
+     * @param array<mixed> $value
+     *
+     * @return non-empty-array<mixed>
+     */
+    private function appendRequestMetadata(array $value): array
+    {
+        return array_merge(
+            [
+                'request' => [
+                    'method' => $this->method->value,
+                    'operationId' => $this->operationId,
+                ],
+                'path' => '',
+                'query' => '',
+                'header' => [],
+                'cookie' => [],
+                'body' => '',
+            ],
+            $value,
         );
     }
 }
